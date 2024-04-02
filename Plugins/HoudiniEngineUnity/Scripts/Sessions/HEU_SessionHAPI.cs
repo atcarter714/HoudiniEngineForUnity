@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (c) <2020> Side Effects Software Inc.
 * All rights reserved.
 *
@@ -2183,7 +2183,8 @@ namespace HoudiniEngineUnity
 
 	public override bool RenderCOP2ToImage(HAPI_NodeId copNodeID)
 	{
-	    HAPI_Result result = HEU_HAPIFunctions.HAPI_RenderCOP2ToImage(ref _sessionData._HAPISession, copNodeID);
+		//! A "COP2" version of the function not defined yet: falling back to "RenderCOPToImage"-suffixed version!
+	    HAPI_Result result = HEU_HAPIFunctions.HAPI_RenderCOPToImage(ref _sessionData._HAPISession, copNodeID);
 	    HandleStatusResult(result, "Rendering COP To Image", false, true);
 	    return (result == HAPI_Result.HAPI_RESULT_SUCCESS);
 	}

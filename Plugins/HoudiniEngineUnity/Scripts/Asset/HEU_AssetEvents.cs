@@ -32,6 +32,7 @@ using UnityEngine.Events;
 // Expose internal classes/functions
 #if UNITY_EDITOR
 using System.Runtime.CompilerServices;
+// ReSharper disable InconsistentNaming
 
 [assembly: InternalsVisibleTo("HoudiniEngineUnityEditor")]
 [assembly: InternalsVisibleTo("HoudiniEngineUnityEditorTests")]
@@ -115,44 +116,20 @@ namespace HoudiniEngineUnity
 	}
     }
 
-    /// <summary>
-    /// Callback when asset is reloaded.
-    /// <param name="ReloadEventData">The reload data.</param>
-    /// </summary>
-    [Serializable]
-    public class HEU_ReloadDataEvent : UnityEvent<HEU_ReloadEventData>
-    {
+    /// <summary>Callback when asset is reloaded.</summary>
+    /// <remarks>Reload event is triggered when the asset is reloaded. <seealso cref="HEU_ReloadEventData"/></remarks>
+    [Serializable] public class HEU_ReloadDataEvent: UnityEvent< HEU_ReloadEventData > { }
 
-    }
-
-    /// <summary>
-    /// Callback when asset is cooked.
-    /// <param name="CookedEventData">The reload data.</param>
-    /// </summary>
-    [Serializable]
-    public class HEU_CookedDataEvent : UnityEvent<HEU_CookedEventData>
-    {
-
-    }
-
-    /// <summary>
-    /// Callback when asset is baked.
-    /// <param name="CookedEventData">The reload data.</param>
-    /// </summary>
-    [Serializable]
-    public class HEU_BakedDataEvent : UnityEvent<HEU_BakedEventData>
-    {
-
-    }
-
-    /// <summary>
-    /// Callback before a Reload/Cook/Bake event
-    /// <param name="HEU_PreAssetEventData">The asset data.</param>
-    /// </summary>
-    [Serializable]
-    public class HEU_PreAssetEvent : UnityEvent<HEU_PreAssetEventData>
-    {
-
-    }
+    /// <summary>Callback when asset is cooked.</summary>
+    /// <remarks>Cook event is triggered when the asset is cooked. <seealso cref="HEU_CookedEventData"/></remarks>
+    [Serializable] public class HEU_CookedDataEvent: UnityEvent< HEU_CookedEventData > { }
+	
+    /// <summary>Callback when asset is baked.</summary>
+    /// <remarks>Bake event is triggered when the asset is baked. <seealso cref="HEU_BakedEventData"/></remarks>
+    [Serializable] public class HEU_BakedDataEvent: UnityEvent< HEU_BakedEventData > { }
+	
+    /// <summary>Callback before a Reload/Cook/Bake event.</summary>
+    /// <remarks>PreAssetEvent is triggered before a Reload/Cook/Bake event. <seealso cref="HEU_PreAssetEventData"/></remarks>
+    [Serializable] public class HEU_PreAssetEvent: UnityEvent< HEU_PreAssetEventData > { }
 
 }   // HoudiniEngineUnity
