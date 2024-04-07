@@ -30,51 +30,41 @@ using UnityEngine;
 
 namespace HoudiniEngineUnity
 {
-    // Derived class to support dictionary serialization
-    [System.Serializable]
-    public class HEU_OutputAttributeDictionary : HEU_SerializableDictionary<string, HEU_OutputAttribute> { }
-
-    /// <summary>
-    /// Contains Houdini attributes data (HEU_OutpuAttribute) for generated gameobjects.
-    /// Query the attributes by name.
-    /// </summary>
-    public class HEU_OutputAttributesStore : MonoBehaviour
-    {
-	[SerializeField]
-	HEU_OutputAttributeDictionary _attributes = new HEU_OutputAttributeDictionary();
+	// Derived class to support dictionary serialization
+	[System.Serializable]
+	public class HEU_OutputAttributeDictionary: HEU_SerializableDictionary< string, HEU_OutputAttribute > { }
 
 	/// <summary>
-	/// Add the given attribute to the internal map by name.
+	/// Contains Houdini attributes data (HEU_OutpuAttribute) for generated gameobjects.
+	/// Query the attributes by name.
 	/// </summary>
-	/// <param name="attribute">Attribute data to store</param>
-	public void SetAttribute(HEU_OutputAttribute attribute)
+	public class HEU_OutputAttributesStore: MonoBehaviour
 	{
-	    if (string.IsNullOrEmpty(attribute._name))
-	    {
-		HEU_Logger.LogWarningFormat("Unable to store attribute with empty name!", attribute._name);
-		return;
-	    }
-	    _attributes.Add(attribute._name, attribute);
-	}
+		[SerializeField] HEU_OutputAttributeDictionary _attributes = new( ) ;
 
-	/// <summary>
-	/// Returns the attribute specified by name, or null if not found.
-	/// </summary>
-	/// <param name="name">Name of attribute</param>
-	public HEU_OutputAttribute GetAttribute(string name)
-	{
-	    HEU_OutputAttribute attr = null;
-	    _attributes.TryGetValue(name, out attr);
-	    return attr;
-	}
+		/// <summary>
+		/// Add the given attribute to the internal map by name.
+		/// </summary>
+		/// <param name="attribute">Attribute data to store</param>
+		public void SetAttribute( HEU_OutputAttribute attribute ) {
+			if ( string.IsNullOrEmpty(attribute._name) ) {
+				HEU_Logger.LogWarningFormat( "Unable to store attribute with empty name!", attribute._name ) ;
+				return ;
+			}
+			
+			_attributes.Add( attribute._name, attribute ) ;
+		}
 
-	/// <summary>
-	/// Clear the store so nothing exists.
-	/// </summary>
-	public void Clear()
-	{
-	    _attributes.Clear();
+		/// <summary>
+		/// Returns the attribute specified by name, or null if not found.
+		/// </summary>
+		/// <param name="attrName">Name of attribute</param>
+		public HEU_OutputAttribute GetAttribute( string attrName ) {
+			_attributes.TryGetValue( attrName, out HEU_OutputAttribute attr ) ;
+			return attr ;
+		}
+		
+		/// <summary>Clear the store so nothing exists.</summary>
+		public void Clear( ) => _attributes.Clear( ) ;
 	}
-    }
-
 }
