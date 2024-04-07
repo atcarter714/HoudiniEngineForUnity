@@ -311,6 +311,21 @@ namespace HoudiniEngineUnity
 			return true ;
 		}
 
+		/// <summary>
+		/// Returns true if the element values in the two arrays match, and lengths match, and neither is null.
+		/// </summary>
+		/// <typeparam name="T">Type of array elements</typeparam>
+		/// <param name="array1">First array</param>
+		/// <param name="startOffset1">Offset into first array to start checking</param>
+		/// <param name="array2">Second array</param>
+		/// <param name="startOffset2">Offset into second array to start checking</param>
+		/// <param name="length">Number of elements to check</param>
+		/// <returns>True if array elements match</returns>
+		public static bool DoArrayElementsMatch< T >( T[] array1, int startOffset1, T[] array2, int startOffset2,
+													  int length ) {
+			if ( array1 == null || array2 == null ) {
+				return false ;
+			}
 
 		// ATTRIBUTES -------------------------------------------------------------------------------------------------
 		
@@ -898,6 +913,16 @@ namespace HoudiniEngineUnity
 				component = gameObject.AddComponent< T >( ) ;
 			return component ;
 		}
+
+		/// <summary>
+		/// Destroy any potential generated components on given gameObject
+		/// </summary>
+		/// <param name="gameObject"></param>
+		public static void DestroyGeneratedComponents( GameObject gameObject ) {
+			DestroyComponent< MeshFilter >( gameObject ) ;
+			DestroyComponent< MeshRenderer >( gameObject ) ;
+			DestroyComponent< Collider >( gameObject ) ;
+			DestroyComponent< HEU_OutputAttributesStore >( gameObject ) ;
 
 		/// <summary>
 		/// Destroy any potential generated components on given gameObject
