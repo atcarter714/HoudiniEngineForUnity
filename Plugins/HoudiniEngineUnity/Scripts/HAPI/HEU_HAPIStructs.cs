@@ -807,7 +807,7 @@ namespace HoudiniEngineUnity
         [MarshalAs(UnmanagedType.I4)]
         public int tileSize;              //The dimensions of each tile.This can be 8 or 16 denoting an 8x8x8 or 16x16x16 tiles.
 
-        [MarshalAs(UnmanagedType.Struct)]
+        //! Obsolete: [MarshalAs(UnmanagedType.Struct)]
         public HAPI_Transform transform;              //The transform of the volume with respect to the lengths.The volume may be positioned anywhere in space.
 
         [MarshalAs(UnmanagedType.U1)]
