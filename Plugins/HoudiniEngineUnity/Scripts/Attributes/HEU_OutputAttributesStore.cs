@@ -27,6 +27,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+// ReSharper disable InconsistentNaming
 
 namespace HoudiniEngineUnity
 {

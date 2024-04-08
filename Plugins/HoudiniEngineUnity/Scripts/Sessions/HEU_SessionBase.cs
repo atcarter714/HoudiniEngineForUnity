@@ -184,13 +184,10 @@ namespace HoudiniEngineUnity
 	/// </summary>
 	/// <param name="msg">String message to set</param>
 	/// <param name="bLogError">Set to true if want to log error on console</param>
-	public virtual void SetSessionErrorMsg(string msg, bool bLogError = false)
-	{
-	    _sessionErrorMsg = msg;
-	    if (bLogError && LogErrorOverride)
-	    {
-		HEU_Logger.LogError(_sessionErrorMsg);
-	    }
+	public virtual void SetSessionErrorMsg( string msg, bool bLogError = false ) {
+		_sessionErrorMsg = msg ;
+		if ( bLogError && LogErrorOverride ) 
+			HEU_Logger.LogError( _sessionErrorMsg ) ;
 	}
 
 	/// <summary>
