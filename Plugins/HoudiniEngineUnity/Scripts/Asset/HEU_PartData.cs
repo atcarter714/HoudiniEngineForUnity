@@ -459,6 +459,8 @@ namespace HoudiniEngineUnity
 		}
 
 
+				Debug.Assert( partData.OutputGameObject != null,
+							  "Instancer's reference (part) is missing gameobject!" ) ;
 
 		/// <summary>Clear out object instance infos for this part.</summary>
 		void ClearObjectInstanceInfos( ) {

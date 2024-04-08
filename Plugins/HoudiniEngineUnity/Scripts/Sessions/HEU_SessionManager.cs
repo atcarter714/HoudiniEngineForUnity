@@ -133,7 +133,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="sessionID"></param>
 		/// <param name="session"></param>
-		public static void RegisterSession( HAPI_Int64 sessionID, HEU_SessionBase session ) {
+		public static void RegisterSession( long sessionID, HEU_SessionBase session ) {
 			_sessionMap.Add( sessionID, session ) ;
 			SaveAllSessionData( ) ;
 		}
@@ -142,7 +142,7 @@ namespace HoudiniEngineUnity
 		/// Unregister the session (used when closing).
 		/// </summary>
 		/// <param name="sessionID">Session to remove from registry</param>
-		public static void UnregisterSession( HAPI_Int64 sessionID ) {
+		public static void UnregisterSession( long sessionID ) {
 			_sessionMap.Remove( sessionID ) ;
 			SaveAllSessionData( ) ;
 		}
@@ -226,13 +226,14 @@ namespace HoudiniEngineUnity
 		public static HEU_SessionBase GetOrCreateDefaultSession( bool bNotifyUserError = true ) {
 			// After a code refresh, _defaultSession might be null.
 			// So try loading stored plugin data to see if we can get it back.
-			if ( _defaultSession is null )
+			if ( _defaultSession is null ) 
 				HEU_PluginStorage.InstantiateAndLoad( ) ;
+
 			if ( _defaultSession?.IsSessionValid() ?? false )
 				return _defaultSession ;
 			
-			if ( _defaultSession is null or { ConnectionState: SessionConnectionState.NOT_CONNECTED } ) {
-				HEU_Logger.Log( HEU_Defines.HEU_NAME + ": No valid session found. Creating new session." ) ;
+			if ( _defaultSession is null 
+									or { ConnectionState: SessionConnectionState.NOT_CONNECTED } ) {
 				// Try creating it if we haven't tried yet
 				bNotifyUserError &= !CreateThriftPipeSession( HEU_PluginSettings.Session_PipeName,
 															  HEU_PluginSettings.Session_AutoClose,
@@ -283,7 +284,6 @@ namespace HoudiniEngineUnity
 		/// <param name="pipeName"></param>
 		/// <param name="autoClose"></param>
 		/// <param name="timeout"></param>
-		/// <param name="logError"></param>
 		/// <returns>True if successfully created session.</returns>
 		public static bool CreateThriftPipeSession( string pipeName, bool autoClose, float timeout, bool logError ) {
 			CheckAndCloseExistingSession( ) ;
@@ -296,6 +296,7 @@ namespace HoudiniEngineUnity
 		/// <returns>True if session was created successfully.</returns>
 		public static bool CreateCustomSession( ) {
 			CheckAndCloseExistingSession( ) ;
+
 			_defaultSession = CreateSessionObject( ) ;
 			return _defaultSession.CreateCustomSession( true ) ;
 		}
@@ -306,13 +307,6 @@ namespace HoudiniEngineUnity
 			_defaultSession = CreateSessionObject( ) ;
 			return _defaultSession.ConnectThriftSocketSession( true, hostName, serverPort, autoClose, timeout ) ;
 		}
-
-		public static bool ConnectThriftPipeSession( string pipeName, bool autoClose, float timeout ) {
-			CheckAndCloseExistingSession( ) ;
-			_defaultSession = CreateSessionObject( ) ;
-			return _defaultSession.ConnectThriftPipeSession( true, pipeName, autoClose, timeout ) ;
-		}
-
 		public static void RecreateDefaultSessionData( ) {
 			CheckAndCloseExistingSession( ) ;
 			_defaultSession = CreateSessionObject( ) ;
@@ -338,6 +332,22 @@ namespace HoudiniEngineUnity
 															true, pipeName, autoClose, timeout,
 															logError, false )
 																?? false ;
+		}
+
+		public static bool InitializeDefaultSession( ) => 
+								_defaultSession is not null 
+									&& _defaultSession.InitializeSession( _defaultSession.GetSessionData() ) ;
+
+		/// <summary>Close the default session.</summary>
+		/// <returns>True if successfully closed session.</returns>
+		public static bool CloseDefaultSession( ) {
+			// Try to reconnect to session if _sessionObj is null.
+			if ( _defaultSession is null || !LoadStoredDefaultSession( ) ) 
+				return true ;
+			
+			bool bResult = _defaultSession?.CloseSession( ) ?? false ;
+			_defaultSession = null ;
+			return bResult ;
 		}
 
 		public static bool InitializeDefaultSession( ) => 
@@ -387,6 +397,18 @@ namespace HoudiniEngineUnity
 			_defaultSession = null ;
 		}
 
+		/// <summary>
+		/// Tries to load a stored default session. This would be after a code refresh
+		/// or if the Houdini session is still running but Unity hasn't connected to it.
+		/// </summary>
+		/// <returns>True if successfully reconnected to a stored session.</returns>		
+		public static bool LoadStoredDefaultSession( ) {
+			// By forcing our plugin and session data to be loaded here, it will
+			// result in all stored sessions to be recreated, including _defaultSession
+			// being initialized if found in storage.
+			HEU_PluginStorage.InstantiateAndLoad( ) ;
+			return _defaultSession?.IsSessionValid( ) ?? false ;
+		}
 		/// <summary>Return the existing session data.</summary>
 		/// <returns></returns>
 		public static HEU_SessionData GetSessionData( ) {
@@ -731,20 +753,18 @@ namespace HoudiniEngineUnity
 			if ( stringHandle < 1 ) return string.Empty ;
 			
 			session ??= GetOrCreateDefaultSession( ) ;
-			if ( session is null ) 
-				return string.Empty ;
+			if ( session is null ) return string.Empty ;
 
 			int length = session.GetStringBufferLength( stringHandle ) ;
-			if ( length < 1 ) 
-				return string.Empty ;
+			if ( length < 1 ) return string.Empty ;
 			
 			string str = string.Empty ;
 			session.GetString( stringHandle, ref str, length ) ;
 			return str ;
 		}
 
-		public static string[ ] GetStringValuesFromStringIndices( int[ ] strIndices ) {
-			if ( strIndices is not { Length: > 0 } )
+		public static string[ ] GetStringValuesFromStringIndices( int[] strIndices ) {
+			if ( strIndices is not { Length: not 0 } )
 				return null ;
 
 			HEU_SessionBase sessionBase = GetOrCreateDefaultSession( ) ;
@@ -756,14 +776,11 @@ namespace HoudiniEngineUnity
 			string[ ] strValues = new string[ numLength ] ;
 			for ( int i = 0; i < numLength; ++i ) {
 				int strIndex = strIndices[ i ] ;
-				
-				int length = strIndex >= 0 
-								 ? sessionBase.GetStringBufferLength( strIndex ) 
-									: 0 ;
-				if ( length < 1 ) continue ;
-				
-				strValues[ i ] = string.Empty ;
-				sessionBase.GetString( strIndex, ref strValues[ i ], length ) ;
+				int length   = strIndex >= 0 ? sessionBase.GetStringBufferLength( strIndex ) : 0 ;
+				strValues[ i ] = "" ;
+				if ( length > 0 ) {
+					sessionBase.GetString( strIndex, ref strValues[ i ], length ) ;
+				}
 			}
 
 			return strValues ;
@@ -776,15 +793,12 @@ namespace HoudiniEngineUnity
 		/// <param name="groupType">The group type to query</param>
 		/// <param name="isInstanced"></param>
 		/// <returns>Populated array of string names, or null if failed</returns>
-		public static string[ ] GetGroupNames( HEU_SessionBase session, HAPI_NodeId nodeID, HAPI_PartId partID,
+		public static string[] GetGroupNames( HEU_SessionBase session, HAPI_NodeId nodeID, HAPI_PartId partID,
 											  HAPI_GroupType  groupType, bool isInstanced ) {
-			bool bSuccess ;
 			int groupCount = 0 ;
+			bool bSuccess = false ;
 			HAPI_GeoInfo geoInfo = new( ) ;
-			if ( !session?.GetGeoInfo(nodeID, ref geoInfo) ?? true ) {
-				HEU_Logger.LogError( $"Failed to get geo info for node: {nodeID}" ) ;
-				return null ;
-			}
+			if ( !session?.GetGeoInfo(nodeID, ref geoInfo) ?? true ) return null ;
 			
 			if ( !isInstanced )
 				groupCount = geoInfo.getGroupCountByType( groupType ) ;
@@ -794,11 +808,13 @@ namespace HoudiniEngineUnity
 																out int primGroupCount ) ) {
 					groupCount = ( groupType is HAPI_GroupType.HAPI_GROUPTYPE_POINT )
 									 ? pointGroupCount
-										: primGroupCount ;
+									 : primGroupCount ;
 				}
 			}
 
-			if ( groupCount < 1 ) return null ;
+			if ( groupCount <= 0 )
+				return null ;
+
 			int[ ] groupNames = new int[ groupCount ] ;
 			if ( !isInstanced )
 				bSuccess = session.GetGroupNames( nodeID, groupType, ref groupNames, groupCount ) ;
@@ -807,11 +823,13 @@ namespace HoudiniEngineUnity
 																	  groupCount ) ;
 
 			if ( !bSuccess ) return null ;
+					
 			string[ ] nameStrings = new string[ groupCount ] ;
-			for ( int i = 0; i < groupCount; ++i )
+			for ( int i = 0; i < groupCount; ++i ) 
 				nameStrings[ i ] = GetString( groupNames[ i ], session ) ;
-			
+					
 			return nameStrings ;
+
 		}
 
 		/// <summary>Get group membership</summary>
