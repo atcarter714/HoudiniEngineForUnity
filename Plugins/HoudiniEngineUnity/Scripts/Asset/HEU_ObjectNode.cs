@@ -597,11 +597,9 @@ namespace HoudiniEngineUnity
 		}
 
 		internal void GetClonableParts( List< HEU_PartData > clonableParts ) {
-			foreach ( HEU_GeoNode geoNode in _geoNodes ) {
-				if ( geoNode.Displayable ) {
+			foreach ( HEU_GeoNode geoNode in _geoNodes )
+				if ( geoNode is { Displayable: true } ) 
 					geoNode.GetClonableParts( clonableParts ) ;
-				}
-			}
 		}
 
 
