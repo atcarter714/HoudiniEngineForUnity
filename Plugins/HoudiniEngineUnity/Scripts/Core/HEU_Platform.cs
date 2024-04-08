@@ -355,11 +355,8 @@ namespace HoudiniEngineUnity
 		return null;
 	    }
 	}
-
-	public static string GetFileName(string path)
-	{
-	    return Path.GetFileName(path);
-	}
+	
+	public static string GetFileName( string path ) => Path.GetFileName( path ) ;
 
 	public static string GetFileNameWithoutExtension(string path)
 	{

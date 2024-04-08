@@ -32,45 +32,36 @@ using UnityEngine;
 /// Helper class for using the bounding volume input
 /// Attach this to an object and then use it as an input to select all objects within
 /// </summary>
-public class HEU_BoundingVolume : MonoBehaviour
-{
-    /// <summary>
+public class HEU_BoundingVolume: MonoBehaviour {
+	protected static GameObject[ ] allObjects ;
+	
+	//! Cached bounding collider:
+	Collider boundingCollider ;
+	
+	/// <summary>
     /// The bounding collider
     /// </summary>
-    public Collider BoundingCollider {get  { return GetComponent<Collider>(); }}
+    public Collider BoundingCollider => boundingCollider 
+											? boundingCollider 
+												: boundingCollider = GetComponent< Collider >( ) ;
+	
+	/// <summary>
+	/// Gets all intersecting objects in the bounding collider
+	/// <returns>A list of all intersecting objects</returns>
+	/// </summary>
+	public List< GameObject > GetAllIntersectingObjects( ) {
+		if ( !BoundingCollider ) return null ;
+		
+		//! This shouled be optimized:
+		List< GameObject > intersectingObjects = new( ) ;
+		allObjects = FindObjectsByType< GameObject >( FindObjectsSortMode.None ) ;
+		foreach ( GameObject obj in allObjects ) {
+			if ( obj == this.gameObject || !obj.GetComponent< Collider >( ) )
+				continue ;
+			if ( BoundingCollider.bounds.Intersects( obj.GetComponent< Collider >( ).bounds ) ) 
+				intersectingObjects.Add( obj ) ;
+		}
 
-
-    /// <summary>
-    /// Gets all intersecting objects in the bounding collider
-    /// <returns>A list of all intersecting objects</returns>
-    /// </summary>
-    public List<GameObject> GetAllIntersectingObjects()
-    {
-	if (BoundingCollider == null)
-	{
-	    return null;
+		return intersectingObjects ;
 	}
-
-	List<GameObject> intersectingObjects = new List<GameObject>();
-	GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
-	foreach (GameObject obj in allObjects)
-	{
-	    if (obj == this.gameObject)
-	    {
-		continue;
-	    }
-
-	    if (!obj.GetComponent<Collider>())
-	    {
-		continue;
-	    }
-
-	    if (BoundingCollider.bounds.Intersects(obj.GetComponent<Collider>().bounds))
-	    {
-	        intersectingObjects.Add(obj);
-	    }
-	}
-
-	return intersectingObjects;
-    }
 }

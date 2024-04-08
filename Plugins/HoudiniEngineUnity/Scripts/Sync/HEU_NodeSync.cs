@@ -34,100 +34,75 @@ namespace HoudiniEngineUnity
 {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Typedefs (copy these from HEU_Common.cs)
-    using HAPI_NodeId = System.Int32;
-
+    using HAPI_NodeId = System.Int32 ;
+	
     //[ExecuteInEditMode] // Needed to get OnDestroy callback when deleted in Editor
-    public class HEU_NodeSync : HEU_BaseSync
-    {
+    public class HEU_NodeSync: HEU_BaseSync {
 	#region FUNCTIONS
 
 	#region SETUP
 
-	private void OnEnable()
-	{
+	void OnEnable( ) {
 #if HOUDINIENGINEUNITY_ENABLED
 	    // Adding in OnEnable as its called after a code recompile (Awake is not).
-	    HEU_AssetUpdater.AddNodeSyncForUpdate(this);
+		HEU_AssetUpdater.AddNodeSyncForUpdate( this ) ;
 #endif
 	}
 
-	private void OnDestroy()
-	{
+	void OnDestroy( ) {
 	    // Need to remove the NodySync from AssetUpdater.
 	    // Parent's OnDestroy doesn't get called so
 	    // do session deletion here as well.
 
 #if HOUDINIENGINEUNITY_ENABLED
-	    HEU_AssetUpdater.RemoveNodeSync(this);
+	    HEU_AssetUpdater.RemoveNodeSync( this ) ;
 #endif
 
-	    DeleteSessionData();
+		DeleteSessionData( ) ;
 	}
 
-	public void InitializeFromHoudini(HEU_SessionBase session, HAPI_NodeId nodeID, 
-	    string nodeName, string filePath)
-	{
-	    Initialize();
-
-	    _sessionID = session.GetSessionData().SessionID;
-	    _cookNodeID = nodeID;
-	    _nodeName = nodeName;
-	    _nodeSaveFilePath = filePath;
-
-	    StartSync();
+	public void InitializeFromHoudini( HEU_SessionBase session, HAPI_NodeId nodeID, 
+														string nodeName, string filePath ) {
+	    Initialize( ) ;
+		_sessionID        = session.GetSessionData( ).SessionID ;
+		_cookNodeID       = nodeID ;
+		_nodeName         = nodeName ;
+		_nodeSaveFilePath = filePath ;
+		StartSync( ) ;
 	}
 
-	protected override void SetupLoadTask(HEU_SessionBase session)
-	{
-	    if (_loadTask == null)
-	    {
-		_loadTask = new HEU_ThreadedTaskLoadGeo();
-	    }
-
-	    _loadTask.SetupLoadNode(session, this, _cookNodeID, _nodeName);
-	    _loadTask.Start();
+	protected override void SetupLoadTask( HEU_SessionBase session ) {
+		_loadTask ??= new( ) ;
+		_loadTask.SetupLoadNode( session, this, _cookNodeID, _nodeName ) ;
+		_loadTask.Start( ) ;
 	}
 
 	#endregion
 
 	#region UTILITY
 
-	public bool SaveNodeToFile(string filePath)
-	{
-	    HEU_SessionBase session = GetHoudiniSession(false);
-	    if (session == null)
-	    {
-		return false;
-	    }
-
-	    HEU_Logger.Log("Saving to " + filePath);
+	public bool SaveNodeToFile( string filePath ) {
+	    HEU_SessionBase session = GetHoudiniSession( false ) ;
+	    if ( session is null )
+			return false ;
+		
+	    HEU_Logger.Log( $"Saving to {filePath}" ) ;
 	    _nodeSaveFilePath = filePath;
 
-	    return session.SaveNodeToFile(_cookNodeID, filePath);
+	    return session.SaveNodeToFile( _cookNodeID, filePath ) ;
 	}
 
-	public static void CreateNodeSync(HEU_SessionBase session, string opName, string nodeNabel)
-	{
-	    if (session == null)
-	    {
-		session = HEU_SessionManager.GetDefaultSession();
-	    }
-	    if (session == null || !session.IsSessionValid())
-	    {
-		return;
-	    }
+	public static void CreateNodeSync( HEU_SessionBase session, string opName, string nodeNabel ) {
+		const HAPI_NodeId parentNodeId = -1 ;
+	    session ??= HEU_SessionManager.GetDefaultSession( ) ;
+	    if ( !session.IsSessionValid() ) return ;
 
-	    HAPI_NodeId newNodeID = -1;
-	    HAPI_NodeId parentNodeId = -1;
 
-	    if (!session.CreateNode(parentNodeId, opName, nodeNabel, true, out newNodeID))
-	    {
-		HEU_Logger.LogErrorFormat("Unable to create merge SOP node for connecting input assets.");
-		return;
+	    if ( !session.CreateNode(parentNodeId, opName, nodeNabel, true, out HAPI_NodeId newNodeID) ) {
+			HEU_Logger.LogErrorFormat( "Unable to create merge SOP node for connecting input assets." ) ;
+			return ;
 	    }
 
-	    if (parentNodeId == -1)
-	    {
 		// When creating a node without a parent, for SOP nodes, a container
 		// geometry object will have been created by HAPI.
 		// In all cases we want to use the node ID of that object container
@@ -135,48 +110,63 @@ namespace HoudiniEngineUnity
 
 		// But for SOP/subnet we actually do want the subnet SOP node ID
 		// hence the useSOPNodeID argument here is to override it.
-		bool useSOPNodeID = opName.Equals("SOP/subnet");
+		bool useSopNodeID = opName.Equals( "SOP/subnet" ) ;
+		HAPI_NodeInfo nodeInfo = new( ) ;
+		if ( !session.GetNodeInfo(newNodeID, ref nodeInfo) )
+			return ;
 
-		HAPI_NodeInfo nodeInfo = new HAPI_NodeInfo();
-		if (!session.GetNodeInfo(newNodeID, ref nodeInfo))
-		{
-		    return;
+		switch ( nodeInfo.type ) {
+			case HAPI_NodeType.HAPI_NODETYPE_SOP: {
+				if ( !useSopNodeID ) newNodeID = nodeInfo.parentId ;
+				break ;
+			}
+			case HAPI_NodeType.HAPI_NODETYPE_ANY:
+				break ;
+			case HAPI_NodeType.HAPI_NODETYPE_NONE:
+				break ;
+			case HAPI_NodeType.HAPI_NODETYPE_OBJ:
+				break ;
+			case HAPI_NodeType.HAPI_NODETYPE_CHOP:
+				break ;
+			case HAPI_NodeType.HAPI_NODETYPE_ROP:
+				break ;
+			case HAPI_NodeType.HAPI_NODETYPE_SHOP:
+				break ;
+			case HAPI_NodeType.HAPI_NODETYPE_COP:
+				break ;
+			case HAPI_NodeType.HAPI_NODETYPE_VOP:
+				break ;
+			case HAPI_NodeType.HAPI_NODETYPE_DOP:
+				break ;
+			case HAPI_NodeType.HAPI_NODETYPE_TOP:
+				break ;
+			default:
+			{
+				if ( nodeInfo.type is not HAPI_NodeType.HAPI_NODETYPE_OBJ ) {
+					HEU_Logger.LogErrorFormat( "Unsupported node type {0}", nodeInfo.type );
+					return ;
+				}
+
+				break ;
+			}
 		}
 
-		if (nodeInfo.type == HAPI_NodeType.HAPI_NODETYPE_SOP)
-		{
-		    if (!useSOPNodeID)
-		    {
-			newNodeID = nodeInfo.parentId;
-		    }
-		}
-		else if (nodeInfo.type != HAPI_NodeType.HAPI_NODETYPE_OBJ)
-		{
-		    HEU_Logger.LogErrorFormat("Unsupported node type {0}", nodeInfo.type);
-		    return;
-		}
-	    }
-
-	    GameObject newGO = HEU_GeneralUtility.CreateNewGameObject(nodeNabel);
-
-	    HEU_NodeSync nodeSync = newGO.AddComponent<HEU_NodeSync>();
-	    nodeSync.InitializeFromHoudini(session, newNodeID, nodeNabel, "");
+		var newGo = HEU_GeneralUtility.CreateNewGameObject( nodeNabel ) ;
+		HEU_NodeSync nodeSync = newGo.AddComponent< HEU_NodeSync >( ) ;
+		nodeSync.InitializeFromHoudini( session, newNodeID, nodeNabel, "" ) ;
 	}
 
 	#endregion
 
 	#region SYNC
 
-	public override void Resync()
-	{
-	    if (_syncing)
-	    {
-		return;
-	    }
+	public override void Resync( ) {
+	    if ( _syncing )
+			return ;
 
 	    // Not unloading, but rather just generating local geometry
-	    DestroyGeneratedData();
-	    StartSync();
+	    DestroyGeneratedData( ) ;
+	    StartSync( ) ;
 	}
 
 	#endregion
@@ -185,45 +175,32 @@ namespace HoudiniEngineUnity
 
 	#region UPDATE
 
-	public override void SyncUpdate()
-	{
+	public override void SyncUpdate( ) {
 	    if (_syncing || _cookNodeID == -1 || !_firstSyncComplete)
-	    {
-		return;
-	    }
+			return;
 
 	    if (!HEU_PluginSettings.SessionSyncAutoCook || !_sessionSyncAutoCook)
-	    {
-		return;
-	    }
+			return;
 
 	    HEU_SessionBase session = GetHoudiniSession(false);
-	    if (session == null || !session.IsSessionValid() || !session.IsSessionSync())
-	    {
-		return;
-	    }
+	    if (session is null || !session.IsSessionValid() || !session.IsSessionSync() )
+			return ;
 
 	    // TODO: should check parent obj, or turn off recurse?
 	    // TODO: instead of cook count, how about cook time? but how to handle hierarchy cook change?
-	    int oldCount = _totalCookCount;
-	    session.GetTotalCookCount(
-		    _cookNodeID,
-		    (int)(HAPI_NodeType.HAPI_NODETYPE_OBJ | HAPI_NodeType.HAPI_NODETYPE_SOP),
-		    (int)(HAPI_NodeFlags.HAPI_NODEFLAGS_OBJ_GEOMETRY | HAPI_NodeFlags.HAPI_NODEFLAGS_DISPLAY | HAPI_NodeFlags.HAPI_NODEFLAGS_RENDER),
-		    true, out _totalCookCount);
-	    if (oldCount != _totalCookCount)
-	    {
+	    HAPI_NodeId oldCount = _totalCookCount ;
+		session.GetTotalCookCount(
+								  _cookNodeID,
+								  (HAPI_NodeId)( HAPI_NodeType.HAPI_NODETYPE_OBJ | HAPI_NodeType.HAPI_NODETYPE_SOP ),
+								  (HAPI_NodeId)( HAPI_NodeFlags.HAPI_NODEFLAGS_OBJ_GEOMETRY |
+												 HAPI_NodeFlags.HAPI_NODEFLAGS_DISPLAY | HAPI_NodeFlags.HAPI_NODEFLAGS_RENDER ),
+								  true, out _totalCookCount ) ;
+		if ( oldCount == _totalCookCount ) return ;
+		
 		//HEU_Logger.LogFormat("Resyncing due to cook count (old={0}, new={1})", oldCount, _totalCookCount);
-
-		if (_loadTask != null)
-		{
-		    _loadTask.Stop();
-		}
-
-		DestroyGeneratedData();
-
-		StartSync();
-	    }
+		_loadTask?.Stop( ) ;
+		DestroyGeneratedData( ) ;
+		StartSync( ) ;
 	}
 
 	#endregion
@@ -231,8 +208,8 @@ namespace HoudiniEngineUnity
 
 	#region DATA
 
-	public string _nodeSaveFilePath;
-
+	public string _nodeSaveFilePath ;
+	
 	#endregion
     }
 

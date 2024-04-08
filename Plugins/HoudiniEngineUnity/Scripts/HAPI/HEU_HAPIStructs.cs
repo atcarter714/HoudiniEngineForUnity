@@ -38,425 +38,491 @@
 using System;
 using System.Runtime.InteropServices;
 
+#region Type Aliases
+using HAPI_Bool = System.Boolean;
+using HAPI_UInt8 = System.Byte;
+using HAPI_Int8 = System.SByte;
+using HAPI_Int16 = System.Int16;
+using HAPI_Int64 = System.Int64;
+using HAPI_ProcessId = System.Int32;
+using HAPI_SessionId = System.Int64;
+using HAPI_StringHandle = System.Int32;
+using HAPI_AssetLibraryId = System.Int32;
+using HAPI_NodeId = System.Int32;
+using HAPI_ParmId = System.Int32;
+using HAPI_PartId = System.Int32;
+using HAPI_PDG_WorkItemId = System.Int32;
+using HAPI_PDG_WorkitemId = System.Int32;
+using HAPI_PDG_GraphContextId = System.Int32;
+using HAPI_HIPFileId = System.Int32;
+using HAPI_ErrorCodeBits = System.Int32;
+using HAPI_NodeTypeBits = System.Int32;
+using HAPI_NodeFlagsBits = System.Int32;
+#endregion
+
+
 namespace HoudiniEngineUnity
 {
-    using HAPI_Bool = System.Boolean;
-    using HAPI_UInt8 = System.Byte;
-    using HAPI_Int8 = System.SByte;
-    using HAPI_Int16 = System.Int16;
-    using HAPI_Int64 = System.Int64;
-    using HAPI_ProcessId = System.Int32;
-    using HAPI_SessionId = System.Int64;
-    using HAPI_StringHandle = System.Int32;
-    using HAPI_AssetLibraryId = System.Int32;
-    using HAPI_NodeId = System.Int32;
-    using HAPI_ParmId = System.Int32;
-    using HAPI_PartId = System.Int32;
-    using HAPI_PDG_WorkItemId = System.Int32;
-    using HAPI_PDG_WorkitemId = System.Int32;
-    using HAPI_PDG_GraphContextId = System.Int32;
-    using HAPI_HIPFileId = System.Int32;
-    using HAPI_ErrorCodeBits = System.Int32;
-    using HAPI_NodeTypeBits = System.Int32;
-    using HAPI_NodeFlagsBits = System.Int32;
 
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct HAPI_Transform          //A Transform with Quaternion rotation
+    /// <summary>A Transform with Quaternion rotation.</summary>
+    [StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_Transform {
+        [MarshalAs( UnmanagedType.ByValArray,
+                    SizeConst = HEU_HAPIConstants.HAPI_POSITION_VECTOR_SIZE,
+                    ArraySubType = UnmanagedType.R4 )]
+        public float[ ] position ;
+
+        [MarshalAs( UnmanagedType.ByValArray,
+                    SizeConst = HEU_HAPIConstants.HAPI_QUATERNION_VECTOR_SIZE,
+                    ArraySubType = UnmanagedType.R4 )]
+        public float[ ] rotationQuaternion ;
+
+        [MarshalAs( UnmanagedType.ByValArray,
+                    SizeConst = HEU_HAPIConstants.HAPI_SCALE_VECTOR_SIZE,
+                    ArraySubType = UnmanagedType.R4 )]
+        public float[ ] scale ;
+
+        [MarshalAs( UnmanagedType.ByValArray,
+                    SizeConst = HEU_HAPIConstants.HAPI_SHEAR_VECTOR_SIZE,
+                    ArraySubType = UnmanagedType.R4 )]
+        public float[ ] shear ;
+
+        public HAPI_RSTOrder rstOrder ;
+    } ;
+
+    /// <summary>A Transform with Euler rotation.</summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_TransformEuler
     {
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_POSITION_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
-        public float[] position;              
+        [MarshalAs( UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_POSITION_VECTOR_SIZE,
+                    ArraySubType = UnmanagedType.R4 )]
+        public float[] position ;
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_QUATERNION_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
-        public float[] rotationQuaternion;              
+        [MarshalAs( UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_EULER_VECTOR_SIZE,
+                    ArraySubType = UnmanagedType.R4 )]
+        public float[] rotationEuler ;
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_SCALE_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
-        public float[] scale;              
+        [MarshalAs( UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_SCALE_VECTOR_SIZE,
+                    ArraySubType = UnmanagedType.R4 )]
+        public float[] scale ;
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_SHEAR_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
-        public float[] shear;              
+        [MarshalAs( UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_SHEAR_VECTOR_SIZE,
+                    ArraySubType = UnmanagedType.R4 )]
+        public float[] shear ;
 
-        public HAPI_RSTOrder rstOrder;              
+        public HAPI_XYZOrder rotationOrder ;
 
-    };
+        public HAPI_RSTOrder rstOrder ;
 
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_TransformEuler          //A Transform with Euler rotation
+    } ;
+
+    /// <summary>Identifies a session</summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_Session
     {
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_POSITION_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
-        public float[] position;              
+        public HAPI_SessionType
+            type ; //The type of session determines the which implementation will beused to communicate with the Houdini Engine library.
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_EULER_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
-        public float[] rotationEuler;              
+        public HAPI_SessionId
+            id ; //Some session types support multiple simultaneous sessions. This meansthat each session needs to have a unique identifier.
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_SCALE_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
-        public float[] scale;              
+    } ;
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_SHEAR_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
-        public float[] shear;              
-
-        public HAPI_XYZOrder rotationOrder;              
-
-        public HAPI_RSTOrder rstOrder;              
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_Session          //Identifies a session
+    /// <summary>Options to configure a Thrift server being started from HARC.</summary>
+    [StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_ThriftServerOptions
     {
-        public HAPI_SessionType type;              //The type of session determines the which implementation will beused to communicate with the Houdini Engine library.
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool autoClose ; //Close the server automatically when all clients disconnect from it.
 
-        public HAPI_SessionId id;              //Some session types support multiple simultaneous sessions. This meansthat each session needs to have a unique identifier.
+        [MarshalAs( UnmanagedType.R4 )]
+        public float
+            timeoutMs ; //Timeout in milliseconds for waiting on the server tosignal that it ready to serve. If the server failsto signal within this time interval the start server call failsand the server process is terminated.
 
-    };
+        public HAPI_StatusVerbosity verbosity ;
 
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct HAPI_ThriftServerOptions          //Options to configure a Thrift server being started from HARC.
+    } ;
+
+    /// <summary>Data for global timeline used with HAPI_SetTimelineOptions.</summary>
+    [StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_TimelineOptions {
+        [MarshalAs( UnmanagedType.R4 )]
+        public float fps, startTime, endTime ;
+    } ;
+
+    /// <summary>Meta-data about an HDA returned by HAPI_GetAssetInfo.</summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_AssetInfo {
+        /// <summary>Use the node id to get the asset parameters.</summary>
+        /// <remarks>See HAPI_Nodes_Basics.</remarks>
+        public HAPI_NodeId nodeId ;
+        
+        /// <summary>
+        /// <para>The objectNodeId differs from the regular nodeId in that forgeometry based assets SOPs it will be
+        /// the node id of the dummyobject OBJ node instead of the asset node. For object based assets the
+        /// objectNodeId will equal the nodeId.</para>
+        /// <para>The reason the distinction exists is because transforms are always stored on the object node but
+        /// the asset parameters may not be on the asset node if the asset is a geometry asset so we need both.</para>
+        /// </summary>
+        public HAPI_NodeId objectNodeId ;
+        
+        /// <summary>It possible to instantiate an asset without cooking it.See HAPI_Assets_Cooking.</summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool hasEverCooked ;
+        
+        /// <summary>Instance name the label + a number.</summary>
+        public HAPI_StringHandle nameSH ;
+        /// <summary>This is what any end user should be shown.</summary>
+        public HAPI_StringHandle labelSH ;
+        /// <summary>Path to the .otl library file.</summary>
+        public HAPI_StringHandle filePathSH ;
+        /// <summary>User-defined asset version.</summary>
+        public HAPI_StringHandle versionSH ;
+        /// <summary>Full asset name and namespace.</summary>
+        public HAPI_StringHandle fullOpNameSH ;
+        /// <summary>Help marked-up text.</summary>
+        public HAPI_StringHandle helpTextSH ;
+        /// <summary>Help URL.</summary>
+        public HAPI_StringHandle helpURLSH ;
+        
+        
+        // ----------------------------------
+        //! See HAPI_Objects & HAPI_Handles:
+        // ----------------------------------
+        [MarshalAs( UnmanagedType.I4 )]
+        public int objectCount, handleCount ;
+        // ----------------------------------
+        
+        
+        /// <summary>
+        /// Transform inputs exposed by the asset. For OBJ assets this is thenumber of transform inputs on the OBJ node.
+        /// For SOP assets this isthe singular transform input on the dummy wrapper OBJ node.See HAPI_AssetInputs.
+        /// </summary>
+        [MarshalAs( UnmanagedType.I4 )] public int transformInputCount ;
+        
+        /// <summary>
+        /// Geometry inputs exposed by the asset.
+        /// For SOP assets this isthe number of geometry inputs on the SOP node itself.
+        /// OBJ assetswill always have zero geometry inputs.See HAPI_AssetInputs.
+        /// </summary>
+        [MarshalAs( UnmanagedType.I4 )] public int geoInputCount ;
+        
+        /// <summary>
+        /// Geometry outputs exposed by the asset.
+        /// For SOP assets this isthe number of geometry outputs on the SOP node itself.
+        /// OBJ assets will always have zero geometry outputs.
+        /// </summary>
+        /// <remarks>See HAPI_AssetInputs.</remarks>
+        [MarshalAs( UnmanagedType.I4 )] public int geoOutputCount ;
+        
+        /// <summary>
+        /// For incremental updates. 
+        /// Indicates whether any of the assetsobjects have changed. 
+        /// Refreshed only during an asset cook.
+        /// </summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool haveObjectsChanged ;
+        
+        /// <summary>
+        /// For incremental updates.
+        /// Indicates whether any of the assetmaterials have changed.
+        /// Refreshed only during an asset cook.
+        /// </summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool haveMaterialsChanged ;
+    } ;
+
+    /// <summary>Options which affect how nodes are cooked.</summary>
+    [StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_CookOptions
     {
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool autoClose;              //Close the server automatically when all clients disconnect from it.
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            splitGeosByGroup ; //Normally geos are split into parts in two different ways. First itis split by group and within each group it is split by primitive type.For example if you have a geo with group1 covering half of the meshand volume1 and group2 covering the other half of the mesh all ofcurve1 and volume2 you will end up with 5 parts. First two partswill be for the half-mesh of group1 and volume1 and the last threewill cover group2.This toggle lets you disable the splitting by group and just havethe geo be split by primitive type alone. By default this is trueand therefore geos will be split by group and primitive type. Ifset to false geos will only be split by primitive type.
 
-        [MarshalAs(UnmanagedType.R4)]
-        public float timeoutMs;              //Timeout in milliseconds for waiting on the server tosignal that it ready to serve. If the server failsto signal within this time interval the start server call failsand the server process is terminated.
+        public HAPI_StringHandle
+            splitGroupSH ; //Normally geos are split into parts in two different ways. First itis split by group and within each group it is split by primitive type.For example if you have a geo with group1 covering half of the meshand volume1 and group2 covering the other half of the mesh all ofcurve1 and volume2 you will end up with 5 parts. First two partswill be for the half-mesh of group1 and volume1 and the last threewill cover group2.This toggle lets you disable the splitting by group and just havethe geo be split by primitive type alone. By default this is trueand therefore geos will be split by group and primitive type. Ifset to false geos will only be split by primitive type.
 
-        public HAPI_StatusVerbosity verbosity;              
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            splitGeosByAttribute ; //This toggle lets you enable the splitting by unique valuesof a specified attribute. By default this is false andthe geo be split as described above.as described above. If this is set to true and splitGeosByGroupset to false mesh geos will be split on attribute valuesThe attribute name to split on must be created with HAPI_SetCustomStringand then the splitAttrSH handle set on the struct.
 
-    };
+        public HAPI_StringHandle
+            splitAttrSH ; //This toggle lets you enable the splitting by unique valuesof a specified attribute. By default this is false andthe geo be split as described above.as described above. If this is set to true and splitGeosByGroupset to false mesh geos will be split on attribute valuesThe attribute name to split on must be created with HAPI_SetCustomStringand then the splitAttrSH handle set on the struct.
 
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct HAPI_TimelineOptions          //Data for global timeline used with HAPI_SetTimelineOptions
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            maxVerticesPerPrimitive ; //For meshes only this is enforced by convexing the mesh. Use -1to avoid convexing at all and get some performance boost.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            refineCurveToLinear ; //For curves only.If this is set to true then all curves will be refined to a linearcurve and you can no longer access the original CVs. You can controlthe refinement detail via HAPI_CookOptions::curveRefineLOD.If it false the curve type NURBS Bezier etc will be left as is.
+
+        [MarshalAs( UnmanagedType.R4 )]
+        public float
+            curveRefineLOD ; //Controls the number of divisions per unit distance when refininga curve to linear. The default in Houdini is 8.0.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            clearErrorsAndWarnings ; //If this option is turned on then we will recursively clear theerrors and warnings and messages of all nodes before performingthe cook.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool cookTemplatedGeos ; //Decide whether to recursively cook all templated geos or not.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            splitPointsByVertexAttributes ; //Decide whether to split points by vertex attributes. This takesall vertex attributes and tries to copy them to their respectivepoints. If two vertices have any difference in their attribute valuesthe corresponding point is split into two points. This is repeateduntil all the vertex attributes have been copied to the points.With this option enabled you can reduce the total number of verticeson a game engine side as sharing of attributes like UVs is optimized.To make full use of this feature you have to think of Houdini pointsas game engine vertices sharable. With this option OFF or beforethis feature existed you had to map Houdini vertices to game enginevertices to make sure all attribute values are accounted for.
+
+        public HAPI_PackedPrimInstancingMode
+            packedPrimInstancingMode ; //Choose how you want the cook to handle packed primitives.The default is: HAPI_PACKEDPRIM_INSTANCING_MODE_DISABLED
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            handleBoxPartTypes ; //Choose which special part types should be handled. Unhandled specialpart types will just be refined to HAPI_PARTTYPE_MESH.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            handleSpherePartTypes ; //Choose which special part types should be handled. Unhandled specialpart types will just be refined to HAPI_PARTTYPE_MESH.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            checkPartChanges ; //If enabled sets the HAPI_PartInfo::hasChanged member during thecook. If disabled the member will always be true. Checking forpart changes can be expensive so there is a potential performancegain when disabled.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            cacheMeshTopology ; //This toggle lets you enable the caching of the mesh topology.By default this is false. If this is set to true cooking a meshgeometry will update only the topology if the number of points changed.Use this to get better performance on deforming meshes.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            preferOutputNodes ; //If enabled calls to HAPI_CookNode on an OBJ node will cook the outputnodes of any nested SOP nodes. If none exist or the option is disabledHAPI will instead cook the display nodes of any nested SOP nodes.
+
+        [MarshalAs( UnmanagedType.I4 )] public int extraFlags ; //For internal use only. :
+
+    } ;
+
+    /// <summary>Meta-data for a Houdini Node.</summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_NodeInfo
     {
-        [MarshalAs(UnmanagedType.R4)]
-        public float fps;              
+        public HAPI_NodeId id ;
 
-        [MarshalAs(UnmanagedType.R4)]
-        public float startTime;              
+        public HAPI_NodeId parentId ;
 
-        [MarshalAs(UnmanagedType.R4)]
-        public float endTime;              
+        public HAPI_StringHandle nameSH ;
 
-    };
+        public HAPI_NodeType type ;
 
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_AssetInfo          //Meta-data about an HDA returned by HAPI_GetAssetInfo
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            isValid ; //Always true unless the asset definition has changed due to loadinga duplicate asset definition and from another OTL asset libraryfile OR deleting the OTL asset library file used by this node asset.
+
+        [MarshalAs( UnmanagedType.I4 )] public int totalCookCount ; //Total number of cooks of this node.
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            uniqueHoudiniNodeId ; //Use this unique id to grab the OP_Node pointer for this node.If you linking against the C++ HDK include the OP_Node.h headerand call OP_Node::lookupNode.
+
+        public HAPI_StringHandle
+            internalNodePathSH ; //This is the internal node path in the Houdini scene graph. This pathis meant to be abstracted away for most client purposes but foradvanced uses it can come in handy.
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            parmCount ; //Total number of parameters this asset has exposed. Includes hiddenparameters.See HAPI_Parameters.
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            parmIntValueCount ; //Number of values. A single parameter may have more than one value sothis number is more than or equal to HAPI_NodeInfo::parmCount.@{@}
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            parmFloatValueCount ; //Number of values. A single parameter may have more than one value sothis number is more than or equal to HAPI_NodeInfo::parmCount.@{@}
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            parmStringValueCount ; //Number of values. A single parameter may have more than one value sothis number is more than or equal to HAPI_NodeInfo::parmCount.@{@}
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            parmChoiceCount ; //The total number of choices among all the combo box parameters.See HAPI_Parameters_ChoiceLists.
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int childNodeCount ; //The number of child nodes. This is 0 for all nodes that are notnode networks.
+
+        [MarshalAs( UnmanagedType.I4 )] public int inputCount ; //The number of inputs this specific node has.
+
+        [MarshalAs( UnmanagedType.I4 )] public int outputCount ; //The number of outputs this specific node has.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            createdPostAssetLoad ; //Nodes created via scripts or via HAPI_CreateNode will be havethis set to true. Only such nodes can be deleted usingHAPI_DeleteNode.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool isTimeDependent ; //Indicates if this node will change over time
+
+    } ;
+
+    /// <summary>Contains parameter information like name label type and size.</summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_ParmInfo
     {
-        public HAPI_NodeId nodeId;              //Use the node id to get the asset parameters.See HAPI_Nodes_Basics.
+        public HAPI_ParmId
+            id ; //The parent id points to the id of the parent parmof this parm. The parent parm is something like a folder.
 
-        public HAPI_NodeId objectNodeId;              //The objectNodeId differs from the regular nodeId in that forgeometry based assets SOPs it will be the node id of the dummyobject OBJ node instead of the asset node. For object based assetsthe objectNodeId will equal the nodeId. The reason the distinctionexists is because transforms are always stored on the object nodebut the asset parameters may not be on the asset node if the assetis a geometry asset so we need both.
+        public HAPI_ParmId parentId ; //Parameter id of the parent of this parameter.
 
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool hasEverCooked;              //It possible to instantiate an asset without cooking it.See HAPI_Assets_Cooking.
+        [MarshalAs( UnmanagedType.I4 )] public int childIndex ; //Child index within its immediate parent parameter.
 
-        public HAPI_StringHandle nameSH;              //Instance name the label + a number.
+        public HAPI_ParmType type ; //The HAPI type of the parm
 
-        public HAPI_StringHandle labelSH;              //This is what any end user should be shown.
+        public HAPI_PrmScriptType scriptType ; //The Houdini script-type of the parm
 
-        public HAPI_StringHandle filePathSH;              //Path to the .otl library file.
+        public HAPI_StringHandle
+            typeInfoSH ; //Some parameter types require additional type information.- File path parameters will indicate what file extensions theyexpect in a space-separated list of wild-cards. This is setin the Operator Type Properties using the File Patternparameter property.For example for filtering by PNG and JPG only: "*.png *.jpg"
 
-        public HAPI_StringHandle versionSH;              //User-defined asset version.
+        public HAPI_Permissions
+            permissions ; //For the majority of parameter types permission will not be applicable.For file path parameters these permissions will indicate how theasset plans to use the file: whether it will only read it only writeto it or both. This is set in the Operator Type Properties usingthe Browse Mode parameter property.
 
-        public HAPI_StringHandle fullOpNameSH;              //Full asset name and namespace.
+        [MarshalAs( UnmanagedType.I4 )] public int tagCount ; //Number of tags on this paramter.
 
-        public HAPI_StringHandle helpTextSH;              //Asset help marked-up text.
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            size ; //Tuple size. For scalar parameters this value is 1 but for vectorparameters this value can be greater. For example a 3 vector wouldhave a size of 3. For folders and folder lists this value is thenumber of children they own.
 
-        public HAPI_StringHandle helpURLSH;              //Asset help URL.
+        public HAPI_ChoiceListType
+            choiceListType ; //Any HAPI_ParmType can be a choice list. If this is set toHAPI_CHOICELISTTYPE_NONE than this parameter is NOT a choice list.Otherwise the parameter is a choice list of the indicated type.See HAPI_Parameters_ChoiceLists.
 
-        [MarshalAs(UnmanagedType.I4)]
-        public int objectCount;              //See HAPI_Objects.
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            choiceCount ; //Any HAPI_ParmType can be a choice list. If the parameter is achoice list this tells you how many choices it currently has.Note that some menu parameters can have a dynamic number of choicesso it is important that this count is re-checked after every cook.See HAPI_Parameters_ChoiceLists.
 
-        [MarshalAs(UnmanagedType.I4)]
-        public int handleCount;              //See HAPI_Handles.
+        public HAPI_StringHandle
+            nameSH ; //Note that folders are not real parameters in Houdini so they do nothave names. The folder names given here are generated from the nameof the folderlist or switcher parameter which is a parameter. Thefolderlist parameter simply defines how many of the "next" parametersbelong to the first folder how many of the parameters after thatbelong to the next folder and so on. This means that folder namescan change just by reordering the folders around so don rely onthem too much. The only guarantee here is that the folder names willbe unique among all other parameter names.
 
-        [MarshalAs(UnmanagedType.I4)]
-        public int transformInputCount;              //Transform inputs exposed by the asset. For OBJ assets this is thenumber of transform inputs on the OBJ node. For SOP assets this isthe singular transform input on the dummy wrapper OBJ node.See HAPI_AssetInputs.
+        public HAPI_StringHandle labelSH ; //The label string for the parameter
 
-        [MarshalAs(UnmanagedType.I4)]
-        public int geoInputCount;              //Geometry inputs exposed by the asset. For SOP assets this isthe number of geometry inputs on the SOP node itself. OBJ assetswill always have zero geometry inputs.See HAPI_AssetInputs.
+        public HAPI_StringHandle
+            templateNameSH ; //If this parameter is a multiparm instance than theHAPI_ParmInfo::templateNameSH will be the hash-templated parm namecontaining # for the parts of the name that use the instance number.Compared to the HAPI_ParmInfo::nameSH the HAPI_ParmInfo::nameSHwill be the HAPI_ParmInfo::templateNameSH but with the #replaced by the instance number. For regular parms theHAPI_ParmInfo::templateNameSH is identical to theHAPI_ParmInfo::nameSH.
 
-        [MarshalAs(UnmanagedType.I4)]
-        public int geoOutputCount;              //Geometry outputs exposed by the asset. For SOP assets this isthe number of geometry outputs on the SOP node itself. OBJ assetswill always have zero geometry outputs.See HAPI_AssetInputs.
+        public HAPI_StringHandle helpSH ; //The help string for this parameter
 
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool haveObjectsChanged;              //For incremental updates. Indicates whether any of the assetsobjects have changed. Refreshed only during an asset cook.
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool hasMin ; //Whether min/max exists for the parameter values.@{@}
 
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool haveMaterialsChanged;              //For incremental updates. Indicates whether any of the assetmaterials have changed. Refreshed only during an asset cook.
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool hasMax ; //Whether min/max exists for the parameter values.@{@}
 
-    };
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool hasUIMin ; //Whether min/max exists for the parameter values.@{@}
 
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct HAPI_CookOptions          //Options which affect how nodes are cooked.
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool hasUIMax ; //Whether min/max exists for the parameter values.@{@}
+
+        [MarshalAs( UnmanagedType.R4 )]
+        public float min ; //Parameter value range shared between int and float parameters.@{@}
+
+        [MarshalAs( UnmanagedType.R4 )]
+        public float max ; //Parameter value range shared between int and float parameters.@{@}
+
+        [MarshalAs( UnmanagedType.R4 )]
+        public float UIMin ; //Parameter value range shared between int and float parameters.@{@}
+
+        [MarshalAs( UnmanagedType.R4 )]
+        public float UIMax ; //Parameter value range shared between int and float parameters.@{@}
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            invisible ; //Whether this parm should be hidden from the user entirely. This ismostly used to expose parameters as asset meta-data but not allow theuser to directly modify them.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool disabled ; //Whether this parm should appear enabled or disabled.
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            spare ; //If true it means this parameter doesn actually exist on the nodein Houdini but was added by Houdini Engine as a spare parameter.This is just for your information. The behaviour of this parameteris not any different than a non-spare parameter.
+
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool joinNext ; //Whether this parm should be on the same line as
+
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool labelNone ; //Whether the label should be displayed.
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            intValuesIndex ; //The index to use to look into the values array in order to retrievethe actual values of this parameter.@{@}
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            floatValuesIndex ; //The index to use to look into the values array in order to retrievethe actual values of this parameter.@{@}
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            stringValuesIndex ; //The index to use to look into the values array in order to retrievethe actual values of this parameter.@{@}
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int
+            choiceIndex ; //The index to use to look into the values array in order to retrievethe actual values of this parameter.@{@}
+
+        public HAPI_NodeType
+            inputNodeType ; //If this is a HAPI_PARMTYPE_NODE this tells you what node typesthis parameter accepts.
+
+        public HAPI_NodeFlags
+            inputNodeFlag ; //The node input parameter could have another subtype filter specifiedlike "Object: Geometry Only". In this case this value will specifythat extra filter. If the filter demands a node that HAPI does notsupport both this and HAPI_ParmInfo::inputNodeType will be set toNONE as such a node is not settable through HAPI.
+
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool isChildOfMultiParm ; //See HAPI_Parameters_MultiParms.@{
+
+        [MarshalAs( UnmanagedType.I4 )] public int instanceNum ; //The index of the instance in the multiparm.
+
+        [MarshalAs( UnmanagedType.I4 )] public int instanceLength ; //The number of parms in a multiparm instance.
+
+        [MarshalAs( UnmanagedType.I4 )] public int instanceCount ; //The number of instances in a multiparm.
+
+        [MarshalAs( UnmanagedType.I4 )]
+        public int instanceStartOffset ; //First instance HAPI_ParmInfo::instanceNum. Either 0 or 1.
+
+        public HAPI_RampType rampType ; //@}
+
+        public HAPI_StringHandle
+            visibilityConditionSH ; //Provides the raw condition string which is used to evaluate thethe visibility of a parm
+
+        public HAPI_StringHandle
+            disabledConditionSH ; //Provides the raw condition string which is used to evalute whethera parm is enabled or disabled
+
+        [MarshalAs( UnmanagedType.U1 )]
+        public HAPI_Bool
+            useMenuItemTokenAsValue ; //Whether or not the "Use Menu Item Token As Value" checkbox was checked in a integer menu item.
+
+    } ;
+
+    /// <summary>Meta-data for a combo-box / choice parm.</summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_ParmChoiceInfo
     {
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool splitGeosByGroup;              //Normally geos are split into parts in two different ways. First itis split by group and within each group it is split by primitive type.For example if you have a geo with group1 covering half of the meshand volume1 and group2 covering the other half of the mesh all ofcurve1 and volume2 you will end up with 5 parts. First two partswill be for the half-mesh of group1 and volume1 and the last threewill cover group2.This toggle lets you disable the splitting by group and just havethe geo be split by primitive type alone. By default this is trueand therefore geos will be split by group and primitive type. Ifset to false geos will only be split by primitive type.
-
-        public HAPI_StringHandle splitGroupSH;              //Normally geos are split into parts in two different ways. First itis split by group and within each group it is split by primitive type.For example if you have a geo with group1 covering half of the meshand volume1 and group2 covering the other half of the mesh all ofcurve1 and volume2 you will end up with 5 parts. First two partswill be for the half-mesh of group1 and volume1 and the last threewill cover group2.This toggle lets you disable the splitting by group and just havethe geo be split by primitive type alone. By default this is trueand therefore geos will be split by group and primitive type. Ifset to false geos will only be split by primitive type.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool splitGeosByAttribute;              //This toggle lets you enable the splitting by unique valuesof a specified attribute. By default this is false andthe geo be split as described above.as described above. If this is set to true and splitGeosByGroupset to false mesh geos will be split on attribute valuesThe attribute name to split on must be created with HAPI_SetCustomStringand then the splitAttrSH handle set on the struct.
-
-        public HAPI_StringHandle splitAttrSH;              //This toggle lets you enable the splitting by unique valuesof a specified attribute. By default this is false andthe geo be split as described above.as described above. If this is set to true and splitGeosByGroupset to false mesh geos will be split on attribute valuesThe attribute name to split on must be created with HAPI_SetCustomStringand then the splitAttrSH handle set on the struct.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int maxVerticesPerPrimitive;              //For meshes only this is enforced by convexing the mesh. Use -1to avoid convexing at all and get some performance boost.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool refineCurveToLinear;              //For curves only.If this is set to true then all curves will be refined to a linearcurve and you can no longer access the original CVs. You can controlthe refinement detail via HAPI_CookOptions::curveRefineLOD.If it false the curve type NURBS Bezier etc will be left as is.
-
-        [MarshalAs(UnmanagedType.R4)]
-        public float curveRefineLOD;              //Controls the number of divisions per unit distance when refininga curve to linear. The default in Houdini is 8.0.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool clearErrorsAndWarnings;              //If this option is turned on then we will recursively clear theerrors and warnings and messages of all nodes before performingthe cook.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool cookTemplatedGeos;              //Decide whether to recursively cook all templated geos or not.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool splitPointsByVertexAttributes;              //Decide whether to split points by vertex attributes. This takesall vertex attributes and tries to copy them to their respectivepoints. If two vertices have any difference in their attribute valuesthe corresponding point is split into two points. This is repeateduntil all the vertex attributes have been copied to the points.With this option enabled you can reduce the total number of verticeson a game engine side as sharing of attributes like UVs is optimized.To make full use of this feature you have to think of Houdini pointsas game engine vertices sharable. With this option OFF or beforethis feature existed you had to map Houdini vertices to game enginevertices to make sure all attribute values are accounted for.
-
-        public HAPI_PackedPrimInstancingMode packedPrimInstancingMode;              //Choose how you want the cook to handle packed primitives.The default is: HAPI_PACKEDPRIM_INSTANCING_MODE_DISABLED
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool handleBoxPartTypes;              //Choose which special part types should be handled. Unhandled specialpart types will just be refined to HAPI_PARTTYPE_MESH.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool handleSpherePartTypes;              //Choose which special part types should be handled. Unhandled specialpart types will just be refined to HAPI_PARTTYPE_MESH.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool checkPartChanges;              //If enabled sets the HAPI_PartInfo::hasChanged member during thecook. If disabled the member will always be true. Checking forpart changes can be expensive so there is a potential performancegain when disabled.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool cacheMeshTopology;              //This toggle lets you enable the caching of the mesh topology.By default this is false. If this is set to true cooking a meshgeometry will update only the topology if the number of points changed.Use this to get better performance on deforming meshes.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool preferOutputNodes;              //If enabled calls to HAPI_CookNode on an OBJ node will cook the outputnodes of any nested SOP nodes. If none exist or the option is disabledHAPI will instead cook the display nodes of any nested SOP nodes.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int extraFlags;              //For internal use only. :
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_NodeInfo          //Meta-data for a Houdini Node
-    {
-        public HAPI_NodeId id;              
-
-        public HAPI_NodeId parentId;              
-
-        public HAPI_StringHandle nameSH;              
-
-        public HAPI_NodeType type;              
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool isValid;              //Always true unless the asset definition has changed due to loadinga duplicate asset definition and from another OTL asset libraryfile OR deleting the OTL asset library file used by this node asset.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int totalCookCount;              //Total number of cooks of this node.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int uniqueHoudiniNodeId;              //Use this unique id to grab the OP_Node pointer for this node.If you linking against the C++ HDK include the OP_Node.h headerand call OP_Node::lookupNode.
-
-        public HAPI_StringHandle internalNodePathSH;              //This is the internal node path in the Houdini scene graph. This pathis meant to be abstracted away for most client purposes but foradvanced uses it can come in handy.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int parmCount;              //Total number of parameters this asset has exposed. Includes hiddenparameters.See HAPI_Parameters.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int parmIntValueCount;              //Number of values. A single parameter may have more than one value sothis number is more than or equal to HAPI_NodeInfo::parmCount.@{@}
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int parmFloatValueCount;              //Number of values. A single parameter may have more than one value sothis number is more than or equal to HAPI_NodeInfo::parmCount.@{@}
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int parmStringValueCount;              //Number of values. A single parameter may have more than one value sothis number is more than or equal to HAPI_NodeInfo::parmCount.@{@}
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int parmChoiceCount;              //The total number of choices among all the combo box parameters.See HAPI_Parameters_ChoiceLists.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int childNodeCount;              //The number of child nodes. This is 0 for all nodes that are notnode networks.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int inputCount;              //The number of inputs this specific node has.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int outputCount;              //The number of outputs this specific node has.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool createdPostAssetLoad;              //Nodes created via scripts or via HAPI_CreateNode will be havethis set to true. Only such nodes can be deleted usingHAPI_DeleteNode.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool isTimeDependent;              //Indicates if this node will change over time
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_ParmInfo          //Contains parameter information like name label type and size.
-    {
-        public HAPI_ParmId id;              //The parent id points to the id of the parent parmof this parm. The parent parm is something like a folder.
-
-        public HAPI_ParmId parentId;              //Parameter id of the parent of this parameter.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int childIndex;              //Child index within its immediate parent parameter.
-
-        public HAPI_ParmType type;              //The HAPI type of the parm
-
-        public HAPI_PrmScriptType scriptType;              //The Houdini script-type of the parm
-
-        public HAPI_StringHandle typeInfoSH;              //Some parameter types require additional type information.- File path parameters will indicate what file extensions theyexpect in a space-separated list of wild-cards. This is setin the Operator Type Properties using the File Patternparameter property.For example for filtering by PNG and JPG only: "*.png *.jpg"
-
-        public HAPI_Permissions permissions;              //For the majority of parameter types permission will not be applicable.For file path parameters these permissions will indicate how theasset plans to use the file: whether it will only read it only writeto it or both. This is set in the Operator Type Properties usingthe Browse Mode parameter property.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int tagCount;              //Number of tags on this paramter.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int size;              //Tuple size. For scalar parameters this value is 1 but for vectorparameters this value can be greater. For example a 3 vector wouldhave a size of 3. For folders and folder lists this value is thenumber of children they own.
-
-        public HAPI_ChoiceListType choiceListType;              //Any HAPI_ParmType can be a choice list. If this is set toHAPI_CHOICELISTTYPE_NONE than this parameter is NOT a choice list.Otherwise the parameter is a choice list of the indicated type.See HAPI_Parameters_ChoiceLists.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int choiceCount;              //Any HAPI_ParmType can be a choice list. If the parameter is achoice list this tells you how many choices it currently has.Note that some menu parameters can have a dynamic number of choicesso it is important that this count is re-checked after every cook.See HAPI_Parameters_ChoiceLists.
-
-        public HAPI_StringHandle nameSH;              //Note that folders are not real parameters in Houdini so they do nothave names. The folder names given here are generated from the nameof the folderlist or switcher parameter which is a parameter. Thefolderlist parameter simply defines how many of the "next" parametersbelong to the first folder how many of the parameters after thatbelong to the next folder and so on. This means that folder namescan change just by reordering the folders around so don rely onthem too much. The only guarantee here is that the folder names willbe unique among all other parameter names.
-
-        public HAPI_StringHandle labelSH;              //The label string for the parameter
-
-        public HAPI_StringHandle templateNameSH;              //If this parameter is a multiparm instance than theHAPI_ParmInfo::templateNameSH will be the hash-templated parm namecontaining # for the parts of the name that use the instance number.Compared to the HAPI_ParmInfo::nameSH the HAPI_ParmInfo::nameSHwill be the HAPI_ParmInfo::templateNameSH but with the #replaced by the instance number. For regular parms theHAPI_ParmInfo::templateNameSH is identical to theHAPI_ParmInfo::nameSH.
-
-        public HAPI_StringHandle helpSH;              //The help string for this parameter
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool hasMin;              //Whether min/max exists for the parameter values.@{@}
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool hasMax;              //Whether min/max exists for the parameter values.@{@}
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool hasUIMin;              //Whether min/max exists for the parameter values.@{@}
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool hasUIMax;              //Whether min/max exists for the parameter values.@{@}
-
-        [MarshalAs(UnmanagedType.R4)]
-        public float min;              //Parameter value range shared between int and float parameters.@{@}
-
-        [MarshalAs(UnmanagedType.R4)]
-        public float max;              //Parameter value range shared between int and float parameters.@{@}
-
-        [MarshalAs(UnmanagedType.R4)]
-        public float UIMin;              //Parameter value range shared between int and float parameters.@{@}
-
-        [MarshalAs(UnmanagedType.R4)]
-        public float UIMax;              //Parameter value range shared between int and float parameters.@{@}
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool invisible;              //Whether this parm should be hidden from the user entirely. This ismostly used to expose parameters as asset meta-data but not allow theuser to directly modify them.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool disabled;              //Whether this parm should appear enabled or disabled.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool spare;              //If true it means this parameter doesn actually exist on the nodein Houdini but was added by Houdini Engine as a spare parameter.This is just for your information. The behaviour of this parameteris not any different than a non-spare parameter.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool joinNext;              //Whether this parm should be on the same line as
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool labelNone;              //Whether the label should be displayed.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int intValuesIndex;              //The index to use to look into the values array in order to retrievethe actual values of this parameter.@{@}
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int floatValuesIndex;              //The index to use to look into the values array in order to retrievethe actual values of this parameter.@{@}
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int stringValuesIndex;              //The index to use to look into the values array in order to retrievethe actual values of this parameter.@{@}
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int choiceIndex;              //The index to use to look into the values array in order to retrievethe actual values of this parameter.@{@}
-
-        public HAPI_NodeType inputNodeType;              //If this is a HAPI_PARMTYPE_NODE this tells you what node typesthis parameter accepts.
-
-        public HAPI_NodeFlags inputNodeFlag;              //The node input parameter could have another subtype filter specifiedlike "Object: Geometry Only". In this case this value will specifythat extra filter. If the filter demands a node that HAPI does notsupport both this and HAPI_ParmInfo::inputNodeType will be set toNONE as such a node is not settable through HAPI.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool isChildOfMultiParm;              //See HAPI_Parameters_MultiParms.@{
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int instanceNum;              //The index of the instance in the multiparm.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int instanceLength;              //The number of parms in a multiparm instance.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int instanceCount;              //The number of instances in a multiparm.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int instanceStartOffset;              //First instance HAPI_ParmInfo::instanceNum. Either 0 or 1.
-
-        public HAPI_RampType rampType;              //@}
-
-        public HAPI_StringHandle visibilityConditionSH;              //Provides the raw condition string which is used to evaluate thethe visibility of a parm
-
-        public HAPI_StringHandle disabledConditionSH;              //Provides the raw condition string which is used to evalute whethera parm is enabled or disabled
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool useMenuItemTokenAsValue;              //Whether or not the "Use Menu Item Token As Value" checkbox was checked in a integer menu item.
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_ParmChoiceInfo          //Meta-data for a combo-box / choice parm
-    {
-        public HAPI_ParmId parentParmId;              
-
-        public HAPI_StringHandle labelSH;              
-
-        public HAPI_StringHandle valueSH;              //This evaluates to the value of the token associated with the labelapplies to string menus only.
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_HandleInfo          //Contains handle information such as the type of handletranslate rotate scale softxform ...etc and the number ofparameters the current handle is bound to.
-    {
-        public HAPI_StringHandle nameSH;              
-
-        public HAPI_StringHandle typeNameSH;              
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int bindingsCount;              
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_HandleBindingInfo          //Contains binding information that maps the handle parameter tothe asset parameter. The index is only used for int and float vectorand colour parms.
-    {
-        public HAPI_StringHandle handleParmNameSH;              
-
-        public HAPI_StringHandle assetParmNameSH;              
-
-        public HAPI_ParmId assetParmId;              
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int assetParmIndex;              
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_ObjectInfo          //Meta-data for an OBJ Node
-    {
+        public HAPI_ParmId parentParmId ;
+
+        public HAPI_StringHandle labelSH ;
+
+        public HAPI_StringHandle
+            valueSH ; //This evaluates to the value of the token associated with the labelapplies to string menus only.
+
+    } ;
+
+    /// <summary>
+    /// Contains handle information such as the type of handle translate, rotate, scale, softxform, etc
+    /// and the number ofparameters the current handle is bound to.
+    /// </summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_HandleInfo {
+        public HAPI_StringHandle nameSH, typeNameSH ;
+        [MarshalAs( UnmanagedType.I4 )] public int bindingsCount ;
+    } ;
+
+    /// <summary>
+    /// Contains binding information that maps the handle parameter tothe asset parameter.
+    /// The index is only used for int and float vectorand colour parms.
+    /// </summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_HandleBindingInfo {
+        public HAPI_StringHandle handleParmNameSH, assetParmNameSH ;
+        public HAPI_ParmId assetParmId ;
+        [MarshalAs( UnmanagedType.I4 )] public int assetParmIndex ;
+    } ;
+
+    /// <summary>Meta-data for an OBJ Node.</summary>
+    [Serializable, StructLayout(LayoutKind.Sequential)]
+    public partial struct HAPI_ObjectInfo {
         public HAPI_StringHandle nameSH;              
 
         public HAPI_StringHandle objectInstancePathSH;              //@deprecated This member is no longer used
@@ -485,151 +551,211 @@ namespace HoudiniEngineUnity
 
     };
 
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_GeoInfo          //Meta-data for a SOP Node
+    /// <summary>Meta-data for a SOP Node.</summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_GeoInfo {
+        public HAPI_GeoType type ;
+        public HAPI_StringHandle nameSH ;
+
+        /// <summary>
+        /// Use the node id to get the node parameters.
+        /// Using the HDK you can also get the raw node C++ pointer for thisobject internal node.
+        /// </summary>
+        public HAPI_NodeId nodeId ;
+        
+        /// <summary>
+        /// Whether the SOP node has been exposed by dragging it into the
+        /// editable nodes section of the asset definition.
+        /// </summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool isEditable ;
+        
+        /// <summary>Has the templated flag turned on which means "expose as read-only".</summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool isTemplated ;
+        /// <summary>Final Result Display SOP.</summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool isDisplayGeo ;
+        /// <summary>For incremental updates.</summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool hasGeoChanged ;
+
+        /// <summary>
+        /// This variable is deprecated and should no longer be used.Materials are now separate from parts.
+        /// They are maintained at theasset level so you only need to check if the material itself haschanged
+        /// via HAPI_MaterialInfo::hasChanged instead of the materialon the part.
+        /// </summary>
+        [Obsolete, MarshalAs( UnmanagedType.U1 ),]
+        public HAPI_Bool hasMaterialChanged ;                               //@deprecated
+        
+        [MarshalAs( UnmanagedType.I4 )] public int pointGroupCount,
+                                                   primitiveGroupCount,
+                                                   edgeGroupCount ;         //Groups.@{@}
+        
+        /// <summary>Total number of parts this geometry contains.See HAPI_Parts.</summary>
+        [MarshalAs( UnmanagedType.I4 )] public int partCount ;
+    } ;
+
+    /// <summary>Meta-data describing a Geo Part.</summary>
+    [StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_PartInfo {
+        /// <summary>ID to identify this part relative to it GeoString handle for the name of the part.</summary>
+        public HAPI_PartId id ;
+        /// <summary>Id to identify this part relative to it GeoString handle for the name of the part.</summary>
+        public HAPI_StringHandle nameSH ;
+        /// <summary>ID to identify this part relative to it GeoString handle for the name of the part.</summary>
+        public HAPI_PartType type ;
+
+        /// <summary>
+        /// Number of points. Note that this is NOT the numberof "positions" as "points" may imply.
+        /// If yourgeometry has 3 points then set this to 3 and not <c>3*3</c> ...
+        /// </summary>
+        [MarshalAs( UnmanagedType.I4 )] public int faceCount ;
+        
+        /// <summary>
+        /// Number of points. Note that this is NOT the numberof "positions" as "points" may imply.
+        /// If yourgeometry has 3 points then set this to 3 and not <c>3*3</c> ...
+        /// </summary>
+        [MarshalAs( UnmanagedType.I4 )]
+        public int vertexCount ;
+        /// <summary>
+        /// Number of points. Note that this is NOT the numberof "positions" as "points" may imply.
+        /// If yourgeometry has 3 points then set this to 3 and not <c>3*3</c> ...
+        /// </summary>
+        [MarshalAs( UnmanagedType.I4 )] public int pointCount ;
+        
+        [MarshalAs( UnmanagedType.ByValArray, 
+                    SizeConst = (int)HAPI_AttributeOwner.HAPI_ATTROWNER_MAX,
+                    ArraySubType = UnmanagedType.I4 )]
+        public int[ ] attributeCounts ;
+        
+        /// <summary>
+        /// If this is true don display this part. Load its data but then instance it where
+        /// the corresponding instancer part tells you to instance it.
+        /// </summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool isInstanced ;
+        
+        /// <summary>
+        /// The number of parts that this instancer part is instancing.
+        /// For example if we instancing a curve and a box they would
+        /// come across as two parts hence this count would be two.
+        /// </summary>
+        /// <remarks>Call HAPI_GetInstancedPartIds to get the list of HAPI_PartId.</remarks>
+        [MarshalAs( UnmanagedType.I4 )] public int instancedPartCount ;
+        
+        /// <summary>
+        /// The number of instances that this instancer part is instancing.
+        /// Using the same example as with HAPI_PartInfo::instancedPartCount.
+        /// If instancing the merge of a curve and a box 5 times this count would be 5.
+        /// </summary>
+        /// <remarks>
+        /// To be clear all instanced parts are instanced the same number of
+        /// times and with the same transform for each instance.
+        /// <para>Call HAPI_GetInstancerPartTransforms to get the transform of each instance.</para>
+        /// </remarks>
+        [MarshalAs( UnmanagedType.I4 )] public int instanceCount ;
+        
+        /// <summary>
+        /// If this is false the underlying attribute data appear to match that of the previous cook.
+        /// In this case you may be able to re-used marshaleddata from the previous cook.
+        /// </summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool hasChanged ;
+    } ;
+
+    /// <summary>Meta-data describing an attribute.</summary>
+    [Serializable, StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_AttributeInfo {
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool exists ;
+
+        public HAPI_AttributeOwner owner ;
+        public HAPI_StorageType storage ;
+
+        /// <summary>
+        /// When converting from the Houdini native GA geometry format to the GT geometry format HAPI uses some attributes might change owners.
+        /// For example in Houdini GA curves can have points shared by vertices but the GT format only supports curve vertices (no points).
+        /// This means that if you had point attributes on a curve in Houdini when it comes out of HAPI those point attributes will now be vertex attributes.
+        /// In this case the HAPI_AttributeInfo::ownerwill be set to HAPI_ATTROWNER_VERTEX but theHAPI_AttributeInfo::originalOwner will be HAPI_ATTROWNER_POINT.
+        /// </summary>
+        public HAPI_AttributeOwner originalOwner ;
+        
+        /// <summary>
+        /// Number of attributes. This count will match the number of values given the owner.
+        /// For example if the owner is HAPI_ATTROWNER_VERTEX this count will be the same as the HAPI_PartInfo::vertexCount.
+        /// To be clear this is not the number of values in the attribute rather it is the number of attributes.
+        /// If your geometry has three 3D pointsthen this count will be 3 not 3*3 while theHAPI_AttributeInfo::tupleSize will be 3.
+        /// </summary>
+        [MarshalAs( UnmanagedType.I4 )] public int count ;
+        
+        /// <summary>
+        /// Number of values per attribute.
+        /// Note that this is NOT the memory size of the attribute. It is the number of values per attributes.
+        /// Multiplying this by thesize of the HAPI_AttributeInfo::storage will give you the memory size per attribute.
+        /// </summary>
+        [MarshalAs( UnmanagedType.I4 )] public int tupleSize ;
+        
+        /// <summary>
+        /// Total number of elements for an array attribute.
+        /// An array attribute can be thought of as a 2 dimensional array where
+        /// the 2nd dimension can vary in size for each element in the 1st dimension.
+        /// Therefore this returns the total number of values inthe entire array.
+        /// This should be used to determine the total storage size needed by multiplying with HAPI_AttributeInfo::storage.
+        /// Note that this will be 0 for a non-array attribute.
+        /// </summary>
+        public HAPI_Int64 totalArrayElements ;
+        
+        /// <summary>Attribute type info used to help identify the type of data stored in an attribute.</summary>
+        /// <remarks>Using the type is recommended over using just an attribute name to identify its purpose.</remarks>
+        public HAPI_AttributeTypeInfo typeInfo ;
+    } ;
+
+    [StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_MaterialInfo {
+        /// <summary>
+        /// This is the HAPI node id for the SHOP node this material is attached to.
+        /// Use it to get access to the parameters which contain thetexture paths.
+        /// IMPORTANT: When the HAPI_MaterialInfo::hasChanged is true this nodeId could have changed.
+        /// Do not assume HAPI_MaterialInfo::nodeIdwill never change for a specific material.
+        /// </summary>
+        public HAPI_NodeId nodeId ;
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool exists ;
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool hasChanged ;
+    } ;
+
+    /// <summary>Describes an image format used with HAPI_GetSupportedImageFileFormats.</summary>
+    [StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_ImageFileFormat
     {
-        public HAPI_GeoType type;              
+        public HAPI_StringHandle nameSH ;
 
-        public HAPI_StringHandle nameSH;              
+        public HAPI_StringHandle descriptionSH ;
 
-        public HAPI_NodeId nodeId;              //Use the node id to get the node parameters.Using the HDK you can also get the raw node C++ pointer for thisobject internal node.
+        public HAPI_StringHandle defaultExtensionSH ;
 
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool isEditable;              //Whether the SOP node has been exposed by dragging it into theeditable nodes section of the asset definition.
+    } ;
 
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool isTemplated;              //Has the templated flag turned on which means "expose as read-only".
+    /// <summary>Data for an image used with HAPI_GetImageInfo and HAPI_SetImageInfo.</summary>
+    [StructLayout( LayoutKind.Sequential )]
+    public partial struct HAPI_ImageInfo {
+        
+        /// <summary>
+        /// Unlike the other members of this struct changing imageFileFormatNameSHand giving this struct back to
+        /// HAPI_SetImageInfo nothing will happen.
+        /// Use this member variable to derive which image file format will be usedby the HAPI_ExtractImageToFile and
+        /// HAPI_ExtractImageToMemoryfunctions if called with image_file_format_name set to NULL.
+        /// This way you can decide whether to ask for a file format conversion slower ornot faster.
+        /// </summary>
+        /// <remarks>Read-only</remarks>
+        public HAPI_StringHandle imageFileFormatNameSH ;
+        
+        [MarshalAs( UnmanagedType.I4 )] public int xRes, yRes ;
+        
+        public HAPI_ImageDataFormat dataFormat ;
 
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool isDisplayGeo;              //Final Result Display SOP.
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool interleaved ;
+        //! ex: true = RGBRGBRGB false = RRRGGGBBB
 
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool hasGeoChanged;              //For incremental updates.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool hasMaterialChanged;              //@deprecated This variable is deprecated and should no longer be used.Materials are now separate from parts. They are maintained at theasset level so you only need to check if the material itself haschanged via HAPI_MaterialInfo::hasChanged instead of the materialon the part.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int pointGroupCount;              //Groups.@{@}
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int primitiveGroupCount;              //Groups.@{@}
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int edgeGroupCount;              //Groups.@{@}
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int partCount;              //Total number of parts this geometry contains.See HAPI_Parts.
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct HAPI_PartInfo          //Meta-data describing a Geo Part
-    {
-        public HAPI_PartId id;              //Id to identify this part relative to it GeoString handle for the name of the part
-
-        public HAPI_StringHandle nameSH;              //Id to identify this part relative to it GeoString handle for the name of the part
-
-        public HAPI_PartType type;              //Id to identify this part relative to it GeoString handle for the name of the part
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int faceCount;              //Number of points. Note that this is NOT the numberof "positions" as "points" may imply. If yourgeometry has 3 points then set this to 3 and not 3*3.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int vertexCount;              //Number of points. Note that this is NOT the numberof "positions" as "points" may imply. If yourgeometry has 3 points then set this to 3 and not 3*3.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int pointCount;              //Number of points. Note that this is NOT the numberof "positions" as "points" may imply. If yourgeometry has 3 points then set this to 3 and not 3*3.
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)HAPI_AttributeOwner.HAPI_ATTROWNER_MAX, ArraySubType = UnmanagedType.I4)]
-        public int[] attributeCounts;              
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool isInstanced;              //If this is true don display this part. Load its data but theninstance it where the corresponding instancer part tells you toinstance it.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int instancedPartCount;              //The number of parts that this instancer part is instancing.For example if we instancing a curve and a box they would comeacross as two parts hence this count would be two.Call HAPI_GetInstancedPartIds to get the list of HAPI_PartId.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int instanceCount;              //The number of instances that this instancer part is instancing.Using the same example as with HAPI_PartInfo::instancedPartCountif I instancing the merge of a curve and a box 5 times this countwould be 5. To be clear all instanced parts are instanced the samenumber of times and with the same transform for each instance.Call HAPI_GetInstancerPartTransforms to get the transform ofeach instance.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool hasChanged;              //If this is false the underlying attribute data appear to match that ofthe previous cook. In this case you may be able to re-used marshaleddata from the previous cook.
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
-    public partial struct HAPI_AttributeInfo          //Meta-data describing an attributeSee HAPI_Attributes.
-    {
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool exists;              
-
-        public HAPI_AttributeOwner owner;              
-
-        public HAPI_StorageType storage;              
-
-        public HAPI_AttributeOwner originalOwner;              //When converting from the Houdini native GA geometry format to theGT geometry format HAPI uses some attributes might change owners.For example in Houdini GA curves can have points shared byvertices but the GT format only supports curve verticesno points. This means that if you had point attributes on a curvein Houdini when it comes out of HAPI those point attributes will nowbe vertex attributes. In this case the HAPI_AttributeInfo::ownerwill be set to HAPI_ATTROWNER_VERTEX but theHAPI_AttributeInfo::originalOwner will be HAPI_ATTROWNER_POINT.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int count;              //Number of attributes. This count will match the number of valuesgiven the owner. For example if the owner is HAPI_ATTROWNER_VERTEXthis count will be the same as the HAPI_PartInfo::vertexCount.To be clear this is not the number of values in the attribute ratherit is the number of attributes. If your geometry has three 3D pointsthen this count will be 3 not 3*3 while theHAPI_AttributeInfo::tupleSize will be 3.
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int tupleSize;              //Number of values per attribute.Note that this is NOT the memory size of the attribute. It is thenumber of values per attributes. Multiplying this by thesize of the HAPI_AttributeInfo::storage will give you the memorysize per attribute.
-
-        public HAPI_Int64 totalArrayElements;              //Total number of elements for an array attribute.An array attribute can be thought of as a 2 dimensional array wherethe 2nd dimension can vary in size for each element in the 1stdimension. Therefore this returns the total number of values inthe entire array.This should be used to determine the total storagesize needed by multiplying with HAPI_AttributeInfo::storage.Note that this will be 0 for a non-array attribute.
-
-        public HAPI_AttributeTypeInfo typeInfo;              //Attribute type infoThis is used to help identify the type of data stored in an attribute.Using the type is recommended over using just an attribute name to identifyits purpose.
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct HAPI_MaterialInfo          
-    {
-        public HAPI_NodeId nodeId;              //This is the HAPI node id for the SHOP node this material is attachedto. Use it to get access to the parameters which contain thetexture paths.IMPORTANT: When the HAPI_MaterialInfo::hasChanged is true thisnodeId could have changed. Do not assume HAPI_MaterialInfo::nodeIdwill never change for a specific material.
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool exists;              
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool hasChanged;              
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct HAPI_ImageFileFormat          //Describes an image format used with HAPI_GetSupportedImageFileFormats
-    {
-        public HAPI_StringHandle nameSH;              
-
-        public HAPI_StringHandle descriptionSH;              
-
-        public HAPI_StringHandle defaultExtensionSH;              
-
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
-    public partial struct HAPI_ImageInfo          //Data for an image used with HAPI_GetImageInfo and HAPI_SetImageInfo
-    {
-        public HAPI_StringHandle imageFileFormatNameSH;              //Unlike the other members of this struct changing imageFileFormatNameSHand giving this struct back to HAPI_SetImageInfo nothing will happen.Use this member variable to derive which image file format will be usedby the HAPI_ExtractImageToFile and HAPI_ExtractImageToMemoryfunctions if called with image_file_format_name set to NULL. This wayyou can decide whether to ask for a file format conversion slower ornot faster.Read-only
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int xRes;              
-
-        [MarshalAs(UnmanagedType.I4)]
-        public int yRes;              
-
-        public HAPI_ImageDataFormat dataFormat;              
-
-        [MarshalAs(UnmanagedType.U1)]
-        public HAPI_Bool interleaved;              //ex: true = RGBRGBRGB false = RRRGGGBBB
-
-        public HAPI_ImagePacking packing;              
-
-        [MarshalAs(UnmanagedType.R8)]
-        public double gamma;              //Adjust the gamma of the image. For anything less thanHAPI_IMAGE_DATA_INT16 you probably want to leave this as 2.2.
-
-    };
+        public HAPI_ImagePacking packing ;
+        
+        /// <summary><para>Adjust the gamma of the image.</para></summary>
+        /// <remarks>For anything less than <c>HAPI_IMAGE_DATA_INT16</c> you probably want to leave this as 2.2 ...</remarks>
+        [MarshalAs( UnmanagedType.R8 )] public double gamma ;
+    } ;
 
     [StructLayout(LayoutKind.Sequential)]
     public partial struct HAPI_Keyframe          //Data for a single Key Frame
@@ -849,8 +975,7 @@ namespace HoudiniEngineUnity
 
     };
 
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
+    [Serializable, StructLayout(LayoutKind.Sequential)]
     public partial struct HAPI_Viewport          //Contains the information for synchronizing viewport between Houdiniand other applications. When SessionSync is enabled Houdini willupdate this struct with its viewport state. It will also updateits own viewport if this struct has changed.The data stored is in Houdini right-handed Y-up coordinate system.
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_POSITION_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
@@ -864,8 +989,7 @@ namespace HoudiniEngineUnity
 
     };
 
-    [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
+    [Serializable, StructLayout(LayoutKind.Sequential)]
     public partial struct HAPI_SessionSyncInfo          //Contains the information for synchronizing general SessionSyncstate between Houdini and other applications. When SessionSyncis enabled Houdini will update this struct with its state.It will also update its internal state if this struct haschanged.
     {
         [MarshalAs(UnmanagedType.U1)]
@@ -876,9 +1000,9 @@ namespace HoudiniEngineUnity
 
     };
 
+    /// <summary>Configuration options for Houdini compositing context.</summary>
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct HAPI_CompositorOptions          //Configuration options for Houdini compositing context
-    {
+    public partial struct HAPI_CompositorOptions {
         [MarshalAs(UnmanagedType.I4)]
         public int maximumResolutionX;              //Specifies the maximum allowed width of an image in the compositor
 
