@@ -322,6 +322,7 @@ namespace HoudiniEngineUnity
 		/// <inheritdoc />
 		public long SessionID => _sessionID ;
 
+	public HEU_CookedDataEvent CookedDataEvent => _cookedDataEvent ;
 		/// <inheritdoc />
 		public List< HEU_Curve > Curves => _curves ;
 
@@ -8662,6 +8663,21 @@ namespace HoudiniEngineUnity
 													 ref bResult, header, "Parameters" ) ;
 >>>>>>>
 
+									HEU_GeneratedOutput.CopyMaterialOverrides( sourceOutputs[ i ]._childOutputs[ j ],
+																			   destOutputs[ i ]._childOutputs[ j ] ) ;
+								}
+							}
+							break ;
+						}
+						
+						default: //! Non-LOD Group -> Copy material overrides
+							HEU_GeneratedOutput.CopyMaterialOverrides( sourceOutputs[ i ]._outputData,
+																	   destOutputs[ i ]._outputData ) ;
+							break ;
+					}
+			}
+		}
+		
 
             // TransformInputCount/GeoInputCount not necessary because it is a part of _assetInfo
             // assetId not necessary because doesn't  need to be equivalent
@@ -8682,6 +8698,13 @@ namespace HoudiniEngineUnity
 
             HEU_TestHelpers.AssertTrueLogEquivalent(this._objectNodes, asset._objectNodes, ref bResult, "Object node", header);
 
+		internal static HEU_AssetCookResultWrapper AssetCookResult_InternalToWrapper(AssetCookResult assetCookResult) =>
+			assetCookResult switch {
+				AssetCookResult.NONE    => HEU_AssetCookResultWrapper.NONE,
+				AssetCookResult.ERRORED => HEU_AssetCookResultWrapper.ERRORED,
+				AssetCookResult.SUCCESS => HEU_AssetCookResultWrapper.SUCCESS,
+				_                       => HEU_AssetCookResultWrapper.NONE
+			} ;
 
             // Skip ownerGameObject, rootGameObject
 
@@ -8711,6 +8734,13 @@ namespace HoudiniEngineUnity
 													 header, "Instance input UI state" ) ;
 >>>>>>>
 
+		internal static HEU_AssetTypeWrapper AssetType_InternalToWrapper(HEU_AssetType assetType) => assetType switch {
+																										 HEU_AssetType.TYPE_INVALID => HEU_AssetTypeWrapper.TYPE_INVALID,
+																										 HEU_AssetType.TYPE_HDA     => HEU_AssetTypeWrapper.TYPE_HDA,
+																										 HEU_AssetType.TYPE_CURVE   => HEU_AssetTypeWrapper.TYPE_CURVE,
+																										 HEU_AssetType.TYPE_INPUT   => HEU_AssetTypeWrapper.TYPE_INPUT,
+																										 _                          => HEU_AssetTypeWrapper.TYPE_INVALID
+																									 } ;
 
 <<<<<<<
             // Skip lastSyncedTransformMatrix
