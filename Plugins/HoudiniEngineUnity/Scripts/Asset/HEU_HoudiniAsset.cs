@@ -89,17 +89,12 @@ namespace HoudiniEngineUnity
 
 		// Get/Set options
 
-		/// <inheritdoc />
-		public bool LoadAssetFromMemory {
-			get => _loadAssetFromMemory ;
-			set => _loadAssetFromMemory = value ;
-		}
+	    /// <inheritdoc />
+	    public bool AlwaysOverwriteOnLoad { 
+		    get => _alwaysOverwriteOnLoad ;
+		    set => _alwaysOverwriteOnLoad = value ;
+	    }
 
-		/// <inheritdoc />
-		public bool AlwaysOverwriteOnLoad {
-			get => _alwaysOverwriteOnLoad ;
-			set => _alwaysOverwriteOnLoad = value ;
-		}
 
 		/// <inheritdoc />
 		public bool GenerateUVs {
@@ -453,12 +448,7 @@ namespace HoudiniEngineUnity
 
 #pragma warning restore 0414
 
-		internal enum AssetCookResult
-		{
-			NONE,
-			SUCCESS,
-			ERRORED,
-		}
+		internal enum AssetCookResult { NONE, SUCCESS, ERRORED, } ;
 
 		[SerializeField] AssetCookResult _lastCookResult ;
 

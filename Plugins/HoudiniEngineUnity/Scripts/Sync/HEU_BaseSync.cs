@@ -116,7 +116,7 @@ namespace HoudiniEngineUnity
 			HEU_SessionBase? session = ( _sessionID != HEU_SessionData.INVALID_SESSION_ID )
 										   ? HEU_SessionManager.GetSessionWithID( _sessionID )
 										   : null ;
-
+			if ( session is null || !session.IsSessionValid( ) ) {
 			if ( session == null || !session.IsSessionValid( ) ) {
 				if ( bCreateIfNotFound ) {
 					session = HEU_SessionManager.GetOrCreateDefaultSession( ) ;
