@@ -60,16 +60,16 @@ namespace HoudiniEngineUnity
 	LOADING,
 	POSTLOAD,
 	PRELOAD,
-	SELECT_SUBASSET
-    };
+	SELECT_SUBASSET,
+	};
 
 
     public enum HEU_AssetCookResultWrapper
     {
 	NONE,
 	SUCCESS,
-	ERRORED
-    };
+	ERRORED,
+	};
     
     /// <summary>
     /// A wrapper around the curve draw collision
@@ -79,8 +79,8 @@ namespace HoudiniEngineUnity
     {
 	INVALID = 0,
 	COLLIDERS,
-	LAYERMASK
-    };
+	LAYERMASK,
+	};
     
 
     /// <summary>
@@ -91,8 +91,8 @@ namespace HoudiniEngineUnity
 	TYPE_INVALID = 0,
 	TYPE_HDA,
 	TYPE_CURVE,
-	TYPE_INPUT
-    };
+	TYPE_INPUT,
+	};
    
     /// <summary>
     /// Represents a Houdini Digital Asset in Unity.
@@ -278,7 +278,7 @@ namespace HoudiniEngineUnity
 	/// Public interface to request a cook of this asset.
 	/// Can be async or blocking. If async will return once cook has finished.
 	/// </summary>
-	/// <param name="bCheckParamsChanged">If true, then will only upload parameters that have changed.</param>
+	/// <param name="bCheckParametersChanged">If true, then will only upload parameters that have changed.</param>
 	/// <param name="bAsync">Cook asynchronously or block until cooking is done.</param>
 	/// <param name="bSkipCookCheck">If true, will force cook even if cooking is disabled.</param>
 	/// <param name="bUploadParameters">If true, will upload parameter values before cooking.</param>

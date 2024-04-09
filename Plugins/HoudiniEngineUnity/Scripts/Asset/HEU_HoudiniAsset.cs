@@ -98,7 +98,7 @@ namespace HoudiniEngineUnity
 	}
 
 	/// <inheritdoc />
-	public bool AlwaysOverwriteOnLoad{ 
+	public bool AlwaysOverwriteOnLoad { 
 		get => _alwaysOverwriteOnLoad ;
 		set => _alwaysOverwriteOnLoad = value ;
 	}
@@ -409,7 +409,7 @@ namespace HoudiniEngineUnity
 	    INVALID,
 	    STRIP_HEDATA,
 	    DUPLICATE,
-	    RESET_PARAMS
+	    RESET_PARAMS,
 	}
 
 	[SerializeField] AssetBuildAction _requestBuildAction;
@@ -433,7 +433,7 @@ namespace HoudiniEngineUnity
 	    LOADING,
 	    POSTLOAD,
 	    PRELOAD,
-	    SELECT_SUBASSET
+	    SELECT_SUBASSET,
 	}
 
 	[SerializeField] AssetCookStatus _cookStatus;
@@ -450,7 +450,7 @@ namespace HoudiniEngineUnity
 	{
 	    NONE,
 	    SUCCESS,
-	    ERRORED
+	    ERRORED,
 	}
 
 	[SerializeField] AssetCookResult _lastCookResult;
@@ -641,7 +641,7 @@ namespace HoudiniEngineUnity
 	{
 	    DEFAULT,
 	    DUPLICATED,
-	    UNDO
+	    UNDO,
 	};
 
 	// PROFILE ----------------------------------------------------------------------------------------------------
@@ -5119,7 +5119,7 @@ namespace HoudiniEngineUnity
 				AssetCookStatus.POSTLOAD        => HEU_AssetCookStatusWrapper.POSTLOAD,
 				AssetCookStatus.PRELOAD         => HEU_AssetCookStatusWrapper.PRELOAD,
 				AssetCookStatus.SELECT_SUBASSET => HEU_AssetCookStatusWrapper.SELECT_SUBASSET,
-				_                               => HEU_AssetCookStatusWrapper.NONE
+				_                               => HEU_AssetCookStatusWrapper.NONE,
 			} ;
 
 		internal static AssetCookStatus AssetCookStatus_WrapperToInternal(HEU_AssetCookStatusWrapper assetCookStatus) =>
@@ -5131,7 +5131,7 @@ namespace HoudiniEngineUnity
 				HEU_AssetCookStatusWrapper.POSTLOAD        => AssetCookStatus.POSTLOAD,
 				HEU_AssetCookStatusWrapper.PRELOAD         => AssetCookStatus.PRELOAD,
 				HEU_AssetCookStatusWrapper.SELECT_SUBASSET => AssetCookStatus.SELECT_SUBASSET,
-				_                                          => AssetCookStatus.NONE
+				_                                          => AssetCookStatus.NONE,
 			} ;
 
 		internal static HEU_AssetCookResultWrapper AssetCookResult_InternalToWrapper(AssetCookResult assetCookResult) =>
@@ -5139,7 +5139,7 @@ namespace HoudiniEngineUnity
 				AssetCookResult.NONE    => HEU_AssetCookResultWrapper.NONE,
 				AssetCookResult.ERRORED => HEU_AssetCookResultWrapper.ERRORED,
 				AssetCookResult.SUCCESS => HEU_AssetCookResultWrapper.SUCCESS,
-				_                       => HEU_AssetCookResultWrapper.NONE
+				_                       => HEU_AssetCookResultWrapper.NONE,
 			} ;
 
 		internal static AssetCookResult AssetCookResult_WrapperToInternal( HEU_AssetCookResultWrapper assetCookResult ) =>
@@ -5147,21 +5147,21 @@ namespace HoudiniEngineUnity
 				HEU_AssetCookResultWrapper.NONE    => AssetCookResult.NONE,
 				HEU_AssetCookResultWrapper.ERRORED => AssetCookResult.ERRORED,
 				HEU_AssetCookResultWrapper.SUCCESS => AssetCookResult.SUCCESS,
-				_                                  => AssetCookResult.NONE
+				_                                  => AssetCookResult.NONE,
 			} ;
 
 		internal static HEU_CurveDrawCollisionWrapper CurveDrawCollision_InternalToWrapper( HEU_Curve.CurveDrawCollision curveDrawCollision ) =>
 			curveDrawCollision switch {
 				HEU_Curve.CurveDrawCollision.COLLIDERS => HEU_CurveDrawCollisionWrapper.COLLIDERS,
 				HEU_Curve.CurveDrawCollision.LAYERMASK => HEU_CurveDrawCollisionWrapper.LAYERMASK,
-				_                                      => HEU_CurveDrawCollisionWrapper.INVALID
+				_                                      => HEU_CurveDrawCollisionWrapper.INVALID,
 			} ;
 
 		internal static HEU_Curve.CurveDrawCollision CurveDrawCollision_WrapperToInternal( HEU_CurveDrawCollisionWrapper curveDrawCollision) =>
 			curveDrawCollision switch {
 				HEU_CurveDrawCollisionWrapper.COLLIDERS => HEU_Curve.CurveDrawCollision.COLLIDERS,
 				HEU_CurveDrawCollisionWrapper.LAYERMASK => HEU_Curve.CurveDrawCollision.LAYERMASK,
-				_                                       => HEU_Curve.CurveDrawCollision.COLLIDERS
+				_                                       => HEU_Curve.CurveDrawCollision.COLLIDERS,
 			} ;
 
 		internal static HEU_AssetTypeWrapper AssetType_InternalToWrapper(HEU_AssetType assetType) => assetType switch {
@@ -5169,7 +5169,7 @@ namespace HoudiniEngineUnity
 																										 HEU_AssetType.TYPE_HDA     => HEU_AssetTypeWrapper.TYPE_HDA,
 																										 HEU_AssetType.TYPE_CURVE   => HEU_AssetTypeWrapper.TYPE_CURVE,
 																										 HEU_AssetType.TYPE_INPUT   => HEU_AssetTypeWrapper.TYPE_INPUT,
-																										 _                          => HEU_AssetTypeWrapper.TYPE_INVALID
+																										 _                          => HEU_AssetTypeWrapper.TYPE_INVALID,
 																									 } ;
 
 		internal static HEU_AssetType AssetType_WrapperToInternal( HEU_AssetTypeWrapper assetType ) => assetType switch {
@@ -5177,7 +5177,7 @@ namespace HoudiniEngineUnity
 																										   HEU_AssetTypeWrapper.TYPE_HDA     => HEU_AssetType.TYPE_HDA,
 																										   HEU_AssetTypeWrapper.TYPE_CURVE   => HEU_AssetType.TYPE_CURVE,
 																										   HEU_AssetTypeWrapper.TYPE_INPUT   => HEU_AssetType.TYPE_INPUT,
-																										   _                                 => HEU_AssetType.TYPE_INVALID
+																										   _                                 => HEU_AssetType.TYPE_INVALID,
 																									   } ;
 
 

@@ -70,7 +70,7 @@ namespace HoudiniEngineUnity
 	public static string GetHoudiniEngineInstallationInfo()
 	{
 #if HOUDINIENGINEUNITY_ENABLED
-	    StringBuilder sb = new StringBuilder();
+	    StringBuilder sb = new();
 
 	    sb.AppendLine("Plugin was built with:");
 	    sb.AppendFormat("  Houdini: {0}.{1}.{2}\n",
@@ -449,7 +449,7 @@ namespace HoudiniEngineUnity
 	    }
 
 	    // Get the asset ID
-	    HAPI_AssetInfo assetInfo = new HAPI_AssetInfo();
+	    HAPI_AssetInfo assetInfo = new();
 	    bResult = session.GetAssetInfo(newAssetID, ref assetInfo);
 	    if (bResult)
 	    {
@@ -535,13 +535,13 @@ namespace HoudiniEngineUnity
 	    }
 
 	    // After cooking, set an empty partinfo
-	    HAPI_GeoInfo inputGeoInfo = new HAPI_GeoInfo();
+	    HAPI_GeoInfo inputGeoInfo = new();
 	    if (!session.GetDisplayGeoInfo(newAssetID, ref inputGeoInfo))
 	    {
 		return false;
 	    }
 
-	    HAPI_PartInfo newPart = new HAPI_PartInfo();
+	    HAPI_PartInfo newPart = new();
 	    newPart.init();
 	    newPart.id = 0;
 	    newPart.vertexCount = 0;
@@ -589,8 +589,8 @@ namespace HoudiniEngineUnity
 
 	public static HAPI_CookOptions GetDefaultCookOptions(HEU_SessionBase session)
 	{
-		HAPI_CookOptions options = new HAPI_CookOptions();
-		HEU_SessionHAPI sessionHAPI = (HEU_SessionHAPI)session;
+		HAPI_CookOptions options     = new();
+		HEU_SessionHAPI  sessionHAPI = (HEU_SessionHAPI)session;
 	#if HOUDINIENGINEUNITY_ENABLED
 		sessionHAPI.GetCookOptions(ref options);
 	#endif
@@ -780,7 +780,7 @@ namespace HoudiniEngineUnity
 	/// <param name="inTransform">Tranform whose children are to be destroyed</param>
 	public static void DestroyChildren(Transform inTransform)
 	{
-	    List<GameObject> children = new List<GameObject>();
+	    List<GameObject> children = new();
 
 	    foreach (Transform child in inTransform)
 	    {
@@ -810,7 +810,7 @@ namespace HoudiniEngineUnity
 	public static void DestroyChildrenWithComponent<T>(GameObject gameObject) where T : Component
 	{
 	    Transform trans = gameObject.transform;
-	    List<GameObject> children = new List<GameObject>();
+	    List<GameObject> children = new();
 	    foreach (Transform t in trans)
 	    {
 		children.Add(t.gameObject);
@@ -837,7 +837,7 @@ namespace HoudiniEngineUnity
 	    if (nodeID != HEU_Defines.HEU_INVALID_NODE_ID)
 	    {
 		// Use _assetID with uniqueHoudiniNodeId to see if our asset matches up in Houdini
-		HAPI_NodeInfo nodeInfo = new HAPI_NodeInfo();
+		HAPI_NodeInfo nodeInfo = new();
 		if (session.GetNodeInfo(nodeID, ref nodeInfo, false))
 		{
 		    return session.IsNodeValid(nodeID, nodeInfo.uniqueHoudiniNodeId);
@@ -885,15 +885,15 @@ namespace HoudiniEngineUnity
 	    unityTransform.position = new Vector3(-hapiTransform.position[0], hapiTransform.position[1], hapiTransform.position[2]);
 
 	    // Invert Y and Z for rotation
-	    Quaternion quaternion = new Quaternion(hapiTransform.rotationQuaternion[0], hapiTransform.rotationQuaternion[1], hapiTransform.rotationQuaternion[2], hapiTransform.rotationQuaternion[3]);
-	    Vector3 euler = quaternion.eulerAngles;
+	    Quaternion quaternion = new(hapiTransform.rotationQuaternion[0], hapiTransform.rotationQuaternion[1], hapiTransform.rotationQuaternion[2], hapiTransform.rotationQuaternion[3]);
+	    Vector3    euler      = quaternion.eulerAngles;
 	    euler.y = -euler.y;
 	    euler.z = -euler.z;
 	    unityTransform.rotation = Quaternion.Euler(euler);
 
 	    // No inversion required for scale
 	    // We can't directly set global scale in Unity, but the proper workaround is to unparent, set scale, then reparent
-	    Vector3 scale = new Vector3(hapiTransform.scale[0], hapiTransform.scale[1], hapiTransform.scale[2]);
+	    Vector3 scale = new(hapiTransform.scale[0], hapiTransform.scale[1], hapiTransform.scale[2]);
 	    if (unityTransform.parent != null)
 	    {
 		Transform parent = unityTransform.parent;
@@ -922,15 +922,15 @@ namespace HoudiniEngineUnity
 	    unityTransform.localPosition = new Vector3(-hapiTransform.position[0], hapiTransform.position[1], hapiTransform.position[2]);
 
 	    // Invert Y and Z for rotation
-	    Quaternion quaternion = new Quaternion(hapiTransform.rotationQuaternion[0], hapiTransform.rotationQuaternion[1], hapiTransform.rotationQuaternion[2], hapiTransform.rotationQuaternion[3]);
-	    Vector3 euler = quaternion.eulerAngles;
+	    Quaternion quaternion = new(hapiTransform.rotationQuaternion[0], hapiTransform.rotationQuaternion[1], hapiTransform.rotationQuaternion[2], hapiTransform.rotationQuaternion[3]);
+	    Vector3    euler      = quaternion.eulerAngles;
 	    euler.y = -euler.y;
 	    euler.z = -euler.z;
 	    unityTransform.localRotation = Quaternion.Euler(euler);
 
 	    // No inversion required for scale
 	    // We can't directly set global scale in Unity, but the proper workaround is to unparent, set scale, then reparent
-	    Vector3 scale = new Vector3(hapiTransform.scale[0], hapiTransform.scale[1], hapiTransform.scale[2]);
+	    Vector3 scale = new(hapiTransform.scale[0], hapiTransform.scale[1], hapiTransform.scale[2]);
 	    unityTransform.localScale = scale;
 	}
 
@@ -950,15 +950,15 @@ namespace HoudiniEngineUnity
 	    unityTransform.localPosition = new Vector3(-hapiTransform.position[0], hapiTransform.position[1], hapiTransform.position[2]);
 
 	    // Invert Y and Z for rotation
-	    Quaternion quaternion = new Quaternion(hapiTransform.rotationQuaternion[0], hapiTransform.rotationQuaternion[1], hapiTransform.rotationQuaternion[2], hapiTransform.rotationQuaternion[3]);
-	    Vector3 euler = quaternion.eulerAngles;
+	    Quaternion quaternion = new(hapiTransform.rotationQuaternion[0], hapiTransform.rotationQuaternion[1], hapiTransform.rotationQuaternion[2], hapiTransform.rotationQuaternion[3]);
+	    Vector3    euler      = quaternion.eulerAngles;
 	    euler.y = -euler.y;
 	    euler.z = -euler.z;
 	    unityTransform.localRotation = Quaternion.Euler(euler) * unityTransform.localRotation;
 
 	    // No inversion required for scale
 	    // We can't directly set global scale in Unity, but the proper workaround is to unparent, set scale, then reparent
-	    Vector3 scale = new Vector3(hapiTransform.scale[0], hapiTransform.scale[1], hapiTransform.scale[2]);
+	    Vector3 scale = new(hapiTransform.scale[0], hapiTransform.scale[1], hapiTransform.scale[2]);
 	    unityTransform.localScale = Vector3.Scale(unityTransform.localScale, scale);
 	}
 
@@ -986,20 +986,20 @@ namespace HoudiniEngineUnity
 
 	    // TODO: Refactor this so as to use a common function to get these values
 	    // Invert the X for position
-	    Vector3 position = new Vector3(invert * hapiTransform.position[0], hapiTransform.position[1], hapiTransform.position[2]);
+	    Vector3 position = new(invert * hapiTransform.position[0], hapiTransform.position[1], hapiTransform.position[2]);
 
 	    // Invert Y and Z for rotation
-	    Quaternion quaternion = new Quaternion(hapiTransform.rotationQuaternion[0], hapiTransform.rotationQuaternion[1], hapiTransform.rotationQuaternion[2], hapiTransform.rotationQuaternion[3]);
-	    Vector3 euler = quaternion.eulerAngles;
+	    Quaternion quaternion = new(hapiTransform.rotationQuaternion[0], hapiTransform.rotationQuaternion[1], hapiTransform.rotationQuaternion[2], hapiTransform.rotationQuaternion[3]);
+	    Vector3    euler      = quaternion.eulerAngles;
 	    euler.y = invert * euler.y;
 	    euler.z = invert * euler.z;
 	    Quaternion rotation = Quaternion.Euler(euler);
 
 	    // No inversion required for scale
 	    // We can't directly set global scale in Unity, but the proper workaround is to unparent, set scale, then reparent
-	    Vector3 scale = new Vector3(hapiTransform.scale[0], hapiTransform.scale[1], hapiTransform.scale[2]);
+	    Vector3 scale = new(hapiTransform.scale[0], hapiTransform.scale[1], hapiTransform.scale[2]);
 
-	    Matrix4x4 matrix = new Matrix4x4();
+	    Matrix4x4 matrix = new();
 	    matrix.SetTRS(position, rotation, scale);
 	    return matrix;
 	}
@@ -1052,7 +1052,7 @@ namespace HoudiniEngineUnity
 	    Vector3 p = GetPosition(ref mat);
 	    Vector3 s = GetScale(ref mat);
 
-	    HAPI_TransformEuler transform = new HAPI_TransformEuler(true);
+	    HAPI_TransformEuler transform = new(true);
 
 	    transform.position[0] = -p[0];
 	    transform.position[1] = p[1];
@@ -1074,7 +1074,7 @@ namespace HoudiniEngineUnity
 
 	public static HAPI_TransformEuler GetHAPITransform(ref Vector3 p, ref Vector3 r, ref Vector3 s)
 	{
-	    HAPI_TransformEuler transform = new HAPI_TransformEuler(true);
+	    HAPI_TransformEuler transform = new(true);
 
 	    transform.position[0] = -p[0];
 	    transform.position[1] = p[1];
@@ -1102,7 +1102,7 @@ namespace HoudiniEngineUnity
 	    Vector3 p = GetPosition(ref mat);
 	    Vector3 s = GetScale(ref mat);
 
-	    HAPI_Transform transform = new HAPI_Transform(true);
+	    HAPI_Transform transform = new(true);
 
 	    transform.position[0] = -p[0];
 	    transform.position[1] = p[1];
@@ -1130,7 +1130,7 @@ namespace HoudiniEngineUnity
 
 	public static Matrix4x4 GetMatrix4x4(ref Vector3 p, ref Vector3 r, ref Vector3 s)
 	{
-	    Matrix4x4 matrix = new Matrix4x4();
+	    Matrix4x4 matrix = new();
 	    matrix.SetTRS(p, Quaternion.Euler(r.x, r.y, r.z), s);
 	    return matrix;
 	}
@@ -1318,7 +1318,7 @@ namespace HoudiniEngineUnity
 	    HAPI_NodeId parentNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
 	    if (nodeID != HEU_Defines.HEU_INVALID_NODE_ID)
 	    {
-		HAPI_NodeInfo nodeInfo = new HAPI_NodeInfo();
+		HAPI_NodeInfo nodeInfo = new();
 		if (session.GetNodeInfo(nodeID, ref nodeInfo))
 		{
 		    parentNodeID = nodeInfo.parentId;
@@ -1450,8 +1450,8 @@ namespace HoudiniEngineUnity
 
 	    HAPI_NodeId childNodeId = inChildNodeId;
 
-	    HAPI_ObjectInfo childObjInfo = new HAPI_ObjectInfo();
-	    HAPI_NodeInfo childNodeInfo = new HAPI_NodeInfo();
+	    HAPI_ObjectInfo childObjInfo  = new();
+	    HAPI_NodeInfo   childNodeInfo = new();
 
 	    do
 	    {
@@ -1507,14 +1507,14 @@ namespace HoudiniEngineUnity
 	    bool bOutputTemplatedGeos = false; // TODO: Add this option in HoudiniAssetComponent
 
 	    // Get the Asset NodeInfo
-	    HAPI_NodeInfo assetNodeInfo = new HAPI_NodeInfo();
+	    HAPI_NodeInfo assetNodeInfo = new();
 	    if (!session.GetNodeInfo(assetInfo.nodeId, ref assetNodeInfo)) return;
 
 	    // In certain cases, such as PDG output processing we might end up with a SOP node instead of a
 	    // container. In that case, don't try to run child queries on this node. They will fail.
 	    bool bAssetHasChildren = !(assetNodeInfo.type == HAPI_NodeType.HAPI_NODETYPE_SOP && assetNodeInfo.childNodeCount == 0);
 
-	    List<HAPI_GeoInfo> editableGeoInfos = new List<HAPI_GeoInfo>();
+	    List<HAPI_GeoInfo> editableGeoInfos = new();
 
 	    // Get editable nodes, cook em, then create geo nodes for them
 	    HAPI_NodeId[] editableNodes = null;
@@ -1523,7 +1523,7 @@ namespace HoudiniEngineUnity
 	    {
 		foreach (HAPI_NodeId editNodeID in editableNodes)
 		{
-		    HAPI_GeoInfo editGeoInfo = new HAPI_GeoInfo();
+		    HAPI_GeoInfo editGeoInfo = new();
 		    if (session.GetGeoInfo(editNodeID, ref editGeoInfo))
 		    {
 			// Do not process the main display geo twice!
@@ -1564,7 +1564,7 @@ namespace HoudiniEngineUnity
 	    }
 
 	    // Need to get all object Ids just to determine visiblity
-	    HashSet<HAPI_NodeId> allObjectIds = new HashSet<HAPI_NodeId>();
+	    HashSet<HAPI_NodeId> allObjectIds = new();
 
 	    if (bUseOutputFromSubnets)
 	    {
@@ -1620,11 +1620,11 @@ namespace HoudiniEngineUnity
 
 
 	    // Get the AssetInfo
-	    HAPI_AssetInfo assetInfo = new HAPI_AssetInfo();
+	    HAPI_AssetInfo assetInfo = new();
 	    if (!session.GetAssetInfo(assetId, ref assetInfo)) return;
 
 	    // Get the Asset NodeInfo
-	    HAPI_NodeInfo assetNodeInfo = new HAPI_NodeInfo();
+	    HAPI_NodeInfo assetNodeInfo = new();
 	    if (!session.GetNodeInfo(assetId, ref assetNodeInfo)) return;
 
 	    // In certain cases, such as PDG output processing we might end up with a SOP node instead of a
@@ -1636,7 +1636,7 @@ namespace HoudiniEngineUnity
 
 	    if (!HEU_HAPIUtility.GetObjectInfos(session, assetId, ref assetNodeInfo, out objectInfos, out objectTransforms)) return;
 
-	    List<HAPI_GeoInfo> editableGeoInfos = new List<HAPI_GeoInfo>();
+	    List<HAPI_GeoInfo> editableGeoInfos = new();
 
 	    // Get editable nodes, cook em, then create geo nodes for them
 	    HAPI_NodeId[] editableNodes = null;
@@ -1645,7 +1645,7 @@ namespace HoudiniEngineUnity
 	    {
 		foreach (HAPI_NodeId editNodeID in editableNodes)
 		{
-		    HAPI_GeoInfo editGeoInfo = new HAPI_GeoInfo();
+		    HAPI_GeoInfo editGeoInfo = new();
 		    if (session.GetGeoInfo(editNodeID, ref editGeoInfo))
 		    {
 			// Do not process the main display geo twice!
@@ -1691,7 +1691,7 @@ namespace HoudiniEngineUnity
 	    // NOTE that if the HDA contains immediate SOP nodes we will ignore
 	    // all subnets and only use the data outputs directly from the HDA.
 
-	    HashSet<HAPI_NodeId> allObjectIds = new HashSet<HAPI_NodeId>();
+	    HashSet<HAPI_NodeId> allObjectIds = new();
 
 	    if (bUseOutputFromSubnets)
 	    {
@@ -1729,7 +1729,7 @@ namespace HoudiniEngineUnity
 		    gatherOutputsNodeId = currentObjInfo.nodeId;
 		}
 
-		List<HAPI_GeoInfo> geoInfos = new List<HAPI_GeoInfo>(editableGeoInfos);
+		List<HAPI_GeoInfo> geoInfos = new(editableGeoInfos);
 		if (bObjectIsVisible)
 		{
 		    GatherAllAssetOutputs(session, gatherOutputsNodeId, bUseOutputNodes, bOutputTemplatedGeos, ref outGeoInfos);
@@ -1739,15 +1739,15 @@ namespace HoudiniEngineUnity
 
 	static private void GatherAllAssetOutputs(HEU_SessionBase session, HAPI_NodeId nodeId, bool bUseOutputNodes, bool bOutputTemplatedGeos, ref List<HAPI_GeoInfo> outGeoInfos)
 	{
-	    HashSet<HAPI_NodeId> gatheredNodeIds = new HashSet<HAPI_NodeId>();
+	    HashSet<HAPI_NodeId> gatheredNodeIds = new();
 	    // NOTE: This function assumes that the incoming node is a Geometry container that contains immediate
 	    // outputs / display nodes / template nodes.
 
 	    // First we look for (immediate) output nodes (if bUseOutputNodes have been enabled).
 	    // If we didn't find an output node, we'll look for a display node.
 
-	    List<HAPI_GeoInfo> geoInfos = new List<HAPI_GeoInfo>();
-	    bool bHasOutputs = false;
+	    List<HAPI_GeoInfo> geoInfos    = new();
+	    bool               bHasOutputs = false;
 
 	    if (bUseOutputNodes)
 	    {
@@ -1788,7 +1788,7 @@ namespace HoudiniEngineUnity
 		    {
 			if (gatheredNodeIds.Contains(displayNodeId)) continue;
 
-			HAPI_GeoInfo geoInfo = new HAPI_GeoInfo();
+			HAPI_GeoInfo geoInfo = new();
 			if (session.GetGeoInfo(displayNodeId, ref geoInfo))
 			{
 			    geoInfos.Add(geoInfo);
@@ -1808,7 +1808,7 @@ namespace HoudiniEngineUnity
 		    {
 			if (gatheredNodeIds.Contains(templateNodeId)) continue;
 
-			HAPI_GeoInfo geoInfo = new HAPI_GeoInfo();
+			HAPI_GeoInfo geoInfo = new();
 			if (session.GetGeoInfo(templateNodeId, ref geoInfo) && geoInfo.type != HAPI_GeoType.HAPI_GEOTYPE_INVALID)
 			{
 			    geoInfos.Add(geoInfo);
@@ -1848,7 +1848,7 @@ namespace HoudiniEngineUnity
 		if (requiresCook)
 		{
 		    session.CookNode(info.nodeId, HEU_PluginSettings.CookTemplatedGeos);
-		    HAPI_GeoInfo geoInfo = new HAPI_GeoInfo();
+		    HAPI_GeoInfo geoInfo = new();
 		    if (session.GetGeoInfo(info.nodeId, ref geoInfo) && geoInfo.type != HAPI_GeoType.HAPI_GEOTYPE_INVALID)
 		    {
 		        outGeoInfos.Add(geoInfo);
@@ -1937,8 +1937,8 @@ namespace HoudiniEngineUnity
 
 	public static Quaternion ConvertRotationUnityToHoudini(float inputX, float inputY, float inputZ, float inputW)
 	{
-	    Quaternion quat = new Quaternion(inputX, inputY, inputZ, inputW);
-	    Vector3 euler = quat.eulerAngles;
+	    Quaternion quat  = new(inputX, inputY, inputZ, inputW);
+	    Vector3    euler = quat.eulerAngles;
 	    euler.y = -euler.y;
 	    euler.z = -euler.z;
 
