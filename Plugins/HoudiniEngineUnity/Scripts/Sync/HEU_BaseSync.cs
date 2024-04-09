@@ -1,4 +1,5 @@
-﻿/*
+#nullable enable
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -385,6 +386,10 @@ namespace HoudiniEngineUnity
             HEU_SessionBase session = GetHoudiniSession(true);
             Transform parent = this.gameObject.transform;
 
+	private void GenerateTerrain(HAPI_NodeId cookNodeId, List<HEU_LoadBufferVolume> terrainBuffers)
+	{
+	    HEU_SessionBase? session = GetHoudiniSession(true);
+	    Transform parent = this.gameObject.transform;
             // Directory to store generated terrain files.
             string outputTerrainpath = GetOutputCacheDirectory();
             outputTerrainpath = HEU_Platform.BuildPath(outputTerrainpath, "Terrain");
@@ -777,9 +782,9 @@ namespace HoudiniEngineUnity
 #endif
         }
 
-        private void GenerateMesh(HAPI_NodeId cookNodeId, List<HEU_LoadBufferMesh> meshBuffers)
-        {
-            HEU_SessionBase session = GetHoudiniSession(true);
+	private void GenerateMesh(HAPI_NodeId cookNodeId, List<HEU_LoadBufferMesh> meshBuffers)
+	{
+	    HEU_SessionBase? session = GetHoudiniSession(true);
 
             Transform parent = this.gameObject.transform;
 
@@ -859,32 +864,30 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void GenerateAllInstancers(HAPI_NodeId cookNodeId, List<HEU_LoadBufferInstancer> instancerBuffers,
-            HEU_ThreadedTaskLoadGeo.HEU_LoadData loadData)
-        {
-            int numBuffers = instancerBuffers.Count;
-            for (int m = 0; m < numBuffers; ++m)
-            {
-                GenerateInstancer(cookNodeId, instancerBuffers[m], loadData._idBuffersMap);
+        void GenerateAllInstancers( HAPI_NodeId cookNodeId, 
+                                    List<HEU_LoadBufferInstancer> instancerBuffers,
+                                        HEU_ThreadedTaskLoadGeo.HEU_LoadData loadData ) {
+            int numBuffers = instancerBuffers.Count ;
+            for ( int m = 0; m < numBuffers; ++m ) {
+                GenerateInstancer(cookNodeId, instancerBuffers[m], loadData._idBuffersMap) ;
             }
         }
 
-        private void GenerateInstancer(HAPI_NodeId cookNodeId, HEU_LoadBufferInstancer instancerBuffer,
-            Dictionary<HAPI_NodeId, HEU_LoadBufferBase> idBuffersMap)
-        {
-            if (instancerBuffer._generatedOutput != null)
+        void GenerateInstancer( HAPI_NodeId cookNodeId,
+                                    HEU_LoadBufferInstancer instancerBuffer,
+                                        Dictionary<HAPI_NodeId, HEU_LoadBufferBase> idBuffersMap ) {
+            if ( instancerBuffer._generatedOutput != null )
             {
                 // Already generated
                 return;
             }
-
-            HEU_SessionBase session = GetHoudiniSession(true);
-
-            Transform parent = this.gameObject.transform;
-
-            GameObject instanceRootGO = HEU_GeneralUtility.CreateNewGameObject("instance_" + instancerBuffer._name);
-
-            HAPI_PartId partId = instancerBuffer._id;
+            
+	        HEU_SessionBase? session = GetHoudiniSession( true ) ;
+            GameObject instanceRootGO =
+                HEU_GeneralUtility.CreateNewGameObject( 
+                    "instance_" + instancerBuffer._name
+                ) ;
+            HAPI_PartId partId = instancerBuffer._id ;
 
             Transform instanceRootTransform = instanceRootGO.transform;
             instanceRootTransform.parent = parent;
@@ -912,21 +915,22 @@ namespace HoudiniEngineUnity
             SetOutputVisiblity(instancerBuffer);
         }
 
-        private void GenerateInstancesFromNodeIDs(HAPI_NodeId cookNodeId, HEU_LoadBufferInstancer instancerBuffer,
-            Dictionary<HAPI_NodeId, HEU_LoadBufferBase> idBuffersMap,
-            Transform instanceRootTransform)
-        {
+      //  private void GenerateInstancesFromNodeIDs(HAPI_NodeId cookNodeId, HEU_LoadBufferInstancer instancerBuffer,
+      //        Dictionary<HAPI_NodeId, HEU_LoadBufferBase> idBuffersMap,
+      //      Transform instanceRootTransform)
+      //  {
             // For single collision geo override
-            GameObject singleCollisionGO = null;
+            // GameObject singleCollisionGO = null;
 
-            // For multi collision geo overrides, keep track of loaded objects
+	    void GenerateInstancesFromNodeIDs( HAPI_NodeId cookNodeId, HEU_LoadBufferInstancer instancerBuffer,
+                                            Dictionary<HAPI_NodeId, HEU_LoadBufferBase> idBuffersMap, Transform instanceRootTransform ) {
+	        // For single collision geo override
+	        GameObject? singleCollisionGO = null;
             Dictionary<string, GameObject> loadedCollisionObjectMap = new Dictionary<string, GameObject>();
 
-            if (instancerBuffer._collisionAssetPaths != null && instancerBuffer._collisionAssetPaths.Length == 1)
-            {
+            if (instancerBuffer._collisionAssetPaths != null && instancerBuffer._collisionAssetPaths.Length is 1) {
                 // Single collision override
-                if (!string.IsNullOrEmpty(instancerBuffer._collisionAssetPaths[0]))
-                {
+                if (!string.IsNullOrEmpty(instancerBuffer._collisionAssetPaths[0])) {
                     HEU_AssetDatabase.ImportAsset(instancerBuffer._collisionAssetPaths[0],
                         HEU_AssetDatabase.HEU_ImportAssetOptions.Default);
                     singleCollisionGO =
@@ -943,17 +947,22 @@ namespace HoudiniEngineUnity
             }
 
             int numInstances = instancerBuffer._instanceNodeIDs.Length;
-            for (int i = 0; i < numInstances; ++i)
-            {
+            for ( int i = 0; i < numInstances; ++i ) {
                 HEU_LoadBufferBase sourceBuffer = null;
-                if (!idBuffersMap.TryGetValue(instancerBuffer._instanceNodeIDs[i], out sourceBuffer) ||
-                    sourceBuffer == null)
-                {
-                    HEU_Logger.LogErrorFormat("Part with id {0} is missing. Unable to setup instancer!",
-                        instancerBuffer._instanceNodeIDs[i]);
-                    return;
+                if ( !idBuffersMap.TryGetValue( instancerBuffer._instanceNodeIDs[i], out sourceBuffer )
+                        || sourceBuffer == null ) {
+                    HEU_Logger.LogErrorFormat( "Part with id {0} is missing. Unable to setup instancer!",
+                                                instancerBuffer._instanceNodeIDs[i] ) ;
+                    return ;
                 }
 
+	            int numInstances = instancerBuffer._instanceNodeIDs.Length;
+	            for ( int i = 0; i < numInstances; ++i ) {
+		        HEU_LoadBufferBase? sourceBuffer = null ;
+		        if (!idBuffersMap.TryGetValue(instancerBuffer._instanceNodeIDs[i], out sourceBuffer) || sourceBuffer == null) {
+		            HEU_Logger.LogErrorFormat("Part with id {0} is missing. Unable to setup instancer!", instancerBuffer._instanceNodeIDs[i]);
+		            return ;
+		        }
                 // If the part we're instancing is itself an instancer, make sure it has generated its instances
                 if (sourceBuffer._bInstanced && sourceBuffer._generatedOutput == null)
                 {
@@ -965,32 +974,26 @@ namespace HoudiniEngineUnity
                 }
 
                 GameObject sourceGameObject = sourceBuffer._generatedOutput._outputData._gameObject;
-                if (sourceGameObject == null)
-                {
+                if (sourceGameObject == null) {
                     HEU_Logger.LogErrorFormat("Output gameobject is null for source {0}. Unable to instance for {1}.",
                         sourceBuffer._name, instancerBuffer._name);
                     continue;
                 }
 
                 GameObject collisionSrcGO = null;
-                if (singleCollisionGO != null)
-                {
+                if (singleCollisionGO != null) {
                     // Single collision geo
                     collisionSrcGO = singleCollisionGO;
                 }
                 else if (instancerBuffer._collisionAssetPaths != null
                          && (i < instancerBuffer._collisionAssetPaths.Length)
-                         && !string.IsNullOrEmpty(instancerBuffer._collisionAssetPaths[i]))
-                {
+                         && !string.IsNullOrEmpty(instancerBuffer._collisionAssetPaths[i])) {
                     // Mutliple collision geo (one per instance).
-                    if (!loadedCollisionObjectMap.TryGetValue(instancerBuffer._collisionAssetPaths[i],
-                            out collisionSrcGO))
-                    {
+                    if ( !loadedCollisionObjectMap.TryGetValue( instancerBuffer._collisionAssetPaths[i], out collisionSrcGO) ) {
                         collisionSrcGO =
                             HEU_AssetDatabase.LoadAssetAtPath(instancerBuffer._collisionAssetPaths[i],
                                 typeof(GameObject)) as GameObject;
-                        if (collisionSrcGO == null)
-                        {
+                        if (collisionSrcGO == null) {
                             HEU_Logger.LogErrorFormat("Unable to load collision asset at {0} for instancing!",
                                 instancerBuffer._collisionAssetPaths[i]);
                         }
@@ -1011,14 +1014,15 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void GenerateInstancesFromAssetPaths(HEU_LoadBufferInstancer instancerBuffer,
-            Transform instanceRootTransform)
-        {
+       // private void GenerateInstancesFromAssetPaths(HEU_LoadBufferInstancer instancerBuffer,
+       //     Transform instanceRootTransform)
+       // {
             // For single asset, this is set when its imported
-            GameObject singleAssetGO = null;
+        //    GameObject singleAssetGO = null;
 
-            // For multi assets, keep track of loaded objects so we only need to load once for each object
-            Dictionary<string, GameObject> loadedAssetObjectMap = new Dictionary<string, GameObject>();
+	void GenerateInstancesFromAssetPaths(HEU_LoadBufferInstancer instancerBuffer, Transform instanceRootTransform) {
+	    // For single asset, this is set when its imported
+	    GameObject singleAssetGO = null;
 
             // For single collision geo override
             GameObject singleCollisionGO = null;
@@ -1156,10 +1160,9 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void CreateNewInstanceFromObject(GameObject assetSourceGO, int instanceIndex, Transform parentTransform,
-            ref HAPI_Transform hapiTransform, string[] instancePrefixes, string instanceName,
-            GameObject collisionSourceGO)
-        {
+        void CreateNewInstanceFromObject( GameObject assetSourceGO, int instanceIndex, Transform parentTransform,
+                                            ref HAPI_Transform hapiTransform, string[] instancePrefixes,
+                                            string instanceName, GameObject collisionSourceGO ) {
             GameObject newInstanceGO = null;
 
             if (HEU_EditorUtility.IsPrefabAsset(assetSourceGO))

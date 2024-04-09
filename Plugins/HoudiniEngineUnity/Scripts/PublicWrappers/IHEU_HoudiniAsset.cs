@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -62,6 +62,14 @@ namespace HoudiniEngineUnity
         PRELOAD,
         SELECT_SUBASSET
     };
+	NONE,
+	COOKING,
+	POSTCOOK,
+	LOADING,
+	POSTLOAD,
+	PRELOAD,
+	SELECT_SUBASSET,
+	};
 
 
     public enum HEU_AssetCookResultWrapper
@@ -71,6 +79,11 @@ namespace HoudiniEngineUnity
         ERRORED
     };
 
+	NONE,
+	SUCCESS,
+	ERRORED,
+	};
+    
     /// <summary>
     /// A wrapper around the curve draw collision
     /// </summary>
@@ -80,6 +93,11 @@ namespace HoudiniEngineUnity
         COLLIDERS,
         LAYERMASK
     };
+	INVALID = 0,
+	COLLIDERS,
+	LAYERMASK,
+	};
+    
 
 
     /// <summary>
@@ -93,6 +111,12 @@ namespace HoudiniEngineUnity
         TYPE_INPUT
     };
 
+	TYPE_INVALID = 0,
+	TYPE_HDA,
+	TYPE_CURVE,
+	TYPE_INPUT,
+	};
+   
     /// <summary>
     /// Represents a Houdini Digital Asset in Unity.
     /// Contains object nodes, geo nodes, and parts for an HDA.
@@ -265,8 +289,15 @@ namespace HoudiniEngineUnity
         /// <summary>The events that gets called on cook</summary>
         HEU_CookedDataEvent CookedDataEvent { get; }
 
-        /// <summary>The events that gets called on baked</summary>
-        HEU_BakedDataEvent BakedDataEvent { get; }
+	/// <summary>
+	/// Public interface to request a cook of this asset.
+	/// Can be async or blocking. If async will return once cook has finished.
+	/// </summary>
+	/// <param name="bCheckParametersChanged">If true, then will only upload parameters that have changed.</param>
+	/// <param name="bAsync">Cook asynchronously or block until cooking is done.</param>
+	/// <param name="bSkipCookCheck">If true, will force cook even if cooking is disabled.</param>
+	/// <param name="bUploadParameters">If true, will upload parameter values before cooking.</param>
+	bool RequestCook(bool bCheckParametersChanged = true, bool bAsync = false, bool bSkipCookCheck = true, bool bUploadParameters = true);
 
         /// <summary>The events that gets called before cooking</summary>
         HEU_PreAssetEvent PreAssetEvent { get; }

@@ -1,4 +1,5 @@
-﻿/*
+#nullable enable
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -32,129 +33,118 @@ using UnityEngine;
 
 namespace HoudiniEngineUnity
 {
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Typedefs (copy these from HEU_Common.cs)
-    using HAPI_NodeId = System.Int32;
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Typedefs (copy these from HEU_Common.cs)
+	using HAPI_NodeId = System.Int32 ;
 
-    /// <summary>
-    /// Instantiates an HDA in a separate thread, and generates its geometry.
-    /// </summary>
-    //[ExecuteInEditMode] // Needed to get OnDestroy callback when deleted in Editor
-    public class HEU_AssetSync : HEU_BaseSync
-    {
-        #region FUNCTIONS
+	/// <summary>
+	/// Instantiates an HDA in a separate thread, and generates its geometry.
+	/// </summary>
+	//[ExecuteInEditMode] // Needed to get OnDestroy callback when deleted in Editor
+	public class HEU_AssetSync: HEU_BaseSync
+	{
+		#region FUNCTIONS
 
-        #region SETUP
+		#region SETUP
 
-        private void OnEnable()
-        {
+		void OnEnable( ) {
 #if HOUDINIENGINEUNITY_ENABLED
-            // Adding in OnEnable as its called after a code recompile (Awake is not).
-            HEU_AssetUpdater.AddNodeSyncForUpdate(this);
+			// Adding in OnEnable as its called after a code recompile (Awake is not).
+			HEU_AssetUpdater.AddNodeSyncForUpdate( this ) ;
 #endif
-        }
+		}
 
-        private void OnDestroy()
-        {
-            // Need to remove the NodySync from AssetUpdater.
-            // Parent's OnDestroy doesn't get called so
-            // do session deletion here as well.
+		void OnDestroy( ) {
+			// Need to remove the NodySync from AssetUpdater.
+			// Parent's OnDestroy doesn't get called so
+			// do session deletion here as well.
 
 #if HOUDINIENGINEUNITY_ENABLED
-            HEU_AssetUpdater.RemoveNodeSync(this);
+			HEU_AssetUpdater.RemoveNodeSync( this ) ;
 #endif
 
-            DeleteSessionData();
-        }
+			DeleteSessionData( ) ;
+		}
 
-        public void InitializeAsset(HEU_SessionBase session, string assetPath,
-            string nodeName, Transform parent, Vector3 startPosition)
-        {
-            Initialize();
+		public void InitializeAsset( HEU_SessionBase session, string assetPath,
+									 string nodeName, Transform parent, Vector3 startPosition ) {
+			Initialize( ) ;
 
-            //_cookNodeID = -1;
+			//_cookNodeID = -1;
 
-            _sessionID = session.GetSessionData().SessionID;
-            _assetPath = assetPath;
-            _nodeName = nodeName;
+			_sessionID = session.GetSessionData( ).SessionID ;
+			_assetPath = assetPath ;
+			_nodeName  = nodeName ;
 
-            Transform transform = gameObject.transform;
-            transform.parent = parent;
-            transform.position = startPosition;
-        }
+			Transform tx = gameObject.transform ;
+			tx.parent   = parent ;
+			tx.position = startPosition ;
+		}
 
-        private HEU_ThreadedTaskLoadGeo CreateThreadedTask()
-        {
-            HEU_ThreadedTaskLoadGeo loadTask = new HEU_ThreadedTaskLoadGeo();
-            loadTask.Priority = System.Threading.ThreadPriority.Normal;
-            loadTask.IsBackground = true;
-            return loadTask;
-        }
+		HEU_ThreadedTaskLoadGeo CreateThreadedTask( ) {
+			HEU_ThreadedTaskLoadGeo loadTask = new HEU_ThreadedTaskLoadGeo( ) ;
+			loadTask.Priority     = System.Threading.ThreadPriority.Normal ;
+			loadTask.IsBackground = true ;
+			return loadTask ;
+		}
 
-        public void SetLoadCallback(HEU_ThreadedTaskLoadGeo.HEU_LoadCallback callback)
-        {
-            if (_loadTask == null)
-            {
-                _loadTask = CreateThreadedTask();
-            }
+		public void SetLoadCallback( HEU_ThreadedTaskLoadGeo.HEU_LoadCallback? callback ) {
+			if ( _loadTask is null ) {
+				_loadTask = CreateThreadedTask( ) ;
+			}
 
-            _loadTask.SetLoadCallback(callback);
-        }
+			_loadTask.SetLoadCallback( callback ) ;
+		}
 
-        protected override void SetupLoadTask(HEU_SessionBase session)
-        {
-            if (_loadTask == null)
-            {
-                _loadTask = CreateThreadedTask();
-            }
+		protected override void SetupLoadTask( HEU_SessionBase session ) {
+			if ( _loadTask == null ) {
+				_loadTask = CreateThreadedTask( ) ;
+			}
 
-            _loadTask.SetupLoadAsset(session, this, _assetPath, _nodeName);
-            _loadTask.Start();
-        }
+			_loadTask.SetupLoadAsset( session, this, _assetPath, _nodeName ) ;
+			_loadTask.Start( ) ;
+		}
 
-        #endregion
+		#endregion
 
-        #region UTILITY
+		#region UTILITY
 
-        public override void OnLoadComplete(HEU_ThreadedTaskLoadGeo.HEU_LoadData loadData)
-        {
-            base.OnLoadComplete(loadData);
+		public override void OnLoadComplete( HEU_ThreadedTaskLoadGeo.HEU_LoadData loadData ) {
+			base.OnLoadComplete( loadData ) ;
 
-            if (_onAssetLoaded != null)
-            {
-                _onAssetLoaded.Invoke(this);
-            }
-        }
+			if ( _onAssetLoaded != null ) {
+				_onAssetLoaded.Invoke( this ) ;
+			}
+		}
 
-        #endregion
+		#endregion
 
-        #region SYNC
+		#region SYNC
 
-        public override void Resync()
-        {
-            if (_syncing)
-            {
-                return;
-            }
+		public override void Resync( ) {
+			if ( _syncing ) {
+				return ;
+			}
 
-            // Not unloading, but rather just generating local geometry
-            DestroyGeneratedData();
-            StartSync();
-        }
+			// Not unloading, but rather just generating local geometry
+			DestroyGeneratedData( ) ;
+			StartSync( ) ;
+		}
 
-        #endregion
+		#endregion
 
-        #endregion
+		#endregion
 
 
-        #region DATA
+		#region DATA
 
-        public delegate void AssetSyncCallback(HEU_AssetSync assetSync);
+		public delegate void AssetSyncCallback( HEU_AssetSync assetSync ) ;
 
-        public AssetSyncCallback _onAssetLoaded;
+		public AssetSyncCallback? _onAssetLoaded ;
 
-        public string _assetPath;
+		public string _assetPath ;
 
-        #endregion
-    }
+		#endregion
+	}
+
 } // HoudiniEngineUnity

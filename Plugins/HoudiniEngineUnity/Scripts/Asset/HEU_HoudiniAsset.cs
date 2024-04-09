@@ -96,12 +96,11 @@ namespace HoudiniEngineUnity
             set { _loadAssetFromMemory = value; }
         }
 
-        /// <inheritdoc />
-        public bool AlwaysOverwriteOnLoad
-        {
-            get { return _alwaysOverwriteOnLoad; }
-            set { _alwaysOverwriteOnLoad = value; }
-        }
+	/// <inheritdoc />
+	public bool AlwaysOverwriteOnLoad { 
+		get => _alwaysOverwriteOnLoad ;
+		set => _alwaysOverwriteOnLoad = value ;
+	}
 
         /// <inheritdoc />
         public bool GenerateUVs
@@ -506,16 +505,16 @@ namespace HoudiniEngineUnity
 
         // BUILD & COOK -----------------------------------------------------------------------------------------------
 
-        internal enum AssetBuildAction
-        {
-            NONE,
-            RELOAD,
-            COOK,
-            INVALID,
-            STRIP_HEDATA,
-            DUPLICATE,
-            RESET_PARAMS
-        }
+	internal enum AssetBuildAction
+	{
+	    NONE,
+	    RELOAD,
+	    COOK,
+	    INVALID,
+	    STRIP_HEDATA,
+	    DUPLICATE,
+	    RESET_PARAMS,
+	}
 
         [SerializeField] private AssetBuildAction _requestBuildAction;
 
@@ -530,16 +529,16 @@ namespace HoudiniEngineUnity
 
         [SerializeField] private bool _upstreamCookChanged;
 
-        internal enum AssetCookStatus
-        {
-            NONE,
-            COOKING,
-            POSTCOOK,
-            LOADING,
-            POSTLOAD,
-            PRELOAD,
-            SELECT_SUBASSET
-        }
+	internal enum AssetCookStatus
+	{
+	    NONE,
+	    COOKING,
+	    POSTCOOK,
+	    LOADING,
+	    POSTLOAD,
+	    PRELOAD,
+	    SELECT_SUBASSET,
+	}
 
         [SerializeField] private AssetCookStatus _cookStatus;
 
@@ -551,12 +550,12 @@ namespace HoudiniEngineUnity
 
 #pragma warning restore 0414
 
-        internal enum AssetCookResult
-        {
-            NONE,
-            SUCCESS,
-            ERRORED
-        }
+	internal enum AssetCookResult
+	{
+	    NONE,
+	    SUCCESS,
+	    ERRORED,
+	}
 
         [SerializeField] private AssetCookResult _lastCookResult;
 
@@ -757,7 +756,13 @@ namespace HoudiniEngineUnity
         }
 
 
-        [SerializeField, HideInInspector] private HEU_AssetSerializedMetaData _serializedMetaData;
+	// Enum to guess how Unity instantiated this object (because Unity doesn't provide instantiation callbacks)
+	enum AssetInstantiationMethod
+	{
+	    DEFAULT,
+	    DUPLICATED,
+	    UNDO,
+	};
 
         internal HEU_AssetSerializedMetaData SerializedMetaData
         {
@@ -5227,12 +5232,30 @@ namespace HoudiniEngineUnity
             newAsset._editableNodesToolsEnabled = this._editableNodesToolsEnabled;
             newAsset._toolsInfo = ScriptableObject.Instantiate(this._toolsInfo) as HEU_ToolsInfo;
 
-            // Copy events
+		// Private/Internal helper functions ===
+		internal static HEU_AssetCookStatusWrapper AssetCookStatus_InternalToWrappper(AssetCookStatus assetCookStatus) =>
+			assetCookStatus switch {
+				AssetCookStatus.NONE            => HEU_AssetCookStatusWrapper.NONE,
+				AssetCookStatus.COOKING         => HEU_AssetCookStatusWrapper.COOKING,
+				AssetCookStatus.POSTCOOK        => HEU_AssetCookStatusWrapper.POSTCOOK,
+				AssetCookStatus.LOADING         => HEU_AssetCookStatusWrapper.LOADING,
+				AssetCookStatus.POSTLOAD        => HEU_AssetCookStatusWrapper.POSTLOAD,
+				AssetCookStatus.PRELOAD         => HEU_AssetCookStatusWrapper.PRELOAD,
+				AssetCookStatus.SELECT_SUBASSET => HEU_AssetCookStatusWrapper.SELECT_SUBASSET,
+				_                               => HEU_AssetCookStatusWrapper.NONE,
+			} ;
 
-            newAsset._reloadDataEvent = this._reloadDataEvent;
-            newAsset._cookedDataEvent = this._cookedDataEvent;
-            newAsset._bakedDataEvent = this._bakedDataEvent;
-            newAsset._preAssetEvent = this._preAssetEvent;
+		internal static AssetCookStatus AssetCookStatus_WrapperToInternal(HEU_AssetCookStatusWrapper assetCookStatus) =>
+			assetCookStatus switch {
+				HEU_AssetCookStatusWrapper.NONE            => AssetCookStatus.NONE,
+				HEU_AssetCookStatusWrapper.COOKING         => AssetCookStatus.COOKING,
+				HEU_AssetCookStatusWrapper.POSTCOOK        => AssetCookStatus.POSTCOOK,
+				HEU_AssetCookStatusWrapper.LOADING         => AssetCookStatus.LOADING,
+				HEU_AssetCookStatusWrapper.POSTLOAD        => AssetCookStatus.POSTLOAD,
+				HEU_AssetCookStatusWrapper.PRELOAD         => AssetCookStatus.PRELOAD,
+				HEU_AssetCookStatusWrapper.SELECT_SUBASSET => AssetCookStatus.SELECT_SUBASSET,
+				_                                          => AssetCookStatus.NONE,
+			} ;
 
             newAsset._downstreamConnectionCookedEvent = this._downstreamConnectionCookedEvent;
 
@@ -5385,98 +5408,46 @@ namespace HoudiniEngineUnity
 				AssetCookResult.NONE    => HEU_AssetCookResultWrapper.NONE,
 				AssetCookResult.ERRORED => HEU_AssetCookResultWrapper.ERRORED,
 				AssetCookResult.SUCCESS => HEU_AssetCookResultWrapper.SUCCESS,
-				_                       => HEU_AssetCookResultWrapper.NONE
+				_                       => HEU_AssetCookResultWrapper.NONE,
 			} ;
 
-        // Private/Internal helper functions ===
-        internal static HEU_AssetCookStatusWrapper AssetCookStatus_InternalToWrappper(HEU_HoudiniAsset.AssetCookStatus assetCookStatus)
-        {
-            switch (assetCookStatus)
-            {
-                case HEU_HoudiniAsset.AssetCookStatus.NONE:
-                    return HEU_AssetCookStatusWrapper.NONE;
-                case HEU_HoudiniAsset.AssetCookStatus.COOKING:
-                    return HEU_AssetCookStatusWrapper.COOKING;
-                case HEU_HoudiniAsset.AssetCookStatus.POSTCOOK:
-                    return HEU_AssetCookStatusWrapper.POSTCOOK;
-                case HEU_HoudiniAsset.AssetCookStatus.LOADING:
-                    return HEU_AssetCookStatusWrapper.LOADING;
-                case HEU_HoudiniAsset.AssetCookStatus.POSTLOAD:
-                    return HEU_AssetCookStatusWrapper.POSTLOAD;
-                case HEU_HoudiniAsset.AssetCookStatus.PRELOAD:
-                    return HEU_AssetCookStatusWrapper.PRELOAD;
-                case HEU_HoudiniAsset.AssetCookStatus.SELECT_SUBASSET:
-                    return HEU_AssetCookStatusWrapper.SELECT_SUBASSET;
-                default:
-                    return HEU_AssetCookStatusWrapper.NONE;
-            }
-        }
+		internal static AssetCookResult AssetCookResult_WrapperToInternal( HEU_AssetCookResultWrapper assetCookResult ) =>
+			assetCookResult switch {
+				HEU_AssetCookResultWrapper.NONE    => AssetCookResult.NONE,
+				HEU_AssetCookResultWrapper.ERRORED => AssetCookResult.ERRORED,
+				HEU_AssetCookResultWrapper.SUCCESS => AssetCookResult.SUCCESS,
+				_                                  => AssetCookResult.NONE,
+			} ;
 
-        internal static HEU_HoudiniAsset.AssetCookStatus AssetCookStatus_WrapperToInternal(HEU_AssetCookStatusWrapper assetCookStatus)
-        {
-            switch (assetCookStatus)
-            {
-                case HEU_AssetCookStatusWrapper.NONE:
-                    return HEU_HoudiniAsset.AssetCookStatus.NONE;
-                case HEU_AssetCookStatusWrapper.COOKING:
-                    return HEU_HoudiniAsset.AssetCookStatus.COOKING;
-                case HEU_AssetCookStatusWrapper.POSTCOOK:
-                    return HEU_HoudiniAsset.AssetCookStatus.POSTCOOK;
-                case HEU_AssetCookStatusWrapper.LOADING:
-                    return HEU_HoudiniAsset.AssetCookStatus.LOADING;
-                case HEU_AssetCookStatusWrapper.POSTLOAD:
-                    return HEU_HoudiniAsset.AssetCookStatus.POSTLOAD;
-                case HEU_AssetCookStatusWrapper.PRELOAD:
-                    return HEU_HoudiniAsset.AssetCookStatus.PRELOAD;
-                case HEU_AssetCookStatusWrapper.SELECT_SUBASSET:
-                    return HEU_HoudiniAsset.AssetCookStatus.SELECT_SUBASSET;
-                default:
-                    return HEU_HoudiniAsset.AssetCookStatus.NONE;
-            }
-        }
+		internal static HEU_CurveDrawCollisionWrapper CurveDrawCollision_InternalToWrapper( HEU_Curve.CurveDrawCollision curveDrawCollision ) =>
+			curveDrawCollision switch {
+				HEU_Curve.CurveDrawCollision.COLLIDERS => HEU_CurveDrawCollisionWrapper.COLLIDERS,
+				HEU_Curve.CurveDrawCollision.LAYERMASK => HEU_CurveDrawCollisionWrapper.LAYERMASK,
+				_                                      => HEU_CurveDrawCollisionWrapper.INVALID,
+			} ;
 
-        internal static HEU_AssetCookResultWrapper AssetCookResult_InternalToWrapper(HEU_HoudiniAsset.AssetCookResult assetCookResult)
-        {
-            switch (assetCookResult)
-            {
-                case HEU_HoudiniAsset.AssetCookResult.NONE:
-                    return HEU_AssetCookResultWrapper.NONE;
-                case HEU_HoudiniAsset.AssetCookResult.ERRORED:
-                    return HEU_AssetCookResultWrapper.ERRORED;
-                case HEU_HoudiniAsset.AssetCookResult.SUCCESS:
-                    return HEU_AssetCookResultWrapper.SUCCESS;
-                default:
-                    return HEU_AssetCookResultWrapper.NONE;
-            }
-        }
+		internal static HEU_Curve.CurveDrawCollision CurveDrawCollision_WrapperToInternal( HEU_CurveDrawCollisionWrapper curveDrawCollision) =>
+			curveDrawCollision switch {
+				HEU_CurveDrawCollisionWrapper.COLLIDERS => HEU_Curve.CurveDrawCollision.COLLIDERS,
+				HEU_CurveDrawCollisionWrapper.LAYERMASK => HEU_Curve.CurveDrawCollision.LAYERMASK,
+				_                                       => HEU_Curve.CurveDrawCollision.COLLIDERS,
+			} ;
 
-        internal static HEU_HoudiniAsset.AssetCookResult AssetCookResult_WrapperToInternal(HEU_AssetCookResultWrapper assetCookResult)
-        {
-            switch (assetCookResult)
-            {
-                case HEU_AssetCookResultWrapper.NONE:
-                    return HEU_HoudiniAsset.AssetCookResult.NONE;
-                case HEU_AssetCookResultWrapper.ERRORED:
-                    return HEU_HoudiniAsset.AssetCookResult.ERRORED;
-                case HEU_AssetCookResultWrapper.SUCCESS:
-                    return HEU_HoudiniAsset.AssetCookResult.SUCCESS;
-                default:
-                    return HEU_HoudiniAsset.AssetCookResult.NONE;
-            }
-        }
+		internal static HEU_AssetTypeWrapper AssetType_InternalToWrapper(HEU_AssetType assetType) => assetType switch {
+																										 HEU_AssetType.TYPE_INVALID => HEU_AssetTypeWrapper.TYPE_INVALID,
+																										 HEU_AssetType.TYPE_HDA     => HEU_AssetTypeWrapper.TYPE_HDA,
+																										 HEU_AssetType.TYPE_CURVE   => HEU_AssetTypeWrapper.TYPE_CURVE,
+																										 HEU_AssetType.TYPE_INPUT   => HEU_AssetTypeWrapper.TYPE_INPUT,
+																										 _                          => HEU_AssetTypeWrapper.TYPE_INVALID,
+																									 } ;
 
-        internal static HEU_CurveDrawCollisionWrapper CurveDrawCollision_InternalToWrapper(HEU_Curve.CurveDrawCollision curveDrawCollision)
-        {
-            switch (curveDrawCollision)
-            {
-                case HEU_Curve.CurveDrawCollision.COLLIDERS:
-                    return HEU_CurveDrawCollisionWrapper.COLLIDERS;
-                case HEU_Curve.CurveDrawCollision.LAYERMASK:
-                    return HEU_CurveDrawCollisionWrapper.LAYERMASK;
-                default:
-                    return HEU_CurveDrawCollisionWrapper.INVALID;
-            }
-        }
+		internal static HEU_AssetType AssetType_WrapperToInternal( HEU_AssetTypeWrapper assetType ) => assetType switch {
+																										   HEU_AssetTypeWrapper.TYPE_INVALID => HEU_AssetType.TYPE_INVALID,
+																										   HEU_AssetTypeWrapper.TYPE_HDA     => HEU_AssetType.TYPE_HDA,
+																										   HEU_AssetTypeWrapper.TYPE_CURVE   => HEU_AssetType.TYPE_CURVE,
+																										   HEU_AssetTypeWrapper.TYPE_INPUT   => HEU_AssetType.TYPE_INPUT,
+																										   _                                 => HEU_AssetType.TYPE_INVALID,
+																									   } ;
 
         internal static HEU_Curve.CurveDrawCollision CurveDrawCollision_WrapperToInternal(HEU_CurveDrawCollisionWrapper curveDrawCollision)
         {
