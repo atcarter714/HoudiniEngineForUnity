@@ -170,65 +170,42 @@ namespace HoudiniEngineUnity
 
 
 		/// <inheritdoc />
-		public bool IsPartInstancer( ) {
-			return _partType == HAPI_PartType.HAPI_PARTTYPE_INSTANCER ;
-		}
+		public bool IsPartInstancer( ) => _partType is HAPI_PartType.HAPI_PARTTYPE_INSTANCER ;
 
 		/// <inheritdoc />
-		public bool IsAttribInstancer( ) {
-			return _isAttribInstancer ;
-		}
+		public bool IsAttribInstancer( ) => _isAttribInstancer ;
 
 		/// <inheritdoc />
-		public bool IsInstancerAnyType( ) {
-			return IsPartInstancer( ) || IsObjectInstancer( ) || IsAttribInstancer( ) ;
-		}
+		public bool IsInstancerAnyType( ) => IsPartInstancer( ) || IsObjectInstancer( ) || IsAttribInstancer( ) ;
 
 		/// <inheritdoc />
-		public bool IsPartInstanced( ) {
-			return _isPartInstanced ;
-		}
+		public bool IsPartInstanced( ) => _isPartInstanced ;
 
 		/// <inheritdoc />
-		public int GetPartPointCount( ) {
-			return _partPointCount ;
-		}
+		public int GetPartPointCount( ) => _partPointCount ;
 
 		/// <inheritdoc />
-		public bool IsObjectInstancer( ) {
-			return _isObjectInstancer ;
-		}
+		public bool IsObjectInstancer( ) => _isObjectInstancer ;
 
 		/// <inheritdoc />
-		public bool IsPartVolume( ) {
-			return _partOutputType == PartOutputType.VOLUME ;
-		}
+		public bool IsPartVolume( ) => _partOutputType is PartOutputType.VOLUME ;
 
 		/// <inheritdoc />
-		public bool IsPartCurve( ) {
-			return _partOutputType == PartOutputType.CURVE ;
-		}
+		public bool IsPartCurve( ) => _partOutputType is PartOutputType.CURVE ;
 
 		/// <inheritdoc />
-		public bool IsPartMesh( ) {
-			return _partOutputType == PartOutputType.MESH ;
-		}
+		public bool IsPartMesh( ) => _partOutputType is PartOutputType.MESH ;
 
 		/// <inheritdoc />
-		public bool IsPartEditable( ) {
-			return _isPartEditable ;
-		}
+		public bool IsPartEditable( ) => _isPartEditable ;
 
 		/// <inheritdoc />
-		public bool HaveInstancesBeenGenerated( ) {
-			return _haveInstancesBeenGenerated ;
-		}
+		public bool HaveInstancesBeenGenerated( ) => _haveInstancesBeenGenerated ;
 
 		/// <inheritdoc />
 		public void SetGameObjectName( string partName ) {
-			if ( _generatedOutput._outputData._gameObject == null || ParentAsset == null ) {
+			if ( !_generatedOutput._outputData._gameObject || !ParentAsset )
 				return ;
-			}
 
 			string currentName = _generatedOutput._outputData._gameObject.name ;
 			if ( !currentName.Equals( partName ) &&
@@ -241,47 +218,36 @@ namespace HoudiniEngineUnity
 		}
 
 		/// <inheritdoc />
-		public void SetGameObject( GameObject gameObject ) {
-			_generatedOutput._outputData._gameObject = gameObject ;
-		}
+		public void SetGameObject( GameObject gameObject ) => _generatedOutput._outputData._gameObject = gameObject ;
 
 		/// <inheritdoc />
-		public void SetVolumeLayerName( string name ) {
-			_volumeLayerName = name ;
-		}
+		public void SetVolumeLayerName( string name ) => _volumeLayerName = name ;
 
 		/// <inheritdoc />
-		public string GetVolumeLayerName( ) {
-			return _volumeLayerName ;
-		}
+		public string GetVolumeLayerName( ) => _volumeLayerName ;
 
 		/// <inheritdoc />
 		public void DestroyAllData( bool bIsRebuild = false ) {
 			ClearObjectInstanceInfos( ) ;
 
-			if ( _curve != null ) {
-				if ( ParentAsset != null ) {
+			if ( _curve ) {
+				if ( ParentAsset ) 
 					ParentAsset.RemoveCurve( _curve ) ;
-				}
-
 				_curve.DestroyAllData( bIsRebuild ) ;
 				HEU_GeneralUtility.DestroyImmediate( _curve ) ;
 				_curve = null ;
 			}
 
-			if ( _attributesStore != null ) {
+			if ( _attributesStore ) 
 				DestroyAttributesStore( ) ;
-			}
 
-			if ( _generatedOutput != null ) {
+			if ( _generatedOutput is not null ) 
 				HEU_GeneratedOutput.DestroyGeneratedOutput( _generatedOutput ) ;
-			}
 		}
 
 		/// <inheritdoc />
-		public bool IsUsingMaterial( HEU_MaterialData materialData ) {
-			return HEU_GeneratedOutput.IsOutputUsingMaterial( materialData._material, _generatedOutput ) ;
-		}
+		public bool IsUsingMaterial( HEU_MaterialData materialData ) => 
+			HEU_GeneratedOutput.IsOutputUsingMaterial( materialData._material, _generatedOutput ) ;
 
 
 		/// <inheritdoc />
@@ -295,29 +261,26 @@ namespace HoudiniEngineUnity
 
 		/// <inheritdoc />
 		public void GetOutput( List< HEU_GeneratedOutput > outputs ) {
-			if ( !IsPartInstanced( ) && _generatedOutput != null ) {
+			if ( _generatedOutput is not null && !IsPartInstanced( ) ) 
 				outputs.Add( _generatedOutput ) ;
-			}
 		}
 
 		/// <inheritdoc />
-		public HEU_PartData GetHDAPartWithGameObject( GameObject inGameObject ) {
-			return ( inGameObject == OutputGameObject ) ? this : null ;
-		}
+		public HEU_PartData GetHDAPartWithGameObject( GameObject inGameObject ) =>
+													( inGameObject == OutputGameObject ) ? this : null ;
 
-		
+
 		public void CalculateVisibility( bool bParentVisibility, bool bParentDisplayGeo ) {
 			// Editable part is hidden unless parent is a display geo
-			bool bIsVisible = !IsPartInstanced( ) && bParentVisibility && ( !_isPartEditable || bParentDisplayGeo ) ;
+			bool bIsVisible = !IsPartInstanced( ) && bParentVisibility 
+												  && ( !_isPartEditable || bParentDisplayGeo ) ;
 			SetVisiblity( bIsVisible ) ;
 		}
 
 		/// <inheritdoc />
 		public void ClearInstances( ) {
 			GameObject outputGO = OutputGameObject ;
-			if ( outputGO == null ) {
-				return ;
-			}
+			if ( !outputGO ) return ;
 
 			List< GameObject > instances = HEU_GeneralUtility.GetInstanceChildObjects( outputGO ) ;
 			for ( int i = 0; i < instances.Count; ++i ) {
@@ -714,44 +677,43 @@ namespace HoudiniEngineUnity
 		/// <param name="session">Active session to use</param>
 		/// <param name="objectNodeID">The source object node ID to create instances from</param>
 		/// <param name="instancePrefixes">Array of instance names to use</param>
+		/// <param name="instanceMaterialPaths"></param>
 		internal void GenerateInstancesFromObjectID( HEU_SessionBase session, HAPI_NodeId objectNodeID,
-													 string[] instancePrefixes, string[] instanceMaterialPaths ) {
+													 string[ ] instancePrefixes, string[ ] instanceMaterialPaths ) {
 			int numInstances = GetPartPointCount( ) ;
-			if ( numInstances <= 0 ) {
-				return ;
-			}
-
+			if ( numInstances < 1 ) return ;
+			
 			Transform partTransform = OutputGameObject.transform ;
-
-			Transform[] instanceToChildTransform = null ;
+			Transform[ ] instanceToChildTransform = null ;
+			
 			bool bUseSplitAttr =
-				ComposeUnityInstanceSplitHierarchy( session, _geoID, _partID, partTransform, numInstances,
+				ComposeUnityInstanceSplitHierarchy( session, _geoID, _partID,
+													partTransform, numInstances,
 													ref instanceToChildTransform ) ;
 
 			HEU_ObjectInstanceInfo instanceInfo = GetObjectInstanceInfoWithObjectID( objectNodeID ) ;
-			if ( instanceInfo != null && ( instanceInfo._instancedInputs.Count > 0 ) ) {
+			if ( instanceInfo && instanceInfo._instancedInputs.Count > 0 ) {
 				List< HEU_InstancedInput > validInstancedGameObjects = instanceInfo._instancedInputs ;
-				int                        instancedObjCount         = validInstancedGameObjects.Count ;
-
+				int instancedObjCount = validInstancedGameObjects.Count ;
+				
 				SetObjectInstancer( true ) ;
 				_objectInstancesGenerated = true ;
 
-
-				HAPI_Transform[] instanceTransforms = new HAPI_Transform[ numInstances ] ;
-				if ( HEU_GeneralUtility.GetArray3Arg( _geoID, _partID, HAPI_RSTOrder.HAPI_SRT,
-													  session.GetInstanceTransformsOnPart, instanceTransforms, 0,
-													  numInstances ) ) {
+				HAPI_Transform[ ] instanceTransforms = new HAPI_Transform[ numInstances ] ;
+				if ( HEU_GeneralUtility.GetArray3Arg( _geoID, _partID,
+													  HAPI_RSTOrder.HAPI_SRT,
+													  session.GetInstanceTransformsOnPart,
+													  instanceTransforms, 0, numInstances ) ) {
 					int numTransforms = instanceTransforms.Length ;
 					for ( int j = 0; j < numTransforms; ++j ) {
 						int randomIndex = UnityEngine.Random.Range( 0, instancedObjCount ) ;
-
 						Transform instanceParentTransform = partTransform ;
-
-						if ( bUseSplitAttr && instanceToChildTransform != null &&
-							 j < instanceToChildTransform.Length ) {
+						
+						if ( bUseSplitAttr 
+								 && instanceToChildTransform is not null 
+									&& j < instanceToChildTransform.Length )
 							instanceParentTransform = instanceToChildTransform[ j ] ;
-						}
-
+						
 						CreateNewInstanceFromObject( validInstancedGameObjects[ randomIndex ]._instancedGameObject, j,
 													 instanceParentTransform,
 													 ref instanceTransforms[ j ], objectNodeID, null,
@@ -763,9 +725,10 @@ namespace HoudiniEngineUnity
 			}
 			else {
 				HEU_ObjectNode instancedObjNode = ParentAsset.GetObjectWithID( objectNodeID ) ;
-				if ( instancedObjNode != null ) {
-					GenerateInstancesFromObject( session, instancedObjNode, instancePrefixes, instanceMaterialPaths ) ;
-				}
+				
+				if ( instancedObjNode )
+					GenerateInstancesFromObject( session, instancedObjNode,
+												 instancePrefixes, instanceMaterialPaths ) ;
 				else {
 					HEU_Logger
 						.LogWarningFormat( "Instanced object with ID {0} not found. Unable to generate instances!",
@@ -774,9 +737,7 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		/// <summary>
-		/// Generate instances from another object node (sourceObject).
-		/// </summary>
+		/// <summary>Generate instances from another object node (sourceObject).</summary>
 		/// <param name="session"></param>
 		/// <param name="sourceObject">The object node to create instances from.</param>
 		internal void GenerateInstancesFromObject( HEU_SessionBase session, HEU_ObjectNode sourceObject,
@@ -824,9 +785,7 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		/// <summary>
-		/// Generate instances from object IDs found in the asset.
-		/// </summary>
+		/// <summary>Generate instances from object IDs found in the asset.</summary>
 		/// <param name="session"></param>
 		internal void GenerateInstancesFromObjectIds( HEU_SessionBase session, string[] instancePrefixes,
 													  string[]        instanceMaterialPaths ) {
@@ -908,9 +867,7 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		/// <summary>
-		/// Generate instances from Unity objects specified via attributes. 
-		/// </summary>
+		/// <summary>Generate instances from Unity objects specified via attributes.</summary>
 		/// <param name="session"></param>
 		/// <param name="unityInstanceAttr">Name of the attribute to get the Unity path from.</param>
 		internal void
@@ -1121,48 +1078,45 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		/// <summary>
-		/// Create a new instance of the sourceObject.
-		/// </summary>
+		/// <summary>Create a new instance of the sourceObject.</summary>
 		/// <param name="sourceObject">GameObject to instance.</param>
 		/// <param name="instanceIndex">Index of the instance within the part.</param>
 		/// <param name="parentTransform">Parent of the new instance.</param>
 		/// <param name="hapiTransform">HAPI transform to apply to the new instance.</param>
-		void CreateNewInstanceFromObject( GameObject                    sourceObject, int instanceIndex, Transform parentTransform,
-										  ref HAPI_Transform hapiTransform,
-										  HAPI_NodeId        instancedObjectNodeID, string   instancedObjectPath,
-										  Vector3            rotationOffset,        Vector3  scaleOffset,
-										  string[]           instancePrefixes,      string[] instanceMaterialPaths,
-										  GameObject         collisionSrcGO,        bool     copyParentFlags = true ) {
-			GameObject newInstanceGO = null ;
-
-			if ( HEU_EditorUtility.IsPrefabAsset( sourceObject ) ) {
-				newInstanceGO                  = HEU_EditorUtility.InstantiatePrefab( sourceObject ) as GameObject ;
-				newInstanceGO.transform.parent = parentTransform ;
+		void CreateNewInstanceFromObject( GameObject sourceObject, int instanceIndex, Transform parentTransform,
+										  ref HAPI_Transform hapiTransform, HAPI_NodeId instancedObjectNodeID, string instancedObjectPath,
+										  Vector3 rotationOffset, Vector3  scaleOffset,
+										  string[ ] instancePrefixes, string[ ] instanceMaterialPaths,
+										  GameObject collisionSrcGO, bool copyParentFlags = true ) {
+			GameObject newInstanceGO ;
+			if ( HEU_EditorUtility.IsPrefabAsset(sourceObject) ) {
+				newInstanceGO = HEU_EditorUtility.InstantiatePrefab( sourceObject ) as GameObject ;
+				if( newInstanceGO )
+					newInstanceGO.transform.parent = parentTransform ;
 			}
 			else {
 				newInstanceGO = HEU_EditorUtility.InstantiateGameObject( sourceObject, parentTransform, false, false ) ;
 			}
 
-			if ( collisionSrcGO != null ) {
+			if ( collisionSrcGO ) 
 				HEU_GeneralUtility.ReplaceColliderMeshFromMeshFilter( newInstanceGO, collisionSrcGO ) ;
-			}
 
 			// To get the instance output name, we pass in the instance index. The actual name will be +1 from this.
 			HEU_GeneralUtility.RenameGameObject( newInstanceGO,
 												 HEU_GeometryUtility.GetInstanceOutputName( PartName, instancePrefixes,
 													 instanceIndex + 1 ) ) ;
 
-			if ( copyParentFlags ) {
+			if ( copyParentFlags )
 				HEU_GeneralUtility.CopyFlags( OutputGameObject, newInstanceGO, true ) ;
+
+			if ( newInstanceGO ) {
+				Transform instanceTransform = newInstanceGO.transform ;
+				HEU_HAPIUtility.ApplyLocalTransfromFromHoudiniToUnityForInstance( ref hapiTransform, instanceTransform ) ;
+
+				// Apply offsets
+				instanceTransform.localRotation = Quaternion.Euler( rotationOffset ) * instanceTransform.localRotation ;
+				instanceTransform.localScale    = Vector3.Scale( instanceTransform.localScale, scaleOffset ) ;
 			}
-
-			Transform instanceTransform = newInstanceGO.transform ;
-			HEU_HAPIUtility.ApplyLocalTransfromFromHoudiniToUnityForInstance( ref hapiTransform, instanceTransform ) ;
-
-			// Apply offsets
-			instanceTransform.localRotation = Quaternion.Euler( rotationOffset ) * instanceTransform.localRotation ;
-			instanceTransform.localScale    = Vector3.Scale( instanceTransform.localScale, scaleOffset ) ;
 
 			// When cloning, the instanced part might have been made invisible, so re-enable renderer to have the cloned instance display it.
 			HEU_GeneralUtility.SetGameObjectRenderVisiblity( newInstanceGO, true ) ;
@@ -1172,35 +1126,34 @@ namespace HoudiniEngineUnity
 
 			// Add to object instance info map. Find existing object instance info, or create it.
 			HEU_ObjectInstanceInfo instanceInfo = null ;
-			if ( instancedObjectNodeID != HEU_Defines.HEU_INVALID_NODE_ID ) {
+			if ( instancedObjectNodeID is not HEU_Defines.HEU_INVALID_NODE_ID )
 				instanceInfo = GetObjectInstanceInfoWithObjectID( instancedObjectNodeID ) ;
-			}
-			else if ( !string.IsNullOrEmpty( instancedObjectPath ) ) {
+			
+			else if ( !string.IsNullOrEmpty(instancedObjectPath) ) 
 				instanceInfo = GetObjectInstanceInfoWithObjectPath( instancedObjectPath ) ;
-			}
 
-			if ( instanceInfo == null ) {
+			if ( !instanceInfo ) 
 				instanceInfo = CreateObjectInstanceInfo( sourceObject, instancedObjectNodeID, instancedObjectPath ) ;
-			}
 
-			if ( instanceInfo != null && instanceMaterialPaths != null &&
-				 instanceIndex < instanceMaterialPaths.Length ) {
+			if ( instanceInfo && instanceMaterialPaths is not null
+							  && instanceIndex < instanceMaterialPaths.Length ) {
 				string   materialPath     = instanceMaterialPaths[ instanceIndex ] ;
 				Material instanceMaterial = HEU_MaterialFactory.LoadUnityMaterial( materialPath ) ;
-				if ( instanceMaterial != null ) {
+				if ( instanceMaterial ) {
 					// TODO: Support material overrides
-					MeshRenderer meshRenderer = newInstanceGO.GetComponent< MeshRenderer >( ) ;
-
-					// We only support materials on instances if the prefab is a MeshRenderer and it only has one material slot
-					if ( meshRenderer && meshRenderer.sharedMaterials.Length <= 1 ) {
-						meshRenderer.sharedMaterial = instanceMaterial ;
+					if ( newInstanceGO ) {
+						MeshRenderer meshRenderer = newInstanceGO.GetComponent< MeshRenderer >( ) ;
+						
+						// We only support materials on instances if the prefab is a MeshRenderer and it only has one material slot
+						if ( meshRenderer && meshRenderer.sharedMaterials.Length <= 1 ) 
+							meshRenderer.sharedMaterial = instanceMaterial ;
 					}
 				}
 			}
 
 			instanceInfo._instances.Add( newInstanceGO ) ;
 		}
-
+		
 		internal void GenerateAttributesStore( HEU_SessionBase session ) {
 			if ( OutputGameObject != null ) {
 				HEU_GeneralUtility.UpdateGeneratedAttributeStore( session, _geoID, PartID, OutputGameObject ) ;
@@ -1237,9 +1190,7 @@ namespace HoudiniEngineUnity
 		}
 
 
-		/// <summary>
-		/// Copy relevant components from sourceGO to targetGO.
-		/// </summary>
+		/// <summary>Copy relevant components from sourceGO to targetGO.</summary>
 		/// <param name="partData">Part data that we're looking at.</param>
 		/// <param name="sourceGO">Source gameobject to copy from.</param>
 		/// <param name="targetGO">Target gameobject to copy to.</param>

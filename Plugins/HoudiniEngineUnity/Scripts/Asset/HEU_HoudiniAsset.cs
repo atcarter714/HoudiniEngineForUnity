@@ -31,15 +31,31 @@
 // Uncomment to profile
 //#define HEU_PROFILER_ON
 
+using System ;
 using System.Text;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq ;
 using UnityEngine;
+using Object = UnityEngine.Object ;
+
+
+#region Type Aliases
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Typedefs (copy these from HEU_Common.cs)
+using HAPI_NodeId = System.Int32;
+using HAPI_AssetLibraryId = System.Int32;
+using HAPI_StringHandle = System.Int32;
+using HAPI_ErrorCodeBits = System.Int32;
+using HAPI_NodeTypeBits = System.Int32;
+using HAPI_NodeFlagsBits = System.Int32;
+using HAPI_ParmId = System.Int32;
+using HAPI_PartId = System.Int32;
+#endregion
 
 // Expose internal classes/functions
 #if UNITY_EDITOR
 using System.Runtime.CompilerServices;
-
 [assembly: InternalsVisibleTo("HoudiniEngineUnityEditor")]
 [assembly: InternalsVisibleTo("HoudiniEngineUnityEditorTests")]
 [assembly: InternalsVisibleTo("HoudiniEngineUnityPlayModeTests")]
@@ -48,16 +64,6 @@ using System.Runtime.CompilerServices;
 
 namespace HoudiniEngineUnity
 {
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Typedefs (copy these from HEU_Common.cs)
-    using HAPI_NodeId = System.Int32;
-    using HAPI_AssetLibraryId = System.Int32;
-    using HAPI_StringHandle = System.Int32;
-    using HAPI_ErrorCodeBits = System.Int32;
-    using HAPI_NodeTypeBits = System.Int32;
-    using HAPI_NodeFlagsBits = System.Int32;
-    using HAPI_ParmId = System.Int32;
-    using HAPI_PartId = System.Int32;
 
     /// <summary>
     /// Represents a Houdini Digital Asset in Unity.
@@ -5374,6 +5380,13 @@ namespace HoudiniEngineUnity
             HEU_InputUtility.GetChildrenTransforms(_rootGameObject.transform, ref _lastSyncedChildTransformMatrices);
         }
 
+		internal static HEU_AssetCookResultWrapper AssetCookResult_InternalToWrapper(AssetCookResult assetCookResult) =>
+			assetCookResult switch {
+				AssetCookResult.NONE    => HEU_AssetCookResultWrapper.NONE,
+				AssetCookResult.ERRORED => HEU_AssetCookResultWrapper.ERRORED,
+				AssetCookResult.SUCCESS => HEU_AssetCookResultWrapper.SUCCESS,
+				_                       => HEU_AssetCookResultWrapper.NONE
+			} ;
 
         // Private/Internal helper functions ===
         internal static HEU_AssetCookStatusWrapper AssetCookStatus_InternalToWrappper(HEU_HoudiniAsset.AssetCookStatus assetCookStatus)

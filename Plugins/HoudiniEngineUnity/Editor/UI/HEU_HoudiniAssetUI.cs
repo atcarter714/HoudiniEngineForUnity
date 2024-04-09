@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -967,6 +967,11 @@ namespace HoudiniEngineUnity
                 return;
             }
 
+				SerializedProperty showCurvesProperty =
+					HEU_EditorUtility.GetSerializedProperty( assetObject, "_showCurvesSection" ) ;
+				if ( showCurvesProperty != null ) {
+					showCurvesProperty.boolValue = HEU_EditorUI.DrawFoldOut( showCurvesProperty.boolValue, "CURVES" ) ;
+					if ( showCurvesProperty.boolValue ) {
 
             if (asset.GetEditableCurveCount() <= 0)
             {
