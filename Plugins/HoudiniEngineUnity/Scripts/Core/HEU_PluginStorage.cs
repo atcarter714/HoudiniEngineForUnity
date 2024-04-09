@@ -54,20 +54,20 @@ namespace HoudiniEngineUnity
 	// dictionary in memory, then write out as 2 ordered lists (keys, values) on to disk.
 	// The lists are added to a temporary object then written out using JsonUtility.
 
-	private enum DataType
+	enum DataType
 	{
 	    BOOL,
 	    INT,
 	    LONG,
 	    FLOAT,
-	    STRING
+	    STRING,
 	}
 
 	// Dictionary for unstructured data.
-	private Dictionary<string, StoreData> _dataMap = new Dictionary<string, StoreData>();
+	Dictionary<string, StoreData> _dataMap = new Dictionary<string, StoreData>();
 	// Class for unstructured data.
 	[System.Serializable]
-	private class StoreData
+	class StoreData
 	{
 	    public DataType _type;
 	    public string _valueStr;
@@ -76,21 +76,21 @@ namespace HoudiniEngineUnity
 #pragma warning disable 0649
 	// Temporary class to enable us to write out arrays using JsonUtility.
 	[System.Serializable]
-	private class StoreDataArray<T>
+	class StoreDataArray<T>
 	{
 	    public T[] _array;
 	}
 #pragma warning restore 0649
 
-	private Dictionary<string, string> _envPathMap;
+		Dictionary<string, string> _envPathMap;
 
 	public Dictionary<string, string> GetEnvironmentPathMap() { return _envPathMap; }
 
 	// Whether plugin setting need to be saved out to file.
-	private bool _requiresSave;
+	bool _requiresSave;
 	public bool RequiresSave { get { return _requiresSave; } }
 
-	private static HEU_PluginStorage _instance;
+	static HEU_PluginStorage _instance;
 
 	public static HEU_PluginStorage Instance
 	{
@@ -159,7 +159,7 @@ namespace HoudiniEngineUnity
 	/// <typeparam name="T">Type of array</typeparam>
 	/// <param name="jsonArray">String containing JSON array.</param>
 	/// <returns>Array of objects of type T.</returns>
-	private T[] GetJSONArray<T>(string jsonArray)
+	T[] GetJSONArray<T>(string jsonArray)
 	{
 	    // Parse out array string into array class, then just grab the array.
 	    StoreDataArray<T> dataArray = JsonUtility.FromJson<StoreDataArray<T>>(jsonArray);
@@ -336,7 +336,7 @@ namespace HoudiniEngineUnity
 	/// Set flag so that the plugin data will be saved out
 	/// at end of update.
 	/// </summary>
-	private void MarkDirtyForSave()
+	void MarkDirtyForSave()
 	{
 	    if (!_requiresSave)
 	    {
@@ -486,7 +486,7 @@ namespace HoudiniEngineUnity
 	    return true;
 	}
 
-	private bool ReadFromEditorPrefs()
+	bool ReadFromEditorPrefs()
 	{
 #if UNITY_EDITOR
 	    if (UnityEditor.EditorPrefs.HasKey(HEU_Defines.PLUGIN_STORE_KEYS) && UnityEditor.EditorPrefs.HasKey(HEU_Defines.PLUGIN_STORE_DATA))

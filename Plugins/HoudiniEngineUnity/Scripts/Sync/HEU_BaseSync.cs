@@ -1,4 +1,5 @@
-﻿/*
+﻿#nullable enable
+/*
 * Copyright (c) <2020> Side Effects Software Inc.
 * All rights reserved.
 *
@@ -87,7 +88,7 @@ namespace HoudiniEngineUnity
 	{
 	    if (_cookNodeID != HEU_Defines.HEU_INVALID_NODE_ID)
 	    {
-		HEU_SessionBase session = GetHoudiniSession(false);
+		HEU_SessionBase? session = GetHoudiniSession(false);
 		if (session != null)
 		{
 		    HAPI_NodeId deleteID = _cookNodeID;
@@ -124,10 +125,10 @@ namespace HoudiniEngineUnity
 
 	#region UTILITY
 
-	public virtual HEU_SessionBase GetHoudiniSession(bool bCreateIfNotFound)
+	public virtual HEU_SessionBase? GetHoudiniSession(bool bCreateIfNotFound)
 	{
-	    HEU_SessionBase session = (_sessionID != HEU_SessionData.INVALID_SESSION_ID) ?
-		HEU_SessionManager.GetSessionWithID(_sessionID) : null;
+	    HEU_SessionBase? session = (_sessionID != HEU_SessionData.INVALID_SESSION_ID) ?
+									   HEU_SessionManager.GetSessionWithID(_sessionID) : null;
 
 	    if (session == null || !session.IsSessionValid())
 	    {
@@ -189,7 +190,7 @@ namespace HoudiniEngineUnity
 		Initialize();
 	    }
 
-	    HEU_SessionBase session = GetHoudiniSession(true);
+	    HEU_SessionBase? session = GetHoudiniSession(true);
 	    if (session == null)
 	    {
 		Log("ERROR: No session found!");
@@ -379,7 +380,7 @@ namespace HoudiniEngineUnity
 
 	private void GenerateTerrain(HAPI_NodeId cookNodeId, List<HEU_LoadBufferVolume> terrainBuffers)
 	{
-	    HEU_SessionBase session = GetHoudiniSession(true);
+	    HEU_SessionBase? session = GetHoudiniSession(true);
 	    Transform parent = this.gameObject.transform;
 
 	    // Directory to store generated terrain files.
@@ -748,7 +749,7 @@ namespace HoudiniEngineUnity
 
 	private void GenerateMesh(HAPI_NodeId cookNodeId, List<HEU_LoadBufferMesh> meshBuffers)
 	{
-	    HEU_SessionBase session = GetHoudiniSession(true);
+	    HEU_SessionBase? session = GetHoudiniSession(true);
 
 	    Transform parent = this.gameObject.transform;
 
@@ -841,7 +842,7 @@ namespace HoudiniEngineUnity
 		return;
 	    }
 
-	    HEU_SessionBase session = GetHoudiniSession(true);
+	    HEU_SessionBase? session = GetHoudiniSession(true);
 
 	    Transform parent = this.gameObject.transform;
 
@@ -879,7 +880,7 @@ namespace HoudiniEngineUnity
 		Transform instanceRootTransform)
 	{
 	    // For single collision geo override
-	    GameObject singleCollisionGO = null;
+	    GameObject? singleCollisionGO = null;
 
 	    // For multi collision geo overrides, keep track of loaded objects
 	    Dictionary<string, GameObject> loadedCollisionObjectMap = new Dictionary<string, GameObject>();
@@ -903,7 +904,7 @@ namespace HoudiniEngineUnity
 	    int numInstances = instancerBuffer._instanceNodeIDs.Length;
 	    for (int i = 0; i < numInstances; ++i)
 	    {
-		HEU_LoadBufferBase sourceBuffer = null;
+		HEU_LoadBufferBase? sourceBuffer = null;
 		if (!idBuffersMap.TryGetValue(instancerBuffer._instanceNodeIDs[i], out sourceBuffer) || sourceBuffer == null)
 		{
 		    HEU_Logger.LogErrorFormat("Part with id {0} is missing. Unable to setup instancer!", instancerBuffer._instanceNodeIDs[i]);
@@ -927,7 +928,7 @@ namespace HoudiniEngineUnity
 		    continue;
 		}
 
-		GameObject collisionSrcGO = null;
+		GameObject? collisionSrcGO = null;
 		if (singleCollisionGO != null)
 		{
 		    // Single collision geo
@@ -964,19 +965,19 @@ namespace HoudiniEngineUnity
 	private void GenerateInstancesFromAssetPaths(HEU_LoadBufferInstancer instancerBuffer, Transform instanceRootTransform)
 	{
 	    // For single asset, this is set when its imported
-	    GameObject singleAssetGO = null;
+	    GameObject? singleAssetGO = null;
 
 	    // For multi assets, keep track of loaded objects so we only need to load once for each object
 	    Dictionary<string, GameObject> loadedAssetObjectMap = new Dictionary<string, GameObject>();
 
 	    // For single collision geo override
-	    GameObject singleCollisionGO = null;
+	    GameObject? singleCollisionGO = null;
 
 	    // For multi collision geo overrides, keep track of loaded objects
 	    Dictionary<string, GameObject> loadedCollisionObjectMap = new Dictionary<string, GameObject>();
 
 	    // Temporary empty gameobject in case the specified Unity asset is not found
-	    GameObject tempGO = null;
+	    GameObject? tempGO = null;
 
 	    if (instancerBuffer._assetPaths.Length == 1)
 	    {
@@ -1090,7 +1091,7 @@ namespace HoudiniEngineUnity
 	private void CreateNewInstanceFromObject(GameObject assetSourceGO, int instanceIndex, Transform parentTransform,
 		ref HAPI_Transform hapiTransform, string[] instancePrefixes, string instanceName, GameObject collisionSourceGO)
 	{
-	    GameObject newInstanceGO = null;
+	    GameObject? newInstanceGO = null;
 
 	    if (HEU_EditorUtility.IsPrefabAsset(assetSourceGO))
 	    {
@@ -1189,7 +1190,7 @@ namespace HoudiniEngineUnity
 	    _outputCacheDirectory = directory;
 	}
 
-	private void AddGeneratedOutputFilePath(string path)
+	private void AddGeneratedOutputFilePath(string? path)
 	{
 	    if (!string.IsNullOrEmpty(path) && !_outputCacheFilePaths.Contains(path))
 	    {

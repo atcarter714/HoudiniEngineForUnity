@@ -41,95 +41,99 @@ using System.Runtime.CompilerServices;
 
 namespace HoudiniEngineUnity
 {
-    /// <summary>
-    /// Asset Event Classes since UnityEvent doesn't directly support generics. 
-    /// </summary>
+	/// <summary>
+	/// Asset Event Classes since UnityEvent doesn't directly support generics. 
+	/// </summary>
 
-    public enum HEU_AssetEventType
-    {
-	UNKNOWN,
-	RELOAD,
-	COOK,
-	BAKE_NEW,
-	BAKE_UPDATE
-    };
-
-
-    public class HEU_AssetEventData
-    {
-	public HEU_HoudiniAsset Asset;
-	public bool CookSuccess;
-	public List<GameObject> OutputObjects;
-
-	public HEU_AssetEventType EventType;
-
-	public HEU_AssetEventData(HEU_HoudiniAsset asset, bool successful, List<GameObject> outputObjects)
+	public enum HEU_AssetEventType
 	{
-	    this.Asset = asset;
-	    this.CookSuccess = successful;
-	    this.OutputObjects = outputObjects;
-	}
-    }
+		UNKNOWN,
+		RELOAD,
+		COOK,
+		BAKE_NEW,
+		BAKE_UPDATE,
+	} ;
 
-    // Class for holding reload event data
-    public class HEU_ReloadEventData : HEU_AssetEventData
-    {
-	public HEU_ReloadEventData(HEU_HoudiniAsset asset, bool successful, List<GameObject> outputObjects) : base(asset, successful, outputObjects)
+
+	public class HEU_AssetEventData
 	{
-	   this.EventType = HEU_AssetEventType.RELOAD;
-	}
-    }
+		public HEU_HoudiniAsset   Asset ;
+		public bool               CookSuccess ;
+		public List< GameObject > OutputObjects ;
 
-   // Class for holding cook event data
-    public class HEU_CookedEventData : HEU_AssetEventData
-    {
-	public HEU_CookedEventData(HEU_HoudiniAsset asset, bool successful, List<GameObject> outputObjects) : base(asset, successful, outputObjects)
+		public HEU_AssetEventType EventType ;
+
+		public HEU_AssetEventData( HEU_HoudiniAsset asset, bool successful, List< GameObject > outputObjects ) {
+			this.Asset         = asset ;
+			this.CookSuccess   = successful ;
+			this.OutputObjects = outputObjects ;
+		}
+	}
+
+	// Class for holding reload event data
+	public class HEU_ReloadEventData: HEU_AssetEventData
 	{
-	    this.EventType = HEU_AssetEventType.COOK;
+		public HEU_ReloadEventData( HEU_HoudiniAsset asset, bool successful, List< GameObject > outputObjects ):
+			base( asset, successful, outputObjects ) {
+			this.EventType = HEU_AssetEventType.RELOAD ;
+		}
 	}
-    }
 
-   // Class for holding bake event data
-    public class HEU_BakedEventData : HEU_AssetEventData
-    {
-	public bool IsNewBake = false;
-	public HEU_BakedEventData(HEU_HoudiniAsset asset, bool successful, List<GameObject> outputObjects, bool isNewBake) : base(asset, successful, outputObjects)
+	// Class for holding cook event data
+	public class HEU_CookedEventData: HEU_AssetEventData
 	{
-	    this.IsNewBake = isNewBake;
-	    this.EventType = isNewBake ? HEU_AssetEventType.BAKE_NEW : HEU_AssetEventType.BAKE_UPDATE;
+		public HEU_CookedEventData( HEU_HoudiniAsset asset, bool successful, List< GameObject > outputObjects ):
+			base( asset, successful, outputObjects ) {
+			this.EventType = HEU_AssetEventType.COOK ;
+		}
 	}
-    }
 
-
-    // Data regarding the PreAssetEvent
-    public class HEU_PreAssetEventData
-    {
-	// The asset that triggered the event
-	public HEU_HoudiniAsset Asset;
-	// The type of the event (Cook/Bake/Rebuild)
-	public HEU_AssetEventType AssetType;
-
-	public HEU_PreAssetEventData(HEU_HoudiniAsset asset, HEU_AssetEventType assetType)
+	// Class for holding bake event data
+	public class HEU_BakedEventData: HEU_AssetEventData
 	{
-	    this.Asset = asset;
-	    this.AssetType = assetType;
+		public bool IsNewBake = false ;
+
+		public HEU_BakedEventData( HEU_HoudiniAsset asset, bool successful, List< GameObject > outputObjects,
+								   bool             isNewBake ): base( asset, successful, outputObjects ) {
+			this.IsNewBake = isNewBake ;
+			this.EventType = isNewBake ? HEU_AssetEventType.BAKE_NEW : HEU_AssetEventType.BAKE_UPDATE ;
+		}
 	}
-    }
 
-    /// <summary>Callback when asset is reloaded.</summary>
-    /// <remarks>Reload event is triggered when the asset is reloaded. <seealso cref="HEU_ReloadEventData"/></remarks>
-    [Serializable] public class HEU_ReloadDataEvent: UnityEvent< HEU_ReloadEventData > { }
 
-    /// <summary>Callback when asset is cooked.</summary>
-    /// <remarks>Cook event is triggered when the asset is cooked. <seealso cref="HEU_CookedEventData"/></remarks>
-    [Serializable] public class HEU_CookedDataEvent: UnityEvent< HEU_CookedEventData > { }
-	
-    /// <summary>Callback when asset is baked.</summary>
-    /// <remarks>Bake event is triggered when the asset is baked. <seealso cref="HEU_BakedEventData"/></remarks>
-    [Serializable] public class HEU_BakedDataEvent: UnityEvent< HEU_BakedEventData > { }
-	
-    /// <summary>Callback before a Reload/Cook/Bake event.</summary>
-    /// <remarks>PreAssetEvent is triggered before a Reload/Cook/Bake event. <seealso cref="HEU_PreAssetEventData"/></remarks>
-    [Serializable] public class HEU_PreAssetEvent: UnityEvent< HEU_PreAssetEventData > { }
+	// Data regarding the PreAssetEvent
+	public class HEU_PreAssetEventData
+	{
+		// The asset that triggered the event
+		public HEU_HoudiniAsset Asset ;
 
-}   // HoudiniEngineUnity
+		// The type of the event (Cook/Bake/Rebuild)
+		public HEU_AssetEventType AssetType ;
+
+		public HEU_PreAssetEventData( HEU_HoudiniAsset asset, HEU_AssetEventType assetType ) {
+			this.Asset     = asset ;
+			this.AssetType = assetType ;
+		}
+	}
+
+	/// <summary>Callback when asset is reloaded.</summary>
+	/// <remarks>Reload event is triggered when the asset is reloaded. <seealso cref="HEU_ReloadEventData"/></remarks>
+	[Serializable]
+	public class HEU_ReloadDataEvent: UnityEvent< HEU_ReloadEventData > { }
+
+	/// <summary>Callback when asset is cooked.</summary>
+	/// <remarks>Cook event is triggered when the asset is cooked. <seealso cref="HEU_CookedEventData"/></remarks>
+	[Serializable]
+	public class HEU_CookedDataEvent: UnityEvent< HEU_CookedEventData > { }
+
+	/// <summary>Callback when asset is baked.</summary>
+	/// <remarks>Bake event is triggered when the asset is baked. <seealso cref="HEU_BakedEventData"/></remarks>
+	[Serializable]
+	public class HEU_BakedDataEvent: UnityEvent< HEU_BakedEventData > { }
+
+	/// <summary>Callback before a Reload/Cook/Bake event.</summary>
+	/// <remarks>PreAssetEvent is triggered before a Reload/Cook/Bake event. <seealso cref="HEU_PreAssetEventData"/></remarks>
+	[Serializable]
+	public class HEU_PreAssetEvent: UnityEvent< HEU_PreAssetEventData > { }
+
+} // HoudiniEngineUnity
