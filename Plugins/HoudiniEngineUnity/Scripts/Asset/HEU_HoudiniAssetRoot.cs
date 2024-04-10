@@ -38,117 +38,94 @@ using System.Runtime.CompilerServices;
 
 namespace HoudiniEngineUnity
 {
-    /// <summary>
-    /// The root object of a Houdini Engine asset.
-    /// Used for organizing hierarchy, and more importantly displaying custom UI.
-    /// </summary>
-    [SelectionBase]
-    [ExecuteInEditMode] // Needed to get OnDestroy callback when deleted in Editor
-    public class HEU_HoudiniAssetRoot : MonoBehaviour
-    {
-	// Reference to the actual Houdini Engine asset gamebobject which contains
-	// all the data and logic to work with Houdini Engine
-	[SerializeField]
-	internal HEU_HoudiniAsset _houdiniAsset;
-	public HEU_HoudiniAsset HoudiniAsset { get { return _houdiniAsset; } }
-
-	[SerializeField]
-	internal List<GameObject> _bakeTargets = new List<GameObject>();
-	public List<GameObject> BakeTargets { get { return _bakeTargets; } }
-
 	/// <summary>
-	/// Callback when asset is deleted. Removes assset from Houdini session if in Editor.
+	/// The root object of a Houdini Engine asset.
+	/// Used for organizing hierarchy, and more importantly displaying custom UI.
 	/// </summary>
-	void OnDestroy()
-	{
+	[SelectionBase]
+	[ExecuteInEditMode] // Needed to get OnDestroy callback when deleted in Editor
+	public class HEU_HoudiniAssetRoot: MonoBehaviour {
+		// Reference to the actual Houdini Engine asset gamebobject which contains
+		// all the data and logic to work with Houdini Engine
+		[SerializeField] internal HEU_HoudiniAsset _houdiniAsset ;
+		public HEU_HoudiniAsset HoudiniAsset => _houdiniAsset ;
 
-	    if (_houdiniAsset != null && _houdiniAsset.PauseCooking == true)
-	    {
-		return;
-	    }
+		[SerializeField] internal List< GameObject > _bakeTargets = new( ) ;
+		public List< GameObject > BakeTargets => _bakeTargets ;
 
-	    // Destroy the asset from session or permanently. 
-	    // The following checks make sure to only delete if the scene is closing, 
-	    // or asset has been user deleted. 
-	    // Skips if its just transitioning into or out of play mode.
-	    // TODO RUNTIME: if/when we support runtime, should only do the Application.isEditor check if in Editor			
-	    if (_houdiniAsset != null && HEU_EditorUtility.IsEditorNotInPlayModeAndNotGoingToPlayMode())
-	    {
-		// Delete mesh data if this asset hasn't been saved and it is a user invoked delete event.
-		// Otherwise just remove from session.
-		// TODO: for saved assets, we need to handle case where user deletes but does not save scene after
-		if (!_houdiniAsset.IsAssetSavedInScene() && (Event.current != null && (Event.current.commandName.Equals("Delete") || Event.current.commandName.Equals("SoftDelete"))))
-		{
-		    _houdiniAsset.DeleteAssetCacheData(bRegisterUndo: true);
+		/// <summary>Callback when asset is deleted. Removes assset from Houdini session if in Editor.</summary>
+		void OnDestroy( ) {
+			if ( _houdiniAsset && _houdiniAsset.PauseCooking ) return ;
+			
+			// Destroy the asset from session or permanently. 
+			// The following checks make sure to only delete if the scene is closing, 
+			// or asset has been user deleted. 
+			// Skips if its just transitioning into or out of play mode.
+			// TODO RUNTIME: if/when we support runtime, should only do the Application.isEditor check if in Editor			
+			if ( _houdiniAsset && HEU_EditorUtility.IsEditorNotInPlayModeAndNotGoingToPlayMode( ) ) {
+				// Delete mesh data if this asset hasn't been saved and it is a user invoked delete event.
+				// Otherwise just remove from session.
+				// TODO: for saved assets, we need to handle case where user deletes but does not save scene after
+				if ( !_houdiniAsset.IsAssetSavedInScene( ) &&
+					 ( Event.current != null && ( Event.current.commandName.Equals( "Delete" ) ||
+												  Event.current.commandName.Equals( "SoftDelete" ) ) ) ) {
+					_houdiniAsset.DeleteAssetCacheData( bRegisterUndo: true ) ;
+				}
+
+				if ( Event.current != null && Event.current.commandName.Equals( "SoftDelete" ) ) {
+					// Don't delete data so that you can undo!
+					_houdiniAsset.SetSoftDeleted( ) ;
+				}
+				else _houdiniAsset.DeleteAllGeneratedData( bIsRebuild: false ) ;
+			}
 		}
 
-		if (Event.current != null && Event.current.commandName.Equals("SoftDelete"))
-		{
-		    // Don't delete data so that you can undo!
-		    _houdiniAsset.SetSoftDeleted();
+		/// <summary>
+		/// Removes all Houdini Engine data from this asset.
+		/// Leaves this gameobject and its children including Unity-specific
+		/// components like geometry, materials, etc.
+		/// </summary>
+		internal void RemoveHoudiniEngineAssetData( ) {
+			HEU_EditorUtility.UndoRecordObject( this, "Clear References" ) ;
+			// TODO: try Undo.RegisterCompleteObjectUndo or  RegisterFullObjectHierarchyUndo
+
+			if ( _houdiniAsset ) {
+				// We'll do a simple DestroyImmediate.
+				// No need to destroy the object, geo nodes, and parts
+				// since Unity's GC will handle them.
+
+				GameObject tempGO = _houdiniAsset.gameObject ;
+				_houdiniAsset = null ;
+				HEU_GeneralUtility.DestroyImmediate( tempGO, bRegisterUndo: true ) ;
+			}
+
+			ClearHoudiniEngineReferences( ) ;
+			DestroyRootComponent( this ) ;
+			HEU_EditorUtility.UndoCollapseCurrentGroup( ) ;
 		}
-		else
-		{
-		    _houdiniAsset.DeleteAllGeneratedData(bIsRebuild: false);
+
+		internal void ClearHoudiniEngineReferences( ) {
+			_houdiniAsset = null ;
+			_bakeTargets.Clear( ) ;
 		}
-	    }
+
+		internal static void DestroyRootComponent( HEU_HoudiniAssetRoot assetRoot ) => 
+			HEU_GeneralUtility.DestroyImmediate( assetRoot, bRegisterUndo: true ) ;
+
+		internal void Reset( ) {
+			// Unity calls this to reset this component.
+			// _houdiniAsset will be null since that is the default value.
+			// So just reconnect _houdiniAsset, then reset all HDA parms and rebuild it.
+
+			if ( !_houdiniAsset ) {
+				_houdiniAsset = transform.GetComponentInChildren< HEU_HoudiniAsset >( ) ;
+			}
+
+			if ( _houdiniAsset ) {
+				_houdiniAsset!.RequestResetParameters( false ) ;
+			}
+		}
 	}
 
-	/// <summary>
-	/// Removes all Houdini Engine data from this asset.
-	/// Leaves this gameobject and its children including Unity-specific
-	/// components like geometry, materials, etc.
-	/// </summary>
-	internal void RemoveHoudiniEngineAssetData()
-	{
-	    HEU_EditorUtility.UndoRecordObject(this, "Clear References");
-	    // TODO: try Undo.RegisterCompleteObjectUndo or  RegisterFullObjectHierarchyUndo
 
-	    if (_houdiniAsset != null)
-	    {
-		// We'll do a simple DestroyImmediate.
-		// No need to destroy the object, geo nodes, and parts
-		// since Unity's GC will handle them.
-
-		GameObject tempGO = _houdiniAsset.gameObject;
-		_houdiniAsset = null;
-		HEU_GeneralUtility.DestroyImmediate(tempGO, bRegisterUndo: true);
-	    }
-
-	    ClearHoudiniEngineReferences();
-	    DestroyRootComponent(this);
-
-	    HEU_EditorUtility.UndoCollapseCurrentGroup();
-	}
-
-	internal void ClearHoudiniEngineReferences()
-	{
-	    _houdiniAsset = null;
-	    _bakeTargets.Clear();
-	}
-
-	internal static void DestroyRootComponent(HEU_HoudiniAssetRoot assetRoot)
-	{
-	    HEU_GeneralUtility.DestroyImmediate(assetRoot, bRegisterUndo: true);
-	}
-
-	internal void Reset()
-	{
-	    // Unity calls this to reset this component.
-	    // _houdiniAsset will be null since that is the default value.
-	    // So just reconnect _houdiniAsset, then reset all HDA parms and rebuild it.
-
-	    if (_houdiniAsset == null)
-	    {
-		_houdiniAsset = transform.GetComponentInChildren<HEU_HoudiniAsset>();
-	    }
-
-	    if (_houdiniAsset != null)
-	    {
-		_houdiniAsset.RequestResetParameters(false);
-	    }
-	}
-    }
-
-
-}   // HoudiniEngineUnity
+} // HoudiniEngineUnity
