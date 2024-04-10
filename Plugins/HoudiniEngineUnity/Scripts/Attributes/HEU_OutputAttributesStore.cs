@@ -39,10 +39,9 @@ namespace HoudiniEngineUnity
 	/// Contains Houdini attributes data (HEU_OutpuAttribute) for generated gameobjects.
 	/// Query the attributes by name.
 	/// </summary>
-	public class HEU_OutputAttributesStore: MonoBehaviour
-	{
+	public class HEU_OutputAttributesStore: MonoBehaviour {
 		[SerializeField] HEU_OutputAttributeDictionary _attributes = new( ) ;
-
+		
 		/// <summary>
 		/// Add the given attribute to the internal map by name.
 		/// </summary>

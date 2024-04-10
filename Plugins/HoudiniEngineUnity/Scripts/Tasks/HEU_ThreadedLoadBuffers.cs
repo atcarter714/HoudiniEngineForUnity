@@ -30,129 +30,122 @@ using UnityEngine;
 
 namespace HoudiniEngineUnity
 {
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Typedefs (copy these from HEU_Common.cs)
-    using HAPI_NodeId = System.Int32;
-    using HAPI_PartId = System.Int32;
-    using HAPI_ParmId = System.Int32;
-    using HAPI_StringHandle = System.Int32;
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Typedefs (copy these from HEU_Common.cs)
+	using HAPI_NodeId = System.Int32 ;
+	using HAPI_PartId = System.Int32 ;
+	using HAPI_ParmId = System.Int32 ;
+	using HAPI_StringHandle = System.Int32 ;
+	
+	
+	public class HEU_LoadBufferBase {
+		public HAPI_NodeId         _id ;
+		public string              _name ;
+		public bool                _bInstanced ;
+		public bool                _bInstancer ;
+		public HEU_GeneratedOutput _generatedOutput ;
 
+		public void InitializeBuffer( HAPI_NodeId id, string name, bool bInstanced, bool bInstancer ) {
+			_id         = id ;
+			_name       = name ;
+			_bInstanced = bInstanced ;
+			_bInstancer = bInstancer ;
+		}
+	} ;
 
-    public class HEU_LoadBufferBase
-    {
-	public HAPI_NodeId _id;
-	public string _name;
-	public bool _bInstanced;
-	public bool _bInstancer;
+	public class HEU_LoadBufferMesh: HEU_LoadBufferBase {
+		public HEU_GenerateGeoCache _geoCache ;
+		public List< HEU_GeoGroup > _LODGroupMeshes ;
 
-	public HEU_GeneratedOutput _generatedOutput;
+		public int _defaultMaterialKey ;
 
-	public void InitializeBuffer(HAPI_NodeId id, string name, bool bInstanced, bool bInstancer)
-	{
-	    _id = id;
-	    _name = name;
-	    _bInstanced = bInstanced;
-	    _bInstancer = bInstancer;
-	}
-    }
+		public bool _bGenerateUVs ;
+		public bool _bGenerateTangents ;
+		public bool _bGenerateNormals ;
+		public bool _bPartInstanced ;
+	} ;
 
-    public class HEU_LoadBufferMesh : HEU_LoadBufferBase
-    {
-	public HEU_GenerateGeoCache _geoCache;
-	public List<HEU_GeoGroup> _LODGroupMeshes;
+	public class HEU_LoadBufferVolume: HEU_LoadBufferBase {
+		public int _tileIndex ;
+		public List< HEU_LoadBufferVolumeLayer > _splatLayers = new( ) ;
 
-	public int _defaultMaterialKey;
+		public int         _heightMapWidth ;
+		public int         _heightMapHeight ;
+		public float[ , ]  _heightMap ;
+		public float[ ,, ] _splatMaps ;
 
-	public bool _bGenerateUVs;
-	public bool _bGenerateTangents;
-	public bool _bGenerateNormals;
-	public bool _bPartInstanced;
-    }
+		public float _terrainSizeX ;
+		public float _terrainSizeY ;
+		public float _heightRange ;
 
-    public class HEU_LoadBufferVolume : HEU_LoadBufferBase
-    {
-	public int _tileIndex;
-	public List<HEU_LoadBufferVolumeLayer> _splatLayers = new List<HEU_LoadBufferVolumeLayer>();
+		public Vector3 _position ;
 
-	public int _heightMapWidth;
-	public int _heightMapHeight;
-	public float[,] _heightMap;
-	public float[,,] _splatMaps;
+		public string _terrainDataPath ;
+		public string _terrainDataExportPath ;
 
-	public float _terrainSizeX;
-	public float _terrainSizeY;
-	public float _heightRange;
+		public HEU_VolumeScatterTrees _scatterTrees ;
 
-	public Vector3 _position;
+		// Detail Layers
+		public List< HEU_DetailPrototype > _detailPrototypes = new( ) ;
+		public List< int[ , ] >            _detailMaps       = new( ) ;
+		public HEU_DetailProperties        _detailProperties ;
 
-	public string _terrainDataPath;
-	public string _terrainDataExportPath;
+		// Specified terrain material
+		public string _specifiedTerrainMaterialName ;
+	} ;
 
-	public HEU_VolumeScatterTrees _scatterTrees;
+	public class HEU_LoadBufferVolumeLayer {
+		public string      _layerName ;
+		public HAPI_PartId _partID ;
+		public int         _heightMapWidth ;
+		public int         _heightMapHeight ;
+		public float       _strength = 1.0f ;
 
-	// Detail Layers
-	public List<HEU_DetailPrototype> _detailPrototypes = new List<HEU_DetailPrototype>();
-	public List<int[,]> _detailMaps = new List<int[,]>();
-	public HEU_DetailProperties _detailProperties;
+		public string  _diffuseTexturePath ;
+		public string  _maskTexturePath ;
+		public float   _metallic = 0f ;
+		public string  _normalTexturePath ;
+		public float   _normalScale   = 0.5f ;
+		public float   _smoothness    = 0f ;
+		public Color   _specularColor = Color.gray ;
+		public Vector2 _tileSize      = Vector2.zero ;
+		public Vector2 _tileOffset    = Vector2.zero ;
 
-	// Specified terrain material
-	public string _specifiedTerrainMaterialName;
-    }
+		public bool _uiExpanded ;
+		public int  _tile = 0 ;
 
-    public class HEU_LoadBufferVolumeLayer
-    {
-	public string _layerName;
-	public HAPI_PartId _partID;
-	public int _heightMapWidth;
-	public int _heightMapHeight;
-	public float _strength = 1.0f;
+		public float[] _normalizedHeights ;
+		public float   _minHeight ;
+		public float   _maxHeight ;
+		public float   _heightRange ;
 
-	public string _diffuseTexturePath;
-	public string _maskTexturePath;
-	public float _metallic = 0f;
-	public string _normalTexturePath;
-	public float _normalScale = 0.5f;
-	public float _smoothness = 0f;
-	public Color _specularColor = Color.gray;
-	public Vector2 _tileSize = Vector2.zero;
-	public Vector2 _tileOffset = Vector2.zero;
+		public float _terrainSizeX ;
+		public float _terrainSizeY ;
 
-	public bool _uiExpanded;
-	public int _tile = 0;
+		public Vector3 _position ;
+		public Vector3 _minBounds ;
+		public Vector3 _maxBounds ;
+		public Vector3 _center ;
 
-	public float[] _normalizedHeights;
-	public float _minHeight;
-	public float _maxHeight;
-	public float _heightRange;
+		public string _layerPath ;
 
-	public float _terrainSizeX;
-	public float _terrainSizeY;
+		public bool _hasLayerAttributes ;
 
-	public Vector3 _position;
-	public Vector3 _minBounds;
-	public Vector3 _maxBounds;
-	public Vector3 _center;
+		public HFLayerType _layerType ;
+	} ;
+	
+	public class HEU_LoadBufferInstancer: HEU_LoadBufferBase {
+		public HAPI_Transform[ ] _instanceTransforms ;
+		public string[ ] _instancePrefixes ;
 
-	public string _layerPath;
+		// Instancing with parts as source
+		public HAPI_NodeId[ ] _instanceNodeIDs ;
 
-	public bool _hasLayerAttributes;
+		// Instancing with asset path as source (single or multi)
+		public string[ ] _assetPaths ;
 
-	public HFLayerType _layerType;
-    }
+		// Override collision asset paths
+		public string[ ] _collisionAssetPaths ;
+	} ;
 
-    public class HEU_LoadBufferInstancer : HEU_LoadBufferBase
-    {
-	public HAPI_Transform[] _instanceTransforms;
-	public string[] _instancePrefixes;
-
-	// Instancing with parts as source
-	public HAPI_NodeId[] _instanceNodeIDs;
-
-	// Instancing with asset path as source (single or multi)
-	public string[] _assetPaths;
-
-	// Override collision asset paths
-	public string[] _collisionAssetPaths;
-    }
-
-}   // HoudiniEngineUnity
+} // HoudiniEngineUnity

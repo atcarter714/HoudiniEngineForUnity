@@ -1262,9 +1262,9 @@ namespace HoudiniEngineUnity
 		/// <returns>Valid type or null if not found in loaded assemblies.</returns>
 		public static Type GetSystemTypeByName( string typeName ) {
 #if UNITY_EDITOR
-			System.Reflection.Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies( ) ;
+			System.Reflection.Assembly[ ] assemblies = AppDomain.CurrentDomain.GetAssemblies( ) ;
 			foreach ( System.Reflection.Assembly assembly in assemblies ) {
-				Type[] types = assembly.GetTypes( ) ;
+				Type[ ] types = assembly.GetTypes( ) ;
 				foreach ( Type type in types ) {
 					if ( type.Name.Equals( typeName ) ) {
 						return type ;

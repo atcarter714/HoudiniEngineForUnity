@@ -40,7 +40,6 @@ using System.Runtime.InteropServices;
 
 #region Type Aliases
 using HAPI_Bool = System.Boolean;
-using HAPI_UInt8 = System.Byte;
 using HAPI_Int8 = System.SByte;
 using HAPI_Int16 = System.Int16;
 using HAPI_Int64 = System.Int64;
