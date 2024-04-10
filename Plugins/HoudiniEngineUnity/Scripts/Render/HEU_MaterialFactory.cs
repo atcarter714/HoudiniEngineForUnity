@@ -73,41 +73,31 @@ namespace HoudiniEngineUnity
 		}
 
 		public static Material GetNewMaterialWithShader( string assetCacheFolderPath, string shaderName,
-														 string materialName = "",    bool   bWriteToFile = true ) {
+														 string materialName = "", bool bWriteToFile = true ) {
 			Material material = null ;
 			Shader   shader   = FindShader( shaderName ) ;
 			if ( shader != null ) {
-				material = new Material( shader ) ;
-				if ( materialName == null || materialName.Length == 0 ) {
-					material.name = shaderName ;
-				}
-				else {
-					material.name = materialName ;
-				}
+				material      = new( shader ) ;
+				material.name = string.IsNullOrEmpty( materialName ) ? shaderName : materialName ;
 
-				if ( bWriteToFile && !string.IsNullOrEmpty( assetCacheFolderPath ) ) {
-					string materialFileName = materialName + HEU_Defines.HEU_EXT_MAT ;
-					HEU_AssetDatabase.CreateObjectInAssetCacheFolder( material, assetCacheFolderPath,
-																	  HEU_Defines.HEU_FOLDER_MATERIALS,
-																	  materialFileName, typeof( Material ),
-																	  bOverwriteExisting: true ) ;
-				}
+				if ( !bWriteToFile || string.IsNullOrEmpty( assetCacheFolderPath ) ) 
+					return material ;
+				
+				string materialFileName = materialName + HEU_Defines.HEU_EXT_MAT ;
+				HEU_AssetDatabase.CreateObjectInAssetCacheFolder( material, assetCacheFolderPath,
+																  HEU_Defines.HEU_FOLDER_MATERIALS,
+																  materialFileName, typeof( Material ),
+																  bOverwriteExisting: true ) ;
 			}
-			else {
-				HEU_Logger.LogWarningFormat( "Shader with name {0} not found!", shaderName ) ;
-			}
-
+			else HEU_Logger.LogWarningFormat( "Shader with name {0} not found!", shaderName ) ;
 			return material ;
 		}
 
-		public static Material CreateNewHoudiniStandardMaterial( string assetCacheFolderPath, string materialName,
-																 bool   bWriteToFile ) {
-			return GetNewMaterialWithShader( assetCacheFolderPath, HEU_PluginSettings.DefaultStandardShader,
-											 materialName, bWriteToFile ) ;
-		}
+		public static Material CreateNewHoudiniStandardMaterial( string assetCacheFolderPath, string materialName, bool bWriteToFile ) =>
+			GetNewMaterialWithShader( assetCacheFolderPath, HEU_PluginSettings.DefaultStandardShader, materialName, bWriteToFile ) ;
 
-		public static void WriteMaterialToAssetCache( Material material,     string assetCacheFolderPath,
-													  string   materialName, bool   bOverwriteExisting ) {
+		public static void WriteMaterialToAssetCache( Material material, string assetCacheFolderPath,
+													  string materialName, bool bOverwriteExisting ) {
 			string materialFileName = materialName + HEU_Defines.HEU_EXT_MAT ;
 			HEU_AssetDatabase.CreateObjectInAssetCacheFolder( material, assetCacheFolderPath,
 															  HEU_Defines.HEU_FOLDER_MATERIALS, materialFileName,
@@ -115,109 +105,96 @@ namespace HoudiniEngineUnity
 															  bOverwriteExisting: bOverwriteExisting ) ;
 		}
 
-		public static bool DoesMaterialExistInAssetCache( Material material ) {
-			return !string.IsNullOrEmpty( HEU_AssetDatabase.GetAssetPath( material ) ) ;
-		}
+		public static bool DoesMaterialExistInAssetCache( Material material ) => 
+			!string.IsNullOrEmpty( HEU_AssetDatabase.GetAssetPath( material ) ) ;
 
 		public static void DestroyNonAssetMaterial( Material material, bool bRegisterUndo ) {
 			// If the material is not part of the asset database then delete it
-			if ( material != null && !HEU_AssetDatabase.ContainsAsset( material ) ) {
+			if ( material && !HEU_AssetDatabase.ContainsAsset(material) ) {
 				//HEU_Logger.LogFormat("Destroying non-asset material {0}", material.name);
 				HEU_GeneralUtility.DestroyImmediate( material, false, bRegisterUndo: bRegisterUndo ) ;
 			}
 		}
 
-		public static void DeleteAssetMaterial( Material material ) {
-			HEU_AssetDatabase.DeleteAsset( material ) ;
-		}
+		public static void DeleteAssetMaterial( Material material ) => HEU_AssetDatabase.DeleteAsset( material ) ;
 
 		public static Texture2D RenderAndExtractImageToTexture( HEU_SessionBase session, HAPI_MaterialInfo materialInfo,
-																HAPI_ParmId     textureParmID, string textureName,
-																string          assetCacheFolderPath, bool isNormalMap,
-																bool            invertTexture = false ) {
+																HAPI_ParmId textureParmID, string textureName,
+																string assetCacheFolderPath, bool isNormalMap,
+																bool invertTexture = false ) {
 			//HEU_Logger.LogFormat("Rendering texture {0} with name {1} for material {2} at path {3}", textureParmID, textureName, materialInfo.nodeId, assetCacheFolderPath);
-
-			Texture2D texture = null ;
 
 			// First we get Houdini to render the texture to an image buffer, then query the buffer over HAPI
 			// Next we convert to PNG, and write out to file in our Assets directory
 			// The reason for querying as a buffer is to workaround a bug with ExtractHoudiniImageToTextureFile 
 			// Note: intentionly ignoring any errors as sometimes there aren't any textures
-			if ( session.RenderTextureToImage( materialInfo.nodeId, textureParmID, false ) ) {
-				texture = HEU_MaterialFactory.ExtractHoudiniImageToTextureRaw( session, materialInfo, "C A" ) ;
-				if ( texture != null ) {
-					texture.name = textureName ;
-
-					// Note: Should I make this a plugin option for roughness?
-					if ( invertTexture ) {
-						Color[] pixels = texture.GetPixels( ) ;
-						for ( int i = 0; i < pixels.Length; i++ ) {
-							pixels[ i ].r = 1 - pixels[ i ].r ;
-							pixels[ i ].g = 1 - pixels[ i ].g ;
-							pixels[ i ].b = 1 - pixels[ i ].b ;
-						}
-
-						texture.SetPixels( pixels ) ;
-
-						texture.Apply( ) ;
-					}
-
-
-					// Get the Textures folder in the assetCacheFolderPath. Make sure it exists.
-					assetCacheFolderPath = HEU_AssetDatabase.AppendTexturesPathToAssetFolder( assetCacheFolderPath ) ;
-					HEU_AssetDatabase.CreatePathWithFolders( assetCacheFolderPath ) ;
-
-					// We are defaulting to PNG here if no extension already set. This forces it to use PNG format below.
-					if ( !textureName.EndsWith( ".png" ) && !textureName.EndsWith( ".jpg" ) &&
-						 !textureName.EndsWith( ".tga" ) && !textureName.EndsWith( ".exr" ) ) {
-						textureName = textureName + ".png" ;
-					}
-
-					string textureFileName =
-						HEU_Platform.BuildPath( assetCacheFolderPath, string.Format( "{0}", textureName ) ) ;
-
-					byte[] encodedBytes ;
-					if ( textureName.EndsWith( ".jpg" ) ) {
-						encodedBytes = texture.EncodeToJPG( ) ;
-					}
-					else if ( textureName.EndsWith( ".tga" ) ) {
-						encodedBytes = texture.EncodeToTGA( ) ;
-					}
-					else if ( textureName.EndsWith( ".exr" ) ) {
-						encodedBytes = texture.EncodeToEXR( ) ;
-					}
-					else // Use PNG otherwise
-					{
-						encodedBytes = texture.EncodeToPNG( ) ;
-					}
-
-					HEU_Platform.WriteBytes( textureFileName, encodedBytes ) ;
-
-					// Re-import for project to recognize the new texture file
-					HEU_AssetDatabase.ImportAsset( textureFileName, HEU_AssetDatabase.HEU_ImportAssetOptions.Default ) ;
-
-					if ( isNormalMap ) {
-						HEU_EditorUtility.SetTextureToNormalMap( textureFileName ) ;
-					}
-
-					// Load the new texture file
-					texture = HEU_AssetDatabase.LoadAssetAtPath( textureFileName, typeof( Texture2D ) ) as Texture2D ;
+			if ( !session.RenderTextureToImage( materialInfo.nodeId, textureParmID, false ) ) 
+				return null ;
+			
+			Texture2D texture = ExtractHoudiniImageToTextureRaw( session, materialInfo, "C A" ) ;
+			if ( !texture ) return texture ;
+			texture.name = textureName ;
+				
+			// Note: Should I make this a plugin option for roughness?
+			if ( invertTexture ) {
+				Color[ ] pixels = texture.GetPixels( ) ;
+				for ( int i = 0; i < pixels.Length; ++i ) {
+					pixels[ i ].r = 1 - pixels[ i ].r ;
+					pixels[ i ].g = 1 - pixels[ i ].g ;
+					pixels[ i ].b = 1 - pixels[ i ].b ;
 				}
 
-				//texture = HEU_MaterialFactory.ExtractHoudiniImageToTextureFile(session, materialInfo, "C A", assetCacheFolderPath);
+				texture.SetPixels( pixels ) ;
+				texture.Apply( ) ;
 			}
 
+
+			// Get the Textures folder in the assetCacheFolderPath. Make sure it exists.
+			assetCacheFolderPath = HEU_AssetDatabase.AppendTexturesPathToAssetFolder( assetCacheFolderPath ) ;
+			HEU_AssetDatabase.CreatePathWithFolders( assetCacheFolderPath ) ;
+
+			// We are defaulting to PNG here if no extension already set. This forces it to use PNG format below.
+			if ( !textureName.EndsWith( ".png" ) && !textureName.EndsWith( ".jpg" ) &&
+				 !textureName.EndsWith( ".tga" ) && !textureName.EndsWith( ".exr" ) ) {
+				textureName += ".png" ;
+			}
+
+			string textureFileName =
+				HEU_Platform.BuildPath( assetCacheFolderPath, $"{textureName}" ) ;
+
+			byte[ ] encodedBytes ;
+			if ( textureName.EndsWith( ".jpg" ) )
+				encodedBytes = texture.EncodeToJPG( ) ;
+			else if ( textureName.EndsWith( ".tga" ) )
+				encodedBytes = texture.EncodeToTGA( ) ;
+			else if ( textureName.EndsWith( ".exr" ) )
+				encodedBytes = texture.EncodeToEXR( ) ;
+			else // Use PNG otherwise
+				encodedBytes = texture.EncodeToPNG( ) ;
+
+			HEU_Platform.WriteBytes( textureFileName, encodedBytes ) ;
+
+			// Re-import for project to recognize the new texture file
+			HEU_AssetDatabase.ImportAsset( textureFileName, HEU_AssetDatabase.HEU_ImportAssetOptions.Default ) ;
+
+			if ( isNormalMap )
+				HEU_EditorUtility.SetTextureToNormalMap( textureFileName ) ;
+			
+			// Load the new texture file
+			texture = HEU_AssetDatabase.LoadAssetAtPath( textureFileName, typeof(Texture2D) ) as Texture2D ;
+			
+			//texture = HEU_MaterialFactory.ExtractHoudiniImageToTextureFile(session, materialInfo, "C A", assetCacheFolderPath);
 			return texture ;
 		}
 
-		private static Texture2D ExtractHoudiniImageToTexturePNGJPEG( HEU_SessionBase   session,
-																	  HAPI_MaterialInfo materialInfo,
-																	  string            imagePlanes ) {
+		static Texture2D ExtractHoudiniImageToTexturePNGJPEG( HEU_SessionBase   session,
+															  HAPI_MaterialInfo materialInfo,
+															  string imagePlanes ) {
 			Texture2D textureResult = null ;
 
-			HAPI_ImageInfo imageInfo = new HAPI_ImageInfo( ) ;
+			HAPI_ImageInfo imageInfo = new( ) ;
 			if ( !session.GetImageInfo( materialInfo.nodeId, ref imageInfo ) ) {
-				return textureResult ;
+				return null ;
 			}
 
 			// This will return null if the current imageInfo file format is supported by Unity, otherwise
@@ -228,27 +205,21 @@ namespace HoudiniEngineUnity
 			session.SetImageInfo( materialInfo.nodeId, ref imageInfo ) ;
 
 			// Download the image into memory buffer
-			byte[] imageData = null ;
-			if ( !session.ExtractImageToMemory( materialInfo.nodeId, desiredFileFormatName, imagePlanes,
-												out imageData ) ) {
-				return textureResult ;
-			}
+			if ( !session.ExtractImageToMemory( materialInfo.nodeId,
+												desiredFileFormatName, 
+												imagePlanes, 
+												out byte[ ] imageData ) ) return null ;
 
 			// Upload to Unity
-			textureResult = new Texture2D( 1, 1 ) ;
+			textureResult = new( 1, 1 ) ;
 			textureResult.LoadImage( imageData ) ;
-
 			return textureResult ;
 		}
 
-		private static Texture2D ExtractHoudiniImageToTextureRaw( HEU_SessionBase   session,
-																  HAPI_MaterialInfo materialInfo, string imagePlanes ) {
-			Texture2D textureResult = null ;
-
-			HAPI_ImageInfo imageInfo = new HAPI_ImageInfo( ) ;
-			if ( !session.GetImageInfo( materialInfo.nodeId, ref imageInfo ) ) {
-				return textureResult ;
-			}
+		static Texture2D ExtractHoudiniImageToTextureRaw( HEU_SessionBase session,
+														  HAPI_MaterialInfo materialInfo, string imagePlanes ) {
+			HAPI_ImageInfo imageInfo = new( ) ;
+			if ( !session.GetImageInfo( materialInfo.nodeId, ref imageInfo ) ) return null ;
 
 			imageInfo.dataFormat  = HAPI_ImageDataFormat.HAPI_IMAGE_DATA_INT8 ;
 			imageInfo.interleaved = true ;
@@ -258,77 +229,64 @@ namespace HoudiniEngineUnity
 			session.SetImageInfo( materialInfo.nodeId, ref imageInfo ) ;
 
 			// Extract image to buffer
-			byte[] imageData = null ;
 			if ( !session.ExtractImageToMemory( materialInfo.nodeId, HEU_HAPIConstants.HAPI_RAW_FORMAT_NAME,
-												imagePlanes, out imageData ) ) {
-				return textureResult ;
-			}
+												imagePlanes, out byte[ ] imageData ) )
+				return null ;
 
 			int colorDataSize = imageInfo.xRes * imageInfo.yRes ;
 			if ( colorDataSize * 4 != imageData.Length ) {
 				HEU_Logger.LogErrorFormat( "Extracted image size does not match expected image info size."
 										   + " Try using non-raw format for texture extraction." ) ;
-				return textureResult ;
+				return null ;
 			}
-
-			Color32[] colorData = new Color32[ colorDataSize ] ;
+			
+			Color32[ ] colorData = new Color32[ colorDataSize ] ;
 			for ( int i = 0; i < colorDataSize; ++i ) {
 				colorData[ i ].r = imageData[ i * 4 + 0 ] ;
 				colorData[ i ].g = imageData[ i * 4 + 1 ] ;
 				colorData[ i ].b = imageData[ i * 4 + 2 ] ;
 				colorData[ i ].a = imageData[ i * 4 + 3 ] ;
 			}
-
-			textureResult = new Texture2D( imageInfo.xRes, imageInfo.yRes, TextureFormat.ARGB32, false ) ;
+			
+			Texture2D textureResult = new( imageInfo.xRes, imageInfo.yRes, TextureFormat.ARGB32, false ) ;
 			textureResult.SetPixels32( colorData ) ;
 			textureResult.Apply( ) ;
-
 			return textureResult ;
 		}
 
-		public static Texture2D ExtractHoudiniImageToTextureFile( HEU_SessionBase   session,
-																  HAPI_MaterialInfo materialInfo, string imagePlanes,
-																  string            assetCacheFolderPath ) {
-			Texture2D textureResult = null ;
-
+		public static Texture2D ExtractHoudiniImageToTextureFile( HEU_SessionBase session,
+																  HAPI_MaterialInfo materialInfo, 
+																  string imagePlanes,
+																  string assetCacheFolderPath ) {
 			// Get the Textures folder in the assetCacheFolderPath. Make sure it exists.
 			assetCacheFolderPath = HEU_AssetDatabase.AppendTexturesPathToAssetFolder( assetCacheFolderPath ) ;
 			HEU_AssetDatabase.CreatePathWithFolders( assetCacheFolderPath ) ;
 
 			// Need to pass in full path to Houdini to write out the file
 			assetCacheFolderPath = HEU_AssetDatabase.GetAssetFullPath( assetCacheFolderPath ) ;
-			if ( assetCacheFolderPath == null ) {
-				return textureResult ;
-			}
+			if ( string.IsNullOrEmpty(assetCacheFolderPath) ) return null ;
 
-			HAPI_ImageInfo imageInfo = new HAPI_ImageInfo( ) ;
-			if ( !session.GetImageInfo( materialInfo.nodeId, ref imageInfo ) ) {
-				return textureResult ;
-			}
-
-			// This will return null if the current imageInfo file format is supported by Unity, otherwise
-			// returns a Unity supported file format.
+			HAPI_ImageInfo imageInfo = new( ) ;
+			if ( !session.GetImageInfo( materialInfo.nodeId, ref imageInfo ) ) return null ;
+			
+			// This will return null if the current imageInfo file format is
+			// supported by Unity, otherwise returns a Unity supported file format.
 			string desiredFileFormatName = HEU_MaterialData.GetSupportedFileFormat( session, ref imageInfo ) ;
 
 			// Extract image to file
-			string writtenFilePath = null ;
 			if ( !session.ExtractImageToFile( materialInfo.nodeId, desiredFileFormatName, imagePlanes,
-											  assetCacheFolderPath, out writtenFilePath ) ) {
-				return textureResult ;
-			}
-
-
+											  assetCacheFolderPath, out string writtenFilePath ) ) return null ;
+			
 			HEU_AssetDatabase.SaveAndRefreshDatabase( ) ;
 
 			// Convert full path back to relative in order to work with AssetDatabase
 			string assetRelativePath = HEU_AssetDatabase.GetAssetRelativePath( writtenFilePath ) ;
-
+			
 			// Re-import to refresh the project
 			HEU_AssetDatabase.ImportAsset( assetRelativePath, HEU_AssetDatabase.HEU_ImportAssetOptions.Default ) ;
-
-			textureResult = HEU_AssetDatabase.LoadAssetAtPath( assetRelativePath, typeof( Texture2D ) ) as Texture2D ;
-			//HEU_Logger.LogFormat("Loaded texture to file {0} with format {1}", writtenFilePath, textureResult != null ? textureResult.format.ToString() : "none");
-
+			Texture2D textureResult = 
+				HEU_AssetDatabase.LoadAssetAtPath( assetRelativePath, typeof( Texture2D ) ) as Texture2D ;
+			//HEU_Logger.LogFormat( "Loaded texture to file {0} with format {1}", writtenFilePath, textureResult != null ? textureResult.format.ToString() : "none" ) ;
 			return textureResult ;
 		}
 
@@ -435,8 +393,8 @@ namespace HoudiniEngineUnity
 		}
 
 		public static int GetUnitySubstanceMaterialKey( string unityMaterialPath, string substanceName,
-														int    substanceIndex ) {
-			System.Text.StringBuilder strBuilder = new System.Text.StringBuilder( ) ;
+														int substanceIndex ) {
+			System.Text.StringBuilder strBuilder = new( ) ;
 			strBuilder.Append( unityMaterialPath ) ;
 
 			if ( !string.IsNullOrEmpty( substanceName ) ) {
@@ -447,7 +405,7 @@ namespace HoudiniEngineUnity
 				strBuilder.AppendFormat( "-{0}", substanceIndex ) ;
 			}
 
-			return HEU_MaterialFactory.MaterialNameToKey( strBuilder.ToString( ) ) ;
+			return MaterialNameToKey( strBuilder.ToString( ) ) ;
 		}
 
 		public static int MaterialNameToKey( string materialName ) {
@@ -469,7 +427,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public static Material CopyMaterial( Material material ) {
-			return new Material( material ) ;
+			return new( material ) ;
 		}
 
 		public static Material _defaultStandardMaterial ;
@@ -514,15 +472,14 @@ namespace HoudiniEngineUnity
 			HEU_MaterialData.Source sourceType = HEU_MaterialData.Source.UNITY ;
 			if ( !string.IsNullOrEmpty( substanceName ) ) {
 				sourceType = HEU_MaterialData.Source.SUBSTANCE ;
-				material   = HEU_MaterialFactory.LoadSubstanceMaterialWithName( materialPath, substanceName ) ;
+				material   = LoadSubstanceMaterialWithName( materialPath, substanceName ) ;
 			}
 			else if ( substanceIndex >= 0 ) {
 				sourceType = HEU_MaterialData.Source.SUBSTANCE ;
-				material   = HEU_MaterialFactory.LoadSubstanceMaterialWithIndex( materialPath, substanceIndex ) ;
+				material   = LoadSubstanceMaterialWithIndex( materialPath, substanceIndex ) ;
 			}
-			else if ( !string.IsNullOrEmpty( materialPath ) ) {
-				material = HEU_MaterialFactory.LoadUnityMaterial( materialPath ) ;
-			}
+			else if ( !string.IsNullOrEmpty( materialPath ) ) 
+				material = LoadUnityMaterial( materialPath ) ;
 
 			if ( !material ) {
 				HEU_MaterialData materialData = ScriptableObject.CreateInstance< HEU_MaterialData >( ) ;
@@ -538,8 +495,7 @@ namespace HoudiniEngineUnity
 			if ( string.IsNullOrEmpty( materialPath ) )
 				HEU_Logger.LogWarningFormat( "Empty material name found. Using default material." ) ;
 
-			else if ( materialPath.Contains( "Resources/unity_builtin_extra" ) )
-				; // Built in material. Don't display error.
+			//else if ( materialPath.Contains( "Resources/unity_builtin_extra" ) ) ; // Built in material. Don't display error.
 
 			// The materialKey helps uniquely identify this material for further look ups. But we also need to get a valid file name
 			// to create the default material, so strip out just the file name.
@@ -550,20 +506,17 @@ namespace HoudiniEngineUnity
 					.LogErrorFormat( "Unable to find {0} material {1}. Using a default material instead. Please check material exists in project and reload asset!",
 									 sourceType, materialPath ) ;
 			}
-			else if ( false ) { }
-
+			
 			return CreateMaterialInCache( materialKey, strippedFileName, HEU_MaterialData.Source.UNITY, false,
 										  materialCache, assetCacheFolderPath ) ;
 		}
 
 		public static HEU_MaterialData CreateMaterialInCache( int materialKey, string materialName,
 															  HEU_MaterialSourceWrapper sourceType, bool bWriteToFile,
-															  List< HEU_MaterialData > materialCache,
-															  string assetCacheFolderPath ) {
-			return CreateMaterialInCache( materialKey, materialName,
-										  HEU_MaterialData.MaterialSource_WrapperToInternal( sourceType ), bWriteToFile,
-										  materialCache, assetCacheFolderPath ) ;
-		}
+															  List< HEU_MaterialData >  materialCache, string assetCacheFolderPath ) =>
+			CreateMaterialInCache( materialKey, materialName,
+								   HEU_MaterialData.MaterialSource_WrapperToInternal( sourceType ), 
+								   bWriteToFile, materialCache, assetCacheFolderPath ) ;
 
 		internal static HEU_MaterialData CreateMaterialInCache( int materialKey, string materialName,
 																HEU_MaterialData.Source sourceType, bool bWriteToFile,
@@ -574,79 +527,68 @@ namespace HoudiniEngineUnity
 			materialData._materialKey    = materialKey ;
 
 			materialData._material =
-				HEU_MaterialFactory.CreateNewHoudiniStandardMaterial( assetCacheFolderPath, materialName,
-																	  bWriteToFile ) ;
-			if ( materialData._material != null ) {
+				CreateNewHoudiniStandardMaterial( assetCacheFolderPath, materialName, bWriteToFile ) ;
+			
+			if ( materialData._material )
 				materialData._material.name = materialName ;
-			}
 
 			materialCache.Add( materialData ) ;
 			return materialData ;
 		}
 
-		public static HEU_MaterialData GetOrCreateDefaultMaterialInCache(
-			HEU_SessionBase          session, HAPI_NodeId geoID, HAPI_PartId partID, bool bWriteToFile,
-			List< HEU_MaterialData > materialCache,
-			string                   assetCacheFolderPath ) {
-			string           materialName = GenerateDefaultMaterialName( geoID, partID ) ;
-			int              materialKey  = HEU_MaterialFactory.MaterialNameToKey( materialName ) ;
+		public static HEU_MaterialData GetOrCreateDefaultMaterialInCache( HEU_SessionBase session, HAPI_NodeId geoID, 
+																		  HAPI_PartId partID, bool bWriteToFile,
+																		  List< HEU_MaterialData > materialCache,
+																		  string assetCacheFolderPath ) {
+			string materialName = GenerateDefaultMaterialName( geoID, partID ) ;
+			int materialKey  = MaterialNameToKey( materialName ) ;
+			
 			HEU_MaterialData materialData = GetMaterialDataFromCache( materialKey, materialCache ) ;
-			if ( materialData == null ) {
-				materialData = CreateMaterialInCache( materialKey, materialName, HEU_MaterialData.Source.DEFAULT,
+			
+			if ( !materialData )
+				materialData = CreateMaterialInCache( materialKey, materialName,
+													  HEU_MaterialData.Source.DEFAULT,
 													  bWriteToFile, materialCache, assetCacheFolderPath ) ;
-			}
 
 			return materialData ;
 		}
 
-		public static HEU_MaterialData GetMaterialDataFromCache( int                      materialKey,
-																 List< HEU_MaterialData > materialCache ) {
-			foreach ( HEU_MaterialData materialData in materialCache ) {
-				if ( materialData._materialKey == materialKey ) {
+		public static HEU_MaterialData GetMaterialDataFromCache( int materialKey, List< HEU_MaterialData > materialCache ) {
+			foreach ( HEU_MaterialData materialData in materialCache )
+				if ( materialData && (materialData._materialKey == materialKey) ) 
 					return materialData ;
-				}
-			}
-
 			return null ;
 		}
 
-		public static string GenerateDefaultMaterialName( HAPI_NodeId geoID, HAPI_PartId partID ) {
-			return string.Format( "{0}_{1}_{2}", HEU_Defines.DEFAULT_MATERIAL, geoID, partID ) ;
-		}
-
+		public static string GenerateDefaultMaterialName( HAPI_NodeId geoID, HAPI_PartId partID ) =>
+															$"{HEU_Defines.DEFAULT_MATERIAL}_{geoID}_{partID}" ;
+		
 		public static HEU_MaterialData CreateHoudiniMaterialData( HEU_SessionBase session, HAPI_NodeId assetID,
 																  HAPI_NodeId materialID, HAPI_NodeId geoID,
 																  HAPI_PartId partID,
 																  List< HEU_MaterialData > materialCache,
 																  string assetCacheFolderPath ) {
-			string materialName = "" ;
-
-			if ( materialID is HEU_Defines.HEU_INVALID_NODE_ID ) {
+			if ( materialID is HEU_Defines.HEU_INVALID_NODE_ID )
 				return GetOrCreateDefaultMaterialInCache( session, geoID, partID, false, materialCache,
 														  assetCacheFolderPath ) ;
-			}
 			
-			materialName = HEU_SessionManager.GetUniqueMaterialShopName( assetID, materialID ) ;
+			string materialName = HEU_SessionManager.GetUniqueMaterialShopName( assetID, materialID ) ;
 			HEU_MaterialData materialData = ScriptableObject.CreateInstance< HEU_MaterialData >( ) ;
 			materialData._materialSource = HEU_MaterialData.Source.HOUDINI ;
 			materialData._materialKey    = materialID ;
 
 			materialData._material =
-				HEU_MaterialFactory.CreateNewHoudiniStandardMaterial( assetCacheFolderPath, materialName, true ) ;
+				CreateNewHoudiniStandardMaterial( assetCacheFolderPath, materialName, true ) ;
 			materialData._material.name = materialName ;
 
 			//HEU_Logger.LogFormat("New Material ID: {0} - {1}", materialID, materialName);
 
-			if ( materialID != HEU_Defines.HEU_INVALID_NODE_ID ) {
-				// Get material info from Houdini to populate the Unity material values
+			// Get material info from Houdini to populate the Unity material values
 
-				HAPI_MaterialInfo materialInfo = new HAPI_MaterialInfo( ) ;
-				if ( session.GetMaterialInfo( materialID, ref materialInfo ) ) {
-					if ( materialInfo.exists ) {
-						materialData.UpdateMaterialFromHoudini( materialInfo, assetCacheFolderPath ) ;
-					}
-				}
-			}
+			HAPI_MaterialInfo materialInfo = new( ) ;
+			if ( session.GetMaterialInfo( materialID, ref materialInfo ) )
+				if ( materialInfo.exists )
+					materialData.UpdateMaterialFromHoudini( materialInfo, assetCacheFolderPath ) ;
 
 			//HEU_Logger.LogFormat("Created new material with id={0} and name={1}", materialID, materialName);
 
@@ -654,20 +596,15 @@ namespace HoudiniEngineUnity
 			return materialData ;
 		}
 
-		public static Dictionary< int, HEU_MaterialData > GetMaterialDataMapFromCache(
-			List< HEU_MaterialData > materialCache ) {
-			Dictionary< int, HEU_MaterialData > materialMap = new Dictionary< int, HEU_MaterialData >( ) ;
-			if ( materialCache != null ) {
-				foreach ( HEU_MaterialData materialData in materialCache ) {
-					if ( materialData._materialKey == HEU_Defines.HEU_INVALID_MATERIAL ) {
-						HEU_Logger.LogWarningFormat( "Invalid material key found! Recommend to reload HDA!" ) ;
-					}
-					else {
-						materialMap.Add( materialData._materialKey, materialData ) ;
-					}
-				}
+		public static Dictionary< int, HEU_MaterialData > GetMaterialDataMapFromCache( List< HEU_MaterialData > materialCache ) { 
+			if ( materialCache is null ) return null ;
+			
+			Dictionary< int, HEU_MaterialData > materialMap = new( ) ;
+			foreach ( HEU_MaterialData materialData in materialCache ) {
+				if ( materialData._materialKey is HEU_Defines.HEU_INVALID_MATERIAL )
+					HEU_Logger.LogWarningFormat( "Invalid material key found! Recommend to reload HDA!" ) ;
+				else materialMap.Add( materialData._materialKey, materialData ) ;
 			}
-
 			return materialMap ;
 		}
 	}

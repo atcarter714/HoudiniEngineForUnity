@@ -133,7 +133,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="sessionID"></param>
 		/// <param name="session"></param>
-		public static void RegisterSession( long sessionID, HEU_SessionBase session ) {
+		public static void RegisterSession( HAPI_Int64 sessionID, HEU_SessionBase session ) {
 			_sessionMap.Add( sessionID, session ) ;
 			SaveAllSessionData( ) ;
 		}
@@ -142,7 +142,7 @@ namespace HoudiniEngineUnity
 		/// Unregister the session (used when closing).
 		/// </summary>
 		/// <param name="sessionID">Session to remove from registry</param>
-		public static void UnregisterSession( long sessionID ) {
+		public static void UnregisterSession( HAPI_Int64 sessionID ) {
 			_sessionMap.Remove( sessionID ) ;
 			SaveAllSessionData( ) ;
 		}
@@ -153,9 +153,8 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="sessionID">Session ID to use for matching to session</param>
 		/// <returns>Session object if found</returns>
-		public static HEU_SessionBase GetSessionWithID( long sessionID ) {
-			HEU_SessionBase session = null ;
-			_sessionMap.TryGetValue( sessionID, out session ) ;
+		public static HEU_SessionBase GetSessionWithID( HAPI_Int64 sessionID ) {
+			_sessionMap.TryGetValue( sessionID, out HEU_SessionBase session ) ;
 			return session ;
 		}
 
@@ -227,14 +226,13 @@ namespace HoudiniEngineUnity
 		public static HEU_SessionBase GetOrCreateDefaultSession( bool bNotifyUserError = true ) {
 			// After a code refresh, _defaultSession might be null.
 			// So try loading stored plugin data to see if we can get it back.
-			if ( _defaultSession is null ) 
+			if ( _defaultSession is null )
 				HEU_PluginStorage.InstantiateAndLoad( ) ;
-
 			if ( _defaultSession?.IsSessionValid() ?? false )
 				return _defaultSession ;
 			
-			if ( _defaultSession is null 
-									or { ConnectionState: SessionConnectionState.NOT_CONNECTED } ) {
+			if ( _defaultSession is null or { ConnectionState: SessionConnectionState.NOT_CONNECTED } ) {
+				HEU_Logger.Log( HEU_Defines.HEU_NAME + ": No valid session found. Creating new session." ) ;
 				// Try creating it if we haven't tried yet
 				bNotifyUserError &= !CreateThriftPipeSession( HEU_PluginSettings.Session_PipeName,
 															  HEU_PluginSettings.Session_AutoClose,
@@ -285,6 +283,7 @@ namespace HoudiniEngineUnity
 		/// <param name="pipeName"></param>
 		/// <param name="autoClose"></param>
 		/// <param name="timeout"></param>
+		/// <param name="logError"></param>
 		/// <returns>True if successfully created session.</returns>
 		public static bool CreateThriftPipeSession( string pipeName, bool autoClose, float timeout, bool logError ) {
 			CheckAndCloseExistingSession( ) ;
@@ -297,7 +296,6 @@ namespace HoudiniEngineUnity
 		/// <returns>True if session was created successfully.</returns>
 		public static bool CreateCustomSession( ) {
 			CheckAndCloseExistingSession( ) ;
-
 			_defaultSession = CreateSessionObject( ) ;
 			return _defaultSession.CreateCustomSession( true ) ;
 		}

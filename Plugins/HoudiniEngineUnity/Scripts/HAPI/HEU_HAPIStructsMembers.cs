@@ -37,8 +37,7 @@ using UnityEngine;
 namespace HoudiniEngineUnity
 {
     using HAPI_Bool = System.Boolean;
-    using HAPI_UInt8 = System.Byte;
-    using HAPI_Int8 = System.SByte;
+	using HAPI_Int8 = System.SByte;
     using HAPI_Int16 = System.Int16;
     using HAPI_Int64 = System.Int64;
     using HAPI_ProcessId = System.Int32;

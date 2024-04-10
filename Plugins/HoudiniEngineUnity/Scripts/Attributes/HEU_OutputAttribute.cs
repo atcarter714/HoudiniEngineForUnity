@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -24,29 +24,30 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System ;
+
 namespace HoudiniEngineUnity
 {
-    /// <summary>
-    /// Container for a Houdini attribute.
-    /// </summary>
-    [System.Serializable]
-    public class HEU_OutputAttribute
-    {
-        // Name of attribute
-        public string _name;
+	/// <summary>
+	/// Container for a Houdini attribute.
+	/// </summary>
+	[Serializable] public class HEU_OutputAttribute {
+		// Name of attribute
+		public string _name ;
 
-        // Class ownership
-        public HAPI_AttributeOwner _class;
+		// Class ownership
+		public HAPI_AttributeOwner _class ;
 
-        // Storage type
-        public HAPI_StorageType _type;
+		// Storage type
+		public HAPI_StorageType _type ;
 
-        public int _count;
-        public int _tupleSize;
+		public int _count ;
+		public int _tupleSize ;
 
-        // Arrays of values, based on class.
-        public int[] _intValues;
-        public float[] _floatValues;
-        public string[] _stringValues;
-    }
+		// Arrays of values, based on class.
+		public int[ ]    _intValues ;
+		public float[ ]  _floatValues ;
+		public string[ ] _stringValues ;
+	}
+
 }
