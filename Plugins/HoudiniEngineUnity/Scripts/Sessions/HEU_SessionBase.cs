@@ -100,16 +100,7 @@ namespace HoudiniEngineUnity
 		// Holds the last HAPI call result code
 		public HAPI_Result LastCallResultCode { get ; set ; }
 
-	/// <summary>
-	/// Set the session error message
-	/// </summary>
-	/// <param name="msg">String message to set</param>
-	/// <param name="bLogError">Set to true if want to log error on console</param>
-	public virtual void SetSessionErrorMsg( string msg, bool bLogError = false ) {
-		_sessionErrorMsg = msg ;
-		if ( bLogError && LogErrorOverride ) 
-			HEU_Logger.LogError( _sessionErrorMsg ) ;
-	}
+		// ASSET REGISTRATION -----------------------------------------------------------------------------------------------
 
 		// The following asset registration mechanism keeps track of HEU_HoudiniAsset 
 		// to asset ID mappings on the Unity side. This is required for 2 reasons:
