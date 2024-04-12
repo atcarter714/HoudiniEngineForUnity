@@ -522,16 +522,19 @@ namespace HoudiniEngineUnity
 											 _partName, _colorAttrInfo.owner ) ;
 			}
 
-			_groups = HEU_SessionManager.GetGroupNames( session, GeoID, _partInfo.id,
-														HAPI_GroupType.HAPI_GROUPTYPE_PRIM, _partInfo.isInstanced ) ;
+			_groups = HEU_SessionManager.GetGroupNames( session, 
+														GeoID, 
+														_partInfo.id,
+														HAPI_GroupType.HAPI_GROUPTYPE_PRIM, 
+														_partInfo.isInstanced 
+														) ;
 
 			_allCollisionVertexList  = new int[ _vertexList.Length ] ;
 			_allCollisionFaceIndices = new int[ _partInfo.faceCount ] ;
-
 			_hasGroupGeometry = false ;
 			_hasLODGroups     = false ;
 
-			if ( _groups != null ) {
+			if ( _groups is { Length: > 0 } ) {
 				// We go through each group, building up a list of vertices and indices that belong to it
 				// For strictly colliders (ie. non-rendering), we only create geometry colliders 
 				for ( int g = 0; g < _groups.Length; ++g ) {
@@ -539,8 +542,9 @@ namespace HoudiniEngineUnity
 
 					// Query HAPI to get the group membership. 
 					// This is returned as an array of 1s for vertices that belong to this group.
-					int[] membership = null ;
-					HEU_SessionManager.GetGroupMembership( session, GeoID, PartID, HAPI_GroupType.HAPI_GROUPTYPE_PRIM,
+					int[ ] membership = null ;
+					HEU_SessionManager.GetGroupMembership( session, GeoID, PartID,
+														   HAPI_GroupType.HAPI_GROUPTYPE_PRIM,
 														   groupName, ref membership, _partInfo.isInstanced ) ;
 
 					bool bIsCollidable = groupName.Contains( HEU_PluginSettings.CollisionGroupName ) ;

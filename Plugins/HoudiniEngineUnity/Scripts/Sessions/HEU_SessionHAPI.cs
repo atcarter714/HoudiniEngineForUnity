@@ -234,33 +234,35 @@ namespace HoudiniEngineUnity
 
 			if ( bCreateSession ) {
 				// First create the socket server
-				HAPI_ThriftServerOptions serverOptions = new( )
-				{
+				HAPI_ThriftServerOptions serverOptions = new( ) {
 					autoClose = autoClose,
 					timeoutMs = timeout,
 					verbosity = HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ALL,
 				} ;
 
-				result = HEU_HAPIFunctions.HAPI_StartThriftSocketServer( ref serverOptions, serverPort, out processID,
-																		 null ) ;
+				result = HEU_HAPIFunctions.HAPI_StartThriftSocketServer( ref serverOptions, 
+																		 serverPort, 
+																		 out processID,
+																		 null 
+																		) ;
+				
 				if ( result is not HAPI_Result.HAPI_RESULT_SUCCESS ) {
 					bool bIsHARSRunning = HEU_SessionManager.IsHARSProcessRunning( processID ) ;
 					SetSessionConnectionErrorMsg( "Unable to start the Houdini Engine server (socket mode).",
 												  result, bIsHARSRunning, logError ) ;
-
 					HandleSessionConnectionFailure( ) ;
 					return false ;
 				}
 			}
 
 			AppDomain  currentDomain = AppDomain.CurrentDomain ;
-			Assembly[] assemblies    = currentDomain.GetAssemblies( ) ;
+			Assembly[ ] assemblies   = currentDomain.GetAssemblies( ) ;
 			string     assemblyList  = string.Empty ;
 			foreach ( Assembly assembly in assemblies ) {
-				if ( !string.IsNullOrEmpty( assemblyList ) ) 
+				if ( !string.IsNullOrEmpty(assemblyList) ) 
 					assemblyList = string.Concat( assemblyList, ";" ) ;
 
-				assemblyList = string.Concat( assemblyList, assembly.GetName( ).Name ) ;
+				assemblyList = string.Concat( assemblyList, assembly.GetName().Name ) ;
 			}
 
 			HEU_HARCImports.harcSetManagedHostLibrariesList( assemblyList ) ;
@@ -282,7 +284,6 @@ namespace HoudiniEngineUnity
 				bool bIsHARSRunning = HEU_SessionManager.IsHARSProcessRunning( processID ) ;
 				SetSessionConnectionErrorMsg( "Unable to connect to the Houdini Engine server (socket mode)." + harsMsg,
 											  result, bIsHARSRunning, logError ) ;
-
 				HandleSessionConnectionFailure( ) ;
 				return false ;
 			}
@@ -385,12 +386,11 @@ namespace HoudiniEngineUnity
 
 			AppDomain currentDomain  = AppDomain.CurrentDomain ;
 			Assembly[ ] assemblies   = currentDomain.GetAssemblies( ) ;
-			string     assemblyList  = string.Empty ;
+			string assemblyList  = string.Empty ;
 			foreach ( Assembly assembly in assemblies ) {
 				if ( !string.IsNullOrEmpty( assemblyList ) ) {
 					assemblyList = string.Concat( assemblyList, ";" ) ;
 				}
-
 				assemblyList = string.Concat( assemblyList, assembly.GetName( ).Name ) ;
 			}
 
@@ -437,7 +437,7 @@ namespace HoudiniEngineUnity
 		/// <param name="logError"></param>
 		/// <param name="autoInitialize"></param>
 		/// <returns></returns>
-		public override bool ConnectThriftSocketSession( bool   bIsDefaultSession,
+		public override bool ConnectThriftSocketSession( bool bIsDefaultSession,
 														 string hostName   = HEU_Defines.HEU_SESSION_LOCALHOST, 
 														 int    serverPort = HEU_Defines.HEU_SESSION_PORT, 
 														 bool   autoClose  = HEU_Defines.HEU_SESSION_AUTOCLOSE, 
@@ -485,10 +485,7 @@ namespace HoudiniEngineUnity
 						
 						if ( result is not HAPI_Result.HAPI_RESULT_SUCCESS ) {
 							string errorMsg = HEU_SessionManager.GetConnectionError( true ) ;
-							SetSessionErrorMsg( string.Format( "Closing session resulted in error."
-															   + "\nError: {0}"
-															   + "\n{1}"
-															   , result, errorMsg ) ) ;
+							SetSessionErrorMsg( $"Closing session resulted in error.\nError: {result}\n{errorMsg}" ) ;
 						}
 					}
 				}
@@ -532,7 +529,8 @@ namespace HoudiniEngineUnity
 		/// <returns>Only returns false if closing existing session failed.</returns>
 		protected override bool CheckAndCloseExistingSession( ) {
 			if ( _sessionData is not null && IsSessionValid( ) ) {
-				// Because we already checked that the session exists, this should only return false if it can't be closed.
+				// Because we already checked that the session exists,
+				// this should only return false if it can't be closed.
 				return CloseSession( ) ;
 			}
 
@@ -611,28 +609,22 @@ namespace HoudiniEngineUnity
 				sessionType = _sessionData.SessionType ;
 				processID   = _sessionData.ProcessID ;
 				port        = _sessionData.Port ;
-
 				CheckAndCloseExistingSession( ) ;
 			}
-
-			if ( sessionType is HAPI_SessionType.HAPI_SESSION_THRIFT && processID > 0 && port > 0 ) {
-				return CreateThriftSocketSession( true, HEU_PluginSettings.Session_Localhost,
-												  HEU_PluginSettings.Session_Port, HEU_PluginSettings.Session_AutoClose,
-												  HEU_PluginSettings.Session_Timeout, true ) ;
-			}
-
-			if ( sessionType is HAPI_SessionType.HAPI_SESSION_INPROCESS ) {
-				return CreateInProcessSession( true ) ;
-			}
-
-			// Default session. On Linux use socket due to issues with pipe.
-#if UNITY_STANDALONE_LINUX
-			return CreateThriftSocketSession(true, HEU_PluginSettings.Session_Localhost, HEU_PluginSettings.Session_Port, HEU_PluginSettings.Session_AutoClose, HEU_PluginSettings.Session_Timeout, true);
-#else
-			return CreateThriftPipeSession( true, HEU_PluginSettings.Session_PipeName,
-											HEU_PluginSettings.Session_AutoClose, HEU_PluginSettings.Session_Timeout,
-											true ) ;
-#endif
+			
+			return sessionType switch {
+					   HAPI_SessionType.HAPI_SESSION_THRIFT when processID > 0 && port > 0 =>
+						   CreateThriftSocketSession( true, HEU_PluginSettings.Session_Localhost,
+													  HEU_PluginSettings.Session_Port,
+													  HEU_PluginSettings.Session_AutoClose,
+													  HEU_PluginSettings.Session_Timeout, true ),
+					   
+					   HAPI_SessionType.HAPI_SESSION_INPROCESS => CreateInProcessSession( true ),
+					   
+					   _ => CreateThriftPipeSession( true, HEU_PluginSettings.Session_PipeName,
+													 HEU_PluginSettings.Session_AutoClose,
+													 HEU_PluginSettings.Session_Timeout, true )
+				   } ;
 		}
 
 		/// <summary>
@@ -698,7 +690,6 @@ namespace HoudiniEngineUnity
 			ConnectionState           = SessionConnectionState.CONNECTED ;
 
 			HEU_SessionManager.RegisterSession( _sessionData.SessionID, this ) ;
-
 			HEU_PluginSettings.LastHoudiniVersion = HEU_HoudiniVersion.HOUDINI_VERSION_STRING ;
 
 			return true ;

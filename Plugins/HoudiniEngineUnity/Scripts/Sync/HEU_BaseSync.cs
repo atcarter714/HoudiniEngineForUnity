@@ -80,7 +80,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public virtual void DeleteSessionData( ) {
-			if ( _cookNodeID != HEU_Defines.HEU_INVALID_NODE_ID ) {
+			if ( _cookNodeID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
 				HEU_SessionBase? session = GetHoudiniSession( false ) ;
 				if ( session != null ) {
 					HAPI_NodeId deleteID = _cookNodeID ;
@@ -96,9 +96,7 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		public virtual void DestroyGeneratedData( ) {
-			DestroyOutputs( ) ;
-		}
+		public virtual void DestroyGeneratedData( ) => DestroyOutputs( ) ;
 
 		protected virtual void Initialize( ) {
 			_generateOptions._generateNormals  = true ;
@@ -144,7 +142,7 @@ namespace HoudiniEngineUnity
 
 		public void ClearLog( ) {
 			lock ( _log ) {
-				_log = new StringBuilder( ) ;
+				_log = new( ) ;
 			}
 		}
 
@@ -153,7 +151,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public bool IsLoaded( ) {
-			return _cookNodeID != HEU_Defines.HEU_INVALID_NODE_ID && _firstSyncComplete ;
+			return _cookNodeID is not HEU_Defines.HEU_INVALID_NODE_ID && _firstSyncComplete ;
 		}
 
 		#endregion
@@ -262,7 +260,7 @@ namespace HoudiniEngineUnity
 
 			DeleteSessionData( ) ;
 			DestroyGeneratedData( ) ;
-			_log = new StringBuilder( ) ;
+			_log = new( ) ;
 		}
 
 		#endregion
@@ -284,7 +282,7 @@ namespace HoudiniEngineUnity
 
 			bool bSuccess = loadData._loadStatus == HEU_ThreadedTaskLoadGeo.HEU_LoadData.LoadStatus.SUCCESS ;
 			if ( _onSynced != null ) {
-				_onSynced.Invoke( new HEU_SyncedEventData( bSuccess, loadData, this ) ) ;
+				_onSynced.Invoke( new( bSuccess, loadData, this ) ) ;
 			}
 		}
 
@@ -319,7 +317,7 @@ namespace HoudiniEngineUnity
 			Log( loadData._logStr.ToString( ) ) ;
 			_cookNodeID = loadData._cookNodeID ;
 			if ( _onSynced != null ) {
-				_onSynced.Invoke( new HEU_SyncedEventData( false, null, this ) ) ;
+				_onSynced.Invoke( new( false, null, this ) ) ;
 			}
 		}
 
@@ -397,7 +395,7 @@ namespace HoudiniEngineUnity
 					}
 
 					if ( terrain.terrainData == null ) {
-						terrain.terrainData = new TerrainData( ) ;
+						terrain.terrainData = new( ) ;
 
 						if ( bFullExportTerrainDataPath ) {
 							string folderPath = HEU_Platform.GetFolderPath( exportTerrainDataPath, true ) ;
@@ -457,8 +455,8 @@ namespace HoudiniEngineUnity
 						heightRange = 600 ;
 					}
 
-					terrainData.size = new Vector3( terrainBuffers[ t ]._terrainSizeX, heightRange,
-													terrainBuffers[ t ]._terrainSizeY ) ;
+					terrainData.size = new( terrainBuffers[ t ]._terrainSizeX, heightRange,
+											terrainBuffers[ t ]._terrainSizeY ) ;
 
 					terrain.Flush( ) ;
 
@@ -483,10 +481,10 @@ namespace HoudiniEngineUnity
 						TerrainLayer[] existingTerrainLayers = terrainData.terrainLayers ;
 
 						// Total layers are existing layers + new alpha maps
-						List< TerrainLayer > finalTerrainLayers = new( existingTerrainLayers ) ;
+						List< TerrainLayer? > finalTerrainLayers = new( existingTerrainLayers ) ;
 
 						for ( int m = 1; m < numLayers; ++m ) {
-							TerrainLayer terrainlayer = null ;
+							TerrainLayer? terrainlayer = null ;
 
 							int terrainLayerIndex = -1 ;
 
@@ -510,8 +508,8 @@ namespace HoudiniEngineUnity
 									HEU_TerrainUtility.GetTerrainLayerIndex( terrainlayer, existingTerrainLayers ) ;
 							}
 
-							if ( terrainlayer == null ) {
-								terrainlayer      = new TerrainLayer( ) ;
+							if ( !terrainlayer ) {
+								terrainlayer = new( ) ;
 								terrainLayerIndex = finalTerrainLayers.Count ;
 								finalTerrainLayers.Add( terrainlayer ) ;
 							}
@@ -520,11 +518,20 @@ namespace HoudiniEngineUnity
 								// because we don't want to change the original TerrainLayer.
 								if ( layer._hasLayerAttributes ) {
 									// Copy the TerrainLayer file
-									TerrainLayer prevTerrainLayer = terrainlayer ;
+									TerrainLayer? prevTerrainLayer = terrainlayer ;
 									terrainlayer =
 										HEU_AssetDatabase.CopyAndLoadAssetAtAnyPath( terrainlayer, outputTerrainpath,
-											typeof( TerrainLayer ), true ) as TerrainLayer ;
-									if ( terrainlayer != null ) {
+											typeof( TerrainLayer ), true ) as TerrainLayer ?? null ;
+									if ( !terrainlayer ) {
+										HEU_Logger
+											.LogErrorFormat( "Unable to copy TerrainLayer '{0}' for generating Terrain. "
+															 + "Using original TerrainLayer. Will not be able to set any TerrainLayer properties.",
+															 layer._layerName ) ;
+										terrainlayer               = prevTerrainLayer ;
+										bSetTerrainLayerProperties = false ;
+										// Again, continuing on to keep proper indexing.
+									}
+									else {
 										if ( terrainLayerIndex >= 0 ) {
 											// Update the TerrainLayer reference in the list with this copy
 											finalTerrainLayers[ terrainLayerIndex ] = terrainlayer ;
@@ -538,15 +545,6 @@ namespace HoudiniEngineUnity
 										// Store path for clean up later
 										AddGeneratedOutputFilePath( HEU_AssetDatabase.GetAssetPath( terrainlayer ) ) ;
 									}
-									else {
-										HEU_Logger
-											.LogErrorFormat( "Unable to copy TerrainLayer '{0}' for generating Terrain. "
-															 + "Using original TerrainLayer. Will not be able to set any TerrainLayer properties.",
-															 layer._layerName ) ;
-										terrainlayer               = prevTerrainLayer ;
-										bSetTerrainLayerProperties = false ;
-										// Again, continuing on to keep proper indexing.
-									}
 								}
 								else {
 									// Could be a layer in Assets/ but not part of existing layers in TerrainData
@@ -556,21 +554,20 @@ namespace HoudiniEngineUnity
 								}
 							}
 
-							terrainlayer.name = layer._layerName ;
-
+							if ( !terrainlayer ) continue ;
+							terrainlayer!.name = layer._layerName ;
 							if ( bSetTerrainLayerProperties ) {
 								if ( !string.IsNullOrEmpty( layer._diffuseTexturePath ) ) {
 									terrainlayer.diffuseTexture =
 										HEU_MaterialFactory.LoadTexture( layer._diffuseTexturePath ) ;
 								}
 
-								if ( terrainlayer.diffuseTexture == null ) {
+								if ( terrainlayer.diffuseTexture ) {
 									terrainlayer.diffuseTexture = defaultTexture ;
 								}
 
 								terrainlayer.diffuseRemapMin = Vector4.zero ;
 								terrainlayer.diffuseRemapMax = Vector4.one ;
-
 								if ( !string.IsNullOrEmpty( layer._maskTexturePath ) ) {
 									terrainlayer.maskMapTexture =
 										HEU_MaterialFactory.LoadTexture( layer._maskTexturePath ) ;
@@ -578,8 +575,7 @@ namespace HoudiniEngineUnity
 
 								terrainlayer.maskMapRemapMin = Vector4.zero ;
 								terrainlayer.maskMapRemapMax = Vector4.one ;
-
-								terrainlayer.metallic = layer._metallic ;
+								terrainlayer.metallic        = layer._metallic ;
 
 								if ( !string.IsNullOrEmpty( layer._normalTexturePath ) ) {
 									terrainlayer.normalMapTexture =
@@ -587,15 +583,14 @@ namespace HoudiniEngineUnity
 								}
 
 								terrainlayer.normalScale = layer._normalScale ;
+								terrainlayer.smoothness  = layer._smoothness ;
+								terrainlayer.specular    = layer._specularColor ;
+								terrainlayer.tileOffset  = layer._tileOffset ;
 
-								terrainlayer.smoothness = layer._smoothness ;
-								terrainlayer.specular   = layer._specularColor ;
-								terrainlayer.tileOffset = layer._tileOffset ;
-
-								if ( layer._tileSize.magnitude == 0f && terrainlayer.diffuseTexture != null ) {
+								if ( layer._tileSize.magnitude is 0f && terrainlayer.diffuseTexture ) {
 									// Use texture size if tile size is 0
-									layer._tileSize = new Vector2( terrainlayer.diffuseTexture.width,
-																   terrainlayer.diffuseTexture.height ) ;
+									layer._tileSize = new( terrainlayer.diffuseTexture.width,
+														   terrainlayer.diffuseTexture.height ) ;
 								}
 
 								terrainlayer.tileSize = layer._tileSize ;
@@ -607,9 +602,9 @@ namespace HoudiniEngineUnity
 								layerFileNameWithExt += HEU_Defines.HEU_EXT_TERRAINLAYER ;
 							}
 
-							HEU_AssetDatabase.CreateObjectInAssetCacheFolder( terrainlayer, exportTerrainDataPath, null,
+							HEU_AssetDatabase.CreateObjectInAssetCacheFolder( terrainlayer,
+																			  exportTerrainDataPath, null,
 																			  layerFileNameWithExt, null, true ) ;
-
 						}
 
 						terrainData.terrainLayers = finalTerrainLayers.ToArray( ) ;
@@ -803,7 +798,7 @@ namespace HoudiniEngineUnity
 			instanceRootTransform.localRotation = Quaternion.identity ;
 			instanceRootTransform.localScale    = Vector3.one ;
 
-			instancerBuffer._generatedOutput                         = new HEU_GeneratedOutput( ) ;
+			instancerBuffer._generatedOutput                         = new( ) ;
 			instancerBuffer._generatedOutput._outputData._gameObject = instanceRootGO ;
 
 			instancerBuffer._generatedOutput.IsInstancer = true ;
