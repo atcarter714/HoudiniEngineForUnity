@@ -45,8 +45,7 @@ namespace HoudiniEngineUnity
 	/// Asset Event Classes since UnityEvent doesn't directly support generics. 
 	/// </summary>
 
-	public enum HEU_AssetEventType
-	{
+	public enum HEU_AssetEventType {
 		UNKNOWN,
 		RELOAD,
 		COOK,
@@ -55,8 +54,7 @@ namespace HoudiniEngineUnity
 	} ;
 
 
-	public class HEU_AssetEventData
-	{
+	public class HEU_AssetEventData {
 		public HEU_HoudiniAsset   Asset ;
 		public bool               CookSuccess ;
 		public List< GameObject > OutputObjects ;
@@ -71,17 +69,15 @@ namespace HoudiniEngineUnity
 	}
 
 	// Class for holding reload event data
-	public class HEU_ReloadEventData: HEU_AssetEventData
-	{
-		public HEU_ReloadEventData( HEU_HoudiniAsset asset, bool successful, List< GameObject > outputObjects ):
-			base( asset, successful, outputObjects ) {
-			this.EventType = HEU_AssetEventType.RELOAD ;
-		}
+	public class HEU_ReloadEventData: HEU_AssetEventData {
+		public HEU_ReloadEventData( HEU_HoudiniAsset asset, bool successful, 
+									List< GameObject > outputObjects ):
+										base( asset, successful, outputObjects ) => 
+												this.EventType = HEU_AssetEventType.RELOAD ;
 	}
 
 	// Class for holding cook event data
-	public class HEU_CookedEventData: HEU_AssetEventData
-	{
+	public class HEU_CookedEventData: HEU_AssetEventData {
 		public HEU_CookedEventData( HEU_HoudiniAsset asset, bool successful, List< GameObject > outputObjects ):
 			base( asset, successful, outputObjects ) {
 			this.EventType = HEU_AssetEventType.COOK ;
@@ -89,8 +85,7 @@ namespace HoudiniEngineUnity
 	}
 
 	// Class for holding bake event data
-	public class HEU_BakedEventData: HEU_AssetEventData
-	{
+	public class HEU_BakedEventData: HEU_AssetEventData {
 		public bool IsNewBake = false ;
 
 		public HEU_BakedEventData( HEU_HoudiniAsset asset, bool successful, List< GameObject > outputObjects,
@@ -102,8 +97,7 @@ namespace HoudiniEngineUnity
 
 
 	// Data regarding the PreAssetEvent
-	public class HEU_PreAssetEventData
-	{
+	public class HEU_PreAssetEventData {
 		// The asset that triggered the event
 		public HEU_HoudiniAsset Asset ;
 

@@ -54,6 +54,39 @@ namespace HoudiniEngineUnity
 	public class HEU_InputNode: ScriptableObject, IHEU_InputNode,
 								IHEU_HoudiniAssetSubcomponent,
 								IEquivable< HEU_InputNode > {
+		
+		public enum InternalObjectType { UNKNOWN, HDA, UNITY_MESH, } ;
+		public enum InputActions { ACTION, DELETE, INSERT, } ;
+		
+		// The type of input data set by user
+		[Serializable]
+		internal enum InputObjectType {
+			HDA,
+			UNITY_MESH,
+			CURVE,
+#if UNITY_2022_1_OR_NEWER
+			SPLINE,
+#endif
+			TERRAIN,
+			BOUNDING_BOX,
+			TILEMAP,
+		} ;
+		
+		
+		// The type of input node based on how it was specified in the HDA
+		internal enum InputNodeType {
+			/// <summary>As an asset connection</summary>
+			CONNECTION,
+
+			/// <summary>Pure input asset node</summary>
+			NODE,
+
+			/// <summary>As a parameter</summary>
+			PARAMETER,
+		} ;
+		
+		
+		
 		// PUBLIC FIELDS =================================================================
 
 		/// <inheritdoc />
@@ -108,50 +141,14 @@ namespace HoudiniEngineUnity
 
 		// DATA -------------------------------------------------------------------------------------------------------
 
-		// The type of input node based on how it was specified in the HDA
-		internal enum InputNodeType
-		{
-			/// <summary>As an asset connection</summary>
-			CONNECTION,
-
-			/// <summary>Pure input asset node</summary>
-			NODE,
-
-			/// <summary>As a parameter</summary>
-			PARAMETER,
-		} ;
 
 		[SerializeField] InputNodeType _inputNodeType ;
-
 		internal InputNodeType InputType => _inputNodeType ;
-
-		// The type of input data set by user
-		[Serializable]
-		internal enum InputObjectType
-		{
-			HDA,
-			UNITY_MESH,
-			CURVE,
-#if UNITY_2022_1_OR_NEWER
-			SPLINE,
-#endif
-			TERRAIN,
-			BOUNDING_BOX,
-			TILEMAP,
-		} ;
-
-
+		
+		
 		// I don't want to break backwards compatibility, but I want some options to map onto others to avoid duplication of tested code
 		// So we will map InputObjectType -> InternalObjectType when uploading input.
-		public enum InternalObjectType
-		{
-			UNKNOWN,
-			HDA,
-			UNITY_MESH,
-		} ;
-
 		[SerializeField] InputObjectType _inputObjectType = InputObjectType.UNITY_MESH ;
-
 		[SerializeField] InputObjectType _pendingInputObjectType = InputObjectType.UNITY_MESH ;
 
 		// The IDs of the object merge created for the input objects
@@ -177,9 +174,7 @@ namespace HoudiniEngineUnity
 		internal List< HEU_InputHDAInfo > InputAssetInfos => _inputAssetInfos ;
 
 		[SerializeField] HAPI_NodeId _nodeID ;
-
 		[SerializeField] int _inputIndex ;
-
 		[SerializeField] bool _requiresCook ;
 
 		internal bool RequiresCook {
@@ -195,32 +190,18 @@ namespace HoudiniEngineUnity
 		}
 
 		[SerializeField] string _inputName ;
-
-
 		[SerializeField] string _labelName ;
-
-
 		[SerializeField] internal string _paramName ;
-
-
+		
 		[SerializeField] HAPI_NodeId _connectedNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 
-		[SerializeField]
-		// Enabling Keep World Transform by default to keep consistent with other plugins
-		bool _keepWorldTransform = true ;
-
+		[SerializeField] bool _keepWorldTransform = true ;
+		//! Enabling Keep World Transform by default to keep consistent with other plugins
+		
 
 		[SerializeField] bool _packGeometryBeforeMerging ;
-
-
 		[SerializeField] HEU_HoudiniAsset _parentAsset ;
 
-		public enum InputActions
-		{
-			ACTION,
-			DELETE,
-			INSERT,
-		}
 
 		// Input Specific settings
 		[SerializeField] HEU_InputInterfaceMeshSettings _meshSettings = new( ) ;
@@ -1251,8 +1232,7 @@ namespace HoudiniEngineUnity
 				_                        => HEU_InputNodeTypeWrapper.CONNECTION
 			} ;
 
-		internal static InputNodeType InputNodeType_InternalToWrapper(
-			HEU_InputNodeTypeWrapper inputNodeType ) =>
+		internal static InputNodeType InputNodeType_InternalToWrapper( HEU_InputNodeTypeWrapper inputNodeType ) =>
 			inputNodeType switch
 			{
 				HEU_InputNodeTypeWrapper.CONNECTION => InputNodeType.CONNECTION,
@@ -1309,18 +1289,17 @@ namespace HoudiniEngineUnity
 
 	// Container for each input object in this node
 	[Serializable]
-	internal class HEU_InputObjectInfo: IEquivable< HEU_InputObjectInfo >
-	{
+	internal class HEU_InputObjectInfo: IEquivable< HEU_InputObjectInfo > {
 		// Gameobject containing mesh
 		public GameObject _gameObject ;
 
 		// Hidden variables to serialize UI references
-		[HideInInspector] public Terrain            _terrainReference ;
+		[HideInInspector] public Terrain _terrainReference ;
 		[HideInInspector] public HEU_BoundingVolume _boundingVolumeReference ;
-		[HideInInspector] public Tilemap            _tilemapReference ;
+		[HideInInspector] public Tilemap _tilemapReference ;
 
 		// The last upload transform, for diff checks
-		public Matrix4x4         _syncdTransform       = Matrix4x4.identity ;
+		public Matrix4x4 _syncdTransform = Matrix4x4.identity ;
 		public List< Matrix4x4 > _syncdChildTransforms = new( ) ;
 
 		// Whether to use the transform offset
@@ -1328,15 +1307,9 @@ namespace HoudiniEngineUnity
 		public bool _useTransformOffset ;
 
 		// Transform offset
-		[FormerlySerializedAs( "_translateOverride" )]
 		public Vector3 _translateOffset = Vector3.zero ;
-
-		[FormerlySerializedAs( "_rotateOverride" )]
 		public Vector3 _rotateOffset = Vector3.zero ;
-
-		[FormerlySerializedAs( "_scaleOverride" )]
 		public Vector3 _scaleOffset = Vector3.one ;
-
 		public Type _inputInterfaceType ;
 
 		public void CopyTo( HEU_InputObjectInfo destObject ) {
@@ -1361,11 +1334,10 @@ namespace HoudiniEngineUnity
 		}
 
 		public bool IsEquivalentTo( HEU_InputObjectInfo other ) {
-			bool bResult = true ;
+			bool   bResult = true ;
+			string header  = "HEU_InputObjectInfo" ;
 
-			string header = "HEU_InputObjectInfo" ;
-
-			if ( other == null ) {
+			if ( other is null ) {
 				HEU_Logger.LogError( header + " Not equivalent" ) ;
 				return false ;
 			}
@@ -1384,8 +1356,7 @@ namespace HoudiniEngineUnity
 
 			return bResult ;
 		}
-
-	}
+	} ;
 
 	[Serializable]
 	internal class HEU_InputHDAInfo: IEquivable< HEU_InputHDAInfo > {
@@ -1422,28 +1393,20 @@ namespace HoudiniEngineUnity
 	} ;
 
 	// UI cache container
-	public class HEU_InputNodeUICache
-	{
+	public class HEU_InputNodeUICache {
 #if UNITY_EDITOR
 		public SerializedObject _inputNodeSerializedObject ;
-
 		public SerializedProperty _inputObjectTypeProperty ;
-
 		public SerializedProperty _keepWorldTransformProperty ;
 		public SerializedProperty _packBeforeMergeProperty ;
-
 		public SerializedProperty _inputObjectsProperty ;
-
 		public SerializedProperty _inputAssetsProperty ;
 		public SerializedProperty _meshSettingsProperty ;
 		public SerializedProperty _tilemapSettingsProperty ;
-
 		public SerializedProperty _splineSettingsProperty ;
-
 #endif
 
-		public class HEU_InputObjectUICache
-		{
+		public class HEU_InputObjectUICache {
 #if UNITY_EDITOR
 			public SerializedProperty _gameObjectProperty ;
 			public SerializedProperty _transformOffsetProperty ;
@@ -1453,15 +1416,14 @@ namespace HoudiniEngineUnity
 #endif
 		}
 
-		public List< HEU_InputObjectUICache > _inputObjectCache = new( ) ;
+		public readonly List< HEU_InputObjectUICache > _inputObjectCache = new( ) ;
 
-		public class HEU_InputAssetUICache
-		{
+		public class HEU_InputAssetUICache {
 #if UNITY_EDITOR
 			public SerializedProperty _gameObjectProperty ;
 #endif
 		}
 
-		public List< HEU_InputAssetUICache > _inputAssetCache = new( ) ;
+		public readonly List< HEU_InputAssetUICache > _inputAssetCache = new( ) ;
 	}
 } // HoudiniEngineUnity

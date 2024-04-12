@@ -182,7 +182,7 @@ namespace HoudiniEngineUnity
 	/// Set visibility on this part's gameobject.
 	/// </summary>
 	/// <param name="bVisibility">True if visible.</param>
-	void SetVisiblity(bool bVisibility);
+	void SetVisibility(bool bVisibility);
 
 	/// <summary>
 	/// Sets whether or not the collider state is visible

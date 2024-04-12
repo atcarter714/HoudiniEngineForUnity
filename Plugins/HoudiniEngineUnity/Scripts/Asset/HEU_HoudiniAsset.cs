@@ -680,12 +680,12 @@ namespace HoudiniEngineUnity
 			if ( bAsync ) {
 				// We don't want to override Reload or Invalid actions, so
 				// for now, only set request if no other pending build actions.
-				if ( _requestBuildAction == AssetBuildAction.NONE ) {
+				if ( _requestBuildAction is AssetBuildAction.NONE ) {
 					_requestBuildAction = AssetBuildAction.COOK ;
 				}
 
 				// This could be an update on the cook settings
-				if ( _requestBuildAction == AssetBuildAction.COOK ) {
+				if ( _requestBuildAction is AssetBuildAction.COOK ) {
 					_checkParameterChangeForCook = bCheckParametersChanged ;
 					_skipCookCheck               = bSkipCookCheck ;
 					_uploadParameters            = bUploadParameters ;
@@ -695,7 +695,7 @@ namespace HoudiniEngineUnity
 				}
 			}
 			else {
-				if ( _cookStatus == AssetCookStatus.NONE || _cookStatus == AssetCookStatus.POSTLOAD ) {
+				if ( _cookStatus is AssetCookStatus.NONE or AssetCookStatus.POSTLOAD ) {
 					RecookBlocking( bCheckParametersChanged, bSkipCookCheck,
 									bUploadParameters, bUploadParameterPreset: false,
 									bForceUploadInputs: false, bCookingSessionSync: false ) ;
@@ -758,17 +758,17 @@ namespace HoudiniEngineUnity
 			HEU_SessionBase session             = GetAssetSession( true ) ;
 			Transform       thisParentTransform = _rootGameObject.transform.parent ;
 
-			if ( _assetType == HEU_AssetType.TYPE_HDA ) {
+			if ( _assetType is HEU_AssetType.TYPE_HDA ) {
 				newRootGameObject = HEU_HAPIUtility.InstantiateHDA( _assetPath, _rootGameObject.transform.position,
 																	session, bBuildAsync, bAlwaysOverwriteOnLoad: false,
 																	rootGO: newRootGameObject ) ;
 			}
-			else if ( _assetType == HEU_AssetType.TYPE_CURVE ) {
+			else if ( _assetType is HEU_AssetType.TYPE_CURVE ) {
 				newRootGameObject = HEU_HAPIUtility.CreateNewCurveAsset( parentTransform: thisParentTransform,
 																		 session: session, bBuildAsync: bBuildAsync,
 																		 rootGO: newRootGameObject ) ;
 			}
-			else if ( _assetType == HEU_AssetType.TYPE_INPUT ) {
+			else if ( _assetType is HEU_AssetType.TYPE_INPUT ) {
 				newRootGameObject = HEU_HAPIUtility.CreateNewInputAsset( parentTransform: thisParentTransform,
 																		 session: session, bBuildAsync: bBuildAsync,
 																		 rootGO: newRootGameObject ) ;
@@ -797,7 +797,7 @@ namespace HoudiniEngineUnity
 
 		/// <inheritdoc />
 		public bool DeleteAllGeneratedData( bool bIsRebuild = false ) {
-			if ( _assetID != HEU_Defines.HEU_INVALID_NODE_ID ) {
+			if ( _assetID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
 				DeleteSessionDataOnly( ) ;
 				_assetID = HEU_Defines.HEU_INVALID_NODE_ID ;
 			}
@@ -847,9 +847,7 @@ namespace HoudiniEngineUnity
 
 		/// <inheritdoc />
 		public GameObject BakeToNewPrefab( string destinationPrefabPath = null ) {
-			if ( _preAssetEvent != null ) {
-				_preAssetEvent.Invoke( new( this, HEU_AssetEventType.BAKE_NEW ) ) ;
-			}
+			_preAssetEvent?.Invoke( new( this, HEU_AssetEventType.BAKE_NEW ) ) ;
 
 			// This creates a temporary clone of the asset without the HDA data
 			// in the scene, then creates a prefab of the cloned object.
@@ -920,9 +918,7 @@ namespace HoudiniEngineUnity
 				return false ;
 			}
 
-			if ( _preAssetEvent != null ) {
-				_preAssetEvent.Invoke( new( this, HEU_AssetEventType.BAKE_UPDATE ) ) ;
-			}
+			_preAssetEvent?.Invoke( new( this, HEU_AssetEventType.BAKE_UPDATE ) ) ;
 
 			// Since the prefab would have persistent files on disk, we'll need to get
 			// the existing prefab's asset folder, and delete relevant subfolders
@@ -990,9 +986,7 @@ namespace HoudiniEngineUnity
 				return false ;
 			}
 
-			if ( _preAssetEvent != null ) {
-				_preAssetEvent.Invoke( new( this, HEU_AssetEventType.BAKE_UPDATE ) ) ;
-			}
+			_preAssetEvent?.Invoke( new( this, HEU_AssetEventType.BAKE_UPDATE ) ) ;
 
 			// Step through all the game objects that need to be cloned, clean up existing properties, 
 			// and copy over new ones.
@@ -1038,8 +1032,7 @@ namespace HoudiniEngineUnity
 				List< HEU_MaterialData > materialCache = part.ParentAsset.MaterialCache ;
 
 				foreach ( HEU_MaterialData materialData in materialCache ) {
-					if ( materialData != null && ( materialData._materialSource == HEU_MaterialData.Source.DEFAULT ||
-												   materialData._materialSource == HEU_MaterialData.Source.HOUDINI ) ) {
+					if ( materialData != null && materialData._materialSource is HEU_MaterialData.Source.DEFAULT or HEU_MaterialData.Source.HOUDINI ) {
 						generatedMaterials.Add( materialData._material ) ;
 					}
 				}
@@ -1126,7 +1119,7 @@ namespace HoudiniEngineUnity
 
 		/// <inheritdoc />
 		public bool IsAssetValid( ) {
-			if ( _assetID != HEU_Defines.HEU_INVALID_NODE_ID ) {
+			if ( _assetID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
 				HEU_SessionBase session = GetAssetSession( false ) ;
 				if ( session == null ) {
 					return false ;
@@ -1175,18 +1168,14 @@ namespace HoudiniEngineUnity
 
 		/// <inheritdoc />
 		public bool RemoveCurveDrawCollider( Collider collider ) {
-			if ( _curveDrawColliders != null ) {
-				_curveDrawColliders.Remove( collider ) ;
-			}
+			_curveDrawColliders?.Remove( collider ) ;
 
 			return true ;
 		}
 
 		/// <inheritdoc />
 		public bool ClearCurveDrawColliders( ) {
-			if ( _curveDrawColliders != null ) {
-				_curveDrawColliders.Clear( ) ;
-			}
+			_curveDrawColliders?.Clear( ) ;
 
 			return true ;
 		}
@@ -1247,19 +1236,18 @@ namespace HoudiniEngineUnity
 
 		/// <inheritdoc />
 		public int GetVolumeCacheCount( ) {
-			return _volumeCaches != null ? _volumeCaches.Count : 0 ;
+			return _volumeCaches?.Count ?? 0 ;
 		}
 
 		/// <inheritdoc />
-		public HEU_SessionBase GetAssetSession( bool bCreateIfInvalid ) {
+		public HEU_SessionBase GetAssetSession( bool bCreateIfInvalid ) { 
 			HEU_SessionBase session = HEU_SessionManager.GetSessionWithID( _sessionID ) ;
-
-			if ( ( session == null || !session.IsSessionValid( ) ) && bCreateIfInvalid ) {
+			if ( bCreateIfInvalid && (session?.IsSessionValid( ) is false) ) {
 				// Invalid session could either mean that this asset hasn't been created in any session (after a Scene load)
 				// or that we aren't able to create Houdini sessions (installation/license problems).
 				// To handle former case, we ask again to get us a valid (and new if none exist) session
 				session = HEU_SessionManager.GetOrCreateDefaultSession( ) ;
-				if ( session != null && session.IsSessionValid( ) ) {
+				if ( session?.IsSessionValid( ) is true ) {
 					// Update this asset's session ID with the new session.
 					_sessionID = session.GetSessionData( ).SessionID ;
 					return session ;
@@ -1267,10 +1255,9 @@ namespace HoudiniEngineUnity
 			}
 
 			// Nullify the session if not valid so that callers don't need to check for validity themselves.
-			if ( session != null && !session.IsSessionValid( ) ) {
+			if (  session?.IsSessionValid( ) is false ) 
 				session = null ;
-			}
-
+			
 			return session ;
 		}
 
@@ -1571,8 +1558,8 @@ namespace HoudiniEngineUnity
 			_attributeStores = new( ) ;
 			_toolsInfo       = ScriptableObject.CreateInstance< HEU_ToolsInfo >( ) ;
 
-			_showCurvesSection     = _assetType == HEU_AssetType.TYPE_CURVE ;
-			_showInputNodesSection = _assetType == HEU_AssetType.TYPE_INPUT ;
+			_showCurvesSection     = _assetType is HEU_AssetType.TYPE_CURVE ;
+			_showInputNodesSection = _assetType is HEU_AssetType.TYPE_INPUT ;
 			_showTerrainSection    = false ;
 
 			_instanceInputUIState = ScriptableObject.CreateInstance< HEU_InstanceInputUIState >( ) ;
@@ -1640,7 +1627,7 @@ namespace HoudiniEngineUnity
 			// Clear out the delegate because receiver might not exist on code refresh
 			_refreshUIDelegate = null ;
 
-			if ( _assetID != HEU_Defines.HEU_INVALID_NODE_ID && instantiationMethod == AssetInstantiationMethod.UNDO ) {
+			if ( _assetID is not HEU_Defines.HEU_INVALID_NODE_ID && instantiationMethod == AssetInstantiationMethod.UNDO ) {
 				Transform[] gos = _rootGameObject.GetComponentsInChildren< Transform >( ) ;
 				foreach ( Transform trans in gos ) {
 					if ( trans != null && trans.gameObject != null && trans.gameObject != _rootGameObject &&
@@ -1701,79 +1688,106 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		internal void AssetUpdate( ) {
 #if HOUDINIENGINEUNITY_ENABLED
-
-			if ( _cookStatus == AssetCookStatus.POSTCOOK || _cookStatus == AssetCookStatus.POSTLOAD ) {
-				SetCookStatus( AssetCookStatus.NONE, AssetCookResult.NONE ) ;
-			}
-
-			if ( _cookStatus == AssetCookStatus.COOKING ) {
-				// Wait for cooking in Houdini to complete
-				ProcessHoudiniCookStatus( true ) ;
-			}
-			else if ( _cookStatus == AssetCookStatus.SELECT_SUBASSET ) {
-				if ( _selectedSubassetIndex > -1 ) {
-					// Continue loading now that we have a valid _selectedSubassetIndex
+			
+			switch ( _cookStatus ) {
+				case AssetCookStatus.POSTCOOK 
+					 or AssetCookStatus.POSTLOAD:
+					SetCookStatus( AssetCookStatus.NONE, AssetCookResult.NONE ) ;
+					break ;
+				
+				case AssetCookStatus.COOKING:
+					// Wait for cooking in Houdini to complete
+					ProcessHoudiniCookStatus( true ) ;
+					break ;
+				
+				case AssetCookStatus.SELECT_SUBASSET
+						when _selectedSubassetIndex <= -1: return ;
+				
+				// Continue loading now that we have a valid _selectedSubassetIndex
+				case AssetCookStatus.SELECT_SUBASSET:
 					SetCookStatus( AssetCookStatus.LOADING, AssetCookResult.NONE ) ;
 					ProcessRebuild( false, -1 ) ;
-				}
-			}
-			else if ( _cookStatus == AssetCookStatus.NONE ) {
-				// Not cooking. Process any requests.
-
-				if ( HEU_PluginSettings.TransformChangeTriggersCooks && TransformChangeTriggersCooks ) {
-					if ( HasTransformChangedSinceLastUpdate( ) || HasInputNodeTransformChanged( ) ) {
-						RequestCook( true, false, false ) ;
+					break ;
+				
+				case AssetCookStatus.NONE: {
+					// Not cooking. Process any requests.
+					if ( HEU_PluginSettings.TransformChangeTriggersCooks 
+											&& TransformChangeTriggersCooks ) {
+						if ( HasTransformChangedSinceLastUpdate() 
+								|| HasInputNodeTransformChanged() )
+							RequestCook( true, false, false ) ;
 					}
-				}
 
-				if ( _requestBuildAction == AssetBuildAction.RELOAD ) {
-					ClearBuildRequest( ) ;
-					SetCookStatus( AssetCookStatus.PRELOAD, AssetCookResult.NONE ) ;
-					ProcessRebuild( true, -1 ) ;
-				}
-				else if ( _requestBuildAction == AssetBuildAction.COOK ) {
-					bool thisCheckParameterChangeForCook = _checkParameterChangeForCook ;
-					bool thisSkipCookCheck               = _skipCookCheck ;
-					bool thisUploadParameters            = _uploadParameters ;
-					bool thisUploadParameterPreset       = false ;
-					bool thisForceUploadInputs           = _forceUploadInputs ;
-					bool thisSessionSyncCook             = false ;
-					ClearBuildRequest( ) ;
-					RecookAsync( thisCheckParameterChangeForCook, thisSkipCookCheck,
-								 thisUploadParameters, thisUploadParameterPreset,
-								 thisForceUploadInputs, thisSessionSyncCook ) ;
-				}
-				else if ( _requestBuildAction == AssetBuildAction.STRIP_HEDATA ) {
-					ClearBuildRequest( ) ;
-					HEU_HoudiniAssetRoot assetRoot = _rootGameObject.GetComponent< HEU_HoudiniAssetRoot >( ) ;
-					if ( assetRoot != null ) {
-						assetRoot.RemoveHoudiniEngineAssetData( ) ;
-					}
-					else {
-						HEU_Logger.LogError( HEU_Defines.HEU_NAME +
-											 ": Unable to Bake In Place due to HEU_HoudiniAssetRoot not found!" ) ;
-					}
-				}
-				else if ( _requestBuildAction == AssetBuildAction.DUPLICATE ) {
-					ClearBuildRequest( ) ;
-					DuplicateAsset( ) ;
-				}
-				else if ( _requestBuildAction == AssetBuildAction.RESET_PARAMS ) {
-					ClearBuildRequest( ) ;
-					ResetParametersToDefault( ) ;
+					switch ( _requestBuildAction ) {
+						case AssetBuildAction.RELOAD:
+							ClearBuildRequest( ) ;
+							SetCookStatus( AssetCookStatus.PRELOAD, AssetCookResult.NONE ) ;
+							ProcessRebuild( true, -1 ) ;
+							break ;
+						
+						case AssetBuildAction.COOK: {
+							bool thisCheckParameterChangeForCook = _checkParameterChangeForCook ;
+							bool thisSkipCookCheck               = _skipCookCheck ;
+							bool thisUploadParameters            = _uploadParameters ;
+							bool thisUploadParameterPreset       = false ;
+							bool thisForceUploadInputs           = _forceUploadInputs ;
+							bool thisSessionSyncCook             = false ;
+							ClearBuildRequest( ) ;
+										 // ReSharper disable ConditionIsAlwaysTrueOrFalse
+							RecookAsync( thisCheckParameterChangeForCook, thisSkipCookCheck,
+										 thisUploadParameters, thisUploadParameterPreset,
+										 thisForceUploadInputs, thisSessionSyncCook ) ;
+										 // ReSharper restore ConditionIsAlwaysTrueOrFalse
+							break ;
+						}
+						
+						case AssetBuildAction.STRIP_HEDATA: {
+							ClearBuildRequest( ) ;
+							HEU_HoudiniAssetRoot assetRoot = 
+								_rootGameObject.GetComponent< HEU_HoudiniAssetRoot >( ) ;
+							
+							if ( assetRoot )
+								assetRoot.RemoveHoudiniEngineAssetData( ) ;
+							
+							else {
+								HEU_Logger.LogError( HEU_Defines.HEU_NAME +
+													 ": Unable to Bake In Place due to HEU_HoudiniAssetRoot not found!" ) ;
+							}
 
-					// Doing a Reload here to clear everything out after resetting the parameters.
-					// Originally was doing a Recook but because it will keep stuff around (e.g. terrain), a full reset seems better.
-					RequestReload( bAsync: true ) ;
-				}
-				else if ( _pendingAutoCookOnMouseRelease && HEU_EditorUtility.ReleasedMouse( ) ) {
-					_pendingAutoCookOnMouseRelease = false ;
-					RequestCook( bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: false,
-								 bUploadParameters: true ) ;
-				}
-				else {
-					// For Houdini Engine Session Sync, update any originating changes from Houdini side
-					UpdateSessionSync( ) ;
+							break ;
+						}
+						
+						case AssetBuildAction.DUPLICATE:
+							ClearBuildRequest( ) ;
+							DuplicateAsset( ) ;
+							break ;
+						
+						case AssetBuildAction.RESET_PARAMS:
+							ClearBuildRequest( ) ;
+							ResetParametersToDefault( ) ;
+
+							// Doing a Reload here to clear everything out after resetting the parameters.
+							// Originally was doing a Recook but because it will keep stuff around (e.g. terrain), a full reset seems better.
+							RequestReload( bAsync: true ) ;
+							break ;
+						
+						default: {
+							if ( _pendingAutoCookOnMouseRelease 
+								 && HEU_EditorUtility.ReleasedMouse() ) {
+								_pendingAutoCookOnMouseRelease = false ;
+								RequestCook( bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: false,
+											 bUploadParameters: true ) ;
+							}
+							else {
+								// For Houdini Engine Session Sync, update any originating changes from Houdini side
+								UpdateSessionSync( ) ;
+							}
+
+							break ;
+						}
+					}
+
+					break ;
 				}
 			}
 #endif
@@ -1785,18 +1799,15 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		internal void PostAssetUpdate( ) {
 #if HOUDINIENGINEUNITY_ENABLED
-
-			if ( _cookStatus == AssetCookStatus.POSTCOOK || _cookStatus == AssetCookStatus.POSTLOAD ) {
+			if ( _cookStatus is AssetCookStatus.POSTCOOK 
+								or AssetCookStatus.POSTLOAD )
 				SetCookStatus( AssetCookStatus.NONE, AssetCookResult.NONE ) ;
-			}
-
 #endif
 		}
 
 		internal void RequestBakeInPlace( ) {
-			if ( _requestBuildAction == AssetBuildAction.NONE ) {
+			if ( _requestBuildAction is AssetBuildAction.NONE )
 				_requestBuildAction = AssetBuildAction.STRIP_HEDATA ;
-			}
 		}
 
 		internal void ClearBuildRequest( ) {
@@ -1808,9 +1819,7 @@ namespace HoudiniEngineUnity
 			_forceUploadInputs           = false ;
 		}
 
-		bool HasValidAssetPath( ) {
-			return !string.IsNullOrEmpty( _assetPath ) ;
-		}
+		bool HasValidAssetPath( ) => !string.IsNullOrEmpty( _assetPath ) ;
 
 		/// <summary>
 		/// Start or continue rebuilding this asset.
@@ -1820,21 +1829,17 @@ namespace HoudiniEngineUnity
 		/// <param name="bPromptForSubasset"></param>
 		/// <param name="desiredSubassetIndex"></param>
 		void ProcessRebuild( bool bPromptForSubasset, int desiredSubassetIndex ) {
-			if ( _preAssetEvent != null ) {
-				_preAssetEvent.Invoke( new( this, HEU_AssetEventType.RELOAD ) ) ;
-			}
-
+			_preAssetEvent?.Invoke( new( this, HEU_AssetEventType.RELOAD ) ) ;
 			ClearInvalidLists( ) ;
-
 			bool bResult = false ;
 
 			try {
-				if ( _cookStatus == AssetCookStatus.PRELOAD ) {
+				if ( _cookStatus is AssetCookStatus.PRELOAD ) {
 					// Start the Rebuild.
 					bResult = StartRebuild( bPromptForSubasset, desiredSubassetIndex ) ;
 				}
 
-				if ( _cookStatus == AssetCookStatus.LOADING ) {
+				if ( _cookStatus is AssetCookStatus.LOADING ) {
 					// Continue rebuild
 					bResult = FinishRebuild( ) ;
 				}
@@ -1844,23 +1849,18 @@ namespace HoudiniEngineUnity
 				bResult = false ;
 			}
 
-			if ( !bResult ) {
+			if ( !bResult )
 				SetCookStatus( AssetCookStatus.POSTLOAD, AssetCookResult.ERRORED ) ;
-			}
 
-			if ( _reloadDataEvent != null ) {
-				// Do callbacks regardless of success or failure as listeners might need to know
-				List< GameObject > outputObjects = new( ) ;
-				GetOutputGameObjects( outputObjects ) ;
-				InvokeReloadEvent( bResult, outputObjects ) ;
-			}
+			if ( _reloadDataEvent is null ) return ;
+			
+			List< GameObject > outputObjects = new( ) ;
+			GetOutputGameObjects( outputObjects ) ;
+			InvokeReloadEvent( bResult, outputObjects ) ;
 		}
 
-		void InvokeReloadEvent( bool bCookSuccess, List< GameObject > outputObjects ) {
-			if ( _reloadDataEvent != null ) {
-				_reloadDataEvent.Invoke( new( this, bCookSuccess, outputObjects ) ) ;
-			}
-		}
+		void InvokeReloadEvent( bool bCookSuccess, List< GameObject > outputObjects ) =>
+			_reloadDataEvent?.Invoke( new( this, bCookSuccess, outputObjects ) ) ;
 
 		/// <summary>
 		/// Start the rebuild process.
@@ -1873,19 +1873,18 @@ namespace HoudiniEngineUnity
 		/// <returns>True if successfully started the rebuild process, otherwise false for failure</returns>
 		bool StartRebuild( bool bPromptForSubasset, int desiredSubassetIndex ) {
 			HEU_SessionBase session = GetAssetSession( true ) ;
-			if ( session == null ) {
-				return false ;
-			}
+			if ( session is null ) return false ;
 
 			// Save parameter preset
 			_savedAssetPreset = GetAssetPreset( ) ;
 
-			if ( _assetID != HEU_Defines.HEU_INVALID_NODE_ID && !IsAssetValidInHoudini( session ) ) {
+			if ( _assetID is not HEU_Defines.HEU_INVALID_NODE_ID 
+				 && !IsAssetValidInHoudini( session ) ) {
 				// Invalidate asset ID since this is not valid in the current session.
 				InternalSetAssetID( HEU_Defines.HEU_INVALID_NODE_ID ) ;
 			}
 
-			if ( _assetID == HEU_Defines.HEU_INVALID_NODE_ID ) {
+			if ( _assetID is HEU_Defines.HEU_INVALID_NODE_ID ) {
 				// Invalidating the session ID while calling DeleteAllGeneratedData next 
 				// so that it doesn't modify the session that it doesn't exist in.
 				_sessionID = HEU_SessionData.INVALID_SESSION_ID ;
@@ -1896,16 +1895,16 @@ namespace HoudiniEngineUnity
 			// Setting the session ID to the session that this asset will now be created in.
 			_sessionID = session.GetSessionData( ).SessionID ;
 
-			Debug.Assert( _assetID == HEU_Defines.HEU_INVALID_NODE_ID,
+			Debug.Assert( _assetID is HEU_Defines.HEU_INVALID_NODE_ID,
 						  "Asset must be new or cleaned up! Missing call to CleanUpAsset?" ) ;
 			Debug.Assert( _objectNodes.Count == 0,
 						  "Object list must be empty! Missing call to DeleteAllPersistentData?" ) ;
 
-			_subassetNames         = new string[ 0 ] ;
+			_subassetNames = Array.Empty< string >( ) ;
 			_selectedSubassetIndex = -1 ;
 
 			// Load and cook the HDA
-			if ( _assetType == HEU_AssetType.TYPE_HDA ) {
+			if ( _assetType is HEU_AssetType.TYPE_HDA ) {
 				bool bResult = LoadAssetFileWithSubasset( session, bPromptForSubasset, desiredSubassetIndex ) ;
 				if ( !bResult ) {
 					return false ;
@@ -1913,7 +1912,7 @@ namespace HoudiniEngineUnity
 			}
 
 			// Progress to LOADING only if still in PRELOAD. Otherwise we might be waiting on user prompt.
-			if ( _cookStatus == AssetCookStatus.PRELOAD ) {
+			if ( _cookStatus is AssetCookStatus.PRELOAD ) {
 				SetCookStatus( AssetCookStatus.LOADING, AssetCookResult.SUCCESS ) ;
 			}
 
@@ -1933,7 +1932,7 @@ namespace HoudiniEngineUnity
 
 			// Load and cook the HDA
 			HAPI_NodeId newAssetID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			if ( _assetType == HEU_AssetType.TYPE_HDA ) {
+			if ( _assetType is HEU_AssetType.TYPE_HDA ) {
 				if ( _selectedSubassetIndex < 0 ) {
 					HEU_Logger.LogFormat( "Invalid subasset index {0}", _selectedSubassetIndex ) ;
 					return false ;
@@ -1942,14 +1941,14 @@ namespace HoudiniEngineUnity
 				bool bResult = CreateAndCookAsset( session, _selectedSubassetIndex, out newAssetID,
 												   HEU_PluginSettings.CookTemplatedGeos ) ;
 				if ( !bResult ) {
-					if ( newAssetID != HEU_Defines.HEU_INVALID_NODE_ID ) {
+					if ( newAssetID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
 						DeleteAllGeneratedData( ) ;
 					}
 
 					return false ;
 				}
 			}
-			else if ( _assetType == HEU_AssetType.TYPE_CURVE ) {
+			else if ( _assetType is HEU_AssetType.TYPE_CURVE ) {
 				if ( _assetName == null ) {
 					_assetName = "curve" ;
 				}
@@ -1958,14 +1957,14 @@ namespace HoudiniEngineUnity
 					HEU_HAPIUtility.CreateAndCookCurveAsset( session, _assetName, HEU_PluginSettings.CookTemplatedGeos,
 															 out newAssetID ) ;
 				if ( !bResult ) {
-					if ( newAssetID != HEU_Defines.HEU_INVALID_NODE_ID ) {
+					if ( newAssetID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
 						DeleteAllGeneratedData( ) ;
 					}
 
 					return false ;
 				}
 			}
-			else if ( _assetType == HEU_AssetType.TYPE_INPUT ) {
+			else if ( _assetType is HEU_AssetType.TYPE_INPUT ) {
 				if ( _assetName == null ) {
 					_assetName = "" ;
 				}
@@ -1974,7 +1973,7 @@ namespace HoudiniEngineUnity
 					HEU_HAPIUtility.CreateAndCookInputAsset( session, _assetName, HEU_PluginSettings.CookTemplatedGeos,
 															 out newAssetID ) ;
 				if ( !bResult ) {
-					if ( newAssetID != HEU_Defines.HEU_INVALID_NODE_ID ) {
+					if ( newAssetID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
 						DeleteAllGeneratedData( ) ;
 					}
 
@@ -2180,9 +2179,7 @@ namespace HoudiniEngineUnity
 			}
 
 			// Update the Editor UI
-			if ( _refreshUIDelegate != null ) {
-				_refreshUIDelegate( ) ;
-			}
+			_refreshUIDelegate?.Invoke( ) ;
 		}
 
 		/// <summary>
@@ -2242,9 +2239,7 @@ namespace HoudiniEngineUnity
 		}
 
 		void InvokePostCookEvent( bool bCookSuccess, List< GameObject > outputObjects ) {
-			if ( _cookedDataEvent != null ) {
-				_cookedDataEvent.Invoke( new( this, bCookSuccess, outputObjects ) ) ;
-			}
+			_cookedDataEvent?.Invoke( new( this, bCookSuccess, outputObjects ) ) ;
 		}
 
 		/// <summary>
@@ -2267,9 +2262,7 @@ namespace HoudiniEngineUnity
 				return false ;
 			}
 
-			if ( _preAssetEvent != null ) {
-				_preAssetEvent.Invoke( new( this, HEU_AssetEventType.COOK ) ) ;
-			}
+			_preAssetEvent?.Invoke( new( this, HEU_AssetEventType.COOK ) ) ;
 
 			// Lists can be broken in Undo
 			ClearInvalidLists( ) ;
@@ -2306,7 +2299,7 @@ namespace HoudiniEngineUnity
 
 				// Load and cook the HDA
 				HAPI_NodeId newAssetID = HEU_Defines.HEU_INVALID_NODE_ID ;
-				if ( _assetType == HEU_AssetType.TYPE_HDA ) {
+				if ( _assetType is HEU_AssetType.TYPE_HDA ) {
 					// Asset ID isn't valid so do full rebuild
 					if ( !HasValidAssetPath( ) ) {
 						HEU_Logger.LogError( HEU_Defines.HEU_NAME +
@@ -2325,7 +2318,7 @@ namespace HoudiniEngineUnity
 						return false ;
 					}
 				}
-				else if ( _assetType == HEU_AssetType.TYPE_CURVE ) {
+				else if ( _assetType is HEU_AssetType.TYPE_CURVE ) {
 					bResult = HEU_HAPIUtility.CreateAndCookCurveAsset( session, AssetName,
 																	   HEU_PluginSettings.CookTemplatedGeos,
 																	   out newAssetID ) ;
@@ -2334,7 +2327,7 @@ namespace HoudiniEngineUnity
 						return false ;
 					}
 				}
-				else if ( _assetType == HEU_AssetType.TYPE_INPUT ) {
+				else if ( _assetType is HEU_AssetType.TYPE_INPUT ) {
 					if ( !HEU_HAPIUtility.CreateAndCookInputAsset( session, AssetName,
 																   HEU_PluginSettings.CookTemplatedGeos,
 																   out newAssetID ) ) {
@@ -2742,7 +2735,7 @@ namespace HoudiniEngineUnity
 		/// It deletes the asset node from Houdini session.
 		/// </summary>
 		internal void DeleteSessionDataOnly( ) {
-			if ( _assetID != HEU_Defines.HEU_INVALID_NODE_ID ) {
+			if ( _assetID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
 				//HEU_Logger.LogFormat(HEU_Defines.HEU_NAME + ": Deleting asset {0} in Houdini session.", _assetName);
 				HEU_SessionBase session = GetAssetSession( false ) ;
 				if ( session != null ) {
@@ -2873,9 +2866,9 @@ namespace HoudiniEngineUnity
 		/// <param name="desiredSubassetIndex">If multiple subassets found, this is the index of the preferred subasset to use</param>
 		/// <returns>True if successfully loaded asset</returns>
 		bool LoadAssetFileWithSubasset( HEU_SessionBase session, bool bPromptForSubasset, int desiredSubassetIndex ) {
-			if ( _assetType != HEU_AssetType.TYPE_HDA ) {
-				HEU_Logger.LogErrorFormat( "Trying to build asset type: {0}. Expected type: {1}.", _assetType,
-										   HEU_AssetType.TYPE_HDA ) ;
+			if ( _assetType is not HEU_AssetType.TYPE_HDA ) {
+				HEU_Logger.LogErrorFormat( "Trying to build asset type: {0}. Expected type: {1}.", 
+										   _assetType, HEU_AssetType.TYPE_HDA ) ;
 				return false ;
 			}
 
@@ -2888,11 +2881,11 @@ namespace HoudiniEngineUnity
 				validAssetPath = HEU_PluginStorage.Instance.ConvertEnvKeyedPathToReal( _assetPath ) ;
 			}
 
-			if ( string.IsNullOrEmpty( validAssetPath ) ) {
+			if ( string.IsNullOrEmpty( validAssetPath ) )
 				return false ;
-			}
 
-			if ( _assetFileObject == null || !HEU_Platform.DoesFileExist( validAssetPath ) ) {
+			if ( !_assetFileObject 
+				 || !HEU_Platform.DoesFileExist(validAssetPath) ) {
 				// This handles 2 cases:
 				// - set the _assetFileObject reference if possible (which allows to get local path easily via Unity AssetDatabase)
 				// - when using assets from Packages/, need to convert to real local path so that Houdini can load it
@@ -2903,27 +2896,25 @@ namespace HoudiniEngineUnity
 				_assetFileObject = HEU_AssetDatabase.LoadAssetAtPath( validAssetPath, typeof( Object ) ) ;
 
 				// Update the load path from _assetFileObject to get local path
-				if ( _assetFileObject != null ) {
+				if ( _assetFileObject )
 					validAssetPath = HEU_AssetDatabase.GetAssetPath( _assetFileObject ) ;
-				}
 			}
 
 			HAPI_AssetLibraryId libraryID = 0 ;
-			bool                bResult   = false ;
+			bool bResult ;
 			if ( !_loadAssetFromMemory ) {
 				bResult = session.LoadAssetLibraryFromFile( validAssetPath, _alwaysOverwriteOnLoad, out libraryID ) ;
 			}
 			else {
-				byte[] buffer = null ;
-				bResult = HEU_Platform.LoadFileIntoMemory( validAssetPath, out buffer ) ;
-				if ( bResult ) {
-					bResult = session.LoadAssetLibraryFromMemory( buffer, _alwaysOverwriteOnLoad, out libraryID ) ;
-				}
+				bResult = HEU_Platform.LoadFileIntoMemory( validAssetPath, out byte[ ] buffer ) ;
+				
+				if ( bResult )
+					bResult = session.LoadAssetLibraryFromMemory( buffer, 
+																  _alwaysOverwriteOnLoad, 
+																	out libraryID ) ;
 			}
 
-			if ( !bResult ) {
-				return false ;
-			}
+			if ( !bResult ) return false ;
 
 			// Convert asset path back to environment mapped key format (ie. convert to $key/blah.hda)
 			_assetPath = HEU_PluginStorage.Instance.ConvertRealPathToEnvKeyedPath( validAssetPath ) ;
@@ -2931,41 +2922,38 @@ namespace HoudiniEngineUnity
 				HEU_Logger.LogFormat( "Storing asset file path with environment mapping: {0}", _assetPath ) ;
 			}
 
-			int assetCount = 0 ;
-			bResult = session.GetAvailableAssetCount( libraryID, out assetCount ) ;
-			if ( !bResult ) {
-				return false ;
-			}
+			bResult = session.GetAvailableAssetCount( libraryID, out int assetCount ) ;
+			if ( !bResult ) return false ;
 
-			if ( assetCount <= 0 ) {
+			if ( assetCount < 1 ) {
 				HEU_Logger.LogErrorFormat( "Houdini Engine: Invalid Asset Count of {0}", assetCount ) ;
 				return false ;
 			}
 
-			HAPI_StringHandle[] assetNameLengths = new HAPI_StringHandle[ assetCount ] ;
+			var assetNameLengths = new HAPI_StringHandle[ assetCount ] ;
 			bResult = session.GetAvailableAssets( libraryID, ref assetNameLengths, assetCount ) ;
-			if ( !bResult ) {
-				return false ;
-			}
-
+			if ( !bResult ) return false ;
+			
 			// Sanity check that our array hasn't changed size
 			Debug.Assert( assetNameLengths.Length == assetCount, "Houdini Engine: Invalid Asset Names" ) ;
 
-			string[] assetNames = new string[ assetCount ] ;
+			string[ ] assetNames = new string[ assetCount ] ;
 			for ( int i = 0; i < assetCount; ++i ) {
 				assetNames[ i ] = HEU_SessionManager.GetString( assetNameLengths[ i ], session ) ;
 			}
 
 			_subassetNames = assetNames ;
 
-			if ( bPromptForSubasset && assetCount > 1 &&
-				 ( desiredSubassetIndex == -1 || desiredSubassetIndex >= assetCount ) ) {
+			if ( bPromptForSubasset && assetCount > 1 
+									&& ( desiredSubassetIndex is -1
+										 || desiredSubassetIndex >= assetCount ) ) {
 				// Ask user to select subasset since there is more than one and the specified index isn't valid
 				_selectedSubassetIndex = -1 ;
 				SetCookStatus( AssetCookStatus.SELECT_SUBASSET, AssetCookResult.NONE ) ;
 			}
 			else {
-				if ( desiredSubassetIndex >= 0 && desiredSubassetIndex < assetCount ) {
+				if ( desiredSubassetIndex >= 0
+					 && desiredSubassetIndex < assetCount ) {
 					_selectedSubassetIndex = desiredSubassetIndex ;
 				}
 				else {
@@ -2977,8 +2965,8 @@ namespace HoudiniEngineUnity
 		}
 
 		// Creates and cooks assets (on recook)
-		bool CreateAndCookAsset( HEU_SessionBase session, int subassetIndex, out HAPI_NodeId newAssetID,
-								 bool            bCookTemplatedGeos ) {
+		bool CreateAndCookAsset( HEU_SessionBase session, int subassetIndex, 
+								 out HAPI_NodeId newAssetID, bool bCookTemplatedGeos ) {
 			newAssetID = HEU_Defines.HEU_INVALID_NODE_ID ;
 
 			if ( subassetIndex < 0 || subassetIndex >= _subassetNames.Length ) {
@@ -2988,15 +2976,12 @@ namespace HoudiniEngineUnity
 
 			// Create top level node. Note that CreateNode will cook the node if HAPI was initialized with threaded cook setting on.
 			string topNodeName = _subassetNames[ subassetIndex ] ;
-			bool   bResult     = session.CreateNode( -1, topNodeName, "", false, out newAssetID ) ;
-			if ( !bResult ) {
-				return false ;
-			}
+			bool bResult = session.CreateNode( -1, topNodeName, "", false, out newAssetID ) ;
+			if ( !bResult ) return false ;
 
 			// Make sure cooking is successfull before proceeding. Any licensing or file data issues will be caught here.
-			if ( !HEU_HAPIUtility.ProcessHoudiniCookStatus( session, AssetName ) ) {
+			if ( !HEU_HAPIUtility.ProcessHoudiniCookStatus( session, AssetName ) )
 				return false ;
-			}
 
 			// In case the cooking wasn't done previously, force it now.
 			bResult = HEU_HAPIUtility.CookNodeInHoudini( session, newAssetID, bCookTemplatedGeos, AssetName ) ;
@@ -3010,29 +2995,27 @@ namespace HoudiniEngineUnity
 			// Get the asset ID
 			HAPI_AssetInfo assetInfo = new( ) ;
 			bResult = session.GetAssetInfo( newAssetID, ref assetInfo ) ;
-			if ( bResult ) {
-				// Check for any errors
-				HAPI_ErrorCodeBits errors =
-					session.CheckForSpecificErrors( newAssetID,
-													(HAPI_ErrorCodeBits)HAPI_ErrorCode
-														.HAPI_ERRORCODE_ASSET_DEF_NOT_FOUND ) ;
-				if ( errors > 0 ) {
-					HEU_EditorUtility.DisplayDialog( "Asset Missing Sub-asset Definitions",
-													 "There are undefined nodes. This is due to not being able to find specific " +
-													 "asset definitions. You might need to load other (dependent) HDAs first.",
-													 "Ok" ) ;
-				}
+			if ( !bResult ) return true ;
+			
+			// Check for any errors
+			HAPI_ErrorCodeBits errors =
+				session.CheckForSpecificErrors( newAssetID,
+												(HAPI_ErrorCodeBits)HAPI_ErrorCode
+													.HAPI_ERRORCODE_ASSET_DEF_NOT_FOUND ) ;
+			if ( errors > 0 ) {
+				HEU_EditorUtility.DisplayDialog( "Asset Missing Sub-asset Definitions",
+												 "There are undefined nodes. This is due to not being able to find specific " +
+												 "asset definitions. You might need to load other (dependent) HDAs first.",
+												 "Ok" ) ;
 			}
 
 			return true ;
 		}
 
-		/// <summary>
-		/// Create and setup asset input nodes.
-		/// </summary>
+		/// <summary>Create and setup asset input nodes.</summary>
 		/// <param name="session"></param>
 		void CreateAssetInputs( HEU_SessionBase session ) {
-			if ( _assetType == HEU_AssetType.TYPE_INPUT || _assetType == HEU_AssetType.TYPE_CURVE ) {
+			if ( _assetType is HEU_AssetType.TYPE_INPUT or HEU_AssetType.TYPE_CURVE ) {
 				// Not creating input nodes for purely Input or Curve type assets.
 				// This is because an input type asset creates its own input nodes via its geo node.
 				return ;
@@ -3040,37 +3023,36 @@ namespace HoudiniEngineUnity
 
 			int updatedAssetInputCount = _assetInfo.geoInputCount ;
 
-			if ( updatedAssetInputCount == 0 ) {
+			if ( updatedAssetInputCount is 0 ) {
 				CleanUpInputNodes( ) ;
 				return ;
 			}
 
-			if ( _nodeInfo.type == HAPI_NodeType.HAPI_NODETYPE_OBJ && _assetInfo.transformInputCount > 0 ) {
+			if ( _nodeInfo.type is HAPI_NodeType.HAPI_NODETYPE_OBJ && _assetInfo.transformInputCount > 0 ) {
 				// TODO: handle upstream transform connections for objects
 			}
 
 			// Go through all asset inputs, add new, and remove old (unfound)
 
-			List< HEU_InputNode > nodesToRemove = _inputNodes != null
-													  ? new( _inputNodes )
-													  : new List< HEU_InputNode >( ) ;
+			List< HEU_InputNode > nodesToRemove = _inputNodes is not null
+														  ? new( _inputNodes )
+															: new List< HEU_InputNode >( ) ;
 			List< string > newInputNames = new( ) ;
-			List< int >    newInputIndex = new( ) ;
-
+			List< int > newInputIndex = new( ) ;
+			
 			for ( int i = 0; i < updatedAssetInputCount; ++i ) {
-				HAPI_StringHandle tempNameHandle = HEU_Defines.HEU_INVALID_NODE_ID ;
-				if ( session.GetNodeInputName( _assetID, i, out tempNameHandle ) ) {
-					string inputName = HEU_SessionManager.GetString( tempNameHandle, session ) ;
-					//HEU_Logger.Log("Found input: " + inputName);
+				if ( !session.GetNodeInputName( _assetID, i, 
+												out HAPI_StringHandle tempNameHandle ) ) continue ;
+				
+				string inputName = HEU_SessionManager.GetString( tempNameHandle, session ) ;
+				//HEU_Logger.Log("Found input: " + inputName);
 
-					HEU_InputNode inputNode = GetAssetInputNode( inputName ) ;
-					if ( inputNode != null ) {
-						nodesToRemove.Remove( inputNode ) ;
-					}
-					else {
-						newInputNames.Add( inputName ) ;
-						newInputIndex.Add( i ) ;
-					}
+				HEU_InputNode inputNode = GetAssetInputNode( inputName ) ;
+				if ( inputNode )
+					nodesToRemove.Remove( inputNode ) ;
+				else {
+					newInputNames.Add( inputName ) ;
+					newInputIndex.Add( i ) ;
 				}
 			}
 
@@ -3080,10 +3062,9 @@ namespace HoudiniEngineUnity
 				HEU_InputNode inputNode = nodesToRemove[ i ] ;
 				RemoveInputNode( inputNode ) ;
 
-				if ( inputNode != null ) {
-					inputNode.DestroyAllData( session ) ;
-					HEU_GeneralUtility.DestroyImmediate( inputNode ) ;
-				}
+				if ( !inputNode ) continue ;
+				inputNode.DestroyAllData( session ) ;
+				HEU_GeneralUtility.DestroyImmediate( inputNode ) ;
 			}
 
 			// Nodes to add
@@ -3093,56 +3074,53 @@ namespace HoudiniEngineUnity
 																		  newInputNames[ i ], newInputNames[ i ],
 																		  HEU_InputNode.InputNodeType.CONNECTION,
 																		  this ) ;
-				if ( inputNode != null ) {
+				if ( inputNode )
 					AddInputNode( inputNode ) ;
-				}
 			}
-
-			_showInputNodesSection = ( _assetType == HEU_AssetType.TYPE_INPUT ) || ( updatedAssetInputCount > 0 ) ;
+			
+			_showInputNodesSection = ( _assetType is HEU_AssetType.TYPE_INPUT ) 
+												|| ( updatedAssetInputCount > 0 ) ;
 		}
 
 		// Upload curve parameters
 		void UploadCurvesParameters( HEU_SessionBase session, bool bCheckParamsChanged ) {
 			bool bNeedsRebuild = false ;
 			foreach ( HEU_Curve curve in _curves ) {
-				if ( curve == null ) {
+				if ( !curve ) {
 					bNeedsRebuild = true ;
 					continue ;
 				}
-
-				if ( curve.IsEditable( ) ) {
-					curve.OnPresyncParameters( session, this ) ;
-					HEU_Parameters curveParameters = curve.Parameters ;
-					if ( curveParameters != null ) {
-						curveParameters.UploadValuesToHoudini( session, this, bCheckParamsChanged ) ;
-					}
-				}
+				if ( !curve.IsEditable( ) )
+					continue ;
+				
+				curve.OnPresyncParameters( session, this ) ;
+				HEU_Parameters curveParameters = curve.Parameters ;
+				
+				if ( curveParameters )
+					curveParameters.UploadValuesToHoudini( session, this, bCheckParamsChanged ) ;
 			}
 
-			if ( bNeedsRebuild ) {
-				_curves = _curves.Filter( curve => curve != null ) ;
-			}
+			if ( bNeedsRebuild )
+				_curves = _curves.Filter( curve => curve ) ;
 		}
 
 		void UploadAttributeValues( HEU_SessionBase session ) {
 			// Rebuild for undo safety in UI:
 			bool bNeedsRebuild = false ;
-
-			for ( int i = _attributeStores.Count - 1; i >= 0; i-- ) {
+			int count = _attributeStores.Count ;
+			for ( int i = count - 1; i >= 0; --i ) {
 				HEU_AttributesStore attributeStore = _attributeStores[ i ] ;
-				if ( attributeStore == null ) {
+				if ( !attributeStore ) {
 					bNeedsRebuild = true ;
 					continue ;
 				}
 
-				if ( !attributeStore.IsValidStore( session ) ) {
+				if ( !attributeStore.IsValidStore(session) )
 					RemoveAttributeStore( attributeStore ) ;
-				}
 			}
 
-			if ( bNeedsRebuild ) {
+			if ( bNeedsRebuild )
 				_attributeStores = _attributeStores.Filter( store => store != null ) ;
-			}
 
 			// Normally only the attribute stores that are dirty will be uploaded to Houdini.
 			// But if _toolsInfo._alwaysCookUpstream is true, we will upload all attributes
@@ -3152,13 +3130,12 @@ namespace HoudiniEngineUnity
 			// upstream inputs before doing so.
 
 			bool bForceUpload = false ;
-			if ( _toolsInfo != null && _toolsInfo._alwaysCookUpstream ) {
+			if ( _toolsInfo is { _alwaysCookUpstream: true } ) {
 				if ( _upstreamCookChanged ) {
 					// Note that for _upstreamCookChanged, force the refresh of the upstream input
 					// so that the edit node is unlocked and able to get updated values.
-					foreach ( HEU_AttributesStore attributeStore in _attributeStores ) {
+					foreach ( HEU_AttributesStore attributeStore in _attributeStores )
 						attributeStore.RefreshUpstreamInputs( session ) ;
-					}
 
 					// Don't want to upload right now because the buffer sizes might
 					// not be in sync (especially for delete curve points).
@@ -3168,45 +3145,41 @@ namespace HoudiniEngineUnity
 				}
 
 				foreach ( HEU_AttributesStore attributeStore in _attributeStores ) {
-					if ( attributeStore.HasDirtyAttributes( ) ) {
-						bForceUpload = true ;
-						break ;
-					}
+					if ( !attributeStore.HasDirtyAttributes() ) 
+						continue ;
+					
+					bForceUpload = true ;
+					break ;
 				}
 			}
 
 			foreach ( HEU_AttributesStore attributeStore in _attributeStores ) {
-				if ( bForceUpload || attributeStore.HasDirtyAttributes( ) ) {
-					if ( _toolsInfo != null && _toolsInfo._alwaysCookUpstream ) {
-						attributeStore.RefreshUpstreamInputs( session ) ;
-					}
+				if ( !bForceUpload && !attributeStore.HasDirtyAttributes( ) ) continue ;
+				
+				if ( _toolsInfo && _toolsInfo._alwaysCookUpstream )
+					attributeStore.RefreshUpstreamInputs( session ) ;
 
-					attributeStore.SyncDirtyAttributesToHoudini( session ) ;
-				}
+				attributeStore.SyncDirtyAttributesToHoudini( session ) ;
 			}
 		}
 
 		void SyncDirtyAttributesToHoudini( HEU_SessionBase session ) {
 			foreach ( HEU_AttributesStore attributeStore in _attributeStores ) {
-				if ( attributeStore.AreAttributesDirty( ) ) {
+				if ( attributeStore.AreAttributesDirty() )
 					attributeStore.SyncDirtyAttributesToHoudini( session ) ;
-				}
 			}
 		}
 
 		void UploadInputNodes( HEU_SessionBase session, bool bForceUpdate, bool bUpdateAll ) {
 			foreach ( HEU_InputNode inputNode in _inputNodes ) {
-				if ( inputNode == null ) {
-					continue ;
-				}
-
+				if ( !inputNode ) continue ;
+				
 				// Upload all but parameter types, as those are taken care of in the parameter update
 				if ( ( inputNode.InputType != HEU_InputNode.InputNodeType.PARAMETER || bUpdateAll )
-					 && ( bForceUpdate || inputNode.RequiresUpload || inputNode.HasInputNodeTransformChanged( ) )
-					 && inputNode.InputNodeID != HEU_Defines.HEU_INVALID_NODE_ID ) {
-					if ( bForceUpdate ) {
-						inputNode.ResetConnectionForForceUpdate( session ) ;
-					}
+						 && ( bForceUpdate || inputNode.RequiresUpload || inputNode.HasInputNodeTransformChanged( ) )
+							&& inputNode.InputNodeID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
+					
+					if ( bForceUpdate ) inputNode.ResetConnectionForForceUpdate( session ) ;
 
 					inputNode.UploadInput( session ) ;
 				}
@@ -3215,14 +3188,10 @@ namespace HoudiniEngineUnity
 
 		internal bool HasInputNodeTransformChanged( ) {
 			foreach ( HEU_InputNode inputNode in _inputNodes ) {
-				if ( inputNode == null )
+				if ( !inputNode ) return true ;
+				if ( inputNode.HasInputNodeTransformChanged( ) )
 					return true ;
-
-				if ( inputNode.HasInputNodeTransformChanged( ) ) {
-					return true ;
-				}
 			}
-
 			return false ;
 		}
 
@@ -3240,24 +3209,29 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <returns>True if successfully created all the asset's objects and their data</returns>
 		bool CreateObjects( HEU_SessionBase session ) {
-			Debug.Assert( _objectNodes.Count == 0, HEU_Defines.HEU_NAME + ": Object list must be empty!" ) ;
+			Debug.Assert( _objectNodes.Count is 0, 
+						  HEU_Defines.HEU_NAME 
+						  + ": Object list must be empty!" 
+						  ) ;
 
 			// Fill in object infos and transforms based on node type and number of child objects
-			HAPI_ObjectInfo[] objectInfos      = null ;
-			HAPI_Transform[]  objectTransforms = null ;
 
-			if ( !HEU_HAPIUtility.GetObjectInfos( session, _assetID, ref _nodeInfo, out objectInfos,
-												  out objectTransforms ) ) {
-				return false ;
-			}
+			if ( !HEU_HAPIUtility.GetObjectInfos( session, _assetID, ref _nodeInfo, 
+												  out HAPI_ObjectInfo[ ] objectInfos,
+												  out HAPI_Transform[ ] objectTransforms ) ) return false ;
 
 			Debug.Assert( objectInfos.Length == objectTransforms.Length,
-						  HEU_Defines.HEU_NAME + ": Object info and object transform array mismatch!" ) ;
+						  HEU_Defines.HEU_NAME
+						  + ": Object info and object transform array mismatch!" 
+						  ) ;
 
 			// Create object nodes
 			int numObjects = objectInfos.Length ;
 			for ( int i = 0; i < numObjects; ++i ) {
-				_objectNodes.Add( CreateObjectNode( session, ref objectInfos[ i ], ref objectTransforms[ i ] ) ) ;
+				_objectNodes.Add( CreateObjectNode( session, 
+													ref objectInfos[ i ], 
+													ref objectTransforms[ i ] ) 
+								  ) ;
 			}
 
 			return true ;
@@ -3272,13 +3246,10 @@ namespace HoudiniEngineUnity
 		/// <returns>True if any changes were applied</returns>
 		void UpdateAllObjectNodes( HEU_SessionBase session ) {
 			// Fill in latest object infos and transforms based on node type and number of child objects
-			HAPI_ObjectInfo[] objectInfos      = null ;
-			HAPI_Transform[]  objectTransforms = null ;
 
-			if ( !HEU_HAPIUtility.GetObjectInfos( session, _assetID, ref _nodeInfo, out objectInfos,
-												  out objectTransforms ) ) {
-				return ;
-			}
+			if ( !HEU_HAPIUtility.GetObjectInfos( session, _assetID, ref _nodeInfo, 
+												  out HAPI_ObjectInfo[ ] objectInfos,
+												  out HAPI_Transform[ ] objectTransforms ) ) return ;
 
 			// We need to go through the new list of object infos and 
 			// check against our internal state. 
@@ -3286,12 +3257,12 @@ namespace HoudiniEngineUnity
 			// Remove any unused object nodes.
 			// Then refresh all object nodes.
 
-			List< HEU_ObjectNode > newObjectNodes = new( ) ;
-
+			List< HEU_ObjectNode > newObjectNodes = new( _objectNodes.Count ) ;
 			int numObjNodes = _objectNodes.Count ;
 			int numObjInfos = objectInfos.Length ;
-			if ( numObjInfos == 1 ) {
-				if ( numObjNodes == 1 ) {
+			
+			if ( numObjInfos is 1 ) {
+				if ( numObjNodes is 1 ) {
 					// Since its just 1 object found and 1 object we already had, presume they're the same
 					// Update object info, add to new list
 					_objectNodes[ 0 ].SetObjectInfo( objectInfos[ 0 ] ) ;
@@ -3300,11 +3271,14 @@ namespace HoudiniEngineUnity
 				else {
 					// Our internal number of objects don't match. We can't really try to match because names
 					// could be different. So we'll create as new object and warn user.
-					newObjectNodes.Add( CreateObjectNode( session, ref objectInfos[ 0 ], ref objectTransforms[ 0 ] ) ) ;
+					newObjectNodes.Add( CreateObjectNode( session, 
+														  ref objectInfos[ 0 ], 
+														  ref objectTransforms[ 0 ] ) 
+										) ;
 
 					if ( numObjNodes > 1 ) {
-						HEU_Logger
-							.LogWarning( "Unable to match previous objects with new objects after cooking this asset. Might lose asset changes." ) ;
+						HEU_Logger.LogWarning( "Unable to match previous objects with new objects after cooking this asset. " +
+											   "Might lose asset changes." ) ;
 					}
 				}
 			}
@@ -3317,13 +3291,12 @@ namespace HoudiniEngineUnity
 
 					for ( int nodeIndex = 0; nodeIndex < numObjNodes; ++nodeIndex ) {
 						string objName = HEU_SessionManager.GetString( objectInfos[ infoIndex ].nameSH, session ) ;
-						if ( objName.Equals( _objectNodes[ nodeIndex ].ObjectName ) ) {
-							// Update object info, add to new list
-							_objectNodes[ nodeIndex ].SetObjectInfo( objectInfos[ infoIndex ] ) ;
-							newObjectNodes.Add( _objectNodes[ nodeIndex ] ) ;
-							bFound = true ;
-							break ;
-						}
+						if ( !objName.Equals( _objectNodes[ nodeIndex ].ObjectName ) ) continue ;
+						// Update object info, add to new list
+						_objectNodes[ nodeIndex ].SetObjectInfo( objectInfos[ infoIndex ] ) ;
+						newObjectNodes.Add( _objectNodes[ nodeIndex ] ) ;
+						bFound = true ;
+						break ;
 					}
 
 					if ( !bFound ) {
@@ -3338,10 +3311,10 @@ namespace HoudiniEngineUnity
 			numObjNodes = _objectNodes.Count ;
 			if ( numObjNodes > 0 ) {
 				for ( int i = 0; i < numObjNodes; ++i ) {
-					if ( !newObjectNodes.Contains( _objectNodes[ i ] ) ) {
-						_objectNodes[ i ].DestroyAllData( ) ;
-						HEU_GeneralUtility.DestroyImmediate( _objectNodes[ i ] ) ;
-					}
+					if ( newObjectNodes.Contains( _objectNodes[i] ) ) continue ;
+					
+					_objectNodes[ i ].DestroyAllData( ) ;
+					HEU_GeneralUtility.DestroyImmediate( _objectNodes[ i ] ) ;
 				}
 
 				_objectNodes.Clear( ) ;
@@ -3353,39 +3326,40 @@ namespace HoudiniEngineUnity
 			_objectNodes = newObjectNodes ;
 
 			// Now refresh all object nodes
-			foreach ( HEU_ObjectNode objNode in _objectNodes ) {
+			foreach ( HEU_ObjectNode objNode in _objectNodes )
 				objNode.UpdateObject( session, true ) ;
-			}
 		}
 
 		// Creates a new object node
-		HEU_ObjectNode CreateObjectNode( HEU_SessionBase    session, ref HAPI_ObjectInfo objectInfo,
+		HEU_ObjectNode CreateObjectNode( HEU_SessionBase session, 
+										 ref HAPI_ObjectInfo objectInfo,
 										 ref HAPI_Transform objectTranform ) {
-			HEU_ObjectNode objectNode = ScriptableObject.CreateInstance< HEU_ObjectNode >( ) ;
-			objectNode.Initialize( session, objectInfo, objectTranform, this, _useOutputNodes ) ;
+			HEU_ObjectNode objectNode = 
+				ScriptableObject.CreateInstance< HEU_ObjectNode >( ) ;
+			
+			objectNode.Initialize( session, 
+								   objectInfo, 
+								   objectTranform, 
+								   this, 
+								   _useOutputNodes ) ;
+			
 			return objectNode ;
 		}
 
-		/// <summary>
-		/// Generate geometry (mesh, curves, terrain) for all object nodes.
-		/// </summary>
+		/// <summary>Generate geometry (mesh, curves, terrain) for all object nodes.</summary>
 		/// <param name="session">Current session</param>
 		/// <param name="bRebuild">True if this is a rebuild or recook</param>
 		void GenerateObjectsGeometry( HEU_SessionBase session, bool bRebuild ) {
-			foreach ( HEU_ObjectNode objNode in _objectNodes ) {
+			foreach ( HEU_ObjectNode objNode in _objectNodes )
 				objNode.GenerateGeometry( session, bRebuild ) ;
-			}
 		}
 
-		internal int NumAttributeStores( ) {
-			return _attributeStores != null ? _attributeStores.Count : 0 ;
-		}
+		internal int NumAttributeStores( ) => _attributeStores?.Count ?? 0 ;
 
 		internal HEU_AttributesStore GetAttributeStore( string geoName, HAPI_PartId partID ) {
 			foreach ( HEU_AttributesStore attrStore in _attributeStores ) {
-				if ( attrStore.GeoName.Equals( geoName ) && attrStore.PartID == partID ) {
-					return attrStore ;
-				}
+				if ( attrStore.GeoName.Equals(geoName) 
+					 && attrStore.PartID == partID ) return attrStore ;
 			}
 
 			return null ;
@@ -3397,9 +3371,7 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		/// <summary>
-		/// Generate instances for all object nodes.
-		/// </summary>
+		/// <summary>Generate instances for all object nodes.</summary>
 		/// <param name="session"></param>
 		void GenerateInstances( HEU_SessionBase session ) {
 			// Instancing - process part instances first, then do object instances.
@@ -3407,36 +3379,28 @@ namespace HoudiniEngineUnity
 
 			// Clear part instances, to make sure that the object instances don't overwrite the part instances.
 			foreach ( HEU_ObjectNode objNode in _objectNodes ) {
-				if ( objNode == null )
-					continue ;
-
-				if ( objNode.IsInstancer( ) ) {
+				if ( !objNode ) continue ;
+				if ( objNode.IsInstancer() )
 					objNode.ClearObjectInstances( session ) ;
-				}
 			}
 
 			foreach ( HEU_ObjectNode objNode in _objectNodes ) {
-				if ( objNode == null )
-					continue ;
-
+				if ( !objNode ) continue ;
 				objNode.GeneratePartInstances( session ) ;
 			}
 
 			foreach ( HEU_ObjectNode objNode in _objectNodes ) {
-				if ( objNode == null )
-					continue ;
-
-				if ( objNode.IsInstancer( ) ) {
+				if ( !objNode ) continue ;
+				if ( objNode.IsInstancer() )
 					objNode.GenerateObjectInstances( session ) ;
-				}
 			}
 		}
 
 		void GenerateHandles( HEU_SessionBase session ) {
 			// This will get us an updated list of handles in this asset
 			List< HEU_Handle > newHandles =
-				HEU_GeneralUtility.FindOrGenerateHandles( session, ref _assetInfo, _assetID, _assetName, _parameters,
-														  _handles ) ;
+				HEU_GeneralUtility.FindOrGenerateHandles( session, ref _assetInfo, _assetID, 
+														  _assetName, _parameters, _handles ) ;
 
 			// Clean up handles not in new list
 			int numHandles = _handles.Count ;
@@ -3454,56 +3418,46 @@ namespace HoudiniEngineUnity
 		}
 
 		internal void CleanUpHandles( ) {
-			if ( _handles != null ) {
-				for ( int i = 0; i < _handles.Count; ++i ) {
-					_handles[ i ].CleanUp( ) ;
-					HEU_GeneralUtility.DestroyImmediate( _handles[ i ] ) ;
-					_handles[ i ] = null ;
-				}
-
-				_handles.Clear( ) ;
+			if ( _handles is null ) return ;
+			
+			for ( int i = 0; i < _handles.Count; ++i ) {
+				_handles[ i ].CleanUp( ) ;
+				HEU_GeneralUtility.DestroyImmediate( _handles[ i ] ) ;
+				_handles[ i ] = null ;
 			}
+			
+			_handles.Clear( ) ;
 		}
 
 		internal HEU_Handle GetHandleByName( string handleName ) {
-			foreach ( HEU_Handle handle in _handles ) {
-				if ( handle.HandleName.Equals( handleName ) ) {
-					return handle ;
-				}
-			}
-
+			foreach ( HEU_Handle handle in _handles )
+				if ( handle.HandleName.Equals( handleName ) ) return handle ;
 			return null ;
 		}
 
-		internal List< HEU_Handle > GetHandles( ) {
-			return _handles ;
-		}
+		internal List< HEU_Handle > GetHandles( ) => _handles ;
 
-		internal int NumHandles( ) {
-			return _handles != null ? _handles.Count : 0 ;
-		}
+		internal int NumHandles( ) => _handles?.Count ?? 0 ;
 
 		/// <summary>
 		/// Returns the given object's (OBJ) transform.
 		/// The returned transform is based on what type of asset this is (SOP, OBJ with and
 		/// without children)
 		/// </summary>
+		/// <param name="session"></param>
 		/// <param name="objectID">The ID of the object to query</param>
 		/// <returns>A transform for this object</returns>
 		internal HAPI_Transform GetObjectTransform( HEU_SessionBase session, HAPI_NodeId objectID ) {
-			if ( _nodeInfo.type == HAPI_NodeType.HAPI_NODETYPE_SOP ) {
+			if ( _nodeInfo.type is HAPI_NodeType.HAPI_NODETYPE_SOP ) {
 				return new( true ) ;
 			}
 
-			if ( _nodeInfo.type == HAPI_NodeType.HAPI_NODETYPE_OBJ ) {
-				int objectCount = 0 ;
-				if ( !session.ComposeObjectList( AssetID, out objectCount ) ) {
+			if ( _nodeInfo.type is HAPI_NodeType.HAPI_NODETYPE_OBJ ) {
+				if ( !session.ComposeObjectList( AssetID, out int objectCount ) )
 					return new( true ) ;
-				}
 
-				if ( objectCount <= 0 ) {
+				if ( objectCount <= 0 )
 					return new( true ) ;
-				}
 
 				HAPI_Transform hapiTransform = new( true ) ;
 				session.GetObjectTransform( objectID, AssetID, HAPI_RSTOrder.HAPI_SRT, ref hapiTransform ) ;
@@ -3514,35 +3468,28 @@ namespace HoudiniEngineUnity
 						.LogWarning( string.Format( HEU_Defines.HEU_NAME + ": Object id {0} for asset {1} has scale components with 0 values!",
 													objectID, AssetName ) ) ;
 				}
-				else {
-					return hapiTransform ;
-				}
+				
+				else return hapiTransform ;
 			}
 
 			return new( true ) ;
 		}
 
-		/// <summary>
-		/// Returns the object node (OBJ) with specified ID
-		/// </summary>
+		/// <summary>Returns the object node (OBJ) with specified ID.</summary>
 		/// <param name="objId">The object ID to match</param>
 		/// <returns>Object node with specified ID</returns>
 		internal HEU_ObjectNode GetObjectWithID( HAPI_NodeId objId ) {
 			int numObjects = _objectNodes.Count ;
 			for ( int i = 0; i < numObjects; ++i ) {
-				if ( _objectNodes[ i ].ObjectID == objId ) {
+				if ( _objectNodes[ i ].ObjectID == objId )
 					return _objectNodes[ i ] ;
-				}
 			}
 
 			return null ;
 		}
 
-		void InvokeBakedEvent( bool bSuccess, List< GameObject > outputObjects, bool isNewBake ) {
-			if ( _bakedDataEvent != null ) {
-				_bakedDataEvent.Invoke( new( this, bSuccess, outputObjects, isNewBake ) ) ;
-			}
-		}
+		void InvokeBakedEvent( bool bSuccess, List< GameObject > outputObjects, bool isNewBake ) =>
+			_bakedDataEvent?.Invoke( new( this, bSuccess, outputObjects, isNewBake ) ) ;
 
 		/// <summary>
 		/// Return a clone of this asset. The returned object might be a single
@@ -3552,26 +3499,27 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="bakedAssetPath">Reference to the new clone's asset path, or empty if not filled in.</param>
 		/// <param name="bWriteMeshesToAssetDatabase">Whether to write meshes to persistant storage (asset database)</param>
+		/// <param name="bReconnectPrefabInstances"></param>
 		/// <returns>The new gameobject containing the cloned data</returns>
-		GameObject CloneAssetWithoutHDA( ref string bakedAssetPath, bool bWriteMeshesToAssetDatabase,
-										 bool       bReconnectPrefabInstances ) {
+		GameObject CloneAssetWithoutHDA( ref string bakedAssetPath, 
+										 bool bWriteMeshesToAssetDatabase,
+										 bool bReconnectPrefabInstances ) {
 			GameObject newRoot = null ;
-
-			if ( _rootGameObject == null ) {
+			if ( !_rootGameObject ) {
 				HEU_Logger.LogErrorFormat( "{0}: Unable to bake due to no HEU_HoudiniAssetRoot found!",
 										   HEU_Defines.HEU_NAME ) ;
-				return newRoot ;
+				return null ;
 			}
 
 			// If we're storing meshes in Asset Database, then we need  to create an asset object to store inside.
 			Object newAssetDBObject = null ;
 
 			// Need to get raw OP name otherwise duplicates may mess up the naming
-			string rawOpName                = HEU_GeneralUtility.GetRawOperatorName( _assetOpName ) ;
+			string rawOpName = HEU_GeneralUtility.GetRawOperatorName( _assetOpName ) ;
 			string newAssetDBObjectFileName = HEU_AssetDatabase.AppendMeshesAssetFileName( rawOpName ) ;
 
-			Transform rootTransform     = _rootGameObject.transform ;
-			int       numCreatedObjects = 0 ;
+			Transform rootTransform = _rootGameObject.transform ;
+			int numCreatedObjects = 0 ;
 
 			// First get a list of clonable parts of the asset.
 			// Then copy each part's gameobject, and place it under a common root if there are multiple objects. 
@@ -3586,13 +3534,12 @@ namespace HoudiniEngineUnity
 
 			List< HEU_PartData > clonableParts = new( ) ;
 			GetClonableParts( clonableParts ) ;
-
 			if ( clonableParts.Count > 0 ) {
 				Transform newRootTransform = null ;
 
 				// Children go under a common root
 				if ( clonableParts.Count > 1 ) {
-					newRoot          = HEU_GeneralUtility.CreateNewGameObject( ) ;
+					newRoot = HEU_GeneralUtility.CreateNewGameObject( ) ;
 					newRootTransform = newRoot.transform ;
 					HEU_GeneralUtility.CopyWorldTransformValues( rootTransform, newRootTransform ) ;
 				}
@@ -3608,23 +3555,21 @@ namespace HoudiniEngineUnity
 																			   bReconnectPrefabInstances ) ;
 
 					// In case of only 1 object being cloned, we'll set that as the newRoot
-					if ( newChildGO != null ) {
-						if ( newRoot == null ) {
-							newRoot          = newChildGO ;
-							newRootTransform = newRoot.transform ;
-							// Instead of copying, multiplying the root transform to keep local offets (e.g. terrain)
-							HEU_GeneralUtility.ApplyTransformTo( rootTransform, newRootTransform ) ;
-						}
-
-						numCreatedObjects++ ;
+					if ( !newChildGO ) continue ;
+					if ( !newRoot ) {
+						newRoot = newChildGO ;
+						newRootTransform = newRoot.transform ;
+						// Instead of copying, multiplying the root transform to keep local offets (e.g. terrain)
+						HEU_GeneralUtility.ApplyTransformTo( rootTransform, newRootTransform ) ;
 					}
+					++numCreatedObjects ;
 				}
 
 				HEU_AssetDatabase.SaveAndRefreshDatabase( ) ;
 			}
 
-			if ( newRoot != null ) {
-				if ( numCreatedObjects != 0 ) {
+			if ( newRoot ) {
+				if ( numCreatedObjects is not 0 ) {
 					HEU_GeneralUtility.RenameGameObject( newRoot, _assetName + HEU_Defines.HEU_BAKED_HDA ) ;
 				}
 				else {
@@ -3633,9 +3578,8 @@ namespace HoudiniEngineUnity
 				}
 			}
 
-			if ( numCreatedObjects == 0 ) {
+			if ( numCreatedObjects is 0 )
 				HEU_Logger.LogFormat( "Nothing to bake as no geometry available!" ) ;
-			}
 
 			return newRoot ;
 		}
@@ -3644,34 +3588,27 @@ namespace HoudiniEngineUnity
 
 		// EVENTS -------------------------------------------------------------------------------------------------
 
-		/// <summary>
-		/// Callback after upstream connection input node has cooked.
-		/// </summary>
-		/// <param name="asset">The asset that cooked and invoking us</param>
-		/// <param name="bSuccess">Whether cook succeeded</param>
-		/// <param name="outputs">Output gameobjects</param>
+		/// <summary>Callback after upstream connection input node has cooked.</summary>
+		/// <param name="Data"></param>
 		internal void NotifyUpstreamCooked( HEU_CookedEventData Data ) {
-			if ( Data.CookSuccess ) {
-				//HEU_Logger.LogFormat("NotifyUpstreamCooked from {0}", AssetName);
-				HEU_SessionBase session = GetAssetSession( true ) ;
+			if ( !Data.CookSuccess ) return ;
+			//HEU_Logger.LogFormat("NotifyUpstreamCooked from {0}", AssetName);
+			HEU_SessionBase session = GetAssetSession( true ) ;
 
-				// Required for reverting and uploading local data for edit nodes
-				_upstreamCookChanged = true ;
+			// Required for reverting and uploading local data for edit nodes
+			_upstreamCookChanged = true ;
 
-				// Recook after upstream cook
-				// Check parameter changes otherwise can cause input nodes to be disconnected
-				// then reconnected.
-				RequestCook( true, true, false ) ;
-			}
+			// Recook after upstream cook
+			// Check parameter changes otherwise can cause input nodes to be disconnected
+			// then reconnected.
+			RequestCook( true, true, false ) ;
 		}
 
-		internal void ConnectToUpstream( HEU_HoudiniAsset upstreamAsset ) {
+		internal void ConnectToUpstream( HEU_HoudiniAsset upstreamAsset ) =>
 			upstreamAsset.AddDownstreamConnection( NotifyUpstreamCooked ) ;
-		}
 
-		internal void DisconnectFromUpstream( HEU_HoudiniAsset upstreamAsset ) {
+		internal void DisconnectFromUpstream( HEU_HoudiniAsset upstreamAsset ) =>
 			upstreamAsset.RemoveDownstreamConnection( NotifyUpstreamCooked ) ;
-		}
 
 		// Adds a downstream connection (If an HDA references this as input)
 		void AddDownstreamConnection( UnityAction< HEU_CookedEventData > receiver ) {
@@ -3680,20 +3617,20 @@ namespace HoudiniEngineUnity
 			_downstreamConnectionCookedEvent.AddListener( receiver ) ;
 		}
 
-		void RemoveDownstreamConnection( UnityAction< HEU_CookedEventData > receiver ) {
-			_downstreamConnectionCookedEvent.RemoveListener( receiver ) ;
-		}
+		void RemoveDownstreamConnection( UnityAction< HEU_CookedEventData > receiver ) =>
+											_downstreamConnectionCookedEvent.RemoveListener( receiver ) ;
 
 		void ClearAllUpstreamConnections( ) {
-			if ( _parameters != null ) {
-				List< GameObject > inputNodeObjects = new( ) ;
-				_parameters.GetInputNodeConnectionObjects( inputNodeObjects ) ;
-				foreach ( GameObject go in inputNodeObjects ) {
-					HEU_HoudiniAssetRoot assetRoot = go.GetComponent< HEU_HoudiniAssetRoot >( ) ;
-					if ( assetRoot != null && assetRoot._houdiniAsset != null ) {
-						DisconnectFromUpstream( assetRoot._houdiniAsset ) ;
-					}
-				}
+			if ( !_parameters ) return ;
+			
+			List< GameObject > inputNodeObjects = new( ) ;
+			_parameters.GetInputNodeConnectionObjects( inputNodeObjects ) ;
+			foreach ( GameObject go in inputNodeObjects ) {
+				HEU_HoudiniAssetRoot assetRoot =
+					go.GetComponent< HEU_HoudiniAssetRoot >( ) ;
+					
+				if ( assetRoot is { _houdiniAsset: not null } )
+					DisconnectFromUpstream( assetRoot._houdiniAsset ) ;
 			}
 		}
 
@@ -3715,73 +3652,66 @@ namespace HoudiniEngineUnity
 		/// and scene load where the input assets don't trigger the callback.
 		/// </summary>
 		internal void ReconnectInputsUpstreamNotifications( ) {
-			if ( _inputNodes != null ) {
-				foreach ( HEU_InputNode input in _inputNodes ) {
-					if ( input != null ) {
-						input.ReconnectToUpstreamAsset( ) ;
-					}
-				}
+			if ( _inputNodes is null ) return ;
+			foreach ( HEU_InputNode input in _inputNodes ) {
+				if ( !input ) continue ;
+				input.ReconnectToUpstreamAsset( ) ;
 			}
 		}
 
 		// TRANSFORMS -------------------------------------------------------------------------------------------------
 
 		internal void GetHoudiniTransformAndApply( HEU_SessionBase session ) {
+			if ( _nodeInfo.id is HEU_Defines.HEU_INVALID_NODE_ID ) return ;
+			
 			int queryNodeID = _assetID ;
-			if ( _nodeInfo.id != HEU_Defines.HEU_INVALID_NODE_ID ) {
-				if ( _nodeInfo.type == HAPI_NodeType.HAPI_NODETYPE_SOP ) {
-					queryNodeID = _nodeInfo.parentId ;
-					Debug.Assert( queryNodeID != HEU_Defines.HEU_INVALID_NODE_ID, "Invalid parent ID for SOP!" ) ;
-				}
-				else if ( _nodeInfo.type != HAPI_NodeType.HAPI_NODETYPE_OBJ ) {
-					return ;
-				}
-
-				HAPI_Transform hapiTransform = new( true ) ;
-				session.GetObjectTransform( queryNodeID, -1, HAPI_RSTOrder.HAPI_SRT, ref hapiTransform ) ;
-				if ( Mathf.Approximately( 0f, hapiTransform.scale[ 0 ] ) ||
-					 Mathf.Approximately( 0f, hapiTransform.scale[ 1 ] ) ||
-					 Mathf.Approximately( 0f, hapiTransform.scale[ 2 ] ) ) {
-					HEU_Logger.LogWarningFormat( "Asset id {0} with name {1} has scale components with 0 values!",
-												 AssetID, AssetName ) ;
-				}
-
-				// Using root transform as that represents our asset in the world
-				HEU_HAPIUtility.ApplyWorldTransfromFromHoudiniToUnity( ref hapiTransform, _rootGameObject.transform ) ;
-
-				// Save last sync'd transform
-				_lastSyncedTransformMatrix = _rootGameObject.transform.localToWorldMatrix ;
-				SyncChildTransforms( ) ;
+			if ( _nodeInfo.type is HAPI_NodeType.HAPI_NODETYPE_SOP ) {
+				queryNodeID = _nodeInfo.parentId ;
+					
+				Debug.Assert( queryNodeID is not HEU_Defines.HEU_INVALID_NODE_ID, 
+							  "Invalid parent ID for SOP!" ) ;
 			}
+			else if ( _nodeInfo.type is not HAPI_NodeType.HAPI_NODETYPE_OBJ ) 
+				return ;
+
+			HAPI_Transform hapiTransform = new( true ) ;
+			session.GetObjectTransform( queryNodeID, -1, 
+										HAPI_RSTOrder.HAPI_SRT, ref hapiTransform ) ;
+			
+			if ( Mathf.Approximately( 0f, hapiTransform.scale[ 0 ] ) ||
+				 Mathf.Approximately( 0f, hapiTransform.scale[ 1 ] ) ||
+				 Mathf.Approximately( 0f, hapiTransform.scale[ 2 ] ) ) {
+				HEU_Logger.LogWarningFormat( "Asset id {0} with name {1} has scale components with 0 values!",
+											 AssetID, AssetName ) ;
+			}
+
+			// Using root transform as that represents our asset in the world
+			HEU_HAPIUtility.ApplyWorldTransfromFromHoudiniToUnity( ref hapiTransform, _rootGameObject.transform ) ;
+
+			// Save last sync'd transform
+			_lastSyncedTransformMatrix = _rootGameObject.transform.localToWorldMatrix ;
+			SyncChildTransforms( ) ;
 		}
 
 		internal void UploadUnityTransform( HEU_SessionBase session, bool bOnlySendIfChangedFromLastSync ) {
 			int queryNodeID = _assetID ;
-			if ( _nodeInfo.id != HEU_Defines.HEU_INVALID_NODE_ID ) {
-				if ( _nodeInfo.type == HAPI_NodeType.HAPI_NODETYPE_SOP ) {
+			if ( _nodeInfo.id is not HEU_Defines.HEU_INVALID_NODE_ID ) {
+				if ( _nodeInfo.type is HAPI_NodeType.HAPI_NODETYPE_SOP ) {
 					queryNodeID = _nodeInfo.parentId ;
-					Debug.Assert( queryNodeID != HEU_Defines.HEU_INVALID_NODE_ID, "Invalid parent ID for SOP!" ) ;
+					Debug.Assert( queryNodeID is not HEU_Defines.HEU_INVALID_NODE_ID, "Invalid parent ID for SOP!" ) ;
 				}
-				else if ( _nodeInfo.type != HAPI_NodeType.HAPI_NODETYPE_OBJ ) {
-					return ;
-				}
-
-				if ( !session.IsSessionValid( ) ) {
-					return ;
-				}
+				else if ( _nodeInfo.type is not HAPI_NodeType.HAPI_NODETYPE_OBJ ) return ;
+				if ( !session.IsSessionValid( ) ) return ;
 
 				Matrix4x4 transformMatrix = _rootGameObject.transform.localToWorldMatrix ;
 
-				if ( bOnlySendIfChangedFromLastSync ) {
-					if ( !HasTransformChangedSinceLastUpdate( ) ) {
-						return ;
-					}
-				}
+				if ( bOnlySendIfChangedFromLastSync
+					&& !HasTransformChangedSinceLastUpdate( ) ) return ;
 
 				HAPI_TransformEuler transformEuler = HEU_HAPIUtility.GetHAPITransformFromMatrix( ref transformMatrix ) ;
 				if ( !session.SetObjectTransform( queryNodeID, ref transformEuler ) ) {
-					HEU_Logger.LogWarningFormat( "Unable to upload transform for asset id {0} with name {1}!", AssetID,
-												 AssetName ) ;
+					HEU_Logger.LogWarningFormat( "Unable to upload transform for asset id {0} with name {1}!", 
+												 AssetID, AssetName ) ;
 				}
 				else {
 					_lastSyncedTransformMatrix = transformMatrix ;
@@ -3845,8 +3775,7 @@ namespace HoudiniEngineUnity
 			for ( int i = 0; i < materialsToRemove.Count; ++i ) {
 				HEU_MaterialData materialData = materialsToRemove[ i ] ;
 				// Skipping editable materials as those are needed when painting
-				if ( ( materialData._materialSource == HEU_MaterialData.Source.HOUDINI ||
-					   materialData._materialSource == HEU_MaterialData.Source.DEFAULT )
+				if ( materialData._materialSource is HEU_MaterialData.Source.HOUDINI or HEU_MaterialData.Source.DEFAULT
 					 && materialData._materialKey != HEU_Defines.EDITABLE_MATERIAL_KEY ) {
 					// Houdini materials and default material were created dynamically so we can delete them
 					// TODO: Currently not deleting any textures not in use. Revisit to address it
@@ -4068,7 +3997,7 @@ namespace HoudiniEngineUnity
 				string suggestedFileName = _assetPath ;
 
 				if ( string.IsNullOrEmpty( suggestedFileName )
-					 && ( _assetType == HEU_AssetType.TYPE_CURVE || _assetType == HEU_AssetType.TYPE_INPUT ) ) {
+					 && _assetType is HEU_AssetType.TYPE_CURVE or HEU_AssetType.TYPE_INPUT ) {
 					// Since curves and input nodes are not loaded from an asset file, use the gameobject name
 					suggestedFileName = _rootGameObject.name ;
 
