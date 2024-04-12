@@ -72,8 +72,7 @@ namespace HoudiniEngineUnity
 	[ExecuteInEditMode] // OnEnable/OnDisable for registering for tick
 	public sealed class HEU_HoudiniAsset: MonoBehaviour,
 										  IHEU_HoudiniAsset,
-										  IEquivable< HEU_HoudiniAsset >
-	{
+										  IEquivable< HEU_HoudiniAsset > {
 		//	ASSET DATA ------------------------------------------------------------------------------------------------
 
 		internal enum HEU_AssetType
@@ -1886,15 +1885,14 @@ namespace HoudiniEngineUnity
 #if HOUDINIENGINEUNITY_ENABLED
 			//HEU_Logger.Log("HEU_HoudiniAsset::Awake - " + AssetName);
 
-			if ( _serializedMetaData == null ) {
+			if ( !_serializedMetaData )
 				_serializedMetaData = ScriptableObject.CreateInstance< HEU_AssetSerializedMetaData >( ) ;
-			}
-
+			
 			// We want to support Object.Instantiate, but ScriptableObjects cannot copy by value by 
 			// default. So we simulate the "duplicate" function when we detect that this occurs
 			// This would be a lot easier if Unity provided some sort of Instantiate() callback...
 			AssetInstantiationMethod instantiationMethod = GetInstantiationMethod( ) ;
-			if ( instantiationMethod == AssetInstantiationMethod.DUPLICATED ) {
+			if ( instantiationMethod is AssetInstantiationMethod.DUPLICATED ) {
 				HEU_HoudiniAsset instantiatedAsset = GetInstantiatedObject( ) ;
 				ResetAndCopyInstantiatedProperties( instantiatedAsset ) ;
 			}
@@ -1921,10 +1919,8 @@ namespace HoudiniEngineUnity
 			// to this asset if Unity had destroyed the asset during a play mode change
 			// or script compilation refresh.
 			HEU_SessionBase session = GetAssetSession( false ) ;
-			if ( session != null && HEU_HAPIUtility.IsNodeValidInHoudini( session, _assetID ) ) {
+			if ( session is not null && HEU_HAPIUtility.IsNodeValidInHoudini( session, _assetID ) )
 				session.ReregisterOnAwake( this ) ;
-			}
->>>>>>>
 
 <<<<<<<
             // Clear out the delegate because receiver might not exist on code refresh
@@ -1934,41 +1930,21 @@ namespace HoudiniEngineUnity
 			_refreshUIDelegate = null ;
 >>>>>>>
 
-			if ( _assetID is not HEU_Defines.HEU_INVALID_NODE_ID && instantiationMethod == AssetInstantiationMethod.UNDO ) {
-				Transform[] gos = _rootGameObject.GetComponentsInChildren< Transform >( ) ;
-				foreach ( Transform trans in gos ) {
-					if ( trans != null && trans.gameObject != null && trans.gameObject != _rootGameObject &&
-						 trans.gameObject != gameObject ) {
-						DestroyImmediate( trans.gameObject ) ;
-					}
+			if ( _assetID is HEU_Defines.HEU_INVALID_NODE_ID ||
+				 instantiationMethod is not AssetInstantiationMethod.UNDO ) return ;
+			
+			Transform[ ] gos = _rootGameObject.GetComponentsInChildren< Transform >( ) ;
+			foreach ( Transform trans in gos ) {
+				if ( trans != null && trans.gameObject != null 
+								   && trans.gameObject != _rootGameObject 
+								   && trans.gameObject != gameObject ) {
+					DestroyImmediate( trans.gameObject ) ;
 				}
->>>>>>>
-
-<<<<<<<
-                this._serializedMetaData.SoftDeleted = false;
-=======
-				_serializedMetaData.SoftDeleted = false ;
->>>>>>>
-
-<<<<<<<
-                HEU_Logger.LogWarning("Undoing a deleted HDA may also remove its parameter undo stack.");
-                RequestReload(false);
-            }
-
-            // If there are curves they need to be cooked.
-            if (Curves != null)
-            {
-                foreach (var curve in Curves)
-                {
-                    curve.Rebuild();
-                }
-            }
-
-=======
-				HEU_Logger.LogWarning( "Undoing a deleted HDA may also remove its parameter undo stack." ) ;
-				RequestReload( ) ;
 			}
->>>>>>>
+
+			_serializedMetaData.SoftDeleted = false ;
+			HEU_Logger.LogWarning( "Undoing a deleted HDA may also remove its parameter undo stack." ) ;
+			RequestReload( ) ;
 #endif
 <<<<<<<
         }
@@ -1992,15 +1968,8 @@ namespace HoudiniEngineUnity
 		/// in a Houdini session on the next recook, rebuild, or parameter change.
 		/// This should be done in asset is not found to be valid in an existing session.
 		/// </summary>
-		internal void InvalidateAsset( ) {
-			_assetID = HEU_Defines.HEU_INVALID_NODE_ID ;
-		}
->>>>>>>
-
-<<<<<<<
-        private void OnEnable()
-        {
-=======
+		internal void InvalidateAsset( ) => _assetID = HEU_Defines.HEU_INVALID_NODE_ID ;
+		
 		void OnEnable( ) {
 >>>>>>>
 #if HOUDINIENGINEUNITY_ENABLED
@@ -2309,7 +2278,7 @@ namespace HoudiniEngineUnity
 				SetCookStatus( AssetCookStatus.POSTLOAD, AssetCookResult.ERRORED ) ;
 
 			if ( _reloadDataEvent is null ) return ;
-			
+			// Do callbacks regardless of success or failure as listeners might need to know
 			List< GameObject > outputObjects = new( ) ;
 			GetOutputGameObjects( outputObjects ) ;
 			InvokeReloadEvent( bResult, outputObjects ) ;
@@ -2459,10 +2428,7 @@ namespace HoudiniEngineUnity
 		/// <returns>True if successfully completed building the asset</returns>
 		bool FinishRebuild( ) {
 			HEU_SessionBase session = GetAssetSession( true ) ;
-			if ( session == null ) {
-				return false ;
-			}
->>>>>>>
+			if ( session is null ) return false ;
 
 <<<<<<<
             // Progress to LOADING only if still in PRELOAD. Otherwise we might be waiting on user prompt.
@@ -2510,10 +2476,8 @@ namespace HoudiniEngineUnity
 				}
 			}
 			else if ( _assetType is HEU_AssetType.TYPE_CURVE ) {
-				if ( _assetName == null ) {
+				if ( _assetName is null ) 
 					_assetName = "curve" ;
-				}
->>>>>>>
 
 <<<<<<<
             // Load and cook the HDA
@@ -2527,7 +2491,9 @@ namespace HoudiniEngineUnity
                 }
 =======
 				bool bResult =
-					HEU_HAPIUtility.CreateAndCookCurveAsset( session, _assetName, HEU_PluginSettings.CookTemplatedGeos,
+					HEU_HAPIUtility.CreateAndCookCurveAsset( session,
+															 _assetName, 
+															 HEU_PluginSettings.CookTemplatedGeos,
 															 out newAssetID ) ;
 				if ( !bResult ) {
 					if ( newAssetID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
@@ -2548,24 +2514,11 @@ namespace HoudiniEngineUnity
 				}
 			}
 			else if ( _assetType is HEU_AssetType.TYPE_INPUT ) {
-				if ( _assetName == null ) {
-					_assetName = "" ;
-				}
->>>>>>>
-
-<<<<<<<
-                    return false;
-                }
-            }
-            else if (_assetType == HEU_AssetType.TYPE_CURVE)
-            {
-                if (_assetName == null)
-                {
-                    _assetName = "curve";
-                }
-=======
+				_assetName ??= string.Empty ;
 				bool bResult =
-					HEU_HAPIUtility.CreateAndCookInputAsset( session, _assetName, HEU_PluginSettings.CookTemplatedGeos,
+					HEU_HAPIUtility.CreateAndCookInputAsset( session,
+															 _assetName, 
+															 HEU_PluginSettings.CookTemplatedGeos,
 															 out newAssetID ) ;
 				if ( !bResult ) {
 					if ( newAssetID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
@@ -2586,7 +2539,7 @@ namespace HoudiniEngineUnity
 				}
 			}
 			else {
-				HEU_Logger.LogErrorFormat( HEU_Defines.HEU_NAME + ": Unsupported asset type {0}!", _assetType ) ;
+				HEU_Logger.LogErrorFormat( $"{HEU_Defines.HEU_NAME}: Unsupported asset type {{0}}!", _assetType ) ;
 				return false ;
 			}
 >>>>>>>
@@ -2648,7 +2601,7 @@ namespace HoudiniEngineUnity
 				_assetName = realName ;
 			}
 			else {
-				_assetName = realName.Substring( 0, 3 ) + GetHashCode( ) ;
+				_assetName = realName[ ..3 ] + GetHashCode( ) ;
 			}
 >>>>>>>
 
@@ -2713,7 +2666,7 @@ namespace HoudiniEngineUnity
             }
 =======
 			// Save the default preset
-			if ( _parameters != null ) {
+			if ( _parameters ) {
 				_parameters.DownloadAsDefaultPresetData( session ) ;
 			}
 >>>>>>>
@@ -2725,7 +2678,7 @@ namespace HoudiniEngineUnity
 			// Create objects in this asset. It will create object nodes, geometry, and anything else required.
 			if ( !CreateObjects( session ) ) {
 				// Failed to create objects means that this asset is not valid
-				HEU_Logger.LogErrorFormat( HEU_Defines.HEU_NAME + ": Failed to create objects for asset {0}",
+				HEU_Logger.LogErrorFormat( $"{HEU_Defines.HEU_NAME}: Failed to create objects for asset {{0}}",
 										   _assetName ) ;
 				DeleteAllGeneratedData( ) ;
 				return false ;
@@ -2804,57 +2757,18 @@ namespace HoudiniEngineUnity
             NotifyInputNodesCookFinished();
 =======
 			// Finally load the saved preset and request another cook.
-			if ( _savedAssetPreset != null ) {
+			if ( _savedAssetPreset is not null ) {
 				LoadAssetPresetAndCook( _savedAssetPreset ) ;
 				_savedAssetPreset = null ;
 			}
 >>>>>>>
 
-<<<<<<<
-            // This is required in order to flag to Unity that the scene data has changed. Otherwise saving the scene does not work.
-            HEU_EditorUtility.MarkSceneDirty();
-
-            SetCookStatus(AssetCookStatus.POSTLOAD, AssetCookResult.SUCCESS);
-
-            // Finally load the saved preset and request another cook.
-            if (_savedAssetPreset != null)
-            {
-                LoadAssetPresetAndCook(_savedAssetPreset);
-                _savedAssetPreset = null;
-            }
-
-            if (HEU_PDGSession.IsPDGAsset(session, newAssetID) && RootGameObject.GetComponent<HEU_PDGAssetLink>() == null)
-            {
-                HEU_PDGAssetLink assetLink = RootGameObject.AddComponent<HEU_PDGAssetLink>();
-                assetLink.Setup(this);
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Cook this asset in Houdini, then handle the outcome.
-        /// Cooking is done asynchrnously.
-        /// </summary>
-        /// <param name="bCheckParamsChanged">If true, then will only cook if parameters have changed.</param>
-        /// <param name="bSkipCookCheck">If true, will check if cooking is enabled.</param>
-        /// <param name="bUploadParameters"> If true, will upload parameter values before cooking.</param>
-        /// <param name="bUploadParameterPreset">If true, will upload parameter preset into Houdini before cooking.</param>
-        /// <param name="bForceUploadInputs">If true, will upload all input geometry into Houdini before cooking.</param>
-        /// <param name="bCookingSessionSync">If true, this is a SessionSync cook.</param>
-        /// <returns>True if cooking started.</returns>
-        private bool RecookAsync(bool bCheckParamsChanged,
-            bool bSkipCookCheck, bool bUploadParameters,
-            bool bUploadParameterPreset, bool bForceUploadInputs,
-            bool bCookingSessionSync)
-        {
-=======
-			if ( HEU_PDGSession.IsPDGAsset( session, newAssetID ) &&
-				 RootGameObject.GetComponent< HEU_PDGAssetLink >( ) == null ) {
-				HEU_PDGAssetLink assetLink = RootGameObject.AddComponent< HEU_PDGAssetLink >( ) ;
-				assetLink.Setup( this ) ;
-			}
-
+			if ( !HEU_PDGSession.IsPDGAsset( session, newAssetID )
+				 || RootGameObject.GetComponent< HEU_PDGAssetLink >( ) ) 
+				return true ;
+			
+			HEU_PDGAssetLink assetLink = RootGameObject.AddComponent< HEU_PDGAssetLink >( ) ;
+			assetLink.Setup( this ) ;
 			return true ;
 		}
 
@@ -6361,7 +6275,7 @@ namespace HoudiniEngineUnity
 			foreach ( HEU_MaterialData materialData in _materialCache ) {
 				// Non-Houdini material so no need to update it.
 				if ( materialData == null || materialData._materialSource != HEU_MaterialData.Source.HOUDINI ||
-					 materialData._materialKey == HEU_Defines.HEU_INVALID_MATERIAL
+					 materialData._materialKey is HEU_Defines.HEU_INVALID_MATERIAL
 					 || materialData._materialKey == HEU_Defines.EDITABLE_MATERIAL_KEY ) {
 					continue ;
 				}

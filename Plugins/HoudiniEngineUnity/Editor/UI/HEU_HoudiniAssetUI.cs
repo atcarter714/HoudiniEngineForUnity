@@ -289,26 +289,22 @@ namespace HoudiniEngineUnity
                         bNeedsRecook = true;
                     }
 
-                    if (!bSkipAutoCook)
-                    {
-                        // If we need a rebuild, do that first
-                        if (HEU_PluginSettings.CookingEnabled && _houdiniAsset.AutoCookOnParameterChange &&
-                            bNeedsRebuild)
-                        {
-                            _houdiniAsset.RequestReload(true);
-                        }
-                        else if (bNeedsRecook)
-                        {
-                            _houdiniAsset.RequestCook();
-                        }
-                        else if (HEU_PluginSettings.CookingEnabled && _houdiniAsset.AutoCookOnParameterChange &&
-                                 _houdiniAsset.DoesAssetRequireRecook())
-                        {
-                            // Often times, cooking while dragging mouse results in poor UX
-                            bool isDragging = (EditorGUIUtility.hotControl != 0);
-                            bool blockAutoCook = _houdiniAsset.PendingAutoCookOnMouseRelease == true ||
-                                                 (isDragging && Event.current != null &&
-                                                  _delayAutoCookStrings.Contains(Event.current.commandName));
+					if ( !bSkipAutoCook ) {
+						// If we need a rebuild, do that first
+						if ( HEU_PluginSettings.CookingEnabled && _houdiniAsset.AutoCookOnParameterChange &&
+							 bNeedsRebuild ) {
+							_houdiniAsset.RequestReload( true ) ;
+						}
+						else if ( bNeedsRecook ) {
+							_houdiniAsset.RequestCook( ) ;
+						}
+						else if ( HEU_PluginSettings.CookingEnabled && _houdiniAsset.AutoCookOnParameterChange &&
+								  _houdiniAsset.DoesAssetRequireRecook( ) ) {
+							// Often times, cooking while dragging mouse results in poor UX
+							bool isDragging = ( GUIUtility.hotControl is not 0 ) ;
+							bool blockAutoCook = _houdiniAsset.PendingAutoCookOnMouseRelease == true ||
+												 ( isDragging && Event.current != null &&
+												   _delayAutoCookStrings.Contains( Event.current.commandName ) ) ;
 
                             if (HEU_PluginSettings.CookOnMouseUp && blockAutoCook)
                             {
@@ -1303,12 +1299,10 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawSceneElements(HEU_HoudiniAsset asset)
-        {
-            if (asset == null || !asset.IsAssetValid())
-            {
-                return;
-            }
+							SerializedProperty layersProperty = cacheObjectSerialized.FindProperty( "_layers" ) ;
+							if ( layersProperty == null || layersProperty.arraySize is 0 ) {
+								continue ;
+							}
 
             // Curve Editor
             if (asset.CurveEditorEnabled)
