@@ -29,16 +29,21 @@
 
 #define TERRAIN_SUPPORTED
 
-using System;
-using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq ;
-using UnityEngine;
-
 // Expose internal classes/functions
 #if UNITY_EDITOR
+using System ;
+using System.Collections.Generic ;
+using System.Linq ;
 using System.Runtime.CompilerServices;
+using System.Text ;
+using UnityEngine ;
+
+#region Type Aliases
+// Typedefs (copy these from HEU_Common.cs)
+using HAPI_NodeId = System.Int32;
+using HAPI_PartId = System.Int32;
+#endregion
+
 
 [assembly: InternalsVisibleTo("HoudiniEngineUnityEditor")]
 [assembly: InternalsVisibleTo("HoudiniEngineUnityEditorTests")]
@@ -47,55 +52,43 @@ using System.Runtime.CompilerServices;
 
 namespace HoudiniEngineUnity
 {
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Typedefs (copy these from HEU_Common.cs)
-    using HAPI_NodeId = System.Int32;
-    using HAPI_PartId = System.Int32;
 
 
 	/// <summary>
 	/// Represents a Geometry (SOP) node.
 	/// </summary>
-	public class HEU_GeoNode: ScriptableObject, IHEU_GeoNode, IHEU_HoudiniAssetSubcomponent,
-							  ISerializationCallbackReceiver, IEquivable< HEU_GeoNode >
-	{
+	public class HEU_GeoNode: ScriptableObject, 
+							  IHEU_GeoNode, 
+							  IHEU_HoudiniAssetSubcomponent,
+							  ISerializationCallbackReceiver, 
+							  IEquivable< HEU_GeoNode > {
 
 		// PUBLIC FIELDS ==========================================================================
 
 		/// <inheritdoc />
-		public HEU_HoudiniAsset ParentAsset {
-			get { return ( _containerObjectNode != null ) ? _containerObjectNode.ParentAsset : null ; }
-		}
+		public HEU_HoudiniAsset ParentAsset => ( _containerObjectNode ) 
+												   ? _containerObjectNode.ParentAsset 
+														: null ;
 
 		/// <inheritdoc />
-		public HAPI_NodeId GeoID {
-			get { return _geoInfo.nodeId ; }
-		}
+		public HAPI_NodeId GeoID => _geoInfo.nodeId ;
 
 		/// <inheritdoc />
-		public HAPI_GeoInfo GeoInfo {
-			get { return _geoInfo ; }
-		}
+		public HAPI_GeoInfo GeoInfo => _geoInfo ;
 
 		/// <inheritdoc />
-		public string GeoName {
-			get { return _geoName ; }
-		}
+		public string GeoName => _geoName ;
 
 		/// <inheritdoc />
-		public HAPI_GeoType GeoType {
-			get { return _geoInfo.type ; }
-		}
+		public HAPI_GeoType GeoType => _geoInfo.type ;
 
 		/// <inheritdoc />
-		public bool Editable {
-			get { return _geoInfo.isEditable ; }
-		}
+		public bool Editable => _geoInfo.isEditable ;
 
 		/// <inheritdoc />
 		public bool Displayable {
 			get {
-				if ( ParentAsset && ParentAsset.UseOutputNodes == true )
+				if ( ParentAsset && ParentAsset.UseOutputNodes )
 					return true ; // Trust that it is displayable if using output nodes
 
 				return _geoInfo.isDisplayGeo ;
@@ -103,51 +96,34 @@ namespace HoudiniEngineUnity
 		}
 
 		/// <inheritdoc />
-		public List< HEU_PartData > Parts {
-			get { return _parts ; }
-		}
+		public List< HEU_PartData > Parts => _parts ;
 
 		/// <inheritdoc />
-		public HEU_ObjectNode ObjectNode {
-			get { return _containerObjectNode ; }
-		}
+		public HEU_ObjectNode ObjectNode => _containerObjectNode ;
 
 		/// <inheritdoc />
-		public HEU_InputNode InputNode {
-			get { return _inputNode ; }
-		}
+		public HEU_InputNode InputNode => _inputNode ;
 
 		/// <inheritdoc />
-		public HEU_Curve GeoCurve {
-			get { return _geoCurve ; }
-		}
+		public HEU_Curve GeoCurve => _geoCurve ;
 
 		/// <inheritdoc />
-		public List< HEU_VolumeCache > VolumeCaches {
-			get { return _volumeCaches ; }
-		}
+		public List< HEU_VolumeCache > VolumeCaches => _volumeCaches ;
 
 		// =========================================================================================
 
 		//	DATA ------------------------------------------------------------------------------------------------------
 
-		[SerializeField] private HAPI_GeoInfo _geoInfo ;
-
-		[SerializeField] private string _geoName ;
-
-		[SerializeField] private List< HEU_PartData > _parts ;
-
-		[SerializeField] private HEU_ObjectNode _containerObjectNode ;
-
-
-		[SerializeField] private HEU_InputNode _inputNode ;
-
-		[SerializeField] private HEU_Curve _geoCurve ;
+		[SerializeField] HAPI_GeoInfo _geoInfo ;
+		[SerializeField] string _geoName ;
+		[SerializeField] List< HEU_PartData > _parts ;
+		[SerializeField] HEU_ObjectNode _containerObjectNode ;
+		[SerializeField] HEU_InputNode _inputNode ;
+		[SerializeField] HEU_Curve _geoCurve ;
 
 		// Deprecated by _volumeCaches. Keeping it for backwards compatibility on saved assets.
-		[SerializeField] private HEU_VolumeCache _volumeCache ;
-
-		[SerializeField] private List< HEU_VolumeCache > _volumeCaches ;
+		[SerializeField] HEU_VolumeCache _volumeCache ;
+		[SerializeField] List< HEU_VolumeCache > _volumeCaches ;
 
 		// PUBLIC FUNCTIONS ===============================================================
 		public HEU_GeoNode( ) {
@@ -160,53 +136,44 @@ namespace HoudiniEngineUnity
 		public void OnAfterDeserialize( ) {
 			// _volumeCaches replaces _volumeCache, and _volumeCache has been deprecated.
 			// This takes care of moving in the old _volumeCache into _volumeCaches.
-			if ( _volumeCache != null && ( _volumeCaches == null || _volumeCaches.Count == 0 ) ) {
-				_volumeCaches = new List< HEU_VolumeCache >( ) ;
-				_volumeCaches.Add( _volumeCache ) ;
-				_volumeCache = null ;
-			}
+			if ( !_volumeCache || ( _volumeCaches is { Count: > 0 } ) ) return ;
+			_volumeCaches ??= new( ) ;
+			_volumeCaches.Clear( ) ;
+			_volumeCaches.Add( _volumeCache ) ;
+			
+			_volumeCache  = null ;
 		}
-
+		
 		/// <inheritdoc />
 		public HEU_SessionBase GetSession( ) {
-			if ( ParentAsset != null ) {
+			if ( ParentAsset )
 				return ParentAsset.GetAssetSession( true ) ;
-			}
-			else {
-				return HEU_SessionManager.GetOrCreateDefaultSession( ) ;
-			}
+			
+			return HEU_SessionManager.GetOrCreateDefaultSession( ) ;
 		}
 
 		/// <inheritdoc />
 		public void Recook( ) {
-			if ( ParentAsset != null ) ParentAsset.RequestCook( ) ;
+			if ( ParentAsset ) 
+				ParentAsset.RequestCook( ) ;
 		}
 
 		/// <inheritdoc />
-		public bool IsVisible( ) {
-			return _containerObjectNode.IsVisible( ) ;
-		}
+		public bool IsVisible( ) => _containerObjectNode.IsVisible( ) ;
 
 		/// <inheritdoc />
-		public bool IsIntermediate( ) {
-			return ( _geoInfo.type == HAPI_GeoType.HAPI_GEOTYPE_INTERMEDIATE ) ;
-		}
+		public bool IsIntermediate( ) => ( _geoInfo.type is HAPI_GeoType.HAPI_GEOTYPE_INTERMEDIATE ) ;
 
 		/// <inheritdoc />
-		public bool IsIntermediateOrEditable( ) {
-			return ( _geoInfo.type == HAPI_GeoType.HAPI_GEOTYPE_INTERMEDIATE ||
-					 ( _geoInfo.type == HAPI_GeoType.HAPI_GEOTYPE_DEFAULT && _geoInfo.isEditable ) ) ;
-		}
+		public bool IsIntermediateOrEditable( ) =>
+			( _geoInfo.type is HAPI_GeoType.HAPI_GEOTYPE_INTERMEDIATE ||
+			  ( _geoInfo.type is HAPI_GeoType.HAPI_GEOTYPE_DEFAULT && _geoInfo.isEditable ) ) ;
 
 		/// <inheritdoc />
-		public bool IsGeoInputType( ) {
-			return _geoInfo.isEditable && _geoInfo.type == HAPI_GeoType.HAPI_GEOTYPE_INPUT ;
-		}
+		public bool IsGeoInputType( ) => _geoInfo.isEditable && _geoInfo.type is HAPI_GeoType.HAPI_GEOTYPE_INPUT ;
 
 		/// <inheritdoc />
-		public bool IsGeoCurveType( ) {
-			return _geoInfo.type == HAPI_GeoType.HAPI_GEOTYPE_CURVE ;
-		}
+		public bool IsGeoCurveType( ) => _geoInfo.type is HAPI_GeoType.HAPI_GEOTYPE_CURVE ;
 
 		/// <inheritdoc />
 		public void DestroyAllData( bool bIsRebuild = false ) {
@@ -259,12 +226,9 @@ namespace HoudiniEngineUnity
 
 		/// <inheritdoc />
 		public HEU_PartData GetHDAPartWithGameObject( GameObject outputGameObject ) {
-			HEU_PartData foundPart = null ;
 			foreach ( HEU_PartData part in _parts ) {
-				foundPart = part.GetHDAPartWithGameObject( outputGameObject ) ;
-				if ( foundPart != null ) {
-					return foundPart ;
-				}
+				HEU_PartData foundPart = part.GetHDAPartWithGameObject( outputGameObject ) ;
+				if ( foundPart ) return foundPart ;
 			}
 
 			return null ;
@@ -284,15 +248,14 @@ namespace HoudiniEngineUnity
 
 		/// <inheritdoc />
 		public void GetCurves( List< HEU_Curve > curves, bool bEditableOnly ) {
-			if ( _geoCurve != null && ( !bEditableOnly || _geoCurve.IsEditable( ) ) ) {
+			if ( _geoCurve && ( !bEditableOnly || _geoCurve.IsEditable( ) ) ) {
 				curves.Add( _geoCurve ) ;
 			}
 
 			foreach ( HEU_PartData part in _parts ) {
 				HEU_Curve partCurve = part.GetCurve( bEditableOnly ) ;
-				if ( partCurve != null ) {
+				if ( partCurve ) 
 					curves.Add( partCurve ) ;
-				}
 			}
 		}
 
@@ -305,32 +268,29 @@ namespace HoudiniEngineUnity
 		public void HideAllGeometry( ) {
 			int numParts = _parts.Count ;
 			for ( int i = 0; i < numParts; ++i ) {
-				_parts[ i ].SetVisiblity( false ) ;
+				_parts[ i ].SetVisibility( false ) ;
 			}
 		}
-
+		
 		/// <inheritdoc />
 		public void DisableAllColliders( ) {
 			int numParts = _parts.Count ;
-			for ( int i = 0; i < numParts; ++i ) {
+			for ( int i = 0; i < numParts; ++i ) 
 				_parts[ i ].SetColliderState( false ) ;
-			}
 		}
 
 		/// <inheritdoc />
 		public HEU_VolumeCache GetVolumeCacheByTileIndex( int tileIndex ) {
-			if ( _volumeCaches != null ) {
+			if ( _volumeCaches is { Count: > 0 } ) {
 				int numCaches = _volumeCaches.Count ;
 				for ( int i = 0; i < numCaches; ++i ) {
-					if ( _volumeCaches[ i ] != null && _volumeCaches[ i ].TileIndex == tileIndex ) {
+					if ( _volumeCaches[ i ] 
+						 && _volumeCaches[ i ].TileIndex == tileIndex )
 						return _volumeCaches[ i ] ;
-					}
 				}
 			}
-			else if ( _volumeCache != null ) {
-				return _volumeCache ;
-			}
-
+			
+			else if ( _volumeCache ) return _volumeCache ;
 			return null ;
 		}
 
@@ -340,12 +300,12 @@ namespace HoudiniEngineUnity
 
 
 		internal void Reset( ) {
-			_geoName = "" ;
-
-			_geoInfo        = new HAPI_GeoInfo( ) ;
-			_geoInfo.nodeId = -1 ;
-			_geoInfo.type   = HAPI_GeoType.HAPI_GEOTYPE_DEFAULT ;
-			_parts          = new List< HEU_PartData >( ) ;
+			_geoName = string.Empty ;
+			_geoInfo = new( ) {
+				nodeId = -1,
+				type   = HAPI_GeoType.HAPI_GEOTYPE_DEFAULT,
+			} ;
+			_parts= new( ) ;
 		}
 
 		internal void Initialize( HEU_SessionBase session, HAPI_GeoInfo geoInfo, HEU_ObjectNode containerObjectNode ) {
@@ -357,36 +317,33 @@ namespace HoudiniEngineUnity
 				_geoName = HEU_SessionManager.GetString( _geoInfo.nameSH, session ) ;
 			}
 			else {
-				_geoName = realName.Substring( 0, 3 ) + this.GetHashCode( ) ;
+				_geoName = realName.Substring( 0, 3 ) + GetHashCode( ) ;
 			}
 
 			//HEU_Logger.Log(string.Format("GeoNode initialized with ID={0}, name={1}, type={2}", GeoID, GeoName, geoInfo.type));
 		}
 
 		internal bool DoesThisRequirePotentialCook( ) {
-			if ( ( _geoInfo.type == HAPI_GeoType.HAPI_GEOTYPE_INPUT )
-				 || ( _geoInfo.isTemplated && !HEU_PluginSettings.CookTemplatedGeos && !_geoInfo.isEditable )
-				 || ( !_geoInfo.hasGeoChanged )
-				 || ( !_geoInfo.isDisplayGeo && ( _geoInfo.type != HAPI_GeoType.HAPI_GEOTYPE_CURVE ) ) ) {
-				return false ;
-			}
-
-			return true ;
+			return ( _geoInfo.type is not HAPI_GeoType.HAPI_GEOTYPE_INPUT )
+						   && ( !_geoInfo.isTemplated 
+								|| HEU_PluginSettings.CookTemplatedGeos 
+									|| _geoInfo.isEditable )
+							   && ( _geoInfo.hasGeoChanged )
+								   && ( _geoInfo.isDisplayGeo 
+										|| ( _geoInfo.type is HAPI_GeoType.HAPI_GEOTYPE_CURVE ) 
+						) ;
 		}
 
 		internal void UpdateGeo( HEU_SessionBase session ) {
 			// Create or recreate parts.
-
 			bool bObjectInstancer = _containerObjectNode.IsInstancer( ) ;
 
 			// Save list of old parts. We'll destroy these after creating new parts.
 			// The reason for temporarily keeping these is to transfer data (eg. instance overrides, attribute data)
-			List< HEU_PartData > oldParts = new List< HEU_PartData >( _parts ) ;
+			List< HEU_PartData > oldParts = new( _parts ) ;
 			_parts.Clear( ) ;
-
-			if ( ParentAsset == null ) {
-				return ;
-			}
+			
+			if ( !ParentAsset ) return ;
 
 			try {
 				if ( !_geoInfo.isDisplayGeo && !ParentAsset.UseOutputNodes ) {
@@ -394,9 +351,9 @@ namespace HoudiniEngineUnity
 						return ;
 					}
 					else if ( !_geoInfo.isEditable
-							  || ( _geoInfo.type != HAPI_GeoType.HAPI_GEOTYPE_DEFAULT
-								   && _geoInfo.type != HAPI_GeoType.HAPI_GEOTYPE_INTERMEDIATE
-								   && _geoInfo.type != HAPI_GeoType.HAPI_GEOTYPE_CURVE ) ) {
+							  || ( _geoInfo.type is not HAPI_GeoType.HAPI_GEOTYPE_DEFAULT
+								   && _geoInfo.type is not HAPI_GeoType.HAPI_GEOTYPE_INTERMEDIATE
+								   && _geoInfo.type is not HAPI_GeoType.HAPI_GEOTYPE_CURVE ) ) {
 						return ;
 					}
 				}
@@ -409,7 +366,7 @@ namespace HoudiniEngineUnity
 					//HEU_Logger.Log("Number of parts: " + numParts);
 					//HEU_Logger.LogFormat("GeoNode type {0}, isTemplated: {1}, isDisplayGeo: {2}, isEditable: {3}", _geoInfo.type, _geoInfo.isTemplated, _geoInfo.isDisplayGeo, _geoInfo.isEditable);
 					for ( int i = 0; i < numParts; ++i ) {
-						HAPI_PartInfo partInfo = new HAPI_PartInfo( ) ;
+						HAPI_PartInfo partInfo = new( ) ;
 						if ( !session.GetPartInfo( GeoID, i, ref partInfo ) ) {
 							HEU_Logger.LogErrorFormat( "Unable to get PartInfo for geo node {0} and part {1}.", GeoID,
 													   i ) ;
@@ -462,23 +419,19 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		/// <summary>
-		/// Process custom attribute with Unity script name, and attach any scripts found.
-		/// </summary>
+		/// <summary>Process custom attribute with Unity script name, and attach any scripts found.</summary>
 		/// <param name="session">Session to use</param>
 		internal void ProcessUnityScriptAttribute( HEU_SessionBase session ) {
-			if ( _parts == null || _parts.Count == 0 ) {
-				return ;
-			}
+			if ( _parts is not { Count: > 0 } ) return ;
 
 			foreach ( HEU_PartData part in _parts ) {
-				GameObject outputGO = part.OutputGameObject ;
-				if ( outputGO != null ) {
-					string scriptValue =
-						HEU_GeneralUtility.GetUnityScriptAttributeValue( session, GeoID, part.PartID ) ;
-					if ( !string.IsNullOrEmpty( scriptValue ) ) {
-						HEU_GeneralUtility.AttachScriptWithInvokeFunction( scriptValue, outputGO ) ;
-					}
+				GameObject outputGo = part.OutputGameObject ;
+				if ( !outputGo ) continue ;
+				
+				string scriptValue =
+					HEU_GeneralUtility.GetUnityScriptAttributeValue( session, GeoID, part.PartID ) ;
+				if ( !string.IsNullOrEmpty( scriptValue ) ) {
+					HEU_GeneralUtility.AttachScriptWithInvokeFunction( scriptValue, outputGo ) ;
 				}
 			}
 		}
@@ -490,8 +443,8 @@ namespace HoudiniEngineUnity
 		/// <param name="session"></param>
 		/// <param name="partID"></param>
 		/// <returns>A valid HEU_PartData if it has been successfully processed.</returns>
-		private void ProcessPart( HEU_SessionBase  session, int partID, ref HAPI_PartInfo partInfo,
-								  ref HEU_PartData partData ) {
+		void ProcessPart( HEU_SessionBase             session, int partID, ref HAPI_PartInfo partInfo,
+						  ref HEU_PartData partData ) {
 			HEU_HoudiniAsset parentAsset = ParentAsset ;
 			if ( parentAsset == null ) {
 				return ;
@@ -622,7 +575,7 @@ namespace HoudiniEngineUnity
 				// We treat parts of type curve as curves, along with geo nodes that are editable and type curves
 				if ( partInfo.type == HAPI_PartType.HAPI_PARTTYPE_CURVE ) {
 					if ( partData == null ) {
-						partData = ScriptableObject.CreateInstance< HEU_PartData >( ) ;
+						partData = CreateInstance< HEU_PartData >( ) ;
 					}
 
 					partData.Initialize( session, partID, GeoID, _containerObjectNode.ObjectID, this, ref partInfo,
@@ -635,7 +588,7 @@ namespace HoudiniEngineUnity
 					// We only process "height" volume parts. Other volume parts are ignored for now.
 
 #if TERRAIN_SUPPORTED
-					HAPI_VolumeInfo volumeInfo = new HAPI_VolumeInfo( ) ;
+					HAPI_VolumeInfo volumeInfo = new( ) ;
 					bResult = session.GetVolumeInfo( GeoID, partID, ref volumeInfo ) ;
 					if ( !bResult ) {
 						HEU_Logger.LogErrorFormat( "Unable to get volume info for geo node {0} and part {1} ", GeoID,
@@ -644,7 +597,7 @@ namespace HoudiniEngineUnity
 					else {
 						if ( Displayable && !IsIntermediateOrEditable( ) ) {
 							if ( partData == null ) {
-								partData = ScriptableObject.CreateInstance< HEU_PartData >( ) ;
+								partData = CreateInstance< HEU_PartData >( ) ;
 							}
 							else {
 								// Clear mesh data to handle case where switching from polygonal mesh to volume output.
@@ -664,7 +617,7 @@ namespace HoudiniEngineUnity
 				}
 				else if ( partInfo.type == HAPI_PartType.HAPI_PARTTYPE_INSTANCER || isAttribInstancer ) {
 					if ( partData == null ) {
-						partData = ScriptableObject.CreateInstance< HEU_PartData >( ) ;
+						partData = CreateInstance< HEU_PartData >( ) ;
 					}
 					else {
 						partData.ClearGeneratedMeshOutput( ) ;
@@ -678,7 +631,7 @@ namespace HoudiniEngineUnity
 				}
 				else if ( HEU_HAPIUtility.IsSupportedPolygonType( partInfo.type ) ) {
 					if ( partData == null ) {
-						partData = ScriptableObject.CreateInstance< HEU_PartData >( ) ;
+						partData = CreateInstance< HEU_PartData >( ) ;
 					}
 					else {
 						// Clear volume data (case where switching from something other output to mesh)
@@ -726,7 +679,7 @@ namespace HoudiniEngineUnity
 #endif
 		}
 
-		private void SetupGameObjectAndTransform( HEU_PartData partData, HEU_HoudiniAsset parentAsset ) {
+		void SetupGameObjectAndTransform( HEU_PartData partData, HEU_HoudiniAsset parentAsset ) {
 			// Checking for nulls for undo safety
 			if ( partData == null || parentAsset == null || parentAsset.OwnerGameObject == null ||
 				 parentAsset.RootGameObject == null ) {
@@ -781,7 +734,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		internal void GeneratePartInstances( HEU_SessionBase session ) {
 
-			List< HEU_PartData > partsToDestroy = new List< HEU_PartData >( ) ;
+			List< HEU_PartData > partsToDestroy = new( ) ;
 			int                  numParts       = _parts.Count ;
 			for ( int i = 0; i < numParts; ++i ) {
 				if ( _parts[ i ].IsPartInstancer( ) && !_parts[ i ].HaveInstancesBeenGenerated( ) ) {
@@ -813,7 +766,7 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		private void ProcessGeoCurve( HEU_SessionBase session ) {
+		void ProcessGeoCurve( HEU_SessionBase session ) {
 			HEU_HoudiniAsset parentAsset = ParentAsset ;
 			if ( parentAsset == null ) {
 				return ;
@@ -852,7 +805,7 @@ namespace HoudiniEngineUnity
 			bool bIsVisible = IsVisible( ) && HEU_PluginSettings.Curves_ShowInSceneView ;
 		}
 
-		private void SetupGeoCurveGameObjectAndTransform( HEU_Curve curve ) {
+		void SetupGeoCurveGameObjectAndTransform( HEU_Curve curve ) {
 			if ( ParentAsset == null ) {
 				return ;
 			}
@@ -919,17 +872,20 @@ namespace HoudiniEngineUnity
 			if ( !session.GetGeoInfo( GeoID, ref _geoInfo ) ) {
 				return false ;
 			}
-			else if ( _geoInfo.type == HAPI_GeoType.HAPI_GEOTYPE_INPUT ) {
+
+			if ( _geoInfo.type is HAPI_GeoType.HAPI_GEOTYPE_INPUT ) {
 				return ( _inputNode != null ) ? _inputNode.RequiresCook : false ;
 			}
-			else if ( _geoInfo.isTemplated && !HEU_PluginSettings.CookTemplatedGeos && !_geoInfo.isEditable ) {
+
+			if ( _geoInfo.isTemplated && !HEU_PluginSettings.CookTemplatedGeos && !_geoInfo.isEditable ) {
 				return false ;
 			}
-			else if ( !_geoInfo.hasGeoChanged ) {
+
+			if ( !_geoInfo.hasGeoChanged ) {
 				return false ;
 			}
 			// Commented out to allow non-display geo to be updated
-			//else if (!_geoInfo.isDisplayGeo && (_geoInfo.type != HAPI_GeoType.HAPI_GEOTYPE_CURVE && !HEU_PluginSettings.CookTemplatedGeos && _geoInfo.isTemplated))
+			//else if (!_geoInfo.isDisplayGeo && (_geoInfo.type is not HAPI_GeoType.HAPI_GEOTYPE_CURVE && !HEU_PluginSettings.CookTemplatedGeos && _geoInfo.isTemplated))
 			//{
 			//	return false;
 			//}
@@ -1043,7 +999,7 @@ namespace HoudiniEngineUnity
 				DestroyVolumeCache( ) ;
 			}
 			else if ( _volumeCaches == null ) {
-				_volumeCaches = new List< HEU_VolumeCache >( ) ;
+				_volumeCaches = new( ) ;
 			}
 
 			// First update volume caches. Each volume cache represents a set of terrain layers grouped by tile index.
@@ -1072,7 +1028,7 @@ namespace HoudiniEngineUnity
 					volumeCache.PopulateDetailPrototype( session, GeoID, _parts[ i ].PartID, volumeLayer ) ;
 				}
 				else if ( _parts[ i ].IsAttribInstancer( ) ) {
-					HAPI_AttributeInfo treeInstAttrInfo = new HAPI_AttributeInfo( ) ;
+					HAPI_AttributeInfo treeInstAttrInfo = new( ) ;
 					if ( HEU_GeneralUtility.GetAttributeInfo( session, GeoID, _parts[ i ].PartID,
 															  HEU_Defines.HEIGHTFIELD_TREEINSTANCE_PROTOTYPEINDEX,
 															  ref treeInstAttrInfo ) ) {
@@ -1132,24 +1088,24 @@ namespace HoudiniEngineUnity
 				return false ;
 			}
 			
-			HEU_TestHelpers.AssertTrueLogEquivalent( this._geoInfo.ToTestObject(),
+			HEU_TestHelpers.AssertTrueLogEquivalent( _geoInfo.ToTestObject(),
 													 other._geoInfo.ToTestObject(),
 														ref bResult, header, "_geoInfo" ) ;
 
 			//HEU_TestHelpers.AssertTrueLogEquivalent(this._geoName, other._geoName, ref bResult, header, "_geoName");
 
-			HEU_TestHelpers.AssertTrueLogEquivalent( this._parts, other._parts, 
+			HEU_TestHelpers.AssertTrueLogEquivalent( _parts, other._parts, 
 													 ref bResult, header, "_part" ) ;
 
 			// SKip _containerObjectNode/parentAsset stuff
 
-			HEU_TestHelpers.AssertTrueLogEquivalent( this._geoCurve,
+			HEU_TestHelpers.AssertTrueLogEquivalent( _geoCurve,
 													 other._geoCurve,
 													 ref bResult, header,
 													 "_geoCurve" ) ;
 
 			// Skip volumCache
-			HEU_TestHelpers.AssertTrueLogEquivalent( this._volumeCaches, 
+			HEU_TestHelpers.AssertTrueLogEquivalent( _volumeCaches, 
 													 other._volumeCaches, 
 													 ref bResult, header,
 													 "_volumeCaches" ) ;

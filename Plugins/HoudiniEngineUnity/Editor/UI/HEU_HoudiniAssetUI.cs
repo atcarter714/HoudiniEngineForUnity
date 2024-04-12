@@ -25,11 +25,13 @@
  */
 
 
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
-
+using System ;
+using System.Collections.Generic ;
+using System.Linq ;
+using Unity.Collections.LowLevel.Unsafe ;
+using UnityEditor ;
+using UnityEngine ;
+using Object = UnityEngine.Object ;
 
 namespace HoudiniEngineUnity
 {
@@ -969,8 +971,11 @@ namespace HoudiniEngineUnity
 
 				SerializedProperty showCurvesProperty =
 					HEU_EditorUtility.GetSerializedProperty( assetObject, "_showCurvesSection" ) ;
-				if ( showCurvesProperty != null ) {
+				// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+				if ( showCurvesProperty is not null ) {
 					showCurvesProperty.boolValue = HEU_EditorUI.DrawFoldOut( showCurvesProperty.boolValue, "CURVES" ) ;
+				// ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+					
 					if ( showCurvesProperty.boolValue ) {
 
             if (asset.GetEditableCurveCount() <= 0)

@@ -1,6 +1,6 @@
 {
     "name": "HoudiniEngineUnityEditor.VisualScripting",
-    "rootNamespace": "",
+    "rootNamespace": "HoudiniEngineUnity",
     "references": [
         "HoudiniEngineUnity",
         "Unity.VisualScripting.Core.Editor",
@@ -15,7 +15,7 @@
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

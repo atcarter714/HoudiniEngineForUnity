@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -177,11 +177,11 @@ namespace HoudiniEngineUnity
         HEU_Curve GetCurve(bool bEditableOnly);
 
 
-        /// <summary>
-        /// Set visibility on this part's gameobject.
-        /// </summary>
-        /// <param name="bVisibility">True if visible.</param>
-        void SetVisiblity(bool bVisibility);
+	/// <summary>
+	/// Set visibility on this part's gameobject.
+	/// </summary>
+	/// <param name="bVisibility">True if visible.</param>
+	void SetVisibility(bool bVisibility);
 
         /// <summary>
         /// Sets whether or not the collider state is visible

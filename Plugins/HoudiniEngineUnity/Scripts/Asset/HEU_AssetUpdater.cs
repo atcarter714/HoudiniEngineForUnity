@@ -82,12 +82,13 @@ namespace HoudiniEngineUnity
 		static void Update( ) {
 #if UNITY_EDITOR && HOUDINIENGINEUNITY_ENABLED
 			for ( int i = 0; i < _allHoudiniAssets.Count; ++i ) {
-				if ( _allHoudiniAssets[ i ] )
-					_allHoudiniAssets[ i ].AssetUpdate( ) ;
-				
-				else _allHoudiniAssets.RemoveAt( i-- ) ;
+				HEU_HoudiniAsset next = _allHoudiniAssets[ i ] ;
+				if ( next )
+					next.AssetUpdate( ) ;
+				else
+					_allHoudiniAssets.RemoveAt( i-- ) ;
 			}
-
+			
 			// PostAssetUpdate progresses the asset's state after cooking and building
 			// in order to update the UI.
 			foreach ( HEU_HoudiniAsset asset in _allHoudiniAssets )
