@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -1413,27 +1413,25 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of the attribute to query</param>
 		/// <param name="attrOwner">Owner type of the attribute</param>
 		/// <returns>Valid string if successful, otherwise returns null</returns>
-		public static string GetAttributeStringValueSingle( HEU_SessionBase     session, HAPI_NodeId geoID,
-															HAPI_PartId         partID,  string      attrName,
+		public static string GetAttributeStringValueSingle( HEU_SessionBase session, HAPI_NodeId geoID,
+															HAPI_PartId partID, string attrName,
 															HAPI_AttributeOwner attrOwner ) {
-			if ( string.IsNullOrEmpty( attrName ) ) {
-				return null ;
-			}
+			if ( string.IsNullOrEmpty( attrName ) ) return null ;
 
-			HAPI_AttributeInfo attrInfo     = new( ) ;
-			int[]              stringHandle = Array.Empty< int >( ) ;
+			HAPI_AttributeInfo attrInfo = new( ) ;
+			int[ ] stringHandle = Array.Empty< int >( ) ;
 			GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref stringHandle,
 						  session.GetAttributeStringData ) ;
-			if ( attrInfo.exists ) {
-				if ( attrInfo.owner != attrOwner ) {
-					HEU_Logger.LogWarningFormat( "Expected {0} attribute owner for attribute {1} but got {2}!",
-												 attrOwner, attrName, attrInfo.owner ) ;
-				}
-				else if ( stringHandle.Length > 0 ) {
-					return HEU_SessionManager.GetString( stringHandle[ 0 ] ) ;
-				}
+			
+			if ( !attrInfo.exists ) return null ;
+			
+			if ( attrInfo.owner != attrOwner ) {
+				HEU_Logger.LogWarningFormat( "Expected {0} attribute owner for attribute {1} but got {2}!",
+											 attrOwner, attrName, attrInfo.owner ) ;
 			}
-
+			else if ( stringHandle.Length > 0 ) {
+				return HEU_SessionManager.GetString( stringHandle[ 0 ] ) ;
+			}
 			return null ;
 		}
 
@@ -1448,31 +1446,30 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of the attribute to query</param>
 		/// <param name="attrOwner">Owner type of the attribute</param>
 		/// <returns>Valid string if successful, otherwise returns null</returns>
-		public static string GetAttributeStringValueSingleStrict( HEU_SessionBase     session, HAPI_NodeId geoID,
-																  HAPI_PartId         partID,  string      attrName,
+		public static string GetAttributeStringValueSingleStrict( HEU_SessionBase session, HAPI_NodeId geoID,
+																  HAPI_PartId partID, string attrName,
 																  HAPI_AttributeOwner attrOwner ) {
-			if ( string.IsNullOrEmpty( attrName ) ) {
-				return null ;
-			}
+			if ( string.IsNullOrEmpty(attrName) ) return null ;
 
-			HAPI_AttributeInfo attrInfo     = new( ) ;
-			int[]              stringHandle = Array.Empty< int >( ) ;
-			GetAttributeStrict( session, geoID, partID, attrOwner, attrName, ref attrInfo, ref stringHandle,
-								session.GetAttributeStringData ) ;
-			if ( attrInfo.exists ) {
-				if ( attrInfo.owner != attrOwner ) {
-					HEU_Logger.LogWarningFormat( "Expected {0} attribute owner for attribute {1} but got {2}!",
-												 attrOwner, attrName, attrInfo.owner ) ;
-				}
-				else if ( attrInfo.originalOwner != attrOwner ) {
-					HEU_Logger.LogWarningFormat( "Expected {0} original attribute owner for attribute {1} but got {2}!",
-												 attrOwner, attrName, attrInfo.originalOwner ) ;
-				}
-				else if ( stringHandle.Length > 0 ) {
-					return HEU_SessionManager.GetString( stringHandle[ 0 ] ) ;
-				}
-			}
+			HAPI_AttributeInfo attrInfo = new( ) ;
+			int[ ] stringHandle = Array.Empty< int >( ) ;
+			GetAttributeStrict( session, geoID, partID, attrOwner, attrName, 
+								ref attrInfo, ref stringHandle,
+								session.GetAttributeStringData 
+								) ;
 
+			if ( !attrInfo.exists ) return null ;
+			if ( attrInfo.owner != attrOwner ) {
+				HEU_Logger.LogWarningFormat( "Expected {0} attribute owner for attribute {1} but got {2}!",
+											 attrOwner, attrName, attrInfo.owner ) ;
+			}
+			else if ( attrInfo.originalOwner != attrOwner ) {
+				HEU_Logger.LogWarningFormat( "Expected {0} original attribute owner for attribute {1} but got {2}!",
+											 attrOwner, attrName, attrInfo.originalOwner ) ;
+			}
+			else if ( stringHandle.Length > 0 ) {
+				return HEU_SessionManager.GetString( stringHandle[ 0 ] ) ;
+			}
 			return null ;
 		}
 
@@ -1581,8 +1578,8 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">The name of the attribute to check</param>
 		/// <param name="attrOwner">The owner type for the attribute</param>
 		/// <returns></returns>
-		public static bool HasAttribute( HEU_SessionBase session,  HAPI_NodeId         geoID, HAPI_PartId partID,
-										 string          attrName, HAPI_AttributeOwner attrOwner ) {
+		public static bool HasAttribute( HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
+										 string attrName, HAPI_AttributeOwner attrOwner ) {
 			if ( string.IsNullOrEmpty( attrName ) ) {
 				return false ;
 			}
@@ -1606,34 +1603,41 @@ namespace HoudiniEngineUnity
 
 			string[ ] scriptLists = scriptSet.Split( ';' ) ;
 			foreach ( string scriptToAttach in scriptLists ) {
-				int    scriptColon    = scriptToAttach.IndexOf( ":", StringComparison.Ordinal ) ;
-				string scriptTypeName = scriptColon > 0 ? scriptToAttach[ ..scriptColon ].Trim( ) : scriptToAttach ;
-				Type   scriptType     = GetSystemTypeByName( scriptTypeName ) ;
+				int scriptColon = scriptToAttach.IndexOf( ":", StringComparison.Ordinal ) ;
+				string scriptTypeName = scriptColon > 0 
+											? scriptToAttach[ ..scriptColon ].Trim( ) 
+												: scriptToAttach ;
+				Type scriptType = GetSystemTypeByName( scriptTypeName ) ;
+				
 				if ( scriptType is null ) {
-					HEU_Logger
-						.LogFormat( "Script with name {0} not found! Unable to attach script from attribute: {1}. Expected format: {2}",
-									scriptTypeName, scriptToAttach, expectedFormat ) ;
+					HEU_Logger.LogFormat( "Script with name {0} not found! " +
+										  "Unable to attach script from attribute: {1}. " +
+										  "Expected format: {2}",
+										  scriptTypeName, scriptToAttach, expectedFormat ) ;
 					return ;
 				}
 
-				Component component = null ;
+				Component component ;
 				try {
 					component = gameObject.GetComponent( scriptType ) ;
 					if ( !component ) {
-						HEU_Logger.LogFormat( "Attaching script {0} to {1}", scriptType, nameof(GameObject) ) ;
+						HEU_Logger.LogFormat( "Attaching script {0} to {1}", 
+											  scriptType, gameObject 
+															  ? gameObject.name 
+																	: "null" ) ;
+						
 						component = gameObject.AddComponent( scriptType ) ;
 						if ( !component ) {
-							HEU_Logger
-								.LogFormat( "Unable to attach script component with type '{0}' from script attribute: {1}",
-											scriptType.ToString( ), scriptToAttach ) ;
+							HEU_Logger.LogFormat( "Unable to attach script component with type '{0}' from script attribute: {1}",
+												  scriptType.ToString( ), 
+												  scriptToAttach ) ;
 							return ;
 						}
 					}
 				}
 				catch ( ArgumentException ex ) {
-					HEU_Logger
-						.LogWarningFormat( "Specified unity_script '{0}' does not derive from MonoBehaviour. Unable to attach script.\n{1}",
-										   scriptTypeName, ex.ToString( ) ) ;
+					HEU_Logger.LogWarningFormat( "Specified unity_script '{0}' does not derive from MonoBehaviour. " +
+												 "Unable to attach script.\n{1}", scriptTypeName, ex.ToString( ) ) ;
 					return ;
 				}
 
