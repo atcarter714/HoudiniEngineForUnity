@@ -752,18 +752,20 @@ namespace HoudiniEngineUnity
 			if ( stringHandle < 1 ) return string.Empty ;
 			
 			session ??= GetOrCreateDefaultSession( ) ;
-			if ( session is null ) return string.Empty ;
+			if ( session is null ) 
+				return string.Empty ;
 
 			int length = session.GetStringBufferLength( stringHandle ) ;
-			if ( length < 1 ) return string.Empty ;
+			if ( length < 1 ) 
+				return string.Empty ;
 			
 			string str = string.Empty ;
 			session.GetString( stringHandle, ref str, length ) ;
 			return str ;
 		}
 
-		public static string[ ] GetStringValuesFromStringIndices( int[] strIndices ) {
-			if ( strIndices is not { Length: not 0 } )
+		public static string[ ] GetStringValuesFromStringIndices( int[ ] strIndices ) {
+			if ( strIndices is not { Length: > 0 } )
 				return null ;
 
 			HEU_SessionBase sessionBase = GetOrCreateDefaultSession( ) ;
@@ -775,11 +777,14 @@ namespace HoudiniEngineUnity
 			string[ ] strValues = new string[ numLength ] ;
 			for ( int i = 0; i < numLength; ++i ) {
 				int strIndex = strIndices[ i ] ;
-				int length   = strIndex >= 0 ? sessionBase.GetStringBufferLength( strIndex ) : 0 ;
-				strValues[ i ] = "" ;
-				if ( length > 0 ) {
-					sessionBase.GetString( strIndex, ref strValues[ i ], length ) ;
-				}
+				
+				int length = strIndex >= 0 
+								 ? sessionBase.GetStringBufferLength( strIndex ) 
+									: 0 ;
+				if ( length < 1 ) continue ;
+				
+				strValues[ i ] = string.Empty ;
+				sessionBase.GetString( strIndex, ref strValues[ i ], length ) ;
 			}
 
 			return strValues ;
@@ -792,12 +797,15 @@ namespace HoudiniEngineUnity
 		/// <param name="groupType">The group type to query</param>
 		/// <param name="isInstanced"></param>
 		/// <returns>Populated array of string names, or null if failed</returns>
-		public static string[] GetGroupNames( HEU_SessionBase session, HAPI_NodeId nodeID, HAPI_PartId partID,
+		public static string[ ] GetGroupNames( HEU_SessionBase session, HAPI_NodeId nodeID, HAPI_PartId partID,
 											  HAPI_GroupType  groupType, bool isInstanced ) {
+			bool bSuccess ;
 			int groupCount = 0 ;
-			bool bSuccess = false ;
 			HAPI_GeoInfo geoInfo = new( ) ;
-			if ( !session?.GetGeoInfo(nodeID, ref geoInfo) ?? true ) return null ;
+			if ( !session?.GetGeoInfo(nodeID, ref geoInfo) ?? true ) {
+				HEU_Logger.LogError( $"Failed to get geo info for node: {nodeID}" ) ;
+				return null ;
+			}
 			
 			if ( !isInstanced )
 				groupCount = geoInfo.getGroupCountByType( groupType ) ;
@@ -807,13 +815,11 @@ namespace HoudiniEngineUnity
 																out int primGroupCount ) ) {
 					groupCount = ( groupType is HAPI_GroupType.HAPI_GROUPTYPE_POINT )
 									 ? pointGroupCount
-									 : primGroupCount ;
+										: primGroupCount ;
 				}
 			}
 
-			if ( groupCount <= 0 )
-				return null ;
-
+			if ( groupCount < 1 ) return null ;
 			int[ ] groupNames = new int[ groupCount ] ;
 			if ( !isInstanced )
 				bSuccess = session.GetGroupNames( nodeID, groupType, ref groupNames, groupCount ) ;
@@ -822,13 +828,11 @@ namespace HoudiniEngineUnity
 																	  groupCount ) ;
 
 			if ( !bSuccess ) return null ;
-					
 			string[ ] nameStrings = new string[ groupCount ] ;
-			for ( int i = 0; i < groupCount; ++i ) 
+			for ( int i = 0; i < groupCount; ++i )
 				nameStrings[ i ] = GetString( groupNames[ i ], session ) ;
-					
+			
 			return nameStrings ;
-
 		}
 
 		/// <summary>Get group membership</summary>

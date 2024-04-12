@@ -141,49 +141,13 @@ namespace HoudiniEngineUnity
 
 		// DATA -------------------------------------------------------------------------------------------------------
 
-		// The type of input node based on how it was specified in the HDA
-		internal enum InputNodeType
-		{
-			/// <summary>As an asset connection</summary>
-			CONNECTION,
-
-			/// <summary>Pure input asset node</summary>
-			NODE,
-
-			/// <summary>As a parameter</summary>
-			PARAMETER,
-		} ;
 
 		[SerializeField] InputNodeType _inputNodeType ;
 		internal InputNodeType InputType => _inputNodeType ;
-
-		// The type of input data set by user
-		[Serializable]
-		internal enum InputObjectType
-		{
-			HDA,
-			UNITY_MESH,
-			CURVE,
-#if UNITY_2022_1_OR_NEWER
-			SPLINE,
-#endif
-			TERRAIN,
-			BOUNDING_BOX,
-			TILEMAP,
-		} ;
-
-
 		
 		
 		// I don't want to break backwards compatibility, but I want some options to map onto others to avoid duplication of tested code
 		// So we will map InputObjectType -> InternalObjectType when uploading input.
-		public enum InternalObjectType
-		{
-			UNKNOWN,
-			HDA,
-			UNITY_MESH,
-		} ;
-
 		[SerializeField] InputObjectType _inputObjectType = InputObjectType.UNITY_MESH ;
 		[SerializeField] InputObjectType _pendingInputObjectType = InputObjectType.UNITY_MESH ;
 
@@ -242,6 +206,7 @@ namespace HoudiniEngineUnity
 		[SerializeField] HEU_HoudiniAsset _parentAsset ;
 		
         public enum InputActions { ACTION, DELETE, INSERT, }
+
 
 		// Input Specific settings
 		[SerializeField] HEU_InputInterfaceMeshSettings _meshSettings = new( ) ;
