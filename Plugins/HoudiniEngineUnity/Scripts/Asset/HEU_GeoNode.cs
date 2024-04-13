@@ -435,7 +435,7 @@ namespace HoudiniEngineUnity
 					HEU_GeneralUtility.GetUnityScriptAttributeValue( session, GeoID, part.PartID ) ;
 				HEU_Logger.Log( $"Target Script: {scriptValue ?? string.Empty} ..." ) ;
 				if ( string.IsNullOrEmpty( scriptValue ) ) continue ;
-				HEU_GeneralUtility.AttachScriptWithInvokeFunction( scriptValue, outputGO ) ;
+				HEU_GeneralUtility.AttachScriptWithInvokeFunction( scriptValue, outputGo ) ;
 			}
 		}
 
