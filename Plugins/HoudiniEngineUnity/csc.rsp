@@ -1,5 +1,3 @@
 -define:DEV_BUILD
--define:ARKAEN_GAMES
--define:USE_NOESIS_GUI
 -nullable:enable
 -langVersion:latest
