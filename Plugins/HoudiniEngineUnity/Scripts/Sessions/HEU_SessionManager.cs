@@ -80,11 +80,11 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <returns>A new session object</returns>
 		public static HEU_SessionBase CreateSessionObject( ) {
-			HEU_SessionBase sessionBase = null ;
 #if HOUDINIENGINEUNITY_ENABLED
-			sessionBase = new HEU_SessionHAPI( ) ;
+			HEU_SessionHAPI sessionBase = new( ) ;
 #else
-            sessionBase = new HEU_SessionBase();
+            
+			HEU_SessionBase sessionBase = new( ) ;
 #endif
 			return sessionBase ;
 		}
@@ -206,11 +206,12 @@ namespace HoudiniEngineUnity
 			// Go through each asset, and validate in session
 			_assets = Object.FindObjectsByType< HEU_HoudiniAsset >( FindObjectsSortMode.None ) ;
 			foreach ( HEU_HoudiniAsset asset in _assets ) {
-				if ( !asset || asset.SessionID == HEU_Defines.HEU_INVALID_NODE_ID ) continue ;
+				if ( asset is not { SessionID: not HEU_Defines.HEU_INVALID_NODE_ID } ) 
+					continue ;
 				
 				if ( _sessionMap.TryGetValue( asset.SessionID, out HEU_SessionBase session ) )
 					session.RegisterAsset( asset ) ;
-				else
+				else 
 					asset.InvalidateAsset( ) ;
 			}
 		}
@@ -442,15 +443,8 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <returns>True if plugin is installed and session is valid.</returns>
 		public static bool ValidatePluginSession( HEU_SessionBase session = null ) {
-			if ( session is null ) {
-				session = GetOrCreateDefaultSession( ) ;
-			}
-
-			if ( session is null || !session.IsSessionValid( ) ) {
-				return false ;
-			}
-
-			return true ;
+			session ??= GetOrCreateDefaultSession( ) ;
+			return session?.IsSessionValid( ) is true ;
 		}
 
 		/// <summary>Returns last session error.</summary>
@@ -504,14 +498,14 @@ namespace HoudiniEngineUnity
 		}
 
 		public static bool IsHARSProcessRunning( int processID ) {
-			if ( processID <= 0 ) return false ;
+			if ( processID < 1 ) return false ;
 			try {
 				System.Diagnostics.Process serverProcess = 
 					System.Diagnostics.Process.GetProcessById( processID ) ;
 				return serverProcess is { HasExited: false, ProcessName: "HARS" } ;
 				//!serverProcess.HasExited && serverProcess.ProcessName.Equals( "HARS" ) ;
 			}
-			catch ( System.Exception ) { return false ; }
+			catch ( Exception ) { return false ; }
 		}
 
 		// SESSION DEBUG ----------------------------------------------------------------------------------------------
