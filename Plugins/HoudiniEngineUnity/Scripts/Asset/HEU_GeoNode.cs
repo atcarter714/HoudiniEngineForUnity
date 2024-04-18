@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (c) <2020> Side Effects Software Inc.
 * All rights reserved.
 *
@@ -422,6 +422,9 @@ namespace HoudiniEngineUnity
 		/// <summary>Process custom attribute with Unity script name, and attach any scripts found.</summary>
 		/// <param name="session">Session to use</param>
 		internal void ProcessUnityScriptAttribute( HEU_SessionBase session ) {
+			HEU_Logger.Log( "Processing Unity Script Attribute" ) ;
+			if ( _parts is not { Count: > 0 } ) return ;
+			
 			if ( _parts is not { Count: > 0 } ) return ;
 
 			foreach ( HEU_PartData part in _parts ) {
@@ -430,9 +433,9 @@ namespace HoudiniEngineUnity
 				
 				string scriptValue =
 					HEU_GeneralUtility.GetUnityScriptAttributeValue( session, GeoID, part.PartID ) ;
-				if ( !string.IsNullOrEmpty( scriptValue ) ) {
-					HEU_GeneralUtility.AttachScriptWithInvokeFunction( scriptValue, outputGo ) ;
-				}
+				HEU_Logger.Log( $"Target Script: {scriptValue ?? string.Empty} ..." ) ;
+				if ( string.IsNullOrEmpty( scriptValue ) ) continue ;
+				HEU_GeneralUtility.AttachScriptWithInvokeFunction( scriptValue, outputGo ) ;
 			}
 		}
 

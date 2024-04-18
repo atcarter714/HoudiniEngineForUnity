@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -285,8 +285,8 @@ namespace HoudiniEngineUnity
 						else if ( HEU_PluginSettings.CookingEnabled && _houdiniAsset.AutoCookOnParameterChange &&
 								  _houdiniAsset.DoesAssetRequireRecook( ) ) {
 							// Often times, cooking while dragging mouse results in poor UX
-							bool isDragging = ( EditorGUIUtility.hotControl != 0 ) ;
-							bool blockAutoCook = _houdiniAsset.PendingAutoCookOnMouseRelease ||
+							bool isDragging = ( GUIUtility.hotControl is not 0 ) ;
+							bool blockAutoCook = _houdiniAsset.PendingAutoCookOnMouseRelease == true ||
 												 ( isDragging && Event.current != null &&
 												   _delayAutoCookStrings.Contains( Event.current.commandName ) ) ;
 
@@ -1303,7 +1303,7 @@ namespace HoudiniEngineUnity
 							bool             bStrengthChanged      = false ;
 
 							SerializedProperty layersProperty = cacheObjectSerialized.FindProperty( "_layers" ) ;
-							if ( layersProperty == null || layersProperty.arraySize == 0 ) {
+							if ( layersProperty == null || layersProperty.arraySize is 0 ) {
 								continue ;
 							}
 
