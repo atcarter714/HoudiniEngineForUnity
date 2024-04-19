@@ -36,27 +36,32 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("HoudiniEngineUnityPlayModeTests")]
 #endif
 
-namespace HoudiniEngineUnity
-{
+namespace HoudiniEngineUnity {
+	
 	/// <summary>
 	/// The root object of a Houdini Engine asset.
 	/// Used for organizing hierarchy, and more importantly displaying custom UI.
 	/// </summary>
-	[SelectionBase]
-	[ExecuteInEditMode] // Needed to get OnDestroy callback when deleted in Editor
+	[SelectionBase, ExecuteInEditMode]
 	public class HEU_HoudiniAssetRoot: MonoBehaviour {
+		static readonly HashSet< HEU_HoudiniAssetRoot > _allRootAssets = new( ) ;
+
 		// Reference to the actual Houdini Engine asset gamebobject which contains
 		// all the data and logic to work with Houdini Engine
-		[SerializeField] internal HEU_HoudiniAsset _houdiniAsset ;
-		public HEU_HoudiniAsset HoudiniAsset => _houdiniAsset ;
+		[SerializeField] internal HEU_HoudiniAsset? _houdiniAsset ;
+		public HEU_HoudiniAsset? HoudiniAsset => _houdiniAsset ;
 
 		[SerializeField] internal List< GameObject > _bakeTargets = new( ) ;
 		public List< GameObject > BakeTargets => _bakeTargets ;
 
+
+		void OnEnable( ) => _allRootAssets.Add( this ) ;
+
 		/// <summary>Callback when asset is deleted. Removes assset from Houdini session if in Editor.</summary>
 		void OnDestroy( ) {
-			if ( _houdiniAsset && _houdiniAsset.PauseCooking ) return ;
-			
+			_allRootAssets.Remove( this ) ;
+			if ( _houdiniAsset && _houdiniAsset!.PauseCooking ) return ;
+
 			// Destroy the asset from session or permanently. 
 			// The following checks make sure to only delete if the scene is closing, 
 			// or asset has been user deleted. 
@@ -66,7 +71,7 @@ namespace HoudiniEngineUnity
 				// Delete mesh data if this asset hasn't been saved and it is a user invoked delete event.
 				// Otherwise just remove from session.
 				// TODO: for saved assets, we need to handle case where user deletes but does not save scene after
-				if ( !_houdiniAsset.IsAssetSavedInScene( ) &&
+				if ( !_houdiniAsset!.IsAssetSavedInScene( ) &&
 					 ( Event.current != null && ( Event.current.commandName.Equals( "Delete" ) ||
 												  Event.current.commandName.Equals( "SoftDelete" ) ) ) ) {
 					_houdiniAsset.DeleteAssetCacheData( bRegisterUndo: true ) ;
@@ -94,7 +99,7 @@ namespace HoudiniEngineUnity
 				// No need to destroy the object, geo nodes, and parts
 				// since Unity's GC will handle them.
 
-				GameObject tempGO = _houdiniAsset.gameObject ;
+				GameObject tempGO = _houdiniAsset!.gameObject ;
 				_houdiniAsset = null ;
 				HEU_GeneralUtility.DestroyImmediate( tempGO, bRegisterUndo: true ) ;
 			}
@@ -109,7 +114,7 @@ namespace HoudiniEngineUnity
 			_bakeTargets.Clear( ) ;
 		}
 
-		internal static void DestroyRootComponent( HEU_HoudiniAssetRoot assetRoot ) => 
+		internal static void DestroyRootComponent( HEU_HoudiniAssetRoot assetRoot ) =>
 			HEU_GeneralUtility.DestroyImmediate( assetRoot, bRegisterUndo: true ) ;
 
 		internal void Reset( ) {
@@ -125,7 +130,6 @@ namespace HoudiniEngineUnity
 				_houdiniAsset!.RequestResetParameters( false ) ;
 			}
 		}
-	}
-
-
+		
+	} ;
 } // HoudiniEngineUnity
