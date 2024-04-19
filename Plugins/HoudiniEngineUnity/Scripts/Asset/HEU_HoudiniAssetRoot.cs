@@ -45,7 +45,9 @@ namespace HoudiniEngineUnity {
 	[SelectionBase, ExecuteInEditMode]
 	public class HEU_HoudiniAssetRoot: MonoBehaviour {
 		static readonly HashSet< HEU_HoudiniAssetRoot > _allRootAssets = new( ) ;
-
+		public static IReadOnlyCollection< HEU_HoudiniAssetRoot > AllRootAssets => _allRootAssets ;
+		
+		
 		// Reference to the actual Houdini Engine asset gamebobject which contains
 		// all the data and logic to work with Houdini Engine
 		[SerializeField] internal HEU_HoudiniAsset? _houdiniAsset ;
@@ -122,14 +124,13 @@ namespace HoudiniEngineUnity {
 			// _houdiniAsset will be null since that is the default value.
 			// So just reconnect _houdiniAsset, then reset all HDA parms and rebuild it.
 
-			if ( !_houdiniAsset ) {
+			if ( !_houdiniAsset )
 				_houdiniAsset = transform.GetComponentInChildren< HEU_HoudiniAsset >( ) ;
-			}
 
-			if ( _houdiniAsset ) {
-				_houdiniAsset!.RequestResetParameters( false ) ;
-			}
+			if ( _houdiniAsset )
+				_houdiniAsset!.RequestResetParameters( ) ;
 		}
 		
 	} ;
+	
 } // HoudiniEngineUnity

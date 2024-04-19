@@ -45,8 +45,8 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("HoudiniEngineUnityPlayModeTests")]
 #endif
 
-namespace HoudiniEngineUnity
-{
+namespace HoudiniEngineUnity {
+	
 	/// <summary>
 	/// This updates HEU_HoudiniAsset nodes that are added to its internal list.
 	/// This is to workaround Unity's editor update limitations.
@@ -56,8 +56,8 @@ namespace HoudiniEngineUnity
 #endif
 	internal class HEU_AssetUpdater {
 #if UNITY_EDITOR && HOUDINIENGINEUNITY_ENABLED
-		static readonly List< HEU_HoudiniAsset > _allHoudiniAssets = new( ) ;
-		static readonly List< HEU_BaseSync > _allSyncNodes = new( ) ;
+		static readonly List< HEU_HoudiniAsset? > _allHoudiniAssets = new( ) ;
+		static readonly List< HEU_BaseSync? > _allSyncNodes = new( ) ;
 #endif
 
 		static HEU_AssetUpdater( ) {
@@ -74,7 +74,7 @@ namespace HoudiniEngineUnity
 		}
 
 		static void OnBeforeAssemblyReload( ) {
-			HEU_Logger.Log( $"{nameof(HEU_AssetUpdater)}.{nameof(OnBeforeAssemblyReload)} :: " +
+			HEU_Logger.Log( $"{nameof( HEU_AssetUpdater )}.{nameof( OnBeforeAssemblyReload )} :: " +
 							$"Rebuilding assemblies ..." ) ;
 			// Save the session before code domain reload so
 			// that the session file has the latest session state.
@@ -84,26 +84,22 @@ namespace HoudiniEngineUnity
 		static void Update( ) {
 #if UNITY_EDITOR && HOUDINIENGINEUNITY_ENABLED
 			for ( int i = 0; i < _allHoudiniAssets.Count; ++i ) {
-				HEU_HoudiniAsset next = _allHoudiniAssets[ i ] ;
-				if ( next )
-					next.AssetUpdate( ) ;
-				else
-					_allHoudiniAssets.RemoveAt( i-- ) ;
+				HEU_HoudiniAsset? next = _allHoudiniAssets[ i ] ;
+				if ( next ) next!.AssetUpdate( ) ;
+				else _allHoudiniAssets.RemoveAt( i-- ) ;
 			}
-			
+
 			// PostAssetUpdate progresses the asset's state after cooking and building
 			// in order to update the UI.
-			foreach ( HEU_HoudiniAsset asset in _allHoudiniAssets )
-				if ( asset ) asset.PostAssetUpdate( ) ;
+			foreach ( HEU_HoudiniAsset? asset in _allHoudiniAssets )
+				if ( asset )
+					asset!.PostAssetUpdate( ) ;
 
 			for ( int i = 0; i < _allSyncNodes.Count; ++i ) {
 				if ( _allSyncNodes[ i ] )
-					_allSyncNodes[ i ].SyncUpdate( ) ;
-				
-				else {
-					_allSyncNodes.RemoveAt( i ) ;
-					i-- ;
-				}
+					_allSyncNodes[ i ]?.SyncUpdate( ) ;
+
+				else _allSyncNodes.RemoveAt( i-- ) ; // post-decrement `i` ...
 			}
 #endif
 		}
@@ -121,9 +117,8 @@ namespace HoudiniEngineUnity
 			// Setting the asset reference to null and removing
 			// later in Update in case of removing while iterating the list
 			int index = _allHoudiniAssets.IndexOf( asset ) ;
-			if ( index >= 0 ) {
-				_allHoudiniAssets[ index ] = null ;
-			}
+
+			if ( index > -1 ) _allHoudiniAssets[ index ] = null ;
 #endif
 		}
 
@@ -160,20 +155,20 @@ namespace HoudiniEngineUnity
 				 || ( !HEU_EditorUtility.IsPrefabInstance( instance )
 					  && !HEU_EditorUtility.IsPrefabAsset( instance ) )
 				 || heu_root._houdiniAsset.WarnedPrefabNotSupported ) return ;
-			
-			string prefabPath = HEU_EditorUtility.GetPrefabAssetPath( instance ) ;
-			const string title = HEU_Defines.HEU_PRODUCT_NAME + " Prefabs Not Supported" ;
+
+			string       prefabPath = HEU_EditorUtility.GetPrefabAssetPath( instance ) ;
+			const string title      = HEU_Defines.HEU_PRODUCT_NAME + " Prefabs Not Supported" ;
 			string message =
 				"Creating prefab of an HDA is not supported by HoudiniEngine.\n\n" +
 				"It is recommended to select 'Remove Prefab' to destroy new prefab " +
 				"and revert to original asset.\n\n" +
 				"Prefab: " + prefabPath ;
-			
+
 			heu_root._houdiniAsset.WarnedPrefabNotSupported = true ;
-			if ( !HEU_EditorUtility.DisplayDialog( title, message, 
-												   "Remove Prefab && Revert", 
+			if ( !HEU_EditorUtility.DisplayDialog( title, message,
+												   "Remove Prefab && Revert",
 												   "Keep Prefab" ) ) return ;
-				
+
 			HEU_EditorUtility.DisconnectPrefabInstance( instance ) ;
 			HEU_AssetDatabase.DeleteAssetAtPath( prefabPath ) ;
 
@@ -181,6 +176,7 @@ namespace HoudiniEngineUnity
 			HEU_AssetDatabase.SaveAndRefreshDatabase( ) ;
 #endif
 		}
-	}
+		
+	} ;
 
 } // HoudiniEngineUnity

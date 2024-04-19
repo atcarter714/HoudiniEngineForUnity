@@ -57,10 +57,10 @@ namespace HoudiniEngineUnity
 	/// Manages a session for Houdini Engine. Supports all types of sessions.
 	/// </summary>
 	public static class HEU_SessionManager {
-		static HEU_HoudiniAsset[ ] _assets ;
+		static HEU_HoudiniAsset[ ]? _assets ;
 		
 		// Default session
-		static HEU_SessionBase _defaultSession ;
+		static HEU_SessionBase? _defaultSession ;
 
 		// Registry map for retrieval via session ID, and guaranteed persistence across code refresh/compile
 		static readonly Dictionary< HAPI_Int64, HEU_SessionBase > _sessionMap = new( ) ;
@@ -70,7 +70,7 @@ namespace HoudiniEngineUnity
 
 		// Custom HEU_SessionBase classes can register with this delegate in order to be re-created after
 		// code refresh/compile, or when loading session data from storage.
-		public static CreateSessionFromTypeDelegate _createSessionFromTypeDelegate ;
+		public static CreateSessionFromTypeDelegate? _createSessionFromTypeDelegate ;
 
 
 		// SESSION ----------------------------------------------------------------------------------------------------
