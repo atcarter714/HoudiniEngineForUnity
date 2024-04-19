@@ -41,13 +41,12 @@ using UnityEditor;
 #endif
 
 
-namespace HoudiniEngineUnity
-{
+namespace HoudiniEngineUnity {
+
 	/// <summary>
 	/// Manages storage for Houdini Engine plugin data.
 	/// </summary>
-	public class HEU_PluginStorage
-	{
+	public class HEU_PluginStorage {
 		// Internally this is using JSON as the format, and stored in a file at project root.
 
 		// Note: Unity's JSON support is streamlined for predefined objects (JsonUtility).
@@ -63,7 +62,11 @@ namespace HoudiniEngineUnity
 			LONG,
 			FLOAT,
 			STRING,
-		}
+		} ;
+
+		public const string PluginSettingsLine1   = "Houdini Engine for Unity Plugin Settings" ;
+		public const string PluginSettingsLine2   = "Version=" ;
+		public const string PluginSettingsVersion = "1.0" ;
 
 		// Dictionary for unstructured data.
 		Dictionary< string, StoreData > _dataMap = new( ) ;
@@ -73,27 +76,29 @@ namespace HoudiniEngineUnity
 		class StoreData
 		{
 			public DataType _type ;
-			public string   _valueStr ;
+			public string?  _valueStr ;
 		}
 
 #pragma warning disable 0649
 		// Temporary class to enable us to write out arrays using JsonUtility.
-		[Serializable] class StoreDataArray< T > { public T[ ] _array ; }
+		[Serializable]
+		class StoreDataArray< T >
+		{
+			public T[]? _array ;
+		}
 #pragma warning restore 0649
 
-		Dictionary< string, string > _envPathMap ;
+		Dictionary< string, string >? _envPathMap ;
 
-		public Dictionary< string, string > GetEnvironmentPathMap( ) {
-			return _envPathMap ;
-		}
+		public Dictionary< string, string >? GetEnvironmentPathMap( ) => _envPathMap ;
 
 		// Whether plugin setting need to be saved out to file.
 		bool _requiresSave ;
 		public bool RequiresSave => _requiresSave ;
 
-		static HEU_PluginStorage _instance ;
+		static HEU_PluginStorage? _instance ;
 
-		public static HEU_PluginStorage Instance {
+		public static HEU_PluginStorage? Instance {
 			get {
 				if ( _instance is null )
 					InstantiateAndLoad( ) ;
@@ -107,7 +112,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		public static void InstantiateAndLoad( ) {
 			if ( _instance != null ) return ;
-			
+
 			_instance = new( ) ;
 			_instance.LoadPluginData( ) ;
 
@@ -145,9 +150,9 @@ namespace HoudiniEngineUnity
 		/// <typeparam name="T">Type of array</typeparam>
 		/// <param name="jsonArray">String containing JSON array.</param>
 		/// <returns>Array of objects of type T.</returns>
-		T[ ] GetJSONArray< T >( string jsonArray ) {
+		T[]? GetJSONArray< T >( string jsonArray ) {
 			// Parse out array string into array class, then just grab the array.
-			StoreDataArray< T > dataArray = JsonUtility.FromJson< StoreDataArray<T> >( jsonArray ) ;
+			StoreDataArray< T > dataArray = JsonUtility.FromJson< StoreDataArray< T > >( jsonArray ) ;
 			return dataArray._array ;
 		}
 
@@ -217,9 +222,8 @@ namespace HoudiniEngineUnity
 		}
 
 		public bool Get( string key, out bool value, bool defaultValue ) {
-			if ( _dataMap.ContainsKey( key ) ) {
-				StoreData data = _dataMap[ key ] ;
-				if ( data._type == DataType.BOOL ) {
+			if ( _dataMap.TryGetValue( key, out StoreData? data ) ) {
+				if ( data._type is DataType.BOOL ) {
 					value = Convert.ToBoolean( data._valueStr ) ;
 					return true ;
 				}
@@ -230,9 +234,8 @@ namespace HoudiniEngineUnity
 		}
 
 		public bool Get( string key, out int value, int defaultValue ) {
-			if ( _dataMap.ContainsKey( key ) ) {
-				StoreData data = _dataMap[ key ] ;
-				if ( data._type == DataType.INT ) {
+			if ( _dataMap.TryGetValue( key, out StoreData? data ) ) {
+				if ( data._type is DataType.INT ) {
 					value = Convert.ToInt32( data._valueStr ) ;
 					return true ;
 				}
@@ -243,9 +246,8 @@ namespace HoudiniEngineUnity
 		}
 
 		public bool Get( string key, out long value, long defaultValue ) {
-			if ( _dataMap.ContainsKey( key ) ) {
-				StoreData data = _dataMap[ key ] ;
-				if ( data._type == DataType.LONG ) {
+			if ( _dataMap.TryGetValue( key, out StoreData? data ) ) {
+				if ( data._type is DataType.LONG ) {
 					value = Convert.ToInt64( data._valueStr ) ;
 					return true ;
 				}
@@ -256,9 +258,8 @@ namespace HoudiniEngineUnity
 		}
 
 		public bool Get( string key, out float value, float defaultValue ) {
-			if ( _dataMap.ContainsKey( key ) ) {
-				StoreData data = _dataMap[ key ] ;
-				if ( data._type == DataType.FLOAT ) {
+			if ( _dataMap.TryGetValue( key, out StoreData? data ) ) {
+				if ( data._type is DataType.FLOAT ) {
 					value = Convert.ToSingle( data._valueStr,
 											  CultureInfo.InvariantCulture ) ;
 					return true ;
@@ -269,11 +270,10 @@ namespace HoudiniEngineUnity
 			return false ;
 		}
 
-		public bool Get( string key, out string value, string defaultValue ) {
-			if ( _dataMap.ContainsKey( key ) ) {
-				StoreData data = _dataMap[ key ] ;
-				if ( data._type == DataType.STRING ) {
-					value = data._valueStr ;
+		public bool Get( string key, out string? value, string defaultValue ) {
+			if ( _dataMap.TryGetValue( key, out StoreData? data ) ) {
+				if ( data._type is DataType.STRING ) {
+					value = data?._valueStr ;
 					return true ;
 				}
 			}
@@ -284,22 +284,22 @@ namespace HoudiniEngineUnity
 
 		public bool Get( string key, out List< string > values, char delimiter = ';' ) {
 			values = new( ) ;
-			string combinedStr = string.Empty ;
-			bool bResult = Get( key, out combinedStr, combinedStr ) ;
+			string? combinedStr = string.Empty ;
+			bool    bResult     = Get( key, out combinedStr, combinedStr ) ;
 
-			if ( !bResult || string.IsNullOrEmpty( combinedStr ) ) 
-				return bResult ;
-			string[ ] split = combinedStr.Split( delimiter ) ;
+			if ( !bResult || string.IsNullOrEmpty( combinedStr ) ) return bResult ;
+
+			string[] split = combinedStr.Split( delimiter ) ;
 			if ( split is { Length: > 0 } ) {
 				int numStrings = split.Length ;
 				for ( int i = 0; i < numStrings; ++i ) {
 					if ( string.IsNullOrEmpty( split[ i ] ) ) continue ;
-					
+
 					values.Add( split[ i ] ) ;
 				}
 			}
 			else bResult = false ;
-			
+
 			return bResult ;
 		}
 
@@ -310,7 +310,7 @@ namespace HoudiniEngineUnity
 		void MarkDirtyForSave( ) {
 			if ( _requiresSave ) return ;
 #if UNITY_EDITOR
-			_requiresSave = true ;
+			_requiresSave               =  true ;
 			EditorApplication.delayCall += SaveIfRequired ;
 #endif
 		}
@@ -323,15 +323,12 @@ namespace HoudiniEngineUnity
 				_instance.SavePluginData( ) ;
 		}
 
-		public const string PluginSettingsLine1   = "Houdini Engine for Unity Plugin Settings" ;
-		public const string PluginSettingsLine2   = "Version=" ;
-		public const string PluginSettingsVersion = "1.0" ;
 
 		// Path to the plugin settings ini file. Placed in the project root (i.e. Assets/../)
 		public static string SettingsFilePath( ) =>
 			Path.Combine( Application.dataPath,
-						  ".." + Path.DirectorySeparatorChar + HEU_Defines.PLUGIN_SETTINGS_FILE 
-						  ) ;
+						  ".." + Path.DirectorySeparatorChar + HEU_Defines.PLUGIN_SETTINGS_FILE
+						) ;
 
 		/// <summary>
 		/// Save plugin data to disk.
@@ -385,7 +382,7 @@ namespace HoudiniEngineUnity
 			// Open file and read each line to create the settings entry
 			using StreamReader reader = new( settingsFilePath ) ;
 			// Must match first line
-			string line = reader.ReadLine( ) ;
+			string? line = reader.ReadLine( ) ;
 			if ( string.IsNullOrEmpty( line ) || !line.Equals( PluginSettingsLine1 ) ) {
 				HEU_Logger.LogWarningFormat( "Unable to load Plugin settings file. {0} should have line 1: {1}",
 											 settingsFilePath, PluginSettingsLine1 ) ;
@@ -403,79 +400,79 @@ namespace HoudiniEngineUnity
 
 			Dictionary< string, StoreData > storeMap = new( ) ;
 			// "key(type)=value"
-			
+
 			Regex regex = new( @"^(\w+)\((\w+)\)=(.*)" ) ;
 			while ( ( line = reader.ReadLine( ) ) != null ) {
 				Match match = regex.Match( line ) ;
 				if ( !match.Success || match.Groups.Count < 4 ) continue ;
-				
+
 				string keyStr   = match.Groups[ 1 ].Value ;
 				string typeStr  = match.Groups[ 2 ].Value ;
 				string valueStr = match.Groups[ 3 ].Value ;
 
-				if ( string.IsNullOrEmpty( keyStr ) 
+				if ( string.IsNullOrEmpty( keyStr )
 					 || string.IsNullOrEmpty( typeStr )
 					 || string.IsNullOrEmpty( valueStr ) ) continue ;
-				
+
 				try {
 					DataType dataType = (DataType)Enum.Parse( typeof( DataType ), typeStr ) ;
 
-					StoreData store = new( ) {
+					StoreData store = new( )
+					{
 						_type     = dataType,
 						_valueStr = valueStr,
 					} ;
-						
+
 					storeMap.Add( keyStr, store ) ;
 				}
 				catch ( Exception ex ) {
 					HEU_Logger.LogErrorFormat( "Invalid data type found in settings: {0}. Exception: {1}",
-											   typeStr, ex.ToString() ) ;
+											   typeStr, ex.ToString( ) ) ;
 				}
 			}
-			
+
 			_dataMap = storeMap ;
 			return true ;
 		}
 
 		bool ReadFromEditorPrefs( ) {
 #if UNITY_EDITOR
-			if ( EditorPrefs.HasKey( HEU_Defines.PLUGIN_STORE_KEYS ) &&
-				 EditorPrefs.HasKey( HEU_Defines.PLUGIN_STORE_DATA ) ) {
-				// Grab JSON strings from EditorPrefs, then use temporary array class to grab the JSON array.
-				// Finally add into dictionary.
+			if ( !EditorPrefs.HasKey( HEU_Defines.PLUGIN_STORE_KEYS ) ||
+				 !EditorPrefs.HasKey( HEU_Defines.PLUGIN_STORE_DATA ) ) return false ;
 
-				string keyJson  = EditorPrefs.GetString( HEU_Defines.PLUGIN_STORE_KEYS ) ;
-				string dataJson = EditorPrefs.GetString( HEU_Defines.PLUGIN_STORE_DATA ) ;
+			// Grab JSON strings from EditorPrefs, then use temporary array class to grab the JSON array.
+			// Finally add into dictionary.
+			string keyJson  = EditorPrefs.GetString( HEU_Defines.PLUGIN_STORE_KEYS ) ;
+			string dataJson = EditorPrefs.GetString( HEU_Defines.PLUGIN_STORE_DATA ) ;
 
-				//HEU_Logger.Log("Load:: Keys: " + keyJson);
-				//HEU_Logger.Log("Load:: Data: " + dataJson);
+			//HEU_Logger.Log("Load:: Keys: " + keyJson);
+			//HEU_Logger.Log("Load:: Data: " + dataJson);
 
-				string[]    keyList  = GetJSONArray< string >( keyJson ) ;
-				StoreData[] dataList = GetJSONArray< StoreData >( dataJson ) ;
+			string[]?    keyList  = GetJSONArray< string >( keyJson ) ;
+			StoreData[]? dataList = GetJSONArray< StoreData >( dataJson ) ;
 
-				_dataMap = new( ) ;
-				int numKeys = keyList.Length ;
-				int numData = dataList.Length ;
-				if ( numKeys == numData ) {
-					for ( int i = 0; i < numKeys; ++i ) {
-						_dataMap.Add( keyList[ i ], dataList[ i ] ) ;
-						//HEU_Logger.Log(string.Format("{0} : {1}", keyList[i], dataList[i]._valueStr));
-					}
+			_dataMap = new( ) ;
+			int numKeys = keyList?.Length ?? 0 ;
+			int numData = dataList?.Length ?? 0 ;
+			if ( numKeys == numData ) {
+				for ( int i = 0; i < numKeys; ++i ) {
+					var key  = keyList?[ i ] ;
+					var data = dataList?[ i ] ;
+					if ( key is null || data is null ) continue ;
+					_dataMap.Add( key, data ) ;
+					//HEU_Logger.Log(string.Format("{0} : {1}", keyList[i], dataList[i]._valueStr));
 				}
-
-				// Remove from EditorPrefs. This is the deprecated method of saving the plugin settings.
-				if ( EditorPrefs.HasKey( HEU_Defines.PLUGIN_STORE_KEYS ) ) {
-					EditorPrefs.DeleteKey( HEU_Defines.PLUGIN_STORE_KEYS ) ;
-				}
-
-				if ( EditorPrefs.HasKey( HEU_Defines.PLUGIN_STORE_DATA ) ) {
-					EditorPrefs.DeleteKey( HEU_Defines.PLUGIN_STORE_DATA ) ;
-				}
-
-				return true ;
 			}
+
+			// Remove from EditorPrefs. This is the deprecated method of saving the plugin settings.
+			if ( EditorPrefs.HasKey( HEU_Defines.PLUGIN_STORE_KEYS ) )
+				EditorPrefs.DeleteKey( HEU_Defines.PLUGIN_STORE_KEYS ) ;
+
+			if ( EditorPrefs.HasKey( HEU_Defines.PLUGIN_STORE_DATA ) )
+				EditorPrefs.DeleteKey( HEU_Defines.PLUGIN_STORE_DATA ) ;
+
+			return true ;
 #endif
-			return false ;
 		}
 
 		/// <summary>
@@ -483,7 +480,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		public static void ClearPluginData( ) {
 			if ( _instance is null ) return ;
-			
+
 			_instance._dataMap = new( ) ;
 			_instance.SavePluginData( ) ;
 		}
@@ -496,25 +493,25 @@ namespace HoudiniEngineUnity
 				_instance.LoadPluginData( ) ;
 			}
 		}
-		
-		
+
+
 		// Session file path. Stored at project root (i.e. Assets/../)
 		public static string SessionFilePath( ) =>
-								Path.Combine( Application.dataPath,
-											  ".." + Path.DirectorySeparatorChar + HEU_Defines.PLUGIN_SESSION_FILE 
-											  ) ;
+			Path.Combine( Application.dataPath,
+						  ".." + Path.DirectorySeparatorChar + HEU_Defines.PLUGIN_SESSION_FILE
+						) ;
 
 		/// <summary>
 		/// Save given list of sessions (HEU_SessionData) into storage for retrieval later.
 		/// A way to persist current session information through code refresh/compiles.
 		/// </summary>
 		/// <param name="allSessions"></param>
-		public static void SaveAllSessionData( List< HEU_SessionBase > allSessions ) {
+		public static void SaveAllSessionData( List< HEU_SessionBase? > allSessions ) {
 #if UNITY_EDITOR && HOUDINIENGINEUNITY_ENABLED
 			// Formulate the JSON string for existing sessions.
 			StringBuilder sb = new( ) ;
-			foreach ( HEU_SessionBase session in allSessions ) {
-				if ( session.GetSessionData( ) is null ) continue ;
+			foreach ( var session in allSessions ) {
+				if ( session?.GetSessionData( ) is null ) continue ;
 				sb.AppendFormat( "{0};", JsonUtility.ToJson( session.GetSessionData( ) ) ) ;
 			}
 
@@ -532,14 +529,14 @@ namespace HoudiniEngineUnity
 #if UNITY_EDITOR && HOUDINIENGINEUNITY_ENABLED
 			string jsonStr = HEU_Platform.ReadAllText( SessionFilePath( ) ) ;
 			if ( string.IsNullOrEmpty( jsonStr ) ) return sessions ;
-			string[ ] jsonSplit = jsonStr.Split( ';' ) ;
-			
+			string[] jsonSplit = jsonStr.Split( ';' ) ;
+
 			foreach ( string entry in jsonSplit ) {
 				if ( string.IsNullOrEmpty( entry ) ) continue ;
-				
+
 				HEU_SessionData sessionData = JsonUtility.FromJson< HEU_SessionData >( entry ) ;
 				if ( sessionData is null ) continue ;
-				
+
 				sessions.Add( sessionData ) ;
 			}
 #endif
@@ -553,7 +550,7 @@ namespace HoudiniEngineUnity
 #if UNITY_EDITOR
 			string path = SessionFilePath( ) ;
 			try {
-				if ( File.Exists(path) )
+				if ( File.Exists( path ) )
 					File.Delete( SessionFilePath( ) ) ;
 			}
 			catch ( Exception ex ) {
@@ -572,18 +569,18 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		public void LoadAssetEnvironmentPaths( ) {
 			string envPath = HEU_Platform.GetHoudiniEngineEnvironmentFilePathFull( ) ;
-			if ( string.IsNullOrEmpty( envPath ) 
-					|| !HEU_Platform.DoesFileExist( envPath ) ) 
-						return ;
-			
+			if ( string.IsNullOrEmpty( envPath )
+				 || !HEU_Platform.DoesFileExist( envPath ) )
+				return ;
+
 			_envPathMap = new( ) ;
-			char[ ] delimiter = { '=' } ;
-			char[ ] trimEnd   = { '\\', '/' } ;
-			using StreamReader file = new( envPath ) ;
-			
+			char[]             delimiter = { '=' } ;
+			char[]             trimEnd   = { '\\', '/' } ;
+			using StreamReader file      = new( envPath ) ;
+
 			while ( file.ReadLine( ) is { } line ) {
 				if ( !line.StartsWith( HEU_Defines.HEU_ENVPATH_PREFIX ) ) continue ;
-				string[ ] split = line.Split( delimiter, 2, StringSplitOptions.RemoveEmptyEntries ) ;
+				string[] split = line.Split( delimiter, 2, StringSplitOptions.RemoveEmptyEntries ) ;
 				if ( split is not { Length: 2 } ) continue ;
 				string value = split[ 1 ].Replace( "\\", "/" ).TrimEnd( trimEnd ) ;
 				_envPathMap.Add( split[ 0 ], value ) ;
@@ -625,9 +622,8 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="inPath"></param>
 		/// <returns></returns>
-		public string ConvertEnvKeyedPathToReal( string inPath ) {
-			if ( string.IsNullOrEmpty(inPath) )
-				return inPath ;
+		public string? ConvertEnvKeyedPathToReal( string? inPath ) {
+			if ( string.IsNullOrEmpty( inPath ) ) return inPath ;
 
 			if ( inPath.StartsWith( HEU_Defines.HEU_PATH_KEY_HFS, StringComparison.InvariantCulture ) )
 				return HEU_HAPIUtility.GetRealPathFromHFSPath( inPath ) ;
@@ -635,19 +631,20 @@ namespace HoudiniEngineUnity
 			if ( _envPathMap is null )
 				LoadAssetEnvironmentPaths( ) ;
 
-			if ( _envPathMap is null || !inPath.StartsWith(HEU_Defines.HEU_ENVPATH_KEY) ) 
+			if ( _envPathMap is null || !inPath.StartsWith( HEU_Defines.HEU_ENVPATH_KEY ) )
 				return inPath ;
-			
+
 			foreach ( KeyValuePair< string, string > pair in _envPathMap ) {
 				string key = HEU_Defines.HEU_ENVPATH_KEY + pair.Key ;
-				if ( !inPath.StartsWith( key, StringComparison.InvariantCulture ) ) 
+				if ( !inPath.StartsWith( key, StringComparison.InvariantCulture ) )
 					continue ;
-				
+
 				inPath = inPath.Replace( key, pair.Value ) ;
 				break ;
 			}
+
 			return inPath ;
 		}
-	}
-
+		
+	} ;
 } // HoudiniEngineUnity
