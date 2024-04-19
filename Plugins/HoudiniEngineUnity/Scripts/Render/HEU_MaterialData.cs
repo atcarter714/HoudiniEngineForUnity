@@ -74,7 +74,7 @@ namespace HoudiniEngineUnity
 
 			HEU_SessionBase session = HEU_SessionManager.GetOrCreateDefaultSession( ) ;
 
-			HAPI_NodeInfo nodeInfo = new HAPI_NodeInfo( ) ;
+			HAPI_NodeInfo nodeInfo = new( ) ;
 			if ( !session.GetNodeInfo( materialInfo.nodeId, ref nodeInfo ) ) {
 				return false ;
 			}
@@ -123,17 +123,15 @@ namespace HoudiniEngineUnity
 																		false ) ;
 			}
 
-			Color diffuseColor ;
 			if ( !HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 																HEU_Defines.MAT_OGL_DIFF_ATTR, Color.white,
-																out diffuseColor ) ) {
+																out Color diffuseColor ) ) {
 				HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 															  HEU_Defines.MAT_DIFF_ATTR, Color.white,
 															  out diffuseColor ) ;
 			}
 
-			float alpha ;
-			GetMaterialAlpha( session, materialInfo.nodeId, parmInfos, 1f, out alpha ) ;
+			GetMaterialAlpha( session, materialInfo.nodeId, parmInfos, 1f, out float alpha ) ;
 
 			if ( isTransparent ) {
 				int opacityMapParmIndex =
@@ -162,11 +160,10 @@ namespace HoudiniEngineUnity
 			_material.SetColor( HEU_Defines.UNITY_SHADER_COLOR, diffuseColor ) ;
 
 			if ( HEU_PluginSettings.UseSpecularShader ) {
-				Color specular ;
-				Color defaultSpecular = new Color( 0.2f, 0.2f, 0.2f, 1 ) ;
+				Color defaultSpecular = new( 0.2f, 0.2f, 0.2f, 1 ) ;
 				if ( !HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 																	HEU_Defines.MAT_OGL_SPEC_ATTR, defaultSpecular,
-																	out specular ) ) {
+																	out Color specular ) ) {
 					HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 																  HEU_Defines.MAT_SPEC_ATTR, defaultSpecular,
 																  out specular ) ;
@@ -196,10 +193,9 @@ namespace HoudiniEngineUnity
 				}
 			}
 			else {
-				float metallic = 0 ;
 				if ( !HEU_ParameterUtility.GetParameterFloatValue( session, materialInfo.nodeId, parmInfos,
 																   HEU_Defines.MAT_OGL_METALLIC_ATTR, 0f,
-																   out metallic ) ) {
+																   out float metallic ) ) {
 					HEU_ParameterUtility.GetParameterFloatValue( session, materialInfo.nodeId, parmInfos,
 																 HEU_Defines.MAT_METALLIC_ATTR, 0f, out metallic ) ;
 				}
@@ -218,7 +214,7 @@ namespace HoudiniEngineUnity
 				}
 
 
-				if ( metallicMapParmIndex >= 0 && metallicMapParmIndex < parmInfos.Length ) {
+				if ( metallicMapParmIndex > -1 && metallicMapParmIndex < parmInfos.Length ) {
 					string metallicTextureFileName =
 						GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 															 parmInfos[ metallicMapParmIndex ] ) ;
@@ -255,11 +251,10 @@ namespace HoudiniEngineUnity
 			}
 
 			// Emission
-			Color emission ;
-			Color defaultEmission = new Color( 0, 0, 0, 0 ) ;
+			Color defaultEmission = new( 0, 0, 0, 0 ) ;
 			if ( !HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 																HEU_Defines.MAT_OGL_EMISSIVE_ATTR, defaultEmission,
-																out emission ) ) {
+																out Color emission ) ) {
 				HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 															  HEU_Defines.MAT_EMISSIVE_ATTR, defaultEmission,
 															  out emission ) ;
@@ -289,11 +284,10 @@ namespace HoudiniEngineUnity
 			}
 
 			// Smoothness (need to invert roughness!)
-			float roughness ;
 			float defaultRoughness = 0.5f ;
 			if ( !HEU_ParameterUtility.GetParameterFloatValue( session, materialInfo.nodeId, parmInfos,
 															   HEU_Defines.MAT_OGL_ROUGH_ATTR, defaultRoughness,
-															   out roughness ) ) {
+															   out float roughness ) ) {
 				HEU_ParameterUtility.GetParameterFloatValue( session, materialInfo.nodeId, parmInfos,
 															 HEU_Defines.MAT_ROUGH_ATTR, defaultRoughness,
 															 out roughness ) ;
@@ -313,7 +307,7 @@ namespace HoudiniEngineUnity
 																	  HEU_Defines.MAT_ROUGH_MAP_ATTR_ENABLED ) ;
 			}
 
-			if ( roughMapParmIndex >= 0 && roughMapParmIndex < parmInfos.Length ) {
+			if ( roughMapParmIndex > -1 && roughMapParmIndex < parmInfos.Length ) {
 				string roughTextureFileName =
 					GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 														 parmInfos[ roughMapParmIndex ] ) ;
@@ -345,9 +339,7 @@ namespace HoudiniEngineUnity
 		/// <summary>
 		/// Returns true if this material was pre-existing in Unity and not generated from Houdini at cook time.
 		/// </summary>
-		public bool IsExistingMaterial( ) {
-			return _materialSource == Source.UNITY || _materialSource == Source.SUBSTANCE ;
-		}
+		public bool IsExistingMaterial( ) => _materialSource is Source.UNITY or Source.SUBSTANCE ;
 
 
 		// ===============================================================
@@ -367,8 +359,8 @@ namespace HoudiniEngineUnity
 		// the hash of the material path on project (eg. Assets/Materials/materialname.mat)
 		[SerializeField] internal int _materialKey = HEU_Defines.HEU_INVALID_MATERIAL ;
 
-		bool UseLegacyShaders( HAPI_MaterialInfo materialInfo, string        assetCacheFolderPath,
-							   HEU_SessionBase   session,      HAPI_NodeInfo nodeInfo, HAPI_ParmInfo[] parmInfos ) {
+		bool UseLegacyShaders( HAPI_MaterialInfo materialInfo, string assetCacheFolderPath,
+							   HEU_SessionBase session, HAPI_NodeInfo nodeInfo, HAPI_ParmInfo[] parmInfos ) {
 			// Diffuse texture - render & extract
 			int diffuseMapParmIndex =
 				HEU_ParameterUtility.FindTextureParamByNameOrTag( session, nodeInfo.id, parmInfos,
@@ -426,27 +418,24 @@ namespace HoudiniEngineUnity
 
 			// Clamp shininess to non-zero as results in very hard shadows. Unity's UI does not allow zero either.
 
-			float shininess ;
 			if ( !HEU_ParameterUtility.GetParameterFloatValue( session, materialInfo.nodeId, parmInfos,
-															   HEU_Defines.MAT_OGL_ROUGH_ATTR, 0f, out shininess ) ) {
+															   HEU_Defines.MAT_OGL_ROUGH_ATTR, 0f, out float shininess ) ) {
 				HEU_ParameterUtility.GetParameterFloatValue( session, materialInfo.nodeId, parmInfos,
 															 HEU_Defines.MAT_ROUGH_ATTR, 0f, out shininess ) ;
 			}
 
 			_material.SetFloat( HEU_Defines.UNITY_SHADER_SHININESS, Mathf.Max( 0.03f, 1.0f - shininess ) ) ;
 
-			Color diffuseColor ;
 			if ( !HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 																HEU_Defines.MAT_OGL_DIFF_ATTR, Color.white,
-																out diffuseColor ) ) {
+																out Color diffuseColor ) ) {
 				HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 															  HEU_Defines.MAT_DIFF_ATTR, Color.white,
 															  out diffuseColor ) ;
 			}
 
-			float alpha ;
 			if ( !HEU_ParameterUtility.GetParameterFloatValue( session, materialInfo.nodeId, parmInfos,
-															   HEU_Defines.MAT_OGL_ALPHA_ATTR, 1f, out alpha ) ) {
+															   HEU_Defines.MAT_OGL_ALPHA_ATTR, 1f, out float alpha ) ) {
 				HEU_ParameterUtility.GetParameterFloatValue( session, materialInfo.nodeId, parmInfos,
 															 HEU_Defines.MAT_ALPHA_ATTR, 1f, out alpha ) ;
 			}
@@ -454,10 +443,9 @@ namespace HoudiniEngineUnity
 			diffuseColor.a = alpha ;
 			_material.SetColor( HEU_Defines.UNITY_SHADER_COLOR, diffuseColor ) ;
 
-			Color specular ;
 			if ( !HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 																HEU_Defines.MAT_OGL_SPEC_ATTR, Color.black,
-																out specular ) ) {
+																out Color specular ) ) {
 				HEU_ParameterUtility.GetParameterColor3Value( session, materialInfo.nodeId, parmInfos,
 															  HEU_Defines.MAT_SPEC_ATTR, Color.black, out specular ) ;
 			}
@@ -525,8 +513,7 @@ namespace HoudiniEngineUnity
 		/// <returns>True if the material is transparent</returns>
 		internal static bool IsTransparentMaterial( HEU_SessionBase session, HAPI_NodeId nodeID,
 													HAPI_ParmInfo[ ] parameters ) {
-			float alpha ;
-			GetMaterialAlpha( session, nodeID, parameters, 1, out alpha ) ;
+			GetMaterialAlpha( session, nodeID, parameters, 1, out float alpha ) ;
 			return alpha < 0.95f ;
 		}
 

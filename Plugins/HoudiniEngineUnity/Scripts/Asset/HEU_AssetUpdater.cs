@@ -74,6 +74,8 @@ namespace HoudiniEngineUnity
 		}
 
 		static void OnBeforeAssemblyReload( ) {
+			HEU_Logger.Log( $"{nameof(HEU_AssetUpdater)}.{nameof(OnBeforeAssemblyReload)} :: " +
+							$"Rebuilding assemblies ..." ) ;
 			// Save the session before code domain reload so
 			// that the session file has the latest session state.
 			HEU_SessionManager.SaveAllSessionData( ) ;
