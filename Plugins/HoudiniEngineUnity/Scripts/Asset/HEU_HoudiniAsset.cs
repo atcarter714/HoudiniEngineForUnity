@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
@@ -3723,8 +3724,7 @@ namespace HoudiniEngineUnity
 		/// <summary>
 		/// After cook has finished in Houdini, process the output and update/generate Unity side.
 		/// </summary>
-		void ProcessPoskCook( ) {
->>>>>>>
+		void ProcessPostCook( ) {
 #if HEU_PROFILER_ON
 	    _postCookStartTime = Time.realtimeSinceStartup;
 #endif
@@ -4200,7 +4200,7 @@ namespace HoudiniEngineUnity
                     SetCookStatus(AssetCookStatus.POSTCOOK, AssetCookResult.SUCCESS);
 =======
 						try {
-							ProcessPoskCook( ) ;
+							ProcessPostCook( ) ;
 						}
 						catch ( Exception ex ) {
 							HEU_Logger.LogError( "Recook error: " + ex ) ;

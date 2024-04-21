@@ -221,7 +221,7 @@ namespace HoudiniEngineUnity
 		/// A session object (new or existing). Session might not actually have connected successfully.
 		/// Check IsSessionValid() and error message.
 		/// </returns>
-		public static HEU_SessionBase GetOrCreateDefaultSession( bool bNotifyUserError = true ) {
+		public static HEU_SessionBase? GetOrCreateDefaultSession( bool bNotifyUserError = true ) {
 			// After a code refresh, _defaultSession might be null.
 			// So try loading stored plugin data to see if we can get it back.
 			if ( _defaultSession is null )
@@ -229,7 +229,7 @@ namespace HoudiniEngineUnity
 			if ( _defaultSession?.IsSessionValid() ?? false )
 				return _defaultSession ;
 			
-			if ( _defaultSession is null or { ConnectionState: SessionConnectionState.NOT_CONNECTED } ) {
+			if ( _defaultSession is null or { ConnectionState: SessionConnectionState.NOT_CONNECTED, } ) {
 				HEU_Logger.Log( HEU_Defines.HEU_NAME + ": No valid session found. Creating new session." ) ;
 				// Try creating it if we haven't tried yet
 				bNotifyUserError &= !CreateThriftPipeSession( HEU_PluginSettings.Session_PipeName,
