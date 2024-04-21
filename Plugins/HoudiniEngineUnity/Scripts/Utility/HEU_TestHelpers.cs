@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -51,18 +51,18 @@ namespace HoudiniEngineUnity
         bool IsNull();
     };
 
-/*
-    Test requirements:
-    - If HAPI struct, then create a wrapper class with the interface  IEquivable
-    - If any other struct, just call HEU_TestHelpers.AssertTrueLogEquivalent
-    - If HEU_ class, then extend IEquivable and compare values of interest
-    - If Unity class, then create a wrapper class of type IEquivableWrapperClass<T>
+	/*
+		Test requirements:
+		- If HAPI struct, then create a wrapper class with the interface  IEquivable
+		- If any other struct, just call HEU_TestHelpers.AssertTrueLogEquivalent
+		- If HEU_ class, then extend IEquivable and compare values of interest
+		- If Unity class, then create a wrapper class of type IEquivableWrapperClass<T>
 
     All of this prep is to reduce the work for when you actually test it (i.e. calling HEU_TestHelpers.AssertTrueLogEquivalent should be as easy as possible)
     - If it is a HAPI struct / Unity class, call the wrapper
     - Otherwise, just call it normally
 
-*/
+	*/
 
     internal class HEU_TestHelpers
     {
@@ -77,6 +77,7 @@ namespace HoudiniEngineUnity
         {
         }
 
+		public class RequireClass< T > where T: class { }
 
         // Helper for logging equivalence message
         public static bool AssertTrueLogEquivalent<T>(T a, T b, ref bool result, string header, string subject,
@@ -711,6 +712,9 @@ namespace HoudiniEngineUnity
         }
     }
 
+	public class Test_HAPI_AssetInfo: IEquivable< Test_HAPI_AssetInfo >
+	{
+		public HAPI_AssetInfo self ;
 
     // HAPI =====================================================================
 
@@ -834,6 +838,9 @@ namespace HoudiniEngineUnity
         }
     }
 
+	public class Test_HAPI_ObjectInfo: IEquivable< Test_HAPI_ObjectInfo >
+	{
+		public HAPI_ObjectInfo self ;
 
     public class Test_HAPI_Transform : IEquivable<Test_HAPI_Transform>
     {
@@ -850,6 +857,7 @@ namespace HoudiniEngineUnity
 
             string header = "HAPI_Transform";
 
+			string header = "HAPI_ObjectInfo" ;
 
             // // Skip because can be different in tests
             //HEU_TestHelpers.AssertTrueLogEquivalent(self.position, other.self.position, ref bResult, header, "position");
@@ -1091,6 +1099,7 @@ namespace HoudiniEngineUnity
         {
             bool bResult = true;
 
+			string header = "HAPI_ParmInfo" ;
 
             string header = "LODGroup";
 
@@ -1134,6 +1143,9 @@ namespace HoudiniEngineUnity
         }
     }
 
+		public Test_LODGroup( LODGroup self ) {
+			this.self = self ;
+		}
 
     public class Test_Transform : IEquivableWrapperClass<Test_Transform>
     {
@@ -1239,6 +1251,9 @@ namespace HoudiniEngineUnity
         }
     }
 
+		public Test_Material( Material self ) {
+			this.self = self ;
+		}
 
     public class Test_Collider : IEquivableWrapperClass<Test_Collider>
     {
@@ -1521,6 +1536,10 @@ namespace HoudiniEngineUnity
             HEU_TestHelpers.AssertTrueLogEquivalent(self.tangents, other.self.tangents, ref bResult, header, "tangent");
             HEU_TestHelpers.AssertTrueLogEquivalent(self.uv, other.self.uv, ref bResult, header, "uv");
 
+			string header = "MeshCollider" ;
+			HEU_TestHelpers.AssertTrueLogEquivalent( self.sharedMesh.ToTestObject( ),
+													 other.self.sharedMesh.ToTestObject( ), ref bResult, header,
+													 "sharedMesh" ) ;
 
             HEU_TestHelpers.AssertTrueLogEquivalent(self.subMeshCount, other.self.subMeshCount, ref bResult, header,
                 "submeshCount");
@@ -1583,6 +1602,13 @@ namespace HoudiniEngineUnity
                     other.self.sharedMaterials.ToTestObject(), ref bResult, header, "sharedMaterials");
             }
 
+			HEU_TestHelpers.AssertTrueLogEquivalent( self.vertices, other.self.vertices, ref bResult, header,
+													 "vertices" ) ;
+			HEU_TestHelpers.AssertTrueLogEquivalent( self.normals, other.self.normals, ref bResult, header,
+													 "normals" ) ;
+			HEU_TestHelpers.AssertTrueLogEquivalent( self.tangents, other.self.tangents, ref bResult, header,
+													 "tangent" ) ;
+			HEU_TestHelpers.AssertTrueLogEquivalent( self.uv, other.self.uv, ref bResult, header, "uv" ) ;
 
             return bResult;
         }
@@ -1730,6 +1756,9 @@ namespace HoudiniEngineUnity
         }
     }
 
+		public Test_Gradient( Gradient self ) {
+			this.self = self ;
+		}
 
     public class Test_AnimationCurve : IEquivableWrapperClass<Test_AnimationCurve>
     {
@@ -2001,6 +2030,9 @@ namespace HoudiniEngineUnity
 
             HEU_TestHelpers.AssertTrueLogEquivalent(heightsArr, heightsArrB, ref bResult, header, "heightsArr");
 
+		public Test_TerrainData( TerrainData self ) {
+			this.self = self ;
+		}
 
             HEU_TestHelpers.AssertTrueLogEquivalent(self.terrainLayers.ToTestObject(),
                 other.self.terrainLayers.ToTestObject(), ref bResult, header, "terrainLayers");
@@ -2059,6 +2091,11 @@ namespace HoudiniEngineUnity
                     other.self.terrainData.ToTestObject(), ref bResult, header, "terrainData");
             }
 
+			if ( self.terrainData ) {
+				HEU_TestHelpers.AssertTrueLogEquivalent( self.terrainData.ToTestObject( ),
+														 other.self.terrainData.ToTestObject( ), ref bResult, header,
+														 "terrainData" ) ;
+			}
 
             return bResult;
         }

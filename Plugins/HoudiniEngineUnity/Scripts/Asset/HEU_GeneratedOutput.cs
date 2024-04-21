@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -24,12 +24,14 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System.Collections.Generic;
-using UnityEngine;
-
 // Expose internal classes/functions
 #if UNITY_EDITOR
+using System ;
+using System.Collections.Generic ;
+using System.Linq ;
 using System.Runtime.CompilerServices;
+using UnityEngine ;
+using Object = UnityEngine.Object ;
 
 [assembly: InternalsVisibleTo("HoudiniEngineUnityEditor")]
 [assembly: InternalsVisibleTo("HoudiniEngineUnityEditorTests")]
@@ -38,418 +40,372 @@ using System.Runtime.CompilerServices;
 
 namespace HoudiniEngineUnity
 {
-    /// <summary>
-    /// Represents generated output for an HDA part.
-    /// Contains a HEU_GeneratedOutputData for single GameObject output, as well as a list of children outputs for LOD groups.
-    /// </summary>
-    [System.Serializable]
-    public class HEU_GeneratedOutput : IEquivable<HEU_GeneratedOutput>
-    {
-        // The output data for single GameObject (non-groups)
-        public HEU_GeneratedOutputData _outputData = new HEU_GeneratedOutputData();
+	/// <summary>
+	/// Represents generated output for an HDA part.
+	/// Contains a HEU_GeneratedOutputData for single GameObject output, as well as a list of children outputs for LOD groups.
+	/// </summary>
+	[Serializable]
+	public class HEU_GeneratedOutput: IEquivable< HEU_GeneratedOutput >
+	{
+		// The output data for single GameObject (non-groups)
+		public HEU_GeneratedOutputData _outputData = new( ) ;
 
-        // List of child output datas (for LOD groups)
-        public List<HEU_GeneratedOutputData> _childOutputs = new List<HEU_GeneratedOutputData>();
+		// List of child output datas (for LOD groups)
+		public List< HEU_GeneratedOutputData > _childOutputs = new( ) ;
 
-        [SerializeField] private bool isInstancer = false;
+		[SerializeField] private bool isInstancer ;
 
-        public bool IsInstancer
-        {
-            get => isInstancer;
-            set => isInstancer = value;
-        }
+		public bool IsInstancer {
+			get { return isInstancer ; }
+			set { isInstancer = value ; }
+		}
 
-        /// <summary>
-        /// Remove material overrides on given output, replacing
-        /// with the generated materials.
-        /// </summary>
-        public static void ResetMaterialOverrides(HEU_GeneratedOutput output)
-        {
-            if (HasLODGroup(output))
-            {
-                foreach (HEU_GeneratedOutputData child in output._childOutputs)
-                {
-                    ResetMaterialOverrides(child);
-                }
-            }
-            else
-            {
-                ResetMaterialOverrides(output._outputData);
-            }
-        }
+		/// <summary>
+		/// Remove material overrides on given output, replacing
+		/// with the generated materials.
+		/// </summary>
+		public static void ResetMaterialOverrides( HEU_GeneratedOutput output ) {
+			if ( HasLODGroup( output ) ) {
+				foreach ( HEU_GeneratedOutputData child in output._childOutputs ) {
+					ResetMaterialOverrides( child ) ;
+				}
+			}
+			else {
+				ResetMaterialOverrides( output._outputData ) ;
+			}
+		}
 
-        /// <summary>
-        /// Remove material overrides on given output data, replacing
-        /// with the generated materials.
-        /// </summary>
-        public static void ResetMaterialOverrides(HEU_GeneratedOutputData outputData)
-        {
-            if (outputData._gameObject == null)
-            {
-                return;
-            }
+		/// <summary>
+		/// Remove material overrides on given output data, replacing
+		/// with the generated materials.
+		/// </summary>
+		public static void ResetMaterialOverrides( HEU_GeneratedOutputData outputData ) {
+			if ( outputData._gameObject == null ) {
+				return ;
+			}
 
-            MeshRenderer meshRenderer = outputData._gameObject.GetComponent<MeshRenderer>();
-            if (meshRenderer != null)
-                meshRenderer.sharedMaterials = outputData._renderMaterials;
-        }
+			MeshRenderer meshRenderer = outputData._gameObject.GetComponent< MeshRenderer >( ) ;
+			if ( meshRenderer != null )
+				meshRenderer.sharedMaterials = outputData._renderMaterials ;
+		}
 
 
-        /// <summary>
-        /// Returns list of materials that were generated for inGameObject in the output data.
-        /// Checks children as well.
-        /// </summary>
-        /// <param name="output">The output data to check for matching inGameObject</param>
-        /// <param name="inGameObject">The inGameObject to find in the output</param>
-        /// <returns>List of generated materials or null if not found</returns>
-        public static Material[] GetGeneratedMaterialsForGameObject(HEU_GeneratedOutput output, GameObject inGameObject)
-        {
-            if (output._outputData._gameObject == inGameObject)
-            {
-                return output._outputData._renderMaterials;
-            }
-            else
-            {
-                foreach (HEU_GeneratedOutputData outputData in output._childOutputs)
-                {
-                    if (outputData._gameObject == inGameObject)
-                    {
-                        return outputData._renderMaterials;
-                    }
-                }
-            }
+		/// <summary>
+		/// Returns list of materials that were generated for inGameObject in the output data.
+		/// Checks children as well.
+		/// </summary>
+		/// <param name="output">The output data to check for matching inGameObject</param>
+		/// <param name="inGameObject">The inGameObject to find in the output</param>
+		/// <returns>List of generated materials or null if not found</returns>
+		public static Material[] GetGeneratedMaterialsForGameObject( HEU_GeneratedOutput output,
+																	 GameObject          inGameObject ) {
+			if ( output._outputData._gameObject == inGameObject ) {
+				return output._outputData._renderMaterials ;
+			}
 
-            return null;
-        }
+			foreach ( HEU_GeneratedOutputData outputData in output._childOutputs ) {
+				if ( outputData._gameObject == inGameObject ) {
+					return outputData._renderMaterials ;
+				}
+			}
 
-        /// <summary>
-        /// Returns true if output has LOD groups.
-        /// </summary>
-        public static bool HasLODGroup(HEU_GeneratedOutput output)
-        {
-            return output._childOutputs.Count > 0;
-        }
+			return null ;
+		}
 
-        /// <summary>
-        /// Returns true if output is using checkMaterial. Checks children outputs as well.
-        /// </summary>
-        /// <param name="checkMaterial">Material to check</param>
-        /// <param name="output">Output to check</param>
-        /// <returns>True if output is using checkMaterial</returns>
-        public static bool IsOutputUsingMaterial(Material checkMaterial, HEU_GeneratedOutput output)
-        {
-            bool bValue = IsOutputDataUsingMaterial(checkMaterial, output._outputData);
-            if (!bValue)
-            {
-                foreach (HEU_GeneratedOutputData child in output._childOutputs)
-                {
-                    if (IsOutputDataUsingMaterial(checkMaterial, child))
-                    {
-                        bValue = true;
-                        break;
-                    }
-                }
-            }
+		/// <summary>
+		/// Returns true if output has LOD groups.
+		/// </summary>
+		public static bool HasLODGroup( HEU_GeneratedOutput output ) {
+			return output._childOutputs.Count > 0 ;
+		}
 
-            return bValue;
-        }
+		/// <summary>
+		/// Returns true if output is using checkMaterial. Checks children outputs as well.
+		/// </summary>
+		/// <param name="checkMaterial">Material to check</param>
+		/// <param name="output">Output to check</param>
+		/// <returns>True if output is using checkMaterial</returns>
+		public static bool IsOutputUsingMaterial( Material checkMaterial, HEU_GeneratedOutput output ) {
+			bool bValue = IsOutputDataUsingMaterial( checkMaterial, output._outputData ) ;
+			if ( !bValue ) {
+				foreach ( HEU_GeneratedOutputData child in output._childOutputs ) {
+					if ( IsOutputDataUsingMaterial( checkMaterial, child ) ) {
+						bValue = true ;
+						break ;
+					}
+				}
+			}
 
-        /// <summary>
-        /// Returns true if checkMaterial is being used by outputData.
-        /// </summary>
-        /// <param name="checkMaterial">Material to check</param>
-        /// <param name="outputData">Output  datato check</param>
-        /// <returns>True if output is using checkMaterial</returns>
-        public static bool IsOutputDataUsingMaterial(Material checkMaterial, HEU_GeneratedOutputData outputData)
-        {
-            if (outputData._renderMaterials != null)
-            {
-                foreach (Material mat in outputData._renderMaterials)
-                {
-                    if (mat == checkMaterial)
-                    {
-                        return true;
-                    }
-                }
-            }
+			return bValue ;
+		}
 
-            if (outputData._gameObject != null)
-            {
-                MeshRenderer meshRenderer = outputData._gameObject.GetComponent<MeshRenderer>();
-                if (meshRenderer != null)
-                {
-                    Material[] inUseMaterials = meshRenderer.sharedMaterials;
-                    foreach (Material material in inUseMaterials)
-                    {
-                        if (checkMaterial == material)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
+		/// <summary>
+		/// Returns true if checkMaterial is being used by outputData.
+		/// </summary>
+		/// <param name="checkMaterial">Material to check</param>
+		/// <param name="outputData">Output  datato check</param>
+		/// <returns>True if output is using checkMaterial</returns>
+		public static bool IsOutputDataUsingMaterial( Material checkMaterial, HEU_GeneratedOutputData outputData ) {
+			if ( outputData._renderMaterials != null ) {
+				foreach ( Material mat in outputData._renderMaterials ) {
+					if ( mat == checkMaterial ) {
+						return true ;
+					}
+				}
+			}
 
-            return false;
-        }
+			if ( outputData._gameObject != null ) {
+				MeshRenderer meshRenderer = outputData._gameObject.GetComponent< MeshRenderer >( ) ;
+				if ( meshRenderer != null ) {
+					Material[] inUseMaterials = meshRenderer.sharedMaterials ;
+					foreach ( Material material in inUseMaterials ) {
+						if ( checkMaterial == material ) {
+							return true ;
+						}
+					}
+				}
+			}
 
-        public static void ClearGeneratedMaterialReferences(HEU_GeneratedOutputData generatedOutputData)
-        {
-            generatedOutputData._renderMaterials = null;
-        }
+			return false ;
+		}
 
-        /// <summary>
-        /// Destroys the Collider components that were generated and stored in outputData.
-        /// Specially handles MeshColliders for the contained mesh.
-        /// </summary>
-        /// <param name="outputData">Contains the generated list of Colliders</param>
-        public static void DestroyAllGeneratedColliders(HEU_GeneratedOutputData outputData)
-        {
-            if (outputData._colliders != null)
-            {
-                int numExisting = outputData._colliders.Count;
-                for (int i = 0; i < numExisting; ++i)
-                {
-                    if (outputData._colliders[i] != null)
-                    {
-                        if (outputData._colliders[i].GetType() == typeof(MeshCollider))
-                        {
-                            HEU_GeneralUtility.DestroyMeshCollider(outputData._colliders[i] as MeshCollider, true);
-                        }
-                        else
-                        {
-                            HEU_GeneralUtility.DestroyImmediate(outputData._colliders[i], true);
-                        }
-                    }
-                }
+		public static void ClearGeneratedMaterialReferences( HEU_GeneratedOutputData generatedOutputData ) {
+			generatedOutputData._renderMaterials = null ;
+		}
 
-                outputData._colliders.Clear();
-            }
-        }
+		/// <summary>
+		/// Destroys the Collider components that were generated and stored in outputData.
+		/// Specially handles MeshColliders for the contained mesh.
+		/// </summary>
+		/// <param name="outputData">Contains the generated list of Colliders</param>
+		public static void DestroyAllGeneratedColliders( HEU_GeneratedOutputData outputData ) {
+			if ( outputData._colliders != null ) {
+				int numExisting = outputData._colliders.Count ;
+				for ( int i = 0; i < numExisting; ++i ) {
+					if ( outputData._colliders[ i ] != null ) {
+						if ( outputData._colliders[ i ].GetType( ) == typeof( MeshCollider ) ) {
+							HEU_GeneralUtility.DestroyMeshCollider( outputData._colliders[ i ] as MeshCollider, true ) ;
+						}
+						else {
+							HEU_GeneralUtility.DestroyImmediate( outputData._colliders[ i ], true ) ;
+						}
+					}
+				}
 
-        public static void DestroyGeneratedOutput(HEU_GeneratedOutput generatedOutput)
-        {
-            int numChildren = generatedOutput._childOutputs != null ? generatedOutput._childOutputs.Count : 0;
-            for (int i = 0; i < numChildren; ++i)
-            {
-                if (generatedOutput._childOutputs[i] != null && generatedOutput._childOutputs[i]._gameObject != null)
-                {
-                    HEU_GeneralUtility.DestroyImmediate(generatedOutput._childOutputs[i]._gameObject);
-                }
-            }
+				outputData._colliders.Clear( ) ;
+			}
+		}
 
-            generatedOutput._childOutputs.Clear();
+		public static void DestroyGeneratedOutput( HEU_GeneratedOutput? generatedOutput ) {
+			if ( generatedOutput is null ) return ;
+			var childOutputs = generatedOutput._childOutputs ;
+			int numChildren  = childOutputs?.Count ?? 0 ;
 
-            DestroyAllGeneratedColliders(generatedOutput._outputData);
-            HEU_GeneralUtility.DestroyImmediate(generatedOutput._outputData._gameObject);
-            generatedOutput._outputData._gameObject = null;
-            generatedOutput._outputData._renderMaterials = null;
-        }
+			for ( int i = 0; i < numChildren; ++i )
+				if ( childOutputs?[ i ] is { _gameObject: not null } )
+					HEU_GeneralUtility.DestroyImmediate( childOutputs[ i ]._gameObject ) ;
 
-        public static void DestroyGeneratedOutputChildren(HEU_GeneratedOutput generatedOutput)
-        {
-            // LOD Group component
-            HEU_GeneralUtility.DestroyComponent<LODGroup>(generatedOutput._outputData._gameObject);
+			childOutputs?.Clear( ) ;
 
-            int numChildren = generatedOutput._childOutputs != null ? generatedOutput._childOutputs.Count : 0;
-            for (int i = 0; i < numChildren; ++i)
-            {
-                if (generatedOutput._childOutputs[i] != null && generatedOutput._childOutputs[i]._gameObject != null)
-                {
-                    DestroyGeneratedOutputData(generatedOutput._childOutputs[i], true);
-                }
-            }
+			DestroyAllGeneratedColliders( generatedOutput._outputData ) ;
+			HEU_GeneralUtility.DestroyImmediate( generatedOutput._outputData._gameObject ) ;
+			generatedOutput._outputData._gameObject      = null ;
+			generatedOutput._outputData._renderMaterials = null ;
+		}
 
-            generatedOutput._childOutputs.Clear();
-        }
+		public static void DestroyGeneratedOutputChildren( HEU_GeneratedOutput generatedOutput ) {
+			// LOD Group component
+			HEU_GeneralUtility.DestroyComponent< LODGroup >( generatedOutput._outputData._gameObject ) ;
 
-        public static void DestroyGeneratedOutputData(HEU_GeneratedOutputData generatedOutputData,
-            bool bDontDeletePersistantResources)
-        {
-            ClearGeneratedMaterialReferences(generatedOutputData);
+			int numChildren = generatedOutput._childOutputs != null ? generatedOutput._childOutputs.Count : 0 ;
+			for ( int i = 0; i < numChildren; ++i ) {
+				if ( generatedOutput._childOutputs[ i ] != null &&
+					 generatedOutput._childOutputs[ i ]._gameObject != null ) {
+					DestroyGeneratedOutputData( generatedOutput._childOutputs[ i ], true ) ;
+				}
+			}
 
-            // Colliders
-            HEU_GeneratedOutput.DestroyAllGeneratedColliders(generatedOutputData);
+			generatedOutput._childOutputs.Clear( ) ;
+		}
 
-            // Components
-            HEU_GeneralUtility.DestroyGeneratedMeshMaterialsLODGroups(generatedOutputData._gameObject,
-                bDontDeletePersistantResources);
+		public static void DestroyGeneratedOutputData( HEU_GeneratedOutputData generatedOutputData,
+													   bool                    bDontDeletePersistantResources ) {
+			ClearGeneratedMaterialReferences( generatedOutputData ) ;
 
-            // Gameobject
-            HEU_GeneralUtility.DestroyImmediate(generatedOutputData._gameObject);
-        }
+			// Colliders
+			DestroyAllGeneratedColliders( generatedOutputData ) ;
 
-        public static void ClearMaterialsNoLongerUsed(Material[] materialsToCheck, Material[] materialsInUse)
-        {
-            if (materialsToCheck == null)
-            {
-                return;
-            }
+			// Components
+			HEU_GeneralUtility.DestroyGeneratedMeshMaterialsLODGroups( generatedOutputData._gameObject,
+																	   bDontDeletePersistantResources ) ;
 
-            bool bClear = true;
-            int numMaterialsToCheck = materialsToCheck.Length;
-            for (int i = 0; i < numMaterialsToCheck; ++i)
-            {
-                bClear = true;
-                if (materialsInUse != null)
-                {
-                    foreach (Material safeMat in materialsInUse)
-                    {
-                        if (safeMat == materialsToCheck[i])
-                        {
-                            bClear = false;
-                            break;
-                        }
-                    }
-                }
+			// Gameobject
+			HEU_GeneralUtility.DestroyImmediate( generatedOutputData._gameObject ) ;
+		}
 
-                if (bClear)
-                {
-                    materialsToCheck[i] = null;
-                }
-            }
-        }
+		public static void ClearMaterialsNoLongerUsed( Material[] materialsToCheck, Material[] materialsInUse ) {
+			if ( materialsToCheck == null ) {
+				return ;
+			}
 
-        /// <summary>
-        /// Copy material overrides from sourceOutputData to destOutputData, skipping over materials that weren't overridden.
-        /// </summary>
-        /// <param name="sourceOutputData">Source output data to get the materials from</param>
-        /// <param name="destOutputData">Destination output data to assign materials to</param>
-        public static void CopyMaterialOverrides(HEU_GeneratedOutputData sourceOutputData,
-            HEU_GeneratedOutputData destOutputData)
-        {
-            MeshRenderer srcMeshRenderer = sourceOutputData._gameObject != null
-                ? sourceOutputData._gameObject.GetComponent<MeshRenderer>()
-                : null;
-            MeshRenderer destMeshRenderer = destOutputData._gameObject != null
-                ? destOutputData._gameObject.GetComponent<MeshRenderer>()
-                : null;
-            if (srcMeshRenderer != null && destMeshRenderer != null)
-            {
-                Material[] srcAssignedMaterials = srcMeshRenderer.sharedMaterials;
-                int numSrcAssignedMaterials = srcAssignedMaterials.Length;
+			bool bClear              = true ;
+			int  numMaterialsToCheck = materialsToCheck.Length ;
+			for ( int i = 0; i < numMaterialsToCheck; ++i ) {
+				bClear = true ;
+				if ( materialsInUse != null ) {
+					foreach ( Material safeMat in materialsInUse ) {
+						if ( safeMat == materialsToCheck[ i ] ) {
+							bClear = false ;
+							break ;
+						}
+					}
+				}
 
-                Material[] destAssignedMaterials = destMeshRenderer.sharedMaterials;
-                int numDestAssignedMaterials = destAssignedMaterials.Length;
+				if ( bClear ) {
+					materialsToCheck[ i ] = null ;
+				}
+			}
+		}
 
-                for (int j = 0; j < numSrcAssignedMaterials; ++j)
-                {
-                    if ((j < sourceOutputData._renderMaterials.Length) && (j < numDestAssignedMaterials))
-                    {
-                        if (srcAssignedMaterials[j] != sourceOutputData._renderMaterials[j])
-                        {
-                            // Material has been overriden on the source, so assign same material to destination
-                            destAssignedMaterials[j] = srcAssignedMaterials[j];
-                        }
-                    }
-                }
+		/// <summary>
+		/// Copy material overrides from sourceOutputData to destOutputData, skipping over materials that weren't overridden.
+		/// </summary>
+		/// <param name="sourceOutputData">Source output data to get the materials from</param>
+		/// <param name="destOutputData">Destination output data to assign materials to</param>
+		public static void CopyMaterialOverrides( HEU_GeneratedOutputData sourceOutputData,
+												  HEU_GeneratedOutputData destOutputData ) {
+			MeshRenderer srcMeshRenderer = sourceOutputData._gameObject != null
+											   ? sourceOutputData._gameObject.GetComponent< MeshRenderer >( )
+											   : null ;
+			MeshRenderer destMeshRenderer = destOutputData._gameObject != null
+												? destOutputData._gameObject.GetComponent< MeshRenderer >( )
+												: null ;
+			if ( srcMeshRenderer != null && destMeshRenderer != null ) {
+				Material[] srcAssignedMaterials    = srcMeshRenderer.sharedMaterials ;
+				int        numSrcAssignedMaterials = srcAssignedMaterials.Length ;
 
-                destMeshRenderer.sharedMaterials = destAssignedMaterials;
-            }
-        }
+				Material[] destAssignedMaterials    = destMeshRenderer.sharedMaterials ;
+				int        numDestAssignedMaterials = destAssignedMaterials.Length ;
 
-        // Writes meshes and materials to the asset cache
-        // Note: It might be useful to merge with BakePartToGameObject in the future to include terrain automatically
-        internal void WriteOutputToAssetCache(GameObject parentObject, string outputPath, bool bIsInstancer)
-        {
-            BakeGameObjectComponents(_outputData._gameObject, parentObject, _outputData._gameObject.name, outputPath,
-                bIsInstancer);
-        }
+				for ( int j = 0; j < numSrcAssignedMaterials; ++j ) {
+					if ( ( j < sourceOutputData._renderMaterials.Length ) && ( j < numDestAssignedMaterials ) ) {
+						if ( srcAssignedMaterials[ j ] != sourceOutputData._renderMaterials[ j ] ) {
+							// Material has been overriden on the source, so assign same material to destination
+							destAssignedMaterials[ j ] = srcAssignedMaterials[ j ] ;
+						}
+					}
+				}
 
-        // Bakes GameObject components (Used for both standard pipeline and PDG)
-        internal static void BakeGameObjectComponents(GameObject sourceGO, GameObject targetGO, string assetName,
-            string outputPath, bool bIsInstancer)
-        {
-            UnityEngine.Object assetDBObject = null;
-            Dictionary<Mesh, Mesh> sourceToTargetMeshMap = new Dictionary<Mesh, Mesh>();
-            Dictionary<Material, Material> sourceToCopiedMaterials = new Dictionary<Material, Material>();
-            string newAssetDBObjectFileName = HEU_AssetDatabase.AppendMeshesAssetFileName(assetName);
+				destMeshRenderer.sharedMaterials = destAssignedMaterials ;
+			}
+		}
 
-            HEU_PartData.BakePartToGameObject(
-                partData: null,
-                srcGO: sourceGO,
-                targetGO: targetGO,
-                assetName: assetName,
-                bIsInstancer: bIsInstancer,
-                bDeleteExistingComponents: false, // Materials might be overwritten if true
-                bDontDeletePersistantResources: false,
-                bWriteMeshesToAssetDatabase: true,
-                bakedAssetPath: ref outputPath,
-                sourceToTargetMeshMap: sourceToTargetMeshMap,
-                sourceToCopiedMaterials: sourceToCopiedMaterials,
-                assetDBObject: ref assetDBObject,
-                assetObjectFileName: newAssetDBObjectFileName,
-                bReconnectPrefabInstances: false,
-                bKeepPreviousTransformValues: false);
-        }
+		// Writes meshes and materials to the asset cache
+		// Note: It might be useful to merge with BakePartToGameObject in the future to include terrain automatically
+		internal void WriteOutputToAssetCache( GameObject parentObject, string outputPath, bool bIsInstancer ) {
+			BakeGameObjectComponents( _outputData._gameObject, parentObject, _outputData._gameObject.name, outputPath,
+									  bIsInstancer ) ;
+		}
 
-        public bool IsEquivalentTo(HEU_GeneratedOutput other)
-        {
-            bool bResult = true;
+		// Bakes GameObject components (Used for both standard pipeline and PDG)
+		internal static void BakeGameObjectComponents( GameObject sourceGO, GameObject targetGO, string assetName,
+													   string outputPath, bool bIsInstancer ) {
+			Object assetDBObject = null ;
+			Dictionary< Mesh, Mesh > sourceToTargetMeshMap = new( ) ;
+			Dictionary< Material, Material > sourceToCopiedMaterials = new( ) ;
+			string newAssetDBObjectFileName = HEU_AssetDatabase.AppendMeshesAssetFileName( assetName ) ;
 
-            string header = "HEU_GeneratedOutput";
+			HEU_PartData.BakePartToGameObject(
+											  partData: null,
+											  srcGO: sourceGO,
+											  targetGO: targetGO,
+											  assetName: assetName,
+											  bIsInstancer: bIsInstancer,
+											  bDeleteExistingComponents:
+											  false, // Materials might be overwritten if true
+											  bDontDeletePersistantResources: false,
+											  bWriteMeshesToAssetDatabase: true,
+											  bakedAssetPath: ref outputPath,
+											  sourceToTargetMeshMap: sourceToTargetMeshMap,
+											  sourceToCopiedMaterials: sourceToCopiedMaterials,
+											  assetDBObject: ref assetDBObject,
+											  assetObjectFileName: newAssetDBObjectFileName,
+											  bReconnectPrefabInstances: false,
+											  bKeepPreviousTransformValues: false ) ;
+		}
 
-            if (other == null)
-            {
-                HEU_Logger.LogError(header + " Not equivalent");
-                return false;
-            }
+		public bool IsEquivalentTo( HEU_GeneratedOutput other ) {
+			bool bResult = true ;
 
-            HEU_TestHelpers.AssertTrueLogEquivalent(this._outputData, other._outputData, ref bResult, header,
-                "_outputData");
+			string header = "HEU_GeneratedOutput" ;
 
-            HEU_TestHelpers.AssertTrueLogEquivalent(this._childOutputs, other._childOutputs, ref bResult, header,
-                "_childOutputs");
+			if ( other == null ) {
+				HEU_Logger.LogError( header + " Not equivalent" ) ;
+				return false ;
+			}
 
-            HEU_TestHelpers.AssertTrueLogEquivalent(this.isInstancer, other.isInstancer, ref bResult, header,
-                "_childOutputs");
+			HEU_TestHelpers.AssertTrueLogEquivalent( _outputData, other._outputData, ref bResult, header,
+													 "_outputData" ) ;
 
-            return bResult;
-        }
-    }
+			HEU_TestHelpers.AssertTrueLogEquivalent( _childOutputs, other._childOutputs, ref bResult, header,
+													 "_childOutputs" ) ;
+
+			HEU_TestHelpers.AssertTrueLogEquivalent( isInstancer, other.isInstancer, ref bResult, header,
+													 "_childOutputs" ) ;
+
+			return bResult ;
+		}
+
+	}
 
 
-    /// <summary>
-    /// Holds references for the HDA part output data.
-    /// </summary>
-    [System.Serializable]
-    public class HEU_GeneratedOutputData : IEquivable<HEU_GeneratedOutputData>
-    {
-        // The generated GameObject which will have generated components and children
-        public GameObject _gameObject;
+	/// <summary>
+	/// Holds references for the HDA part output data.
+	/// </summary>
+	[Serializable]
+	public class HEU_GeneratedOutputData: IEquivable< HEU_GeneratedOutputData >
+	{
+		// The generated GameObject which will have generated components and children
+		public GameObject? _gameObject ;
 
-        // The materials used by _gameObject as dictated by the cook process.
-        // These could be generated materials, but also existing in Unity (specified by HDA).
-        // These will not be material overrides set by user in Unity. This allows to 
-        // check which materials have been overriden.
-        public Material[] _renderMaterials;
+		// The materials used by _gameObject as dictated by the cook process.
+		// These could be generated materials, but also existing in Unity (specified by HDA).
+		// These will not be material overrides set by user in Unity. This allows to 
+		// check which materials have been overriden.
+		public Material[]? _renderMaterials ;
 
-        // Keep track of colliders generated by this asset, so we can remove
-        // just those on regeneration
-        public List<Collider> _colliders = new List<Collider>();
+		// Keep track of colliders generated by this asset, so we can remove
+		// just those on regeneration
+		public List< Collider > _colliders = new( ) ;
 
-        public bool IsEquivalentTo(HEU_GeneratedOutputData other)
-        {
-            bool bResult = true;
-
-            string header = "HEU_GeneratedOutputData";
-
-            if (other == null)
-            {
-                HEU_Logger.LogError(header + " Not equivalent");
-                return false;
-            }
-
-            HEU_TestHelpers.AssertTrueLogEquivalent(this._gameObject, other._gameObject, ref bResult, header,
-                "_gameObject");
+#warning Changes made to avoid covariant conversion exceptions & undefined behavior
+		public bool IsEquivalentTo( HEU_GeneratedOutputData? other ) {
+			const string header = "HEU_GeneratedOutputData" ;
+			if ( other is null ) {
+				HEU_Logger.LogError( header + " Not equivalent" ) ;
+				return false ;
+			}
+			bool bResult = true ;
+			
+			HEU_TestHelpers.AssertTrueLogEquivalent( _gameObject, other?._gameObject, ref bResult, header,
+													 "_gameObject" ) ;
 
 
-            HEU_TestHelpers.AssertTrueLogEquivalent(_renderMaterials.ToTestObject(),
-                other._renderMaterials.ToTestObject(), ref bResult, header, "_renderMaterials");
+			//! Use Cast<T> to try to avoid possible covariant conversion exceptions:
+			HEU_TestHelpers.AssertTrueLogEquivalent( //_renderMaterials?.ToTestObject( ),
+													 //other?._renderMaterials.ToTestObject( ), ref bResult, header,
+													  _renderMaterials?.ToTestObject( ).Cast<IEquivable<Test_Material> >( ).ToArray( ),
+													 other?._renderMaterials?.ToTestObject( ).Cast<IEquivable<Test_Material> >( ).ToArray( ),
+													 ref bResult, header,
+													 "_renderMaterials" ) ;
 
-            HEU_TestHelpers.AssertTrueLogEquivalent(_colliders.ToTestObject(), other._colliders.ToTestObject(),
-                ref bResult, header, "_colliders");
+			HEU_TestHelpers.AssertTrueLogEquivalent( _colliders.ToTestObject( ),
+													 other?._colliders.ToTestObject( ),
+													 ref bResult, header, "_colliders"
+												   ) ;
 
-            return bResult;
-        }
-    }
+			return bResult ;
+		}
+	}
+
 } // HoudiniEngineUnity

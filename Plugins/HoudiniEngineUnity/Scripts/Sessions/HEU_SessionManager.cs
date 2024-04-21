@@ -29,30 +29,27 @@
 #endif
 
 using System ;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq ;
-using System.Text.RegularExpressions;
-using UnityEngine;
+using System.Collections.Generic ;
+using System.Diagnostics ;
+using System.IO ;
+using System.Runtime.InteropServices ;
+using UnityEditor ;
+using UnityEngine ;
 using Object = UnityEngine.Object ;
 
 namespace HoudiniEngineUnity
 {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Typedefs (copy these from HEU_Common.cs)
-    using HAPI_Int64 = System.Int64;
-    using HAPI_StringHandle = System.Int32;
-    using HAPI_ErrorCodeBits = System.Int32;
-    using HAPI_AssetLibraryId = System.Int32;
-    using HAPI_NodeId = System.Int32;
-    using HAPI_NodeTypeBits = System.Int32;
-    using HAPI_NodeFlagsBits = System.Int32;
-    using HAPI_ParmId = System.Int32;
-    using HAPI_PartId = System.Int32;
+	using HAPI_Int64 = Int64;
+	using HAPI_StringHandle = Int32;
+	using HAPI_NodeId = Int32;
+	using HAPI_NodeTypeBits = Int32;
+	using HAPI_NodeFlagsBits = Int32;
+	using HAPI_PartId = Int32;
 
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>
 	/// Manages a session for Houdini Engine. Supports all types of sessions.
 	/// </summary>
@@ -153,7 +150,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="sessionID">Session ID to use for matching to session</param>
 		/// <returns>Session object if found</returns>
-		public static HEU_SessionBase GetSessionWithID( HAPI_Int64 sessionID ) {
+		public static HEU_SessionBase? GetSessionWithID( HAPI_Int64 sessionID ) {
 			_sessionMap.TryGetValue( sessionID, out HEU_SessionBase session ) ;
 			return session ;
 		}
@@ -163,7 +160,7 @@ namespace HoudiniEngineUnity
 		/// A way to persist current session information through code refresh/compiles.
 		/// </summary>
 		public static void SaveAllSessionData( ) {
-			List< HEU_SessionBase > sessions = new( _sessionMap.Values ) ;
+			List< HEU_SessionBase? > sessions = new( _sessionMap.Values ) ;
 			HEU_PluginStorage.SaveAllSessionData( sessions ) ;
 		}
 
@@ -180,7 +177,7 @@ namespace HoudiniEngineUnity
 				if ( sessionData is null ) continue ;
 				try {
 					// Create session based on type
-					HEU_SessionBase sessionBase = CreateSessionFromType( sessionData.SessionClassType ) ;
+					HEU_SessionBase? sessionBase = CreateSessionFromType( sessionData.SessionClassType ) ;
 					if ( sessionBase is null ) continue ;
 					sessionBase.SetSessionData( sessionData ) ;
 					_sessionMap.Add( sessionData.SessionID, sessionBase ) ;
@@ -248,7 +245,7 @@ namespace HoudiniEngineUnity
 			}
 			
 			HEU_EditorUtility.DisplayErrorDialog( HEU_Defines.HEU_ERROR_TITLE,
-												  HEU_SessionManager.GetLastSessionError( ), "OK" ) ;
+												  GetLastSessionError( ), "OK" ) ;
 			HEU_EditorUtility.DisplayDialog( HEU_Defines.HEU_INSTALL_INFO,
 											 HEU_HAPIUtility.GetHoudiniEngineInstallationInfo( ), "OK" ) ;
 			
@@ -521,8 +518,8 @@ namespace HoudiniEngineUnity
 		public static bool IsHARSProcessRunning( int processID ) {
 			if ( processID < 1 ) return false ;
 			try {
-				System.Diagnostics.Process serverProcess = 
-					System.Diagnostics.Process.GetProcessById( processID ) ;
+				Process serverProcess = 
+					Process.GetProcessById( processID ) ;
 				return serverProcess is { HasExited: false, ProcessName: "HARS" } ;
 				//!serverProcess.HasExited && serverProcess.ProcessName.Equals( "HARS" ) ;
 			}
@@ -550,7 +547,7 @@ namespace HoudiniEngineUnity
 #if UNITY_EDITOR
 			string lastPath = HEU_PluginSettings.LastLoadHIPPath ;
 			string fileExt  = "hip;*.hiplc;*.hipnc" ;
-			string filePath = UnityEditor.EditorUtility.OpenFilePanel( "Open Houdini HIP", lastPath, fileExt ) ;
+			string filePath = EditorUtility.OpenFilePanel( "Open Houdini HIP", lastPath, fileExt ) ;
 			if ( string.IsNullOrEmpty( filePath ) ) return false ;
 			
 			HEU_PluginSettings.LastLoadHIPPath = filePath ;
@@ -588,10 +585,10 @@ namespace HoudiniEngineUnity
 				 license is HAPI_License.HAPI_LICENSE_HOUDINI_ENGINE_INDIE ) 
 				fileExt = "hiplc" ;
 
-			string filePath = UnityEditor.EditorUtility.SaveFilePanel( "Save HIP File",
-																	   "",
-																	   "hscene",
-																	   fileExt ) ;
+			string filePath = EditorUtility.SaveFilePanel( "Save HIP File",
+														   "",
+														   "hscene",
+														   fileExt ) ;
 			if ( string.IsNullOrEmpty( filePath ) ) return true ;
 			
 			bool bResult = session.SaveHIPFile( filePath, bLockNodes ) ;
@@ -673,7 +670,7 @@ namespace HoudiniEngineUnity
 	    houdiniPath = GetHoudiniPathOnMacOS(houdiniPath);
 #endif
 			
-			var HoudiniProcess = new System.Diagnostics.Process( ) ;
+			var HoudiniProcess = new Process( ) ;
 			HoudiniProcess.StartInfo.FileName  = houdiniPath ;
 			HoudiniProcess.StartInfo.Arguments = args ;
 			return HoudiniProcess.Start( ) ;
@@ -691,7 +688,7 @@ namespace HoudiniEngineUnity
 				}
 			}
 
-			string HIPName = string.Format( "hscene_{0}.hip", System.IO.Path.GetRandomFileName( ).Replace( ".", "" ) ) ;
+			string HIPName = string.Format( "hscene_{0}.hip", Path.GetRandomFileName( ).Replace( ".", "" ) ) ;
 			string HIPPath = Application.temporaryCachePath + HEU_Platform.DirectorySeparatorStr + HIPName ;
 
 			if ( !session.SaveHIPFile( HIPPath, false ) ) {
@@ -707,7 +704,7 @@ namespace HoudiniEngineUnity
 	    HoudiniPath = GetHoudiniPathOnMacOS(HoudiniPath);
 #endif
 
-			var HoudiniProcess = new System.Diagnostics.Process( ) ;
+			var HoudiniProcess = new Process( ) ;
 			HoudiniProcess.StartInfo.FileName  = HoudiniPath ;
 			HoudiniProcess.StartInfo.Arguments = string.Format( "\"{0}\"", HIPPath ) ;
 			if ( !HoudiniProcess.Start( ) ) {
@@ -940,9 +937,8 @@ namespace HoudiniEngineUnity
 				if ( count > 0 ) {
 					return session.GetComposedChildNodeList( parentNodeID, childNodeIDs, count, bLogIfError ) ;
 				}
-				else {
-					return true ;
-				}
+
+				return true ;
 			}
 
 			return false ;
@@ -1007,12 +1003,15 @@ namespace HoudiniEngineUnity
 			if ( !sessionBase.GetNodeInfo( materialInfo.nodeId, ref materialNodeInfo ) )
 				return "" ;
 
-			string assetNodeName    = HEU_SessionManager.GetString( assetNodeInfo.internalNodePathSH, sessionBase ) ;
-			string materialNodeName = HEU_SessionManager.GetString( materialNodeInfo.internalNodePathSH, sessionBase ) ;
+			string assetNodeName    = GetString( assetNodeInfo.internalNodePathSH, sessionBase ) ;
+			string materialNodeName = GetString( materialNodeInfo.internalNodePathSH, sessionBase ) ;
 			if ( assetNodeName.Length <= 0 || materialNodeName.Length <= 0 ) return "" ;
 
+			// This throws exceptions because assetNodeName is not necessarily even part of the string ...
 			// Remove assetNodeName from materialNodeName. Extra position is for separator.
-			string materialName = materialNodeName.Substring( assetNodeName.Length + 1 ) ;
+			// string materialName = materialNodeName.Substring( assetNodeName.Length + 1 ) ;
+			
+			string materialName = materialNodeName.Replace( assetNodeName, string.Empty ) ;
 			return materialName.Replace( "/", "_" ) ;
 		}
 

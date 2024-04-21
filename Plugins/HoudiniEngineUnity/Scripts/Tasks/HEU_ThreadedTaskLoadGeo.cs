@@ -72,10 +72,12 @@ namespace HoudiniEngineUnity
 			_generateOptions = _ownerSync._generateOptions ;
 
 			// Work data
-			_loadData             = new( ) ;
-			_loadData._cookNodeID = cookNodeID ;
-			_loadData._loadStatus = HEU_LoadData.LoadStatus.NONE ;
-			_loadData._logStr     = new( ) ;
+			_loadData             = new( )
+			{
+				_cookNodeID = cookNodeID,
+				_loadStatus = HEU_LoadData.LoadStatus.NONE,
+				_logStr     = new( ),
+			} ;
 		}
 
 		/// <summary>
@@ -215,7 +217,7 @@ namespace HoudiniEngineUnity
 				 statusCode == HAPI_State.HAPI_STATE_READY_WITH_FATAL_ERRORS ) {
 				string statusString = session.GetStatusString( HAPI_StatusType.HAPI_STATUS_COOK_RESULT,
 															   HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS ) ;
-				AppendLog( HEU_LoadData.LoadStatus.ERROR, string.Format( "Cook failed: {0}.", statusString ) ) ;
+				AppendLog( HEU_LoadData.LoadStatus.ERROR, $"Cook failed: {statusString}." ) ;
 				return false ;
 			}
 
@@ -229,35 +231,30 @@ namespace HoudiniEngineUnity
 		protected virtual bool LoadObjectBuffers( HEU_SessionBase session, ref HAPI_ObjectInfo objectInfo ) {
 			// Get display SOP geo info and cook the node
 			HAPI_GeoInfo displayGeoInfo = new( ) ;
-			if ( !_session.GetDisplayGeoInfo( objectInfo.nodeId, ref displayGeoInfo ) ) {
+			if ( !_session.GetDisplayGeoInfo( objectInfo.nodeId, ref displayGeoInfo ) )
 				return false ;
-			}
 
-			if ( !CookNode( session, displayGeoInfo.nodeId ) ) {
+			if ( !CookNode( session, displayGeoInfo.nodeId ) )
 				return false ;
-			}
 
-			bool bResult       = true ;
+			bool bResult = true ;
 			bool bHasInstancer = false ;
 
-			HEU_LoadObject obj = new( ) ;
-			obj._objectNodeID  = objectInfo.nodeId ;
-			obj._displayNodeID = displayGeoInfo.nodeId ;
+			HEU_LoadObject obj = new( ) {
+				_objectNodeID  = objectInfo.nodeId,
+				_displayNodeID = displayGeoInfo.nodeId,
+			} ;
 
 			if ( LoadNodeBuffer( session, obj._displayNodeID, obj ) ) {
 				_loadData._loadedObjects.Add( obj ) ;
 
-				if ( !bHasInstancer && obj._instancerBuffers != null && obj._instancerBuffers.Count > 0 ) {
+				if ( !bHasInstancer && obj._instancerBuffers is { Count: > 0 } )
 					bHasInstancer = true ;
-				}
 			}
-			else {
-				bResult = false ;
-			}
+			else bResult = false ;
 
-			if ( bResult && bHasInstancer ) {
+			if ( bResult && bHasInstancer )
 				BuildBufferIDsMap( _loadData ) ;
-			}
 
 			return bResult ;
 		}
@@ -314,22 +311,22 @@ namespace HoudiniEngineUnity
 
 			int numObjects = loadData._loadedObjects.Count ;
 			for ( int i = 0; i < numObjects; ++i ) {
-				HEU_LoadObject obj = loadData._loadedObjects[ i ] ;
+				HEU_LoadObject? obj = loadData._loadedObjects[ i ] ;
 
 				if ( obj._meshBuffers != null ) {
-					foreach ( HEU_LoadBufferBase buffer in obj._meshBuffers ) {
+					foreach ( HEU_LoadBufferMesh buffer in obj._meshBuffers ) {
 						loadData._idBuffersMap[ buffer._id ] = buffer ;
 					}
 				}
 
 				if ( obj._terrainBuffers != null ) {
-					foreach ( HEU_LoadBufferBase buffer in obj._terrainBuffers ) {
+					foreach ( HEU_LoadBufferVolume buffer in obj._terrainBuffers ) {
 						loadData._idBuffersMap[ buffer._id ] = buffer ;
 					}
 				}
 
 				if ( obj._instancerBuffers != null ) {
-					foreach ( HEU_LoadBufferBase buffer in obj._instancerBuffers ) {
+					foreach ( HEU_LoadBufferInstancer buffer in obj._instancerBuffers ) {
 						loadData._idBuffersMap[ buffer._id ] = buffer ;
 					}
 				}
@@ -339,7 +336,7 @@ namespace HoudiniEngineUnity
 		public virtual bool DoFileLoad( ) {
 			// Check file path
 			if ( !HEU_Platform.DoesPathExist( _filePath ) ) {
-				AppendLog( HEU_LoadData.LoadStatus.ERROR, string.Format( "File not found at {0}", _filePath ) ) ;
+				AppendLog( HEU_LoadData.LoadStatus.ERROR, $"File not found at {_filePath}" ) ;
 				return false ;
 			}
 
@@ -421,9 +418,11 @@ namespace HoudiniEngineUnity
 		/// Returns the various geometry types (parts) from the given node.
 		/// Only part instancers and point instancers (via attributes) are returned.
 		/// </summary>
-		bool QueryParts( HAPI_NodeId                          nodeID, ref List< HAPI_PartInfo > meshParts,
+		bool QueryParts( HAPI_NodeId nodeID,
+						 ref List< HAPI_PartInfo > meshParts,
 						 ref List< HAPI_PartInfo > volumeParts,
-						 ref List< HAPI_PartInfo > instancerParts, ref List< HAPI_PartInfo > curveParts,
+						 ref List< HAPI_PartInfo > instancerParts,
+						 ref List< HAPI_PartInfo > curveParts,
 						 ref List< HAPI_PartInfo > scatterInstancerParts ) {
 			// Get display geo info
 			HAPI_GeoInfo geoInfo = new( ) ;
@@ -449,8 +448,7 @@ namespace HoudiniEngineUnity
 					bool isAttribInstancer  = false ;
 					bool isScatterInstancer = false ;
 					// Preliminary check for attribute instancing (mesh type with no verts but has points with instances)
-					if ( HEU_HAPIUtility.IsSupportedPolygonType( partInfo.type ) && partInfo.vertexCount == 0 &&
-						 partInfo.pointCount > 0 ) {
+					if ( HEU_HAPIUtility.IsSupportedPolygonType( partInfo.type ) && partInfo is { vertexCount: 0, pointCount: > 0 } ) {
 						// Allowing both types of instancing
 
 						if ( HEU_GeneralUtility.HasValidInstanceAttribute( _session, nodeID, partInfo.id,
@@ -466,19 +464,19 @@ namespace HoudiniEngineUnity
 					}
 
 					if ( isScatterInstancer || isAttribInstancer ||
-						 partInfo.type == HAPI_PartType.HAPI_PARTTYPE_INSTANCER ) {
+						 partInfo.type is HAPI_PartType.HAPI_PARTTYPE_INSTANCER ) {
 						if ( isScatterInstancer ) {
 							scatterInstancerParts.Add( partInfo ) ;
 						}
 
-						if ( partInfo.type == HAPI_PartType.HAPI_PARTTYPE_INSTANCER || isAttribInstancer ) {
+						if ( partInfo.type is HAPI_PartType.HAPI_PARTTYPE_INSTANCER || isAttribInstancer ) {
 							instancerParts.Add( partInfo ) ;
 						}
 					}
-					else if ( partInfo.type == HAPI_PartType.HAPI_PARTTYPE_VOLUME ) {
+					else if ( partInfo.type is HAPI_PartType.HAPI_PARTTYPE_VOLUME ) {
 						volumeParts.Add( partInfo ) ;
 					}
-					else if ( partInfo.type == HAPI_PartType.HAPI_PARTTYPE_CURVE ) {
+					else if ( partInfo.type is HAPI_PartType.HAPI_PARTTYPE_CURVE ) {
 						curveParts.Add( partInfo ) ;
 					}
 					else if ( HEU_HAPIUtility.IsSupportedPolygonType( partInfo.type ) ) {
@@ -487,15 +485,13 @@ namespace HoudiniEngineUnity
 					else {
 						string partName = HEU_SessionManager.GetString( partInfo.nameSH, _session ) ;
 						AppendLog( HEU_LoadData.LoadStatus.ERROR,
-								   string.Format( "Part {0} with type {1} is not supported for GeoSync.", partName,
-												  partInfo.type ) ) ;
+								   $"Part {partName} with type {partInfo.type} is not supported for GeoSync." ) ;
 					}
 				}
 			}
 			else if ( geoInfo.type == HAPI_GeoType.HAPI_GEOTYPE_CURVE ) {
 				AppendLog( HEU_LoadData.LoadStatus.ERROR,
-						   string.Format( "Currently {0} geo type is not implemented for threaded geo loading!",
-										  geoInfo.type ) ) ;
+						   $"Currently {geoInfo.type} geo type is not implemented for threaded geo loading!" ) ;
 			}
 
 			return true ;
@@ -536,9 +532,14 @@ namespace HoudiniEngineUnity
 		
 		string CreateLogString( HEU_LoadData.LoadStatus status
 									= HEU_LoadData.LoadStatus.NONE,
-												string logStr = "" ) => $"{_loadData._loadStatus.ToString( )} : {logStr}" ;
+												string logStr = "" ) =>
+												$"{_loadData?._loadStatus.ToString() ?? "NULL"} : {logStr}" ;
 
 		void AppendLog( HEU_LoadData.LoadStatus status, string logStr ) {
+			if ( _loadData?._logStr is null ) {
+				HEU_Logger.LogError( "Load data log string is null!" ) ;
+				return ;
+			}
 			lock ( _loadData._logStr ) {
 				_loadData._loadStatus = status ;
 				_loadData._logStr.AppendLine( CreateLogString(status, logStr) ) ;
@@ -546,6 +547,10 @@ namespace HoudiniEngineUnity
 		}
 
 		void SetLog( HEU_LoadData.LoadStatus status, string logStr ) {
+			if ( _loadData?._logStr is null ) {
+				HEU_Logger.LogError( "Load data log string is null!" ) ;
+				return ;
+			}
 			lock ( _loadData._logStr ) {
 				_loadData._loadStatus = status ;
 				_loadData._logStr = new( CreateLogString(status, logStr) ) ;
@@ -630,12 +635,14 @@ namespace HoudiniEngineUnity
 					continue ;
 				}
 
-				HEU_LoadBufferVolumeLayer layer = new( ) ;
-				layer._layerName       = volumeName ;
-				layer._partID          = volumeParts[ i ].id ;
-				layer._heightMapWidth  = volumeInfo.xLength ;
-				layer._heightMapHeight = volumeInfo.yLength ;
-				layer._layerType       = layerType ;
+				HEU_LoadBufferVolumeLayer layer = new( )
+				{
+					_layerName       = volumeName,
+					_partID          = volumeParts[ i ].id,
+					_heightMapWidth  = volumeInfo.xLength,
+					_heightMapHeight = volumeInfo.yLength,
+					_layerType       = layerType,
+				} ;
 
 				Matrix4x4 volumeTransformMatrix =
 					HEU_HAPIUtility.GetMatrixFromHAPITransform( ref volumeInfo.transform, false ) ;
@@ -896,7 +903,7 @@ namespace HoudiniEngineUnity
 			float[]            attrValues = new float[ 0 ] ;
 			HEU_GeneralUtility.GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref attrValues,
 											 session.GetAttributeFloatData ) ;
-			if ( attrValues != null && attrValues.Length > 0 ) {
+			if ( attrValues is { Length: > 0 } ) {
 				floatValue = attrValues[ 0 ] ;
 			}
 		}
@@ -907,7 +914,7 @@ namespace HoudiniEngineUnity
 			float[]            attrValues = new float[ 0 ] ;
 			HEU_GeneralUtility.GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref attrValues,
 											 session.GetAttributeFloatData ) ;
-			if ( attrValues != null && attrValues.Length >= 3 ) {
+			if ( attrValues is { Length: >= 3 } ) {
 				if ( attrInfo.tupleSize >= 3 ) {
 					colorValue[ 0 ] = attrValues[ 0 ] ;
 					colorValue[ 1 ] = attrValues[ 1 ] ;
@@ -929,7 +936,7 @@ namespace HoudiniEngineUnity
 			float[]            attrValues = new float[ 0 ] ;
 			HEU_GeneralUtility.GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref attrValues,
 											 session.GetAttributeFloatData ) ;
-			if ( attrValues != null && attrValues.Length == 2 ) {
+			if ( attrValues is { Length: 2 } ) {
 				if ( attrInfo.tupleSize == 2 ) {
 					vectorValue[ 0 ] = attrValues[ 0 ] ;
 					vectorValue[ 1 ] = attrValues[ 1 ] ;
@@ -958,7 +965,7 @@ namespace HoudiniEngineUnity
 				string      partName       = HEU_SessionManager.GetString( partInfo.nameSH, session ) ;
 				bool        bPartInstanced = partInfo.isInstanced ;
 
-				if ( partInfo.type == HAPI_PartType.HAPI_PARTTYPE_MESH ) {
+				if ( partInfo.type is HAPI_PartType.HAPI_PARTTYPE_MESH ) {
 					List< HEU_MaterialData > materialCache = new( ) ;
 
 					int assetId = loadObject != null ? loadObject._displayNodeID : -1 ;
@@ -969,7 +976,7 @@ namespace HoudiniEngineUnity
 					if ( geoCache == null ) {
 						// Failed to get necessary info for generating geometry.
 						AppendLog( HEU_LoadData.LoadStatus.ERROR,
-								   string.Format( "Failed to generate geometry cache for part: {0}", partName ) ) ;
+								   $"Failed to generate geometry cache for part: {partName}" ) ;
 						continue ;
 					}
 
@@ -1007,7 +1014,7 @@ namespace HoudiniEngineUnity
 					}
 					else {
 						AppendLog( HEU_LoadData.LoadStatus.ERROR,
-								   string.Format( "Failed to generated geometry for part: {0}", partName ) ) ;
+								   $"Failed to generated geometry for part: {partName}" ) ;
 					}
 				}
 			}
@@ -1036,14 +1043,13 @@ namespace HoudiniEngineUnity
 					// Part instancer
 					newBuffer = GeneratePartsInstancerBuffer( session, geoID, partID, partName, partInfo ) ;
 				}
-				else if ( partInfo.vertexCount == 0 && partInfo.pointCount > 0 ) {
+				else if ( partInfo is { vertexCount: 0, pointCount: > 0 } ) {
 					// Point attribute instancer
 					newBuffer = GeneratePointAttributeInstancerBuffer( session, geoID, partID, partName, partInfo ) ;
 				}
 				else {
 					AppendLog( HEU_LoadData.LoadStatus.ERROR,
-							   string.Format( "Invalid instanced part count: {0} for part {1}",
-											  partInfo.instancedPartCount, partName ) ) ;
+							   $"Invalid instanced part count: {partInfo.instancedPartCount} for part {partName}" ) ;
 					continue ;
 				}
 
@@ -1067,7 +1073,7 @@ namespace HoudiniEngineUnity
 												   session.GetInstancerPartTransforms, instanceTransforms, 0,
 												   partInfo.instanceCount ) ) {
 				AppendLog( HEU_LoadData.LoadStatus.ERROR,
-						   string.Format( "Unable to get instance transforms for part {0}", partName ) ) ;
+						   $"Unable to get instance transforms for part {partName}" ) ;
 				return null ;
 			}
 
@@ -1076,7 +1082,7 @@ namespace HoudiniEngineUnity
 			if ( !HEU_GeneralUtility.GetArray2Arg( geoID, partID, session.GetInstancedPartIds, instanceNodeIDs, 0,
 												   partInfo.instancedPartCount ) ) {
 				AppendLog( HEU_LoadData.LoadStatus.ERROR,
-						   string.Format( "Unable to get instance node IDs for part {0}", partName ) ) ;
+						   $"Unable to get instance node IDs for part {partName}" ) ;
 				return null ;
 			}
 
@@ -1154,8 +1160,7 @@ namespace HoudiniEngineUnity
 				else {
 					// Other attribute owned types are unsupported
 					AppendLog( HEU_LoadData.LoadStatus.ERROR,
-							   string.Format( "Unsupported attribute owner {0} for attribute {1}",
-											  unityInstanceAttrInfo.owner, unityInstanceAttrName ) ) ;
+							   $"Unsupported attribute owner {unityInstanceAttrInfo.owner} for attribute {unityInstanceAttrName}" ) ;
 					return null ;
 				}
 
@@ -1188,12 +1193,12 @@ namespace HoudiniEngineUnity
 			if ( instanceAttrInfo.exists ) {
 				// Object instancing via internal object path is not supported
 				AppendLog( HEU_LoadData.LoadStatus.ERROR,
-						   string.Format( "Object instancing is not supported (part {0})!", partName ) ) ;
+						   $"Object instancing is not supported (part {partName})!" ) ;
 			}
 			else {
 				// Standard object instancing via single Houdini object is not supported
 				AppendLog( HEU_LoadData.LoadStatus.ERROR,
-						   string.Format( "Object instancing is not supported (part {0})!", partName ) ) ;
+						   $"Object instancing is not supported (part {partName})!" ) ;
 			}
 
 			return null ;
@@ -1222,71 +1227,45 @@ namespace HoudiniEngineUnity
 		#region DATA
 
 		// Setup
-		HEU_BaseSync    _ownerSync ;
-		HEU_SessionBase _session ;
-
+		HEU_BaseSync? _ownerSync ;
+		HEU_SessionBase? _session ;
 		HEU_GenerateOptions _generateOptions ;
-
-		protected string _assetCachePath = "" ;
+		protected string _assetCachePath = string.Empty ;
 
 		// Load
-		public enum LoadType
-		{
-			FILE,
-			NODE,
-			ASSET
-		}
+		public enum LoadType { FILE, NODE, ASSET, } ;
 
 		LoadType _loadType ;
-		string   _filePath ;
+		string? _filePath ;
+		HEU_LoadData? _loadData ;
 
-		HEU_LoadData _loadData ;
-
-		public class HEU_LoadData
-		{
+		public class HEU_LoadData {
+			public enum LoadStatus { NONE, STARTED, SUCCESS, ERROR, } ;
+			
 			public HAPI_NodeId _cookNodeID ;
-
-			public enum LoadStatus
-			{
-				NONE,
-				STARTED,
-				SUCCESS,
-				ERROR,
-			}
-
 			public LoadStatus _loadStatus ;
-
-			public StringBuilder _logStr ;
-
-			public HEU_SessionBase _session ;
-
-			public List< HEU_LoadObject > _loadedObjects ;
-
-			public Dictionary< HAPI_NodeId, HEU_LoadBufferBase > _idBuffersMap ;
+			public StringBuilder? _logStr ;
+			public HEU_SessionBase? _session ;
+			public List< HEU_LoadObject >? _loadedObjects ;
+			public Dictionary< HAPI_NodeId, HEU_LoadBufferBase >? _idBuffersMap ;
 		}
 
-		public class HEU_LoadObject
-		{
+		public class HEU_LoadObject {
 			public HAPI_NodeId _objectNodeID ;
 			public HAPI_NodeId _displayNodeID ;
 
-			public List< HEU_LoadBufferVolume > _terrainBuffers ;
-
-			public List< HEU_LoadBufferMesh > _meshBuffers ;
-
-			public List< HEU_LoadBufferInstancer > _instancerBuffers ;
+			public List< HEU_LoadBufferVolume >? _terrainBuffers ;
+			public List< HEU_LoadBufferMesh >? _meshBuffers ;
+			public List< HEU_LoadBufferInstancer >? _instancerBuffers ;
 		}
 
-		public enum HEU_LoadCallbackType
-		{
-			PRECOOK,
-			POSTCOOK
-		}
+		public enum HEU_LoadCallbackType { PRECOOK, POSTCOOK, } ;
 
-		public delegate void HEU_LoadCallback( HEU_SessionBase      session, HEU_LoadData loadData,
+		public delegate void HEU_LoadCallback( HEU_SessionBase session, 
+											   HEU_LoadData loadData,
 											   HEU_LoadCallbackType callbackType ) ;
 
-		HEU_LoadCallback _loadCallback ;
+		HEU_LoadCallback? _loadCallback ;
 
 		#endregion
 	}
