@@ -164,8 +164,7 @@ namespace HoudiniEngineUnity
 		#region SYNC
 
 		public override void Resync( ) {
-			if ( _syncing )
-				return ;
+			if ( _syncing ) return ;
 
 			// Not unloading, but rather just generating local geometry
 			DestroyGeneratedData( ) ;
@@ -175,7 +174,7 @@ namespace HoudiniEngineUnity
 		#endregion
 		#region UPDATE
 		public override void SyncUpdate( ) {
-			if ( _syncing || _cookNodeID is -1 || !_firstSyncComplete ) return ;
+			if ( _syncing || _cookNodeID is HEU_Defines.HEU_INVALID_NODE_ID || !_firstSyncComplete ) return ;
 			if ( !HEU_PluginSettings.SessionSyncAutoCook || !_sessionSyncAutoCook ) return ;
 			HEU_SessionBase? session = GetHoudiniSession( false ) ;
 			if ( session is null || !session.IsSessionValid( ) || !session.IsSessionSync( ) )
@@ -184,14 +183,14 @@ namespace HoudiniEngineUnity
 			// TODO: should check parent obj, or turn off recurse?
 			// TODO: instead of cook count, how about cook time? but how to handle hierarchy cook change?
 			HAPI_NodeId oldCount = _totalCookCount ;
-			session.GetTotalCookCount(
-									  _cookNodeID,
-									  (HAPI_NodeId)( HAPI_NodeType.HAPI_NODETYPE_OBJ |
-													 HAPI_NodeType.HAPI_NODETYPE_SOP ),
-									  (HAPI_NodeId)( HAPI_NodeFlags.HAPI_NODEFLAGS_OBJ_GEOMETRY |
-													 HAPI_NodeFlags.HAPI_NODEFLAGS_DISPLAY |
-													 HAPI_NodeFlags.HAPI_NODEFLAGS_RENDER ),
-									  true, out _totalCookCount ) ;
+			session.GetTotalCookCount( _cookNodeID,
+									   (HAPI_NodeId)( HAPI_NodeType.HAPI_NODETYPE_OBJ 
+																	| HAPI_NodeType.HAPI_NODETYPE_SOP ),
+									    (HAPI_NodeId)( HAPI_NodeFlags.HAPI_NODEFLAGS_OBJ_GEOMETRY 
+																	  | HAPI_NodeFlags.HAPI_NODEFLAGS_DISPLAY 
+																			| HAPI_NodeFlags.HAPI_NODEFLAGS_RENDER ),
+									   true, out _totalCookCount ) ;
+			
 			if ( oldCount == _totalCookCount ) return ;
 
 			//HEU_Logger.LogFormat("Resyncing due to cook count (old={0}, new={1})", oldCount, _totalCookCount);
@@ -205,7 +204,7 @@ namespace HoudiniEngineUnity
 
 		#region DATA
 
-		public string _nodeSaveFilePath ;
+		public string? _nodeSaveFilePath ;
 
 		#endregion
 	}
