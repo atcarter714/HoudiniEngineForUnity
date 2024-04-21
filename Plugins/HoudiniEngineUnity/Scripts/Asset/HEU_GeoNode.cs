@@ -136,7 +136,7 @@ namespace HoudiniEngineUnity
 		public void OnAfterDeserialize( ) {
 			// _volumeCaches replaces _volumeCache, and _volumeCache has been deprecated.
 			// This takes care of moving in the old _volumeCache into _volumeCaches.
-			if ( !_volumeCache || ( _volumeCaches is { Count: > 0 } ) ) return ;
+			if ( !_volumeCache || ( _volumeCaches is { Count: > 0, } ) ) return ;
 			_volumeCaches ??= new( ) ;
 			_volumeCaches.Clear( ) ;
 			_volumeCaches.Add( _volumeCache ) ;
@@ -281,7 +281,7 @@ namespace HoudiniEngineUnity
 
 		/// <inheritdoc />
 		public HEU_VolumeCache GetVolumeCacheByTileIndex( int tileIndex ) {
-			if ( _volumeCaches is { Count: > 0 } ) {
+			if ( _volumeCaches is { Count: > 0, } ) {
 				int numCaches = _volumeCaches.Count ;
 				for ( int i = 0; i < numCaches; ++i ) {
 					if ( _volumeCaches[ i ] 
@@ -422,20 +422,18 @@ namespace HoudiniEngineUnity
 		/// <summary>Process custom attribute with Unity script name, and attach any scripts found.</summary>
 		/// <param name="session">Session to use</param>
 		internal void ProcessUnityScriptAttribute( HEU_SessionBase session ) {
-			HEU_Logger.Log( "Processing Unity Script Attribute" ) ;
-			if ( _parts is not { Count: > 0 } ) return ;
+			//HEU_Logger.Log( "Processing Unity Script Attribute" ) ;
+			if ( _parts is not { Count: > 0, } ) return ;
 			
-			if ( _parts is not { Count: > 0 } ) return ;
-
 			foreach ( HEU_PartData part in _parts ) {
 				GameObject outputGo = part.OutputGameObject ;
 				if ( !outputGo ) continue ;
 				
-				string scriptValue =
+				string? scriptValue =
 					HEU_GeneralUtility.GetUnityScriptAttributeValue( session, GeoID, part.PartID ) ;
-				HEU_Logger.Log( $"Target Script: {scriptValue ?? string.Empty} ..." ) ;
-				if ( string.IsNullOrEmpty( scriptValue ) ) continue ;
-				HEU_GeneralUtility.AttachScriptWithInvokeFunction( scriptValue, outputGo ) ;
+				//HEU_Logger.Log( $"Target Script: {scriptValue ?? string.Empty} ..." ) ;
+				if ( string.IsNullOrEmpty(scriptValue) ) continue ;
+				HEU_GeneralUtility.AttachScriptWithInvokeFunction( scriptValue!, outputGo ) ;
 			}
 		}
 
