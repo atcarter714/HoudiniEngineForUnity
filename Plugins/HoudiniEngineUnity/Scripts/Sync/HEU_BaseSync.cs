@@ -1,5 +1,4 @@
-﻿#nullable enable
-/*
+﻿/*
 * Copyright (c) <2020> Side Effects Software Inc.
 * All rights reserved.
 *
@@ -29,26 +28,28 @@
 #define HOUDINIENGINEUNITY_ENABLED
 #endif
 
+#region Type Aliases
+
 using System ;
 using System.Collections.Generic ;
 using System.Text ;
 using UnityEngine ;
+// Typedefs (copy these from HEU_Common.cs)
+using HAPI_NodeId = System.Int32 ;
+using HAPI_PartId = System.Int32 ;
+#endregion
 
-namespace HoudiniEngineUnity
-{
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Typedefs (copy these from HEU_Common.cs)
-	using HAPI_NodeId = Int32 ;
-	using HAPI_PartId = Int32 ;
 
-	public class HEU_SyncedEventData
-	{
+namespace HoudiniEngineUnity {
+	
+	public class HEU_SyncedEventData {
 		public bool                                 CookSuccess ;
 		public HEU_ThreadedTaskLoadGeo.HEU_LoadData TopNodeData ;
 		public HEU_BaseSync                         OutputObject ;
 
-		public HEU_SyncedEventData( bool         bSuccess, HEU_ThreadedTaskLoadGeo.HEU_LoadData bTopNodeData,
-									HEU_BaseSync bOutputObject ) {
+		public HEU_SyncedEventData( bool                                 bSuccess,
+									HEU_ThreadedTaskLoadGeo.HEU_LoadData bTopNodeData,
+									HEU_BaseSync                         bOutputObject ) {
 			CookSuccess  = bSuccess ;
 			TopNodeData  = bTopNodeData ;
 			OutputObject = bOutputObject ;
@@ -56,8 +57,7 @@ namespace HoudiniEngineUnity
 	}
 
 	[ExecuteInEditMode] // Needed to get OnDestroy callback when deleted in Editor
-	public class HEU_BaseSync: MonoBehaviour
-	{
+	public class HEU_BaseSync: MonoBehaviour {
 		#region FUNCTIONS
 
 		#region SETUP
@@ -1180,8 +1180,7 @@ namespace HoudiniEngineUnity
 	}
 
 	[Serializable]
-	public struct HEU_GenerateOptions
-	{
+	public struct HEU_GenerateOptions {
 		public bool _generateUVs ;
 		public bool _generateTangents ;
 		public bool _generateNormals ;

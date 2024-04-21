@@ -506,7 +506,8 @@ namespace HoudiniEngineUnity {
 		/// A way to persist current session information through code refresh/compiles.
 		/// </summary>
 		/// <param name="allSessions"></param>
-		public static void SaveAllSessionData( List< HEU_SessionBase? > allSessions ) {
+		//public static void SaveAllSessionData( List< HEU_SessionBase? > allSessions ) {
+		public static void SaveAllSessionData( IEnumerable< HEU_SessionBase? > allSessions ) {
 #if UNITY_EDITOR && HOUDINIENGINEUNITY_ENABLED
 			// Formulate the JSON string for existing sessions.
 			StringBuilder sb = new( ) ;
