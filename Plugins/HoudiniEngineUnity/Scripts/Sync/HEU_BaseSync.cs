@@ -159,24 +159,18 @@ namespace HoudiniEngineUnity
 		#region SYNC
 
 		public virtual void StartSync( ) {
-			if ( _syncing ) {
-				return ;
-			}
-
-			if ( !_initialized ) {
-				Initialize( ) ;
-			}
+			if ( _syncing ) return ;
+			if ( !_initialized ) Initialize( ) ;
 
 			HEU_SessionBase? session = GetHoudiniSession( true ) ;
-			if ( session == null ) {
+			if ( session is null ) {
 				Log( "ERROR: No session found!" ) ;
 				return ;
 			}
-
 			Log( "Starting sync" ) ;
+			
 			_syncing   = true ;
 			_sessionID = session.GetSessionData( ).SessionID ;
-
 			SetupLoadTask( session ) ;
 		}
 
