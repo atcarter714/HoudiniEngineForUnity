@@ -37,19 +37,19 @@ using UnityEditor ;
 using UnityEngine ;
 using Object = UnityEngine.Object ;
 
-namespace HoudiniEngineUnity
-{
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Typedefs (copy these from HEU_Common.cs)
-	using HAPI_Int64 = Int64;
-	using HAPI_StringHandle = Int32;
-	using HAPI_NodeId = Int32;
-	using HAPI_NodeTypeBits = Int32;
-	using HAPI_NodeFlagsBits = Int32;
-	using HAPI_PartId = Int32;
+#region Type Aliases
+// Typedefs (copy these from HEU_Common.cs)
+using HAPI_Int64 = System.Int64;
+using HAPI_StringHandle = System.Int32;
+using HAPI_NodeId = System.Int32;
+using HAPI_NodeTypeBits = System.Int32;
+using HAPI_NodeFlagsBits = System.Int32;
+using HAPI_PartId = System.Int32;
+#endregion
 
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+namespace HoudiniEngineUnity {
+	
 	/// <summary>
 	/// Manages a session for Houdini Engine. Supports all types of sessions.
 	/// </summary>
@@ -64,7 +64,7 @@ namespace HoudiniEngineUnity
 
 		// Delegate for creating custom HEU_SessionBase objects
 		public delegate HEU_SessionBase CreateSessionFromTypeDelegate( Type type ) ;
-
+		
 		// Custom HEU_SessionBase classes can register with this delegate in order to be re-created after
 		// code refresh/compile, or when loading session data from storage.
 		public static CreateSessionFromTypeDelegate? _createSessionFromTypeDelegate ;
@@ -86,25 +86,22 @@ namespace HoudiniEngineUnity
 			return sessionBase ;
 		}
 
-		public static HEU_SessionBase CreateSessionFromType( Type type ) {
+		public static HEU_SessionBase CreateSessionFromType( Type? type ) {
 #if !UNITY_5_6_OR_NEWER
             HEU_Logger.LogError("Houdini Engine for Unity only supports Unity version 5.6.0 and newer!");
 #elif HOUDINIENGINEUNITY_ENABLED
-			
 			// By default, we use HAPI if Houdini Engine is enabled
 			if ( (type is null || type == typeof(HEU_SessionHAPI))
-					|| _createSessionFromTypeDelegate is null )
-				return new( ) ;
+					|| _createSessionFromTypeDelegate is null ) return new( ) ;
+			
 			// For custom HEU_SessionBase classes
-
 			Delegate[ ] delegates = _createSessionFromTypeDelegate.GetInvocationList( ) ;
 			foreach ( var del in delegates ) {
-				CreateSessionFromTypeDelegate createDelegate = 
+				CreateSessionFromTypeDelegate? createDelegate = 
 					del as CreateSessionFromTypeDelegate ;
 				
-				HEU_SessionBase newSession = createDelegate?.Invoke( type ) ;
-				if ( newSession is not null )
-					return newSession ;
+				HEU_SessionBase? newSession = createDelegate?.Invoke( type ) ;
+				if ( newSession is not null ) return newSession ;
 			}
 #endif
 			
@@ -116,11 +113,10 @@ namespace HoudiniEngineUnity
 		/// Does not create a new session.
 		/// </summary>
 		/// <returns>default session object or null if none found</returns>
-		public static HEU_SessionBase GetDefaultSession( ) {
-			if ( _defaultSession == null ) {
+		public static HEU_SessionBase? GetDefaultSession( ) {
+			if ( _defaultSession is null )
 				LoadStoredDefaultSession( ) ;
-			}
-
+			
 			return _defaultSession ;
 		}
 
@@ -159,10 +155,8 @@ namespace HoudiniEngineUnity
 		/// Save given list of sessions (HEU_SessionData) into storage for retrieval later.
 		/// A way to persist current session information through code refresh/compiles.
 		/// </summary>
-		public static void SaveAllSessionData( ) {
-			List< HEU_SessionBase? > sessions = new( _sessionMap.Values ) ;
-			HEU_PluginStorage.SaveAllSessionData( sessions ) ;
-		}
+		public static void SaveAllSessionData( ) => HEU_PluginStorage.SaveAllSessionData( _sessionMap.Values ) ;
+			//List< HEU_SessionBase? > sessions = new( _sessionMap.Values ) ;
 
 		/// <summary>
 		/// Load stored session data and recreate the session objects.
@@ -179,18 +173,18 @@ namespace HoudiniEngineUnity
 					// Create session based on type
 					HEU_SessionBase? sessionBase = CreateSessionFromType( sessionData.SessionClassType ) ;
 					if ( sessionBase is null ) continue ;
+					
 					sessionBase.SetSessionData( sessionData ) ;
 					_sessionMap.Add( sessionData.SessionID, sessionBase ) ;
-
 					if ( sessionData.IsDefaultSession ) _defaultSession = sessionBase ;
-
 					// Find assets in scene with session ID. Check if valid and reset those that aren't.
 				}
 				catch ( Exception ex ) {
-					HEU_Logger.LogWarningFormat( "Loading session with ID {0} failed with {1}. Ignoring the session.", sessionData.SessionID, ex.ToString( ) ) ;
+					HEU_Logger.LogWarningFormat( "Loading session with ID {0} failed with {1}. Ignoring the session.",
+												 sessionData.SessionID, ex.ToString() ) ;
 				}
 			}
-
+			
 			InternalValidateSceneAssets( ) ;
 		}
 
@@ -367,17 +361,16 @@ namespace HoudiniEngineUnity
 		public static void CloseAllSessions( ) {
 			List< HEU_SessionBase > sessions = new( _sessionMap.Values ) ;
 			foreach ( HEU_SessionBase sessionEntry in sessions ) {
-				if ( sessionEntry.GetSessionData( ) != null ) {
+				if ( sessionEntry.GetSessionData( ) is not null ) {
 					HEU_Logger.Log( HEU_Defines.HEU_NAME + ": Closing session: " +
-									sessionEntry.GetSessionData( ).SessionID ) ;
+									(sessionEntry.GetSessionData( )?.SessionID ?? -1) ) ;
 				}
 
 				sessionEntry.CloseSession( ) ;
 			}
 
-			_sessionMap.Clear( ) ;
-
 			// Clear out the default session
+			_sessionMap.Clear( ) ;
 			_defaultSession = null ;
 		}
 
@@ -408,15 +401,15 @@ namespace HoudiniEngineUnity
 		}
 		/// <summary>Return the existing session data.</summary>
 		/// <returns></returns>
-		public static HEU_SessionData GetSessionData( ) {
-			HEU_SessionBase sessionBase = GetDefaultSession( ) ;
+		public static HEU_SessionData? GetSessionData( ) {
+			HEU_SessionBase? sessionBase = GetDefaultSession( ) ;
 			return sessionBase?.GetSessionData( ) ;
 		}
 
 		/// <summary>Return the session info.</summary>
 		/// <returns>The session information as a formatted string.</returns>
 		public static string GetSessionInfo( ) {
-			HEU_SessionBase sessionBase = GetDefaultSession( ) ;
+			HEU_SessionBase? sessionBase = GetDefaultSession( ) ;
 			return sessionBase is not null
 					   ? sessionBase.GetSessionInfo( )
 						: HEU_Defines.NO_EXISTING_SESSION ;
@@ -460,7 +453,7 @@ namespace HoudiniEngineUnity
 		/// This can be called before each operation into Houdini Engine to establish or reconnect to session.
 		/// </summary>
 		/// <returns>True if plugin is installed and session is valid.</returns>
-		public static bool ValidatePluginSession( HEU_SessionBase session = null ) {
+		public static bool ValidatePluginSession( HEU_SessionBase? session = null ) {
 			session ??= GetOrCreateDefaultSession( ) ;
 			return session?.IsSessionValid( ) is true ;
 		}
@@ -468,12 +461,10 @@ namespace HoudiniEngineUnity
 		/// <summary>Returns last session error.</summary>
 		/// <returns>The last session error.</returns>
 		public static string GetLastSessionError( ) {
-			HEU_SessionBase sessionBase = GetDefaultSession( ) ;
-			if ( sessionBase is not null ) {
-				return sessionBase.GetLastSessionError( ) ;
-			}
-
-			return HEU_Defines.NO_EXISTING_SESSION ;
+			HEU_SessionBase? sessionBase = GetDefaultSession( ) ;
+			return sessionBase is not null 
+					   ? sessionBase.GetLastSessionError( )
+						: HEU_Defines.NO_EXISTING_SESSION ;
 		}
 
 		/// <summary>
@@ -482,7 +473,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <returns>True if the versions match.</returns>
 		public static bool CheckVersionMatch( ) {
-			HEU_SessionBase sessionBase = GetOrCreateDefaultSession( ) ;
+			HEU_SessionBase? sessionBase = GetOrCreateDefaultSession( ) ;
 			return sessionBase?.CheckVersionMatch( ) ?? false ;
 		}
 
@@ -510,7 +501,7 @@ namespace HoudiniEngineUnity
 					return bytes.AsString( ) ;
 			}
 			
-			else return "" ; // Empty string (no error)
+			else return string.Empty ; // Empty string (no error)
 #endif
 			return "Failed to get connection error" ;
 		}
@@ -535,7 +526,7 @@ namespace HoudiniEngineUnity
 		/// <param name="bCookNodes">True if nodes should be cooked on load</param>
 		/// <param name="session">Session to load into. If null, will use default session</param>
 		/// <returns>True if successfully loaded the HIP file</returns>
-		public static bool LoadSessionFromHIP( bool bCookNodes, HEU_SessionBase session = null ) {
+		public static bool LoadSessionFromHIP( bool bCookNodes, HEU_SessionBase? session = null ) {
 			if ( session?.IsSessionValid( ) != true ) {
 				session = GetOrCreateDefaultSession( ) ;
 				if ( session?.IsSessionValid( ) != true ) {
@@ -543,10 +534,10 @@ namespace HoudiniEngineUnity
 					return false ;
 				}
 			}
-
+			
 #if UNITY_EDITOR
+			const string fileExt  = "hip;*.hiplc;*.hipnc" ;
 			string lastPath = HEU_PluginSettings.LastLoadHIPPath ;
-			string fileExt  = "hip;*.hiplc;*.hipnc" ;
 			string filePath = EditorUtility.OpenFilePanel( "Open Houdini HIP", lastPath, fileExt ) ;
 			if ( string.IsNullOrEmpty( filePath ) ) return false ;
 			
@@ -569,7 +560,7 @@ namespace HoudiniEngineUnity
 		/// <param name="bLockNodes">Whether to lock nodes in HIP file so as not to recook them on load</param>
 		/// <param name="session">Session to save out. If null, uses default session.</param>
 		/// <returns>True if successfully saved session</returns>
-		public static bool SaveSessionToHIP( bool bLockNodes, HEU_SessionBase session = null ) {
+		public static bool SaveSessionToHIP( bool bLockNodes, HEU_SessionBase? session = null ) {
 			if ( session?.IsSessionValid( ) != true ) {
 				session = GetOrCreateDefaultSession( ) ;
 				if ( session?.IsSessionValid( ) != true ) {
@@ -679,7 +670,7 @@ namespace HoudiniEngineUnity
 		/// <summary>Open given session in a new Houdini instance.</summary>
 		/// <param name="session">Session to open. If null, will use default session.</param>
 		/// <returns>True if successfully loaded session</returns>
-		public static bool OpenSessionInHoudini( HEU_SessionBase session = null ) {
+		public static bool OpenSessionInHoudini( HEU_SessionBase? session = null ) {
 			if ( session is null || !session.IsSessionValid( ) ) {
 				session = GetOrCreateDefaultSession( ) ;
 				if ( session is null || !session.IsSessionValid( ) ) {
@@ -725,56 +716,52 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <returns>The current license</returns>
 		public static HAPI_License GetCurrentLicense( bool bLogError ) {
-			HEU_SessionBase sessionBase = GetOrCreateDefaultSession( bLogError ) ;
-			if ( sessionBase is not null && sessionBase.IsSessionValid( ) ) {
-				int result =
-					sessionBase.GetSessionEnvInt( HAPI_SessionEnvIntType.HAPI_SESSIONENVINT_LICENSE, bLogError ) ;
-				return (HAPI_License)result ;
-			}
-
-			return HAPI_License.HAPI_LICENSE_NONE ;
+			HEU_SessionBase? sessionBase = GetOrCreateDefaultSession( bLogError ) ;
+			if ( sessionBase is null || !sessionBase.IsSessionValid( ) )
+				return HAPI_License.HAPI_LICENSE_NONE ;
+			
+			int result =
+				sessionBase.GetSessionEnvInt( HAPI_SessionEnvIntType.HAPI_SESSIONENVINT_LICENSE, bLogError ) ;
+			return (HAPI_License)result ;
 		}
 
 		/// <summary>Get the string value of the given string handle.</summary>
 		/// <param name="stringHandle">String handle to query.</param>
 		/// <param name="session"></param>
 		/// <returns>String value of the given string handle.</returns>
-		public static string GetString( int stringHandle, HEU_SessionBase session = null ) {
+		public static string GetString( int stringHandle, HEU_SessionBase? session = null ) {
 			if ( stringHandle < 1 ) return string.Empty ;
 			
 			session ??= GetOrCreateDefaultSession( ) ;
-			if ( session is null ) 
-				return string.Empty ;
+			if ( session is null ) return string.Empty ;
 
 			int length = session.GetStringBufferLength( stringHandle ) ;
-			if ( length < 1 ) 
-				return string.Empty ;
+			if ( length < 1 ) return string.Empty ;
 			
 			string str = string.Empty ;
 			session.GetString( stringHandle, ref str, length ) ;
 			return str ;
 		}
 
-		public static string[ ] GetStringValuesFromStringIndices( int[ ] strIndices ) {
-			if ( strIndices is not { Length: > 0 } )
-				return null ;
+		public static string[ ]? GetStringValuesFromStringIndices( int[ ] strIndices ) {
+			if ( strIndices is not { Length: > 0, } ) return null ;
 
-			HEU_SessionBase sessionBase = GetOrCreateDefaultSession( ) ;
-			if ( sessionBase is null )
-				return null ;
-
-
+			HEU_SessionBase? sessionBase = GetOrCreateDefaultSession( ) ;
+			if ( sessionBase is null ) return null ;
+			
 			int numLength = strIndices.Length ;
 			string[ ] strValues = new string[ numLength ] ;
+			
 			for ( int i = 0; i < numLength; ++i ) {
 				int strIndex = strIndices[ i ] ;
 				
 				int length = strIndex >= 0 
-								 ? sessionBase.GetStringBufferLength( strIndex ) 
+								 ? sessionBase.GetStringBufferLength( strIndex )
 									: 0 ;
-				if ( length < 1 ) continue ;
 				
+				if ( length < 1 ) continue ;
 				strValues[ i ] = string.Empty ;
+				
 				sessionBase.GetString( strIndex, ref strValues[ i ], length ) ;
 			}
 
@@ -788,8 +775,9 @@ namespace HoudiniEngineUnity
 		/// <param name="groupType">The group type to query</param>
 		/// <param name="isInstanced"></param>
 		/// <returns>Populated array of string names, or null if failed</returns>
-		public static string[ ] GetGroupNames( HEU_SessionBase session, HAPI_NodeId nodeID, HAPI_PartId partID,
-											  HAPI_GroupType  groupType, bool isInstanced ) {
+		public static string[ ]? GetGroupNames( HEU_SessionBase session, 
+												HAPI_NodeId nodeID, HAPI_PartId partID,
+												HAPI_GroupType groupType, bool isInstanced ) {
 			bool bSuccess ;
 			int groupCount = 0 ;
 			HAPI_GeoInfo geoInfo = new( ) ;
@@ -835,34 +823,36 @@ namespace HoudiniEngineUnity
 		/// <param name="membership">Array of ints representing the membership of this group</param>
 		/// <param name="isInstanced"></param>
 		/// <returns>True if successfully queried the group membership</returns>
-		public static bool GetGroupMembership( HEU_SessionBase session, HAPI_NodeId nodeID, HAPI_PartId partID,
-											   HAPI_GroupType  groupType, string groupName, ref int[ ] membership,
-											   bool isInstanced ) {
+		public static bool GetGroupMembership( HEU_SessionBase session, 
+											   HAPI_NodeId nodeID, HAPI_PartId partID,
+											   HAPI_GroupType groupType, string groupName,
+											   ref int[ ] membership, bool isInstanced ) {
 			HAPI_PartInfo partInfo = new( ) ;
 			bool bResult  = session.GetPartInfo( nodeID, partID, ref partInfo ) ;
-			if ( bResult ) {
-				int count = partInfo.getElementCountByGroupType( groupType ) ;
-				if ( count < 1 ) {
-					membership = Array.Empty< int >( ) ;
-					return true ;
-				}
-				
-				membership = new int[ count ] ;
-				bool membershipArrayAllEqual = false ;
-				if ( !isInstanced ) {
-					session.GetGroupMembership( nodeID, partID, groupType, groupName, ref membershipArrayAllEqual,
-												membership, 0, count ) ;
-				}
-				else {
-					session.GetGroupMembershipOnPackedInstancePart( nodeID, partID, groupType, groupName,
-																	ref membershipArrayAllEqual, membership, 0,
-																	count ) ;
-				}
-
+			if ( !bResult ) return false ;
+			
+			int count = partInfo.getElementCountByGroupType( groupType ) ;
+			if ( count < 1 ) {
+				membership = Array.Empty< int >( ) ;
 				return true ;
 			}
-
-			return false ;
+				
+			membership = new int[ count ] ;
+			bool membershipArrayAllEqual = false ;
+			
+			if ( !isInstanced ) {
+				session.GetGroupMembership( nodeID, partID, groupType, groupName, ref membershipArrayAllEqual,
+											membership, 0, count ) ;
+			}
+			else {
+				session.GetGroupMembershipOnPackedInstancePart( nodeID, partID,
+																groupType, groupName,
+																ref membershipArrayAllEqual,
+																membership, 0, count
+															  ) ;
+			}
+			
+			return true ;
 		}
 
 		/// <summary>
@@ -871,20 +861,14 @@ namespace HoudiniEngineUnity
 		/// <param name="nodeID">Node ID of the node to find the name of</param>
 		/// <param name="session">Session that the node should be in</param>
 		/// <returns>Name of node or empty string if not valid</returns>
-		public static string GetNodeName( HAPI_NodeId nodeID, HEU_SessionBase session = null ) {
-			if ( session is null ) {
-				session = GetOrCreateDefaultSession( ) ;
-				if ( session is null ) {
-					return null ;
-				}
-			}
-
+		public static string? GetNodeName( HAPI_NodeId nodeID, HEU_SessionBase? session = null ) {
+			session ??= GetOrCreateDefaultSession( ) ;
+				if ( session is null ) return null ;
+			
 			HAPI_NodeInfo nodeInfo = new( ) ;
-			if ( session.GetNodeInfo( nodeID, ref nodeInfo, false ) ) {
-				return GetString( nodeInfo.nameSH, session ) ;
-			}
-
-			return "" ;
+			return session.GetNodeInfo( nodeID, ref nodeInfo, false ) 
+					   ? GetString( nodeInfo.nameSH, session )
+						: string.Empty ;
 		}
 
 		// ASSETS -----------------------------------------------------------------------------------------------------
@@ -897,19 +881,17 @@ namespace HoudiniEngineUnity
 		/// <param name="inputName">Input name string</param>
 		/// <returns>True if successfully queried the node</returns>
 		public static bool GetNodeInputName( HAPI_NodeId nodeID, int inputIndex, out string inputName ) {
-			inputName = "" ;
-
-			HEU_SessionBase sessionBase = GetOrCreateDefaultSession( ) ;
-			if ( sessionBase is not null ) {
-				HAPI_StringHandle nodeNameIndex ;
-				bool              bResult = sessionBase.GetNodeInputName( nodeID, inputIndex, out nodeNameIndex ) ;
-				if ( bResult ) {
-					inputName = GetString( nodeNameIndex ) ;
-					return true ;
-				}
-			}
-
-			return false ;
+			inputName = string.Empty ;
+			HEU_SessionBase? sessionBase = GetOrCreateDefaultSession( ) ;
+			if ( sessionBase is null ) return false ;
+			
+			bool bResult = sessionBase.GetNodeInputName( nodeID, inputIndex,
+														 out HAPI_StringHandle nodeNameIndex
+													   ) ;
+			if ( !bResult ) return false ;
+			
+			inputName = GetString( nodeNameIndex ) ;
+			return true ;
 		}
 
 		/// <summary>
@@ -923,25 +905,23 @@ namespace HoudiniEngineUnity
 		/// <param name="childNodeIDs">Array to store the child node IDs.</param>
 		/// <returns>True if successfully retrieved the child node list</returns>
 		/// <param name="bLogIfError"></param>
-		public static bool GetComposedChildNodeList( HEU_SessionBase    session, HAPI_NodeId parentNodeID,
-													 HAPI_NodeTypeBits  nodeTypeFilter,
+		public static bool GetComposedChildNodeList( HEU_SessionBase session,
+													 HAPI_NodeId parentNodeID,
+													 HAPI_NodeTypeBits nodeTypeFilter,
 													 HAPI_NodeFlagsBits nodeFlagFilter, bool bRecursive,
-													 out HAPI_NodeId[]  childNodeIDs,   bool bLogIfError = true ) {
-			childNodeIDs = null ;
+													 out HAPI_NodeId[ ]? childNodeIDs, bool bLogIfError = true ) {
+			childNodeIDs = default ;
+			
 			// First compose the internal list and get the count, then get the actual list.
 			int count = -1 ;
-			bool bResult = session.ComposeChildNodeList( parentNodeID, nodeTypeFilter, nodeFlagFilter, bRecursive,
-														 ref count, bLogIfError ) ;
-			if ( bResult ) {
-				childNodeIDs = new HAPI_NodeId[ count ] ;
-				if ( count > 0 ) {
-					return session.GetComposedChildNodeList( parentNodeID, childNodeIDs, count, bLogIfError ) ;
-				}
-
-				return true ;
-			}
-
-			return false ;
+			bool bResult = session.ComposeChildNodeList( parentNodeID,
+														 nodeTypeFilter, nodeFlagFilter,
+														 bRecursive, ref count, bLogIfError
+													   ) ;
+			if ( !bResult ) return false ;
+			
+			childNodeIDs = new HAPI_NodeId[ count ] ;
+			return count <= 0 || session.GetComposedChildNodeList( parentNodeID, childNodeIDs, count, bLogIfError ) ;
 		}
 
 		// OBJECTS ----------------------------------------------------------------------------------------------------
@@ -955,12 +935,11 @@ namespace HoudiniEngineUnity
 		/// <param name="start">At least 0 and at most object count returned by ComposeObjectList</param>
 		/// <param name="length">Object count returned by ComposeObjectList. Should be at least 0 and at most object count - start</param>
 		/// <returns>True if successfully queuried the object list</returns>
-		public static bool GetComposedObjectListMemorySafe( HEU_SessionBase         session,     HAPI_NodeId nodeID,
-															[Out] HAPI_ObjectInfo[] objectInfos, int         start,
-															int                     length ) {
-			return HEU_GeneralUtility.GetArray1Arg( nodeID, session.GetComposedObjectList, objectInfos, start,
-													length ) ;
-		}
+		public static bool GetComposedObjectListMemorySafe( HEU_SessionBase session,
+															HAPI_NodeId nodeID,
+															[Out] HAPI_ObjectInfo[ ] objectInfos,
+															int start, int length ) =>
+			HEU_GeneralUtility.GetArray1Arg( nodeID, session.GetComposedObjectList, objectInfos, start, length ) ;
 
 		/// <summary>
 		/// Fill in array of HAPI_Transform list. Use for large arrays where marshalling is done in chunks.
@@ -972,40 +951,41 @@ namespace HoudiniEngineUnity
 		/// <param name="start">At least 0 and at most object count returned by ComposeObjectList</param>
 		/// <param name="length">Object count returned by ComposeObjectList. Should be at least 0 and at most object count - start</param>
 		/// <returns>True if successfully queuried the transform list</returns>
-		public static bool GetComposedObjectTransformsMemorySafe( HEU_SessionBase        session, HAPI_NodeId nodeID,
-																  HAPI_RSTOrder          rstOrder,
-																  [Out] HAPI_Transform[] transforms, int start,
-																  int                    length ) {
-			return HEU_GeneralUtility.GetArray2Arg( nodeID, rstOrder, session.GetComposedObjectTransforms, transforms,
-													start, length ) ;
-		}
-
-
+		public static bool GetComposedObjectTransformsMemorySafe( HEU_SessionBase session,
+																  HAPI_NodeId nodeID, HAPI_RSTOrder rstOrder,
+																  [Out] HAPI_Transform[ ] transforms,
+																  int start, int length ) =>
+			HEU_GeneralUtility.GetArray2Arg( nodeID, rstOrder,
+											 session.GetComposedObjectTransforms,
+											 transforms, start, length
+										   ) ;
+		
+		
 		// GEOMETRY GETTERS -------------------------------------------------------------------------------------------
 
 		public static string GetUniqueMaterialShopName( HAPI_NodeId assetID, HAPI_NodeId materialID ) {
-			HEU_SessionBase sessionBase = GetOrCreateDefaultSession( ) ;
-			if ( sessionBase is null ) return "" ;
+			HEU_SessionBase? sessionBase = GetOrCreateDefaultSession( ) ;
+			if ( sessionBase is null ) return string.Empty ;
 
 			HAPI_AssetInfo assetInfo = new( ) ;
 			if ( !sessionBase.GetAssetInfo( assetID, ref assetInfo ) )
-				return "" ;
+				return string.Empty ;
 
 			HAPI_MaterialInfo materialInfo = new( ) ;
 			if ( !sessionBase.GetMaterialInfo( materialID, ref materialInfo ) )
-				return "" ;
+				return string.Empty ;
 
 			HAPI_NodeInfo assetNodeInfo = new( ) ;
 			if ( !sessionBase.GetNodeInfo( assetID, ref assetNodeInfo ) )
-				return "" ;
+				return string.Empty ;
 
 			HAPI_NodeInfo materialNodeInfo = new( ) ;
 			if ( !sessionBase.GetNodeInfo( materialInfo.nodeId, ref materialNodeInfo ) )
-				return "" ;
+				return string.Empty ;
 
 			string assetNodeName    = GetString( assetNodeInfo.internalNodePathSH, sessionBase ) ;
 			string materialNodeName = GetString( materialNodeInfo.internalNodePathSH, sessionBase ) ;
-			if ( assetNodeName.Length <= 0 || materialNodeName.Length <= 0 ) return "" ;
+			if ( assetNodeName.Length <= 0 || materialNodeName.Length <= 0 ) return string.Empty ;
 
 			// This throws exceptions because assetNodeName is not necessarily even part of the string ...
 			// Remove assetNodeName from materialNodeName. Extra position is for separator.
@@ -1014,7 +994,6 @@ namespace HoudiniEngineUnity
 			string materialName = materialNodeName.Replace( assetNodeName, string.Empty ) ;
 			return materialName.Replace( "/", "_" ) ;
 		}
-
-	}
-
+		
+	} ;
 }   // HoudiniEngineUnity

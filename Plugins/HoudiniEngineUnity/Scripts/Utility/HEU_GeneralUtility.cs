@@ -29,6 +29,7 @@ using System.Collections ;
 using System.Collections.Generic ;
 using System.Globalization ;
 using System.IO ;
+using System.Linq ;
 using System.Reflection ;
 using System.Runtime.InteropServices ;
 using System.Text.RegularExpressions ;
@@ -1299,21 +1300,14 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="typeName">String name of type</param>
 		/// <returns>Valid type or null if not found in loaded assemblies.</returns>
-		public static Type GetSystemTypeByName( string typeName ) {
+		public static Type? GetSystemTypeByName( string typeName ) {
 #if UNITY_EDITOR
 			Assembly[ ] assemblies = AppDomain.CurrentDomain.GetAssemblies( ) ;
-			foreach ( Assembly assembly in assemblies ) {
-				Type[ ] types = assembly.GetTypes( ) ;
-				foreach ( Type type in types ) {
-					if ( type.Name.Equals( typeName ) ) {
-						return type ;
-					}
-				}
-			}
+			return assemblies.SelectMany( assembly => assembly.GetTypes() )
+							 .FirstOrDefault( type => type.Name.Equals(typeName) ) ;
 #else
 			HEU_Logger.LogWarning(HEU_Defines.HEU_USERMSG_NONEDITOR_NOT_SUPPORTED);
 #endif
-			return null ;
 		}
 
 		/// <summary>
@@ -1325,14 +1319,14 @@ namespace HoudiniEngineUnity
 			int[ ] tagAttr = Array.Empty< int >( ) ;
 			HAPI_AttributeInfo tagAttrInfo = new( ) ;
 			
-			GetAttribute( session, geoID, partID, 
-						  HEU_PluginSettings.UnityTagAttributeName, 
+			GetAttribute( session, geoID, partID,
+						  HEU_PluginSettings.UnityTagAttributeName,
 						  ref tagAttrInfo, ref tagAttr, session.GetAttributeStringData
-						  ) ;
+						) ;
 			
 			if ( !tagAttrInfo.exists || tagAttr.Length <= 0 ) return ;
 			string tag = HEU_SessionManager.GetString( tagAttr[ 0 ] ) ;
-			if ( tag.Length <= 0 ) {
+			if ( tag.Length < 1 ) {
 				HEU_Logger.LogWarning( "Unity tag attribute is empty!" ) ;
 				return ;
 			}
@@ -1404,26 +1398,25 @@ namespace HoudiniEngineUnity
 		/// <param name="geoID">The geo node's ID</param>
 		/// <param name="partID">The part's ID</param>
 		/// <returns>The name of the Unity script, or null if not found</returns>
-		public static string GetUnityScriptAttributeValue( HEU_SessionBase session, 
-														   HAPI_NodeId geoID,
-														   HAPI_PartId partID ) {
-			string scriptString = null ;
+		public static string? GetUnityScriptAttributeValue( HEU_SessionBase session, 
+															HAPI_NodeId geoID,
+															HAPI_PartId partID ) {
+			string? scriptString = null ;
 			int[ ] scriptAttr = Array.Empty< int >( ) ;
 			HAPI_AttributeInfo scriptAttributeInfo = new( ) {
 				storage = HAPI_StorageType.HAPI_STORAGETYPE_STRING,
 			} ;
-			
-			GetAttribute( session, geoID, partID, 
-						  HEU_PluginSettings.UnityScriptAttributeName,
-						  ref scriptAttributeInfo, ref scriptAttr, 
-						  session.GetAttributeStringData 
-						  ) ;
 
+			GetAttribute( session, geoID, partID,
+						  HEU_PluginSettings.UnityScriptAttributeName,
+						  ref scriptAttributeInfo, ref scriptAttr, session.GetAttributeStringData
+						) ;
+			
 			if ( !scriptAttributeInfo.exists ) {
 				HEU_Logger.LogWarning( "No Unity script attribute found!" ) ;
-				return null ; //! Should we return null or empty string?
+				return null ;
 			}
-			if ( scriptAttr is { Length: > 0 } )
+			if ( scriptAttr is { Length: > 0, } )
 				scriptString = HEU_SessionManager.GetString( scriptAttr[0] ) ;
 			
 			return scriptString ;
@@ -1438,9 +1431,9 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of the attribute to query</param>
 		/// <param name="attrOwner">Owner type of the attribute</param>
 		/// <returns>Valid string if successful, otherwise returns null</returns>
-		public static string GetAttributeStringValueSingle( HEU_SessionBase session, HAPI_NodeId geoID,
-															HAPI_PartId partID, string attrName,
-															HAPI_AttributeOwner attrOwner ) {
+		public static string? GetAttributeStringValueSingle( HEU_SessionBase session, HAPI_NodeId geoID,
+															 HAPI_PartId partID, string attrName,
+															 HAPI_AttributeOwner attrOwner ) {
 			if ( string.IsNullOrEmpty( attrName ) ) return null ;
 
 			HAPI_AttributeInfo attrInfo = new( ) ;
@@ -1454,9 +1447,9 @@ namespace HoudiniEngineUnity
 				HEU_Logger.LogWarningFormat( "Expected {0} attribute owner for attribute {1} but got {2}!",
 											 attrOwner, attrName, attrInfo.owner ) ;
 			}
-			else if ( stringHandle.Length > 0 ) {
-				return HEU_SessionManager.GetString( stringHandle[ 0 ] ) ;
-			}
+			else if ( stringHandle.Length > 0 )
+				return HEU_SessionManager.GetString( stringHandle[0] ) ;
+			
 			return null ;
 		}
 
@@ -1471,30 +1464,28 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of the attribute to query</param>
 		/// <param name="attrOwner">Owner type of the attribute</param>
 		/// <returns>Valid string if successful, otherwise returns null</returns>
-		public static string GetAttributeStringValueSingleStrict( HEU_SessionBase session, HAPI_NodeId geoID,
-																  HAPI_PartId partID, string attrName,
-																  HAPI_AttributeOwner attrOwner ) {
+		public static string? GetAttributeStringValueSingleStrict( HEU_SessionBase session, HAPI_NodeId geoID,
+																   HAPI_PartId partID, string attrName,
+																   HAPI_AttributeOwner attrOwner ) {
 			if ( string.IsNullOrEmpty(attrName) ) return null ;
-
+			
 			HAPI_AttributeInfo attrInfo = new( ) ;
 			int[ ] stringHandle = Array.Empty< int >( ) ;
-			GetAttributeStrict( session, geoID, partID, attrOwner, attrName, 
+			GetAttributeStrict( session, geoID, partID, attrOwner, attrName,
 								ref attrInfo, ref stringHandle,
-								session.GetAttributeStringData 
-								) ;
+								session.GetAttributeStringData
+							  ) ;
 
 			if ( !attrInfo.exists ) return null ;
-			if ( attrInfo.owner != attrOwner ) {
+			if ( attrInfo.owner != attrOwner )
 				HEU_Logger.LogWarningFormat( "Expected {0} attribute owner for attribute {1} but got {2}!",
 											 attrOwner, attrName, attrInfo.owner ) ;
-			}
-			else if ( attrInfo.originalOwner != attrOwner ) {
+			else if ( attrInfo.originalOwner != attrOwner )
 				HEU_Logger.LogWarningFormat( "Expected {0} original attribute owner for attribute {1} but got {2}!",
 											 attrOwner, attrName, attrInfo.originalOwner ) ;
-			}
-			else if ( stringHandle.Length > 0 ) {
-				return HEU_SessionManager.GetString( stringHandle[ 0 ] ) ;
-			}
+			else if ( stringHandle.Length > 0 )
+				return HEU_SessionManager.GetString( stringHandle[0] ) ;
+			
 			return null ;
 		}
 
@@ -1508,22 +1499,26 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of the attribute to query</param>
 		/// <param name="value">Float attribute value</param>
 		/// <returns>True if successfully found and acquired value, otherwise false</returns>
-		public static bool GetAttributeFloatSingle( HEU_SessionBase session,  HAPI_NodeId geoID, HAPI_PartId partID,
-													string          attrName, out float   value ) {
+		public static bool GetAttributeFloatSingle( HEU_SessionBase session,
+													HAPI_NodeId geoID, HAPI_PartId partID,
+													string attrName, out float value ) {
 			value = 0 ;
 			bool bResult = false ;
-
-			if ( !string.IsNullOrEmpty( attrName ) ) {
-				HAPI_AttributeInfo attrInfo = new( ) ;
-				float[]            values   = Array.Empty< float >( ) ;
-				GetAttribute( session, geoID, partID, attrName, ref attrInfo,
-							  ref values, session.GetAttributeFloatData ) ;
-				if ( attrInfo.exists && values.Length > 0 ) {
-					value   = values[ 0 ] ;
-					bResult = true ;
-				}
+			if ( string.IsNullOrEmpty( attrName ) ) return bResult ;
+			
+			HAPI_AttributeInfo attrInfo = new( ) ;
+			float[ ] values = Array.Empty< float >( ) ;
+			
+			GetAttribute( session,
+						  geoID, partID, attrName,
+						  ref attrInfo, ref values,
+						  session.GetAttributeFloatData
+						) ;
+            
+			if ( attrInfo.exists && values.Length > 0 ) {
+				value   = values[ 0 ] ;
+				bResult = true ;
 			}
-
 			return bResult ;
 		}
 
@@ -1537,22 +1532,26 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of the attribute to query</param>
 		/// <param name="value">Int attribute value</param>
 		/// <returns>True if successfully found and acquired value, otherwise false</returns>
-		public static bool GetAttributeIntSingle( HEU_SessionBase session,  HAPI_NodeId geoID, HAPI_PartId partID,
-												  string          attrName, out int     value ) {
+		public static bool GetAttributeIntSingle( HEU_SessionBase session,
+												  HAPI_NodeId geoID, HAPI_PartId partID,
+												  string attrName, out int value ) {
 			value = 0 ;
 			bool bResult = false ;
-
-			if ( !string.IsNullOrEmpty( attrName ) ) {
-				HAPI_AttributeInfo attrInfo = new( ) ;
-				int[]              values   = Array.Empty< int >( ) ;
-				GetAttribute( session, geoID, partID, attrName, ref attrInfo,
-							  ref values, session.GetAttributeIntData ) ;
-				if ( attrInfo.exists && values.Length > 0 ) {
-					value   = values[ 0 ] ;
-					bResult = true ;
-				}
+			if ( string.IsNullOrEmpty(attrName) ) return bResult ;
+			
+			HAPI_AttributeInfo attrInfo = new( ) ;
+			int[ ] values = Array.Empty< int >( ) ;
+			
+			GetAttribute( session,
+						  geoID, partID, attrName,
+						  ref attrInfo, ref values,
+						  session.GetAttributeIntData
+						) ;
+			
+			if ( attrInfo.exists && values.Length > 0 ) {
+				value   = values[ 0 ] ;
+				bResult = true ;
 			}
-
 			return bResult ;
 		}
 
@@ -1566,31 +1565,33 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of the attribute to query</param>
 		/// <param name="value">Color attribute value</param>
 		/// <returns>True if successfully found and acquired value, otherwise false</returns>
-		public static bool GetAttributeColorSingle( HEU_SessionBase session,  HAPI_NodeId geoID, HAPI_PartId partID,
-													string          attrName, ref Color   value ) {
+		public static bool GetAttributeColorSingle( HEU_SessionBase session,
+													HAPI_NodeId geoID, HAPI_PartId partID,
+													string attrName, ref Color value ) {
 			bool bResult = false ;
+			if ( string.IsNullOrEmpty( attrName ) ) return bResult ;
+			
+			HAPI_AttributeInfo attrInfo = new( ) ;
+			float[ ] values = Array.Empty< float >( ) ;
 
-			if ( !string.IsNullOrEmpty( attrName ) ) {
-				HAPI_AttributeInfo attrInfo = new( ) ;
-				float[]            values   = Array.Empty< float >( ) ;
-				GetAttribute( session, geoID, partID, attrName, ref attrInfo,
-							  ref values, session.GetAttributeFloatData ) ;
-				if ( attrInfo.exists && values.Length >= 3 ) {
-					value   = new Color
-					{
-						r = Mathf.Clamp01( values[ 0 ] ),
-						g = Mathf.Clamp01( values[ 1 ] ),
-						b = Mathf.Clamp01( values[ 2 ] ),
-					} ;
+			GetAttribute( session,
+						  geoID, partID, attrName,
+						  ref attrInfo, ref values,
+						  session.GetAttributeFloatData
+						) ;
 
-					if ( values.Length >= 4 ) {
-						value.a = Mathf.Clamp01( values[ 3 ] ) ;
-					}
-
-					bResult = true ;
-				}
+			if ( !attrInfo.exists || values.Length < 3 )
+				return bResult ;
+			
+			value = new Color {
+				r = Mathf.Clamp01( values[ 0 ] ),
+				g = Mathf.Clamp01( values[ 1 ] ),
+				b = Mathf.Clamp01( values[ 2 ] ),
+			} ;
+			if ( values.Length >= 4 ) {
+				value.a = Mathf.Clamp01( values[ 3 ] ) ;
 			}
-
+			bResult = true ;
 			return bResult ;
 		}
 
@@ -1603,14 +1604,16 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">The name of the attribute to check</param>
 		/// <param name="attrOwner">The owner type for the attribute</param>
 		/// <returns></returns>
-		public static bool HasAttribute( HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
+		public static bool HasAttribute( HEU_SessionBase session,
+										 HAPI_NodeId geoID, HAPI_PartId partID,
 										 string attrName, HAPI_AttributeOwner attrOwner ) {
-			if ( string.IsNullOrEmpty( attrName ) ) {
-				return false ;
-			}
+			if ( string.IsNullOrEmpty(attrName) ) return false ;
 
 			HAPI_AttributeInfo attrInfo = new( ) ;
-			bool               bResult  = session.GetAttributeInfo( geoID, partID, attrName, attrOwner, ref attrInfo ) ;
+			bool bResult = session.GetAttributeInfo( geoID, partID,
+													 attrName, attrOwner, ref attrInfo
+												   ) ;
+			
 			return ( bResult && attrInfo.exists ) ;
 		}
 
@@ -1632,7 +1635,7 @@ namespace HoudiniEngineUnity
 				string scriptTypeName = scriptColon > 0 
 											? scriptToAttach[ ..scriptColon ].Trim( ) 
 												: scriptToAttach ;
-				Type scriptType = GetSystemTypeByName( scriptTypeName ) ;
+				Type? scriptType = GetSystemTypeByName( scriptTypeName ) ;
 				
 				if ( scriptType is null ) {
 					HEU_Logger.LogFormat( "Script with name {0} not found! " +
@@ -1701,20 +1704,19 @@ namespace HoudiniEngineUnity
 																  HAPI_NodeId assetID, string assetName,
 																  HEU_Parameters parameters,
 																  List< HEU_Handle > currentHandles ) {
+			if ( assetInfo.handleCount < 1 ) 
+				return Array.Empty< HEU_Handle >( ).ToList( ) ;
+			
 			List< HEU_Handle > newHandles = new( ) ;
+			HAPI_HandleInfo[ ] handleInfos = new HAPI_HandleInfo[ assetInfo.handleCount ] ;
 
-			if ( assetInfo.handleCount <= 0 ) {
-				return newHandles ;
-			}
-
-			HAPI_HandleInfo[] handleInfos = new HAPI_HandleInfo[ assetInfo.handleCount ] ;
-			GetArray1Arg( assetID, session.GetHandleInfo, handleInfos, 0, assetInfo.handleCount ) ;
+			GetArray1Arg( assetID,
+						  session.GetHandleInfo, handleInfos,
+						  0, assetInfo.handleCount
+						) ;
 
 			for ( int i = 0; i < handleInfos.Length; ++i ) {
-				if ( handleInfos[ i ].bindingsCount <= 0 ) {
-					continue ;
-				}
-
+				if ( handleInfos[ i ].bindingsCount < 1 ) continue ;
 				string handleName = HEU_SessionManager.GetString( handleInfos[ i ].nameSH, session ) ;
 
 				HEU_Handle.HEU_HandleType handleType = HEU_Handle.HEU_HandleType.UNSUPPORTED ;

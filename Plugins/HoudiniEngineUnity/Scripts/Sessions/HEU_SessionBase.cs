@@ -55,10 +55,9 @@ namespace HoudiniEngineUnity
 	/// Base class for a Houdini Engine session.
 	/// Contains functionality to interface with the Houdini Engine for a particular session.
 	/// </summary>
-	public class HEU_SessionBase
-	{
+	public class HEU_SessionBase {
 		// Session information
-		protected HEU_SessionData _sessionData ;
+		protected HEU_SessionData? _sessionData ;
 
 		// Whether user has been notified of this session is invalid (so we don't keep doing it)
 		public bool UserNotifiedSessionInvalid { get ; set ; }
@@ -297,7 +296,7 @@ namespace HoudiniEngineUnity
 		/// Return the existing session data.
 		/// </summary>
 		/// <returns></returns>
-		public HEU_SessionData GetSessionData( ) => _sessionData ;
+		public HEU_SessionData? GetSessionData( ) => _sessionData ;
 
 		/// <summary>
 		/// Return the session info.
