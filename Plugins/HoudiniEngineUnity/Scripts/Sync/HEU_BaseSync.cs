@@ -64,36 +64,37 @@ namespace HoudiniEngineUnity
 
 		void Awake( ) {
 #if HOUDINIENGINEUNITY_ENABLED
-			if ( _sessionID != HEU_SessionData.INVALID_SESSION_ID ) {
-				HEU_SessionBase session = HEU_SessionManager.GetSessionWithID( _sessionID ) ;
-				if ( session == null || !HEU_HAPIUtility.IsNodeValidInHoudini( session, _cookNodeID ) ) {
-					// Reset session and node IDs if these don't exist (could be from scene load).
-					_sessionID  = HEU_SessionData.INVALID_SESSION_ID ;
-					_cookNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-				}
-			}
+			if ( _sessionID is HEU_SessionData.INVALID_SESSION_ID ) return ;
+			
+			HEU_SessionBase? session = HEU_SessionManager.GetSessionWithID( _sessionID ) ;
+			if ( session is not null 
+				 && HEU_HAPIUtility.IsNodeValidInHoudini(session, _cookNodeID) )
+						return ;
+			
+			// Reset session and node IDs if these don't exist (could be from scene load).
+			_sessionID  = HEU_SessionData.INVALID_SESSION_ID ;
+			_cookNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 #endif
 		}
 
-		void OnDestroy( ) {
-			DeleteSessionData( ) ;
-		}
+		void OnDestroy( ) => DeleteSessionData( ) ;
 
 		public virtual void DeleteSessionData( ) {
-			if ( _cookNodeID is not HEU_Defines.HEU_INVALID_NODE_ID ) {
-				HEU_SessionBase? session = GetHoudiniSession( false ) ;
-				if ( session != null ) {
-					HAPI_NodeId deleteID = _cookNodeID ;
-
-					if ( _deleteParent ) {
-						deleteID = GetParentNodeID( session ) ;
-					}
-
-					session.DeleteNode( deleteID ) ;
-				}
-
-				_cookNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
+			if ( _cookNodeID is HEU_Defines.HEU_INVALID_NODE_ID ) return ;
+			
+			HEU_SessionBase? session = GetHoudiniSession( false ) ;
+			if ( session is null ) {
+				//! Turned into warning for now, until we fix reconnection issues ...
+				HEU_Logger.LogWarning( $"{nameof(HEU_BaseSync)}.{nameof(DeleteSessionData)} :: "
+											+ "No session found when deleting data!" ) ;
 			}
+			
+			HAPI_NodeId deleteID = _cookNodeID ;
+			if ( _deleteParent )
+				deleteID = GetParentNodeID( session ) ;
+			
+			session?.DeleteNode( deleteID ) ;
+			_cookNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 		}
 
 		public virtual void DestroyGeneratedData( ) => DestroyOutputs( ) ;
@@ -101,10 +102,11 @@ namespace HoudiniEngineUnity
 		protected virtual void Initialize( ) {
 			_generateOptions._generateNormals  = true ;
 			_generateOptions._generateTangents = true ;
-			_generateOptions._generateUVs      = false ;
 			_generateOptions._useLODGroups     = true ;
+			
+			_generateOptions._generateUVs      = false ;
 			_generateOptions._splitPoints      = false ;
-
+			
 			_initialized = true ;
 		}
 
@@ -115,25 +117,31 @@ namespace HoudiniEngineUnity
 		public virtual HEU_SessionBase? GetHoudiniSession( bool bCreateIfNotFound ) {
 			HEU_SessionBase? session = ( _sessionID != HEU_SessionData.INVALID_SESSION_ID )
 										   ? HEU_SessionManager.GetSessionWithID( _sessionID )
-										   : null ;
-
-			if ( session == null || !session.IsSessionValid( ) ) {
+											: null ;
+			/*if ( session == null || !session.IsSessionValid( ) ) {
 				if ( bCreateIfNotFound ) {
 					session = HEU_SessionManager.GetOrCreateDefaultSession( ) ;
 					if ( session != null && session.IsSessionValid( ) ) {
 						_sessionID = session.GetSessionData( ).SessionID ;
 					}
 				}
-			}
-
+			}*/
+			if ( session?.IsSessionValid() is not true
+											&& !bCreateIfNotFound ) return session ;
+			
+			_sessionID = session?.GetSessionData( ).SessionID 
+						 ?? HEU_SessionData.INVALID_SESSION_ID ;
+			
 			return session ;
 		}
-
-		HAPI_NodeId GetParentNodeID( HEU_SessionBase session ) {
+		
+		HAPI_NodeId GetParentNodeID( HEU_SessionBase? session ) {
 			HAPI_NodeInfo nodeInfo = new( ) ;
-			return ( session.GetNodeInfo( _cookNodeID, ref nodeInfo, false ) ) ? nodeInfo.parentId : -1 ;
+			return ( session?.GetNodeInfo(_cookNodeID, ref nodeInfo, false) is true ) 
+					   ? nodeInfo.parentId
+						: HEU_Defines.HEU_INVALID_NODE_ID ;
 		}
-
+		
 		public void Log( string msg ) {
 			lock ( _log ) {
 				_log.AppendLine( msg ) ;
@@ -141,18 +149,13 @@ namespace HoudiniEngineUnity
 		}
 
 		public void ClearLog( ) {
-			lock ( _log ) {
+			lock ( _log )
 				_log = new( ) ;
-			}
 		}
 
-		public void Error( string error ) {
-			_error.Append( error ) ;
-		}
+		public void Error( string error ) => _error.Append( error ) ;
 
-		public bool IsLoaded( ) {
-			return _cookNodeID is not HEU_Defines.HEU_INVALID_NODE_ID && _firstSyncComplete ;
-		}
+		public bool IsLoaded( ) => _cookNodeID is not HEU_Defines.HEU_INVALID_NODE_ID && _firstSyncComplete ;
 
 		#endregion
 
@@ -167,26 +170,23 @@ namespace HoudiniEngineUnity
 				Log( "ERROR: No session found!" ) ;
 				return ;
 			}
-			Log( "Starting sync" ) ;
 			
 			_syncing   = true ;
+			Log( "Starting sync" ) ;
 			_sessionID = session.GetSessionData( ).SessionID ;
+			
 			SetupLoadTask( session ) ;
 		}
 
 		protected virtual void SetupLoadTask( HEU_SessionBase session ) { }
 
 		public virtual void StopSync( ) {
-			if ( !_syncing ) {
-				return ;
-			}
+			if ( !_syncing ) return ;
 
 			Log( "Stopped sync" ) ;
 			_syncing = false ;
 
-			if ( _loadTask != null ) {
-				_loadTask.Stop( ) ;
-			}
+			if ( _loadTask is not null ) _loadTask.Stop( ) ;
 		}
 
 		public virtual void Resync( ) {
@@ -292,15 +292,15 @@ namespace HoudiniEngineUnity
 		public virtual void GenerateGeometry( HEU_ThreadedTaskLoadGeo.HEU_LoadData loadData, int objIndex ) {
 			HEU_ThreadedTaskLoadGeo.HEU_LoadObject loadObject = loadData._loadedObjects[ objIndex ] ;
 
-			if ( loadObject._meshBuffers != null && loadObject._meshBuffers.Count > 0 ) {
+			if ( loadObject._meshBuffers is { Count: > 0 } ) {
 				GenerateMesh( loadData._cookNodeID, loadObject._meshBuffers ) ;
 			}
 
-			if ( loadObject._terrainBuffers != null && loadObject._terrainBuffers.Count > 0 ) {
+			if ( loadObject._terrainBuffers is { Count: > 0 } ) {
 				GenerateTerrain( loadData._cookNodeID, loadObject._terrainBuffers ) ;
 			}
 
-			if ( loadObject._instancerBuffers != null && loadObject._instancerBuffers.Count > 0 ) {
+			if ( loadObject._instancerBuffers is { Count: > 0 } ) {
 				GenerateAllInstancers( loadData._cookNodeID, loadObject._instancerBuffers, loadData ) ;
 			}
 		}
@@ -338,8 +338,13 @@ namespace HoudiniEngineUnity
 					Transform newTransform = newGameObject.transform ;
 					newTransform.parent = parent ;
 
-					HEU_GeneratedOutput? generatedOutput = new( ) ;
-					generatedOutput._outputData._gameObject = newGameObject ;
+					HEU_GeneratedOutput? generatedOutput = new( )
+					{
+						_outputData =
+						{
+							_gameObject = newGameObject,
+						},
+					} ;
 
 					Terrain terrain = HEU_GeneralUtility.GetOrCreateComponent< Terrain >( newGameObject ) ;
 
@@ -692,7 +697,7 @@ namespace HoudiniEngineUnity
 
 			int numBuffers = meshBuffers.Count ;
 			for ( int m = 0; m < numBuffers; ++m ) {
-				if ( meshBuffers[ m ]._geoCache != null ) {
+				if ( meshBuffers[ m ]?._geoCache is not null ) {
 					GameObject newGameObject =
 						HEU_GeneralUtility.CreateNewGameObject( "mesh_" + meshBuffers[ m ]._geoCache._partName ) ;
 
@@ -701,45 +706,53 @@ namespace HoudiniEngineUnity
 					Transform newTransform = newGameObject.transform ;
 					newTransform.parent = parent ;
 
-					HEU_GeneratedOutput? generatedOutput = new( ) ;
-					generatedOutput._outputData._gameObject = newGameObject ;
+					HEU_GeneratedOutput? generatedOutput = new( )
+					{
+						_outputData =
+						{
+							_gameObject = newGameObject,
+						},
+					} ;
 
 					bool hasGeo = true ;
 
 					HAPI_GeoInfo geoInfo = new( ) ;
-					if ( !session.GetGeoInfo( cookNodeId, ref geoInfo, false ) ) {
+					if ( session?.GetGeoInfo( cookNodeId, ref geoInfo, false ) is not true )
 						hasGeo = false ;
-					}
 
 					bool bResult = false ;
-					int numLODs = meshBuffers[ m ]._LODGroupMeshes != null
+					int numLODs = meshBuffers[ m ]?._LODGroupMeshes is not null
 									  ? meshBuffers[ m ]._LODGroupMeshes.Count
-									  : 0 ;
-					if ( numLODs > 1 ) {
-						bResult = HEU_GenerateGeoCache.GenerateLODMeshesFromGeoGroups( session,
-							meshBuffers[ m ]._LODGroupMeshes,
-							meshBuffers[ m ]._geoCache, generatedOutput, meshBuffers[ m ]._defaultMaterialKey,
-							meshBuffers[ m ]._bGenerateUVs, meshBuffers[ m ]._bGenerateTangents,
-							meshBuffers[ m ]._bGenerateNormals, meshBuffers[ m ]._bPartInstanced ) ;
-					}
-					else if ( numLODs == 1 ) {
-						bResult = HEU_GenerateGeoCache.GenerateMeshFromSingleGroup( session,
-							meshBuffers[ m ]._LODGroupMeshes[ 0 ],
-							meshBuffers[ m ]._geoCache, generatedOutput, meshBuffers[ m ]._defaultMaterialKey,
-							meshBuffers[ m ]._bGenerateUVs, meshBuffers[ m ]._bGenerateTangents,
-							meshBuffers[ m ]._bGenerateNormals, meshBuffers[ m ]._bPartInstanced ) ;
+										: 0 ;
+					switch ( numLODs ) {
+						case > 1:
+							bResult = HEU_GenerateGeoCache.GenerateLODMeshesFromGeoGroups( session,
+								meshBuffers[ m ]._LODGroupMeshes,
+								meshBuffers[ m ]._geoCache, generatedOutput, meshBuffers[ m ]._defaultMaterialKey,
+								meshBuffers[ m ]._bGenerateUVs, meshBuffers[ m ]._bGenerateTangents,
+								meshBuffers[ m ]._bGenerateNormals, meshBuffers[ m ]._bPartInstanced ) ;
+							break ;
+						case 1:
+						{
+							bResult = HEU_GenerateGeoCache.GenerateMeshFromSingleGroup( session,
+								meshBuffers[ m ]._LODGroupMeshes[ 0 ],
+								meshBuffers[ m ]._geoCache, generatedOutput, meshBuffers[ m ]._defaultMaterialKey,
+								meshBuffers[ m ]._bGenerateUVs, meshBuffers[ m ]._bGenerateTangents,
+								meshBuffers[ m ]._bGenerateNormals, meshBuffers[ m ]._bPartInstanced ) ;
 
-						if ( hasGeo ) {
-							HEU_GeneralUtility.UpdateGeneratedAttributeStore( session, _cookNodeID,
-																			  meshBuffers[ m ]._id,
-																			  generatedOutput._outputData
-																				  ._gameObject ) ;
+							if ( hasGeo ) {
+								HEU_GeneralUtility.UpdateGeneratedAttributeStore( session, _cookNodeID,
+									meshBuffers[ m ]._id,
+									generatedOutput._outputData
+												   ._gameObject ) ;
+							}
+
+							break ;
 						}
-
-					}
-					else {
-						// Set return state to false if no mesh and no colliders (i.e. nothing is generated)
-						bResult = ( meshBuffers[ m ]._geoCache._colliderInfos.Count > 0 ) ;
+						default:
+							// Set return state to false if no mesh and no colliders (i.e. nothing is generated)
+							bResult = ( meshBuffers[ m ]._geoCache._colliderInfos.Count > 0 ) ;
+							break ;
 					}
 
 					if ( bResult ) {
@@ -763,7 +776,8 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		void GenerateAllInstancers( HAPI_NodeId                          cookNodeId, List< HEU_LoadBufferInstancer > instancerBuffers,
+		void GenerateAllInstancers( HAPI_NodeId cookNodeId,
+									List< HEU_LoadBufferInstancer > instancerBuffers,
 									HEU_ThreadedTaskLoadGeo.HEU_LoadData loadData ) {
 			int numBuffers = instancerBuffers.Count ;
 			for ( int m = 0; m < numBuffers; ++m ) {
@@ -771,18 +785,18 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		void GenerateInstancer( HAPI_NodeId                                   cookNodeId, HEU_LoadBufferInstancer instancerBuffer,
+		void GenerateInstancer( HAPI_NodeId cookNodeId, 
+								HEU_LoadBufferInstancer? instancerBuffer,
 								Dictionary< HAPI_NodeId, HEU_LoadBufferBase > idBuffersMap ) {
-			if ( instancerBuffer._generatedOutput != null ) {
-				// Already generated
+			if ( instancerBuffer is { _generatedOutput: not null, } ) // Already generated
 				return ;
-			}
 
 			HEU_SessionBase? session = GetHoudiniSession( true ) ;
 
 			Transform parent = gameObject.transform ;
 
-			GameObject instanceRootGO = HEU_GeneralUtility.CreateNewGameObject( "instance_" + instancerBuffer._name ) ;
+			GameObject instanceRootGO = 
+				HEU_GeneralUtility.CreateNewGameObject( "instance_" + instancerBuffer!._name ) ;
 
 			HAPI_PartId partId = instancerBuffer._id ;
 
@@ -792,34 +806,41 @@ namespace HoudiniEngineUnity
 			instanceRootTransform.localRotation = Quaternion.identity ;
 			instanceRootTransform.localScale    = Vector3.one ;
 
-			instancerBuffer._generatedOutput                         = new( ) ;
-			instancerBuffer._generatedOutput._outputData._gameObject = instanceRootGO ;
+			instancerBuffer._generatedOutput = new( ) {
+				_outputData = { _gameObject = instanceRootGO, },
+				IsInstancer = true,
+			} ;
 
-			instancerBuffer._generatedOutput.IsInstancer = true ;
 			_generatedOutputs.Add( instancerBuffer._generatedOutput ) ;
 
-			if ( instancerBuffer._instanceNodeIDs != null && instancerBuffer._instanceNodeIDs.Length > 0 ) {
-				GenerateInstancesFromNodeIDs( cookNodeId, instancerBuffer, idBuffersMap, instanceRootTransform ) ;
+			if ( instancerBuffer._instanceNodeIDs is { Length: > 0 } ) {
+				GenerateInstancesFromNodeIDs( cookNodeId, instancerBuffer,
+											  idBuffersMap, instanceRootTransform ) ;
 			}
-			else if ( instancerBuffer._assetPaths != null && instancerBuffer._assetPaths.Length > 0 ) {
+			else if ( instancerBuffer._assetPaths is { Length: > 0 } ) {
 				GenerateInstancesFromAssetPaths( instancerBuffer, instanceRootTransform ) ;
+			}
+			
+			if ( session is null ) {
+				HEU_Logger.LogError( "No session found. Unable to setup instancer!" ) ;
+				return ;
 			}
 
 			ApplyAttributeModifiersOnGameObjectOutput( session, cookNodeId, partId, ref instanceRootGO ) ;
-
 			SetOutputVisiblity( instancerBuffer ) ;
 		}
 
-		void GenerateInstancesFromNodeIDs( HAPI_NodeId                                   cookNodeId, HEU_LoadBufferInstancer instancerBuffer,
+		void GenerateInstancesFromNodeIDs( HAPI_NodeId cookNodeId, 
+										   HEU_LoadBufferInstancer? instancerBuffer,
 										   Dictionary< HAPI_NodeId, HEU_LoadBufferBase > idBuffersMap,
-										   Transform                                     instanceRootTransform ) {
+										   Transform instanceRootTransform ) {
 			// For single collision geo override
 			GameObject? singleCollisionGO = null ;
 
 			// For multi collision geo overrides, keep track of loaded objects
 			Dictionary< string, GameObject > loadedCollisionObjectMap = new( ) ;
 
-			if ( instancerBuffer._collisionAssetPaths != null && instancerBuffer._collisionAssetPaths.Length == 1 ) {
+			if ( instancerBuffer?._collisionAssetPaths is { Length: 1, } ) {
 				// Single collision override
 				if ( !string.IsNullOrEmpty( instancerBuffer._collisionAssetPaths[ 0 ] ) ) {
 					HEU_AssetDatabase.ImportAsset( instancerBuffer._collisionAssetPaths[ 0 ],
@@ -836,28 +857,31 @@ namespace HoudiniEngineUnity
 				}
 			}
 
-			int numInstances = instancerBuffer._instanceNodeIDs.Length ;
+			int numInstances = instancerBuffer?._instanceNodeIDs.Length ?? 0 ;
 			for ( int i = 0; i < numInstances; ++i ) {
-				HEU_LoadBufferBase? sourceBuffer = null ;
-				if ( !idBuffersMap.TryGetValue( instancerBuffer._instanceNodeIDs[ i ], out sourceBuffer ) ||
-					 sourceBuffer == null ) {
+				if ( !idBuffersMap.TryGetValue( instancerBuffer?._instanceNodeIDs[ i ] 
+													?? HEU_Defines.HEU_INVALID_NODE_ID, 
+												out HEU_LoadBufferBase? sourceBuffer ) || sourceBuffer is null ) {
 					HEU_Logger.LogErrorFormat( "Part with id {0} is missing. Unable to setup instancer!",
-											   instancerBuffer._instanceNodeIDs[ i ] ) ;
+											   instancerBuffer?._instanceNodeIDs[ i ]
+											   ?? HEU_Defines.HEU_INVALID_NODE_ID
+											 ) ;
 					return ;
 				}
 
 				// If the part we're instancing is itself an instancer, make sure it has generated its instances
-				if ( sourceBuffer._bInstanced && sourceBuffer._generatedOutput == null ) {
-					HEU_LoadBufferInstancer sourceBufferInstancer = instancerBuffer ;
+				if ( sourceBuffer is { _bInstanced: true, _generatedOutput: null } ) {
+					HEU_LoadBufferInstancer? sourceBufferInstancer = instancerBuffer ;
 					if ( sourceBufferInstancer != null ) {
 						GenerateInstancer( cookNodeId, sourceBufferInstancer, idBuffersMap ) ;
 					}
 				}
 
-				GameObject sourceGameObject = sourceBuffer._generatedOutput._outputData._gameObject ;
-				if ( sourceGameObject == null ) {
-					HEU_Logger.LogErrorFormat( "Output gameobject is null for source {0}. Unable to instance for {1}.",
-											   sourceBuffer._name, instancerBuffer._name ) ;
+				GameObject? sourceGameObject = sourceBuffer?._generatedOutput?._outputData._gameObject ;
+				if ( !sourceGameObject ) {
+					HEU_Logger.LogErrorFormat( "Output GameObject is null for source {0}. Unable to instance for {1}.",
+											   sourceBuffer?._name ?? "NULL", 
+											   instancerBuffer?._name ?? "NULL" ) ;
 					continue ;
 				}
 
@@ -866,7 +890,7 @@ namespace HoudiniEngineUnity
 					// Single collision geo
 					collisionSrcGO = singleCollisionGO ;
 				}
-				else if ( instancerBuffer._collisionAssetPaths != null
+				else if ( instancerBuffer?._collisionAssetPaths is not null
 						  && ( i < instancerBuffer._collisionAssetPaths.Length )
 						  && !string.IsNullOrEmpty( instancerBuffer._collisionAssetPaths[ i ] ) ) {
 					// Mutliple collision geo (one per instance).
@@ -885,18 +909,30 @@ namespace HoudiniEngineUnity
 					}
 				}
 
-				int numTransforms = instancerBuffer._instanceTransforms.Length ;
+				int numTransforms = instancerBuffer?._instanceTransforms.Length ?? 0 ;
 				for ( int j = 0; j < numTransforms; ++j ) {
-					CreateNewInstanceFromObject( sourceGameObject, ( j + 1 ), instanceRootTransform,
-												 ref instancerBuffer._instanceTransforms[ j ],
-												 instancerBuffer._instancePrefixes, instancerBuffer._name,
-												 collisionSrcGO ) ;
+					if( !sourceGameObject ) {
+						HEU_Logger.LogError( "Source GameObject is null. Unable to instance." ) ;
+						continue ;
+					}
+					if ( !collisionSrcGO ) {
+						HEU_Logger.LogError( "Collision GameObject is null. Unable to instance." ) ;
+						continue ;
+					}
+					CreateNewInstanceFromObject( sourceGameObject!,
+												 ( j + 1 ),
+												 instanceRootTransform,
+												 ref instancerBuffer!._instanceTransforms[ j ],
+												 instancerBuffer._instancePrefixes,
+												 instancerBuffer._name,
+												 collisionSrcGO!
+											   ) ;
 				}
 			}
 		}
 
 		void GenerateInstancesFromAssetPaths( HEU_LoadBufferInstancer instancerBuffer,
-											  Transform               instanceRootTransform ) {
+											  Transform instanceRootTransform ) {
 			// For single asset, this is set when its imported
 			GameObject? singleAssetGO = null ;
 
@@ -929,7 +965,7 @@ namespace HoudiniEngineUnity
 				}
 			}
 
-			if ( instancerBuffer._collisionAssetPaths != null && instancerBuffer._collisionAssetPaths.Length == 1 ) {
+			if ( instancerBuffer._collisionAssetPaths is { Length: 1 } ) {
 				// Single collision override
 				if ( !string.IsNullOrEmpty( instancerBuffer._collisionAssetPaths[ 0 ] ) ) {
 					HEU_AssetDatabase.ImportAsset( instancerBuffer._collisionAssetPaths[ 0 ],
@@ -948,20 +984,18 @@ namespace HoudiniEngineUnity
 			}
 
 			int numInstancesCreated = 0 ;
-			int numInstances        = instancerBuffer._instanceTransforms.Length ;
+			int numInstances = instancerBuffer._instanceTransforms.Length ;
 			for ( int i = 0; i < numInstances; ++i ) {
 				// Reset to the single asset for each instance allows which is null if using multi asset
 				// therefore forcing the instance asset to be found
-				GameObject unitySrcGO = singleAssetGO ;
-
-				GameObject collisionSrcGO = null ;
+				GameObject? unitySrcGO = singleAssetGO ;
+				GameObject? collisionSrcGO = null ;
 
 				if ( unitySrcGO == null ) {
 					// If not using single asset, then there must be an asset path for each instance
 
-					if ( string.IsNullOrEmpty( instancerBuffer._assetPaths[ i ] ) ) {
+					if ( string.IsNullOrEmpty( instancerBuffer._assetPaths[ i ] ) )
 						continue ;
-					}
 
 					if ( !loadedAssetObjectMap.TryGetValue( instancerBuffer._assetPaths[ i ], out unitySrcGO ) ) {
 						// Try loading it
@@ -1019,25 +1053,24 @@ namespace HoudiniEngineUnity
 			}
 
 			if ( tempGO )
-				HEU_GeneralUtility.DestroyImmediate( tempGO, bRegisterUndo: false ) ;
+				HEU_GeneralUtility.DestroyImmediate( tempGO!, bRegisterUndo: false ) ;
 		}
 
-		void CreateNewInstanceFromObject( GameObject         assetSourceGO, int instanceIndex,
-										  Transform          parentTransform,
-										  ref HAPI_Transform hapiTransform, string[]   instancePrefixes,
-										  string             instanceName,  GameObject collisionSourceGO ) {
-			GameObject? newInstanceGO = null ;
-
+		void CreateNewInstanceFromObject( GameObject assetSourceGO,
+										  int instanceIndex, Transform parentTransform,
+										  ref HAPI_Transform hapiTransform, string[ ] instancePrefixes,
+										  string instanceName,  GameObject collisionSourceGO ) {
+			GameObject? newInstanceGO ;
 			if ( HEU_EditorUtility.IsPrefabAsset( assetSourceGO ) ) {
-				newInstanceGO                  = HEU_EditorUtility.InstantiatePrefab( assetSourceGO ) as GameObject ;
-				newInstanceGO.transform.parent = parentTransform ;
+				newInstanceGO = HEU_EditorUtility.InstantiatePrefab( assetSourceGO ) as GameObject ;
+				newInstanceGO!.transform.parent = parentTransform ;
 			}
 			else {
 				newInstanceGO =
 					HEU_EditorUtility.InstantiateGameObject( assetSourceGO, parentTransform, false, false ) ;
 			}
 
-			if ( collisionSourceGO != null ) {
+			if ( collisionSourceGO ) {
 				HEU_GeneralUtility.ReplaceColliderMeshFromMeshFilter( newInstanceGO, collisionSourceGO ) ;
 			}
 
@@ -1058,8 +1091,8 @@ namespace HoudiniEngineUnity
 			HEU_GeneralUtility.SetGameObjectChildrenColliderState( newInstanceGO, true ) ;
 		}
 
-		void ApplyAttributeModifiersOnGameObjectOutput( HEU_SessionBase session, HAPI_NodeId    geoID,
-														HAPI_PartId     partId,  ref GameObject go ) {
+		void ApplyAttributeModifiersOnGameObjectOutput( HEU_SessionBase session, HAPI_NodeId geoID,
+														HAPI_PartId partId, ref GameObject go ) {
 			HEU_GeneralUtility.AssignUnityTag( session, geoID, partId, go ) ;
 			HEU_GeneralUtility.AssignUnityLayer( session, geoID, partId, go ) ;
 			HEU_GeneralUtility.MakeStaticIfHasAttribute( session, geoID, partId, go ) ;
@@ -1129,58 +1162,46 @@ namespace HoudiniEngineUnity
 
 		#region DATA
 
-		public HAPI_NodeId _cookNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-
-		public long _sessionID = HEU_SessionData.INVALID_SESSION_ID ;
-
-		public string _nodeName ;
-
-		public bool _initialized ;
-
 		public bool _syncing ;
-
+		public string? _nodeName ;
+		public bool _initialized ;
 		public bool _deleteParent ;
-
+		public long _sessionID  = HEU_SessionData.INVALID_SESSION_ID ;
+		public HAPI_NodeId _cookNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 		public List< HEU_GeneratedOutput? > _generatedOutputs = new( ) ;
 
 		// Directory to write out generated files
-		public string _outputCacheDirectory = "" ;
+		public string _outputCacheDirectory = string.Empty ;
 
 		// List of generated file paths, so the files can be cleaned up on dirty
 		public List< string > _outputCacheFilePaths = new( ) ;
-
-		public HEU_GenerateOptions _generateOptions ;
-
+		
 		public StringBuilder _log = new( ) ;
-
 		public StringBuilder _error = new( ) ;
-
 		public bool _sessionSyncAutoCook = true ;
+		public HEU_GenerateOptions _generateOptions ;
+		
 
-		Action< HEU_SyncedEventData > _onSynced ;
-
-		public Action< HEU_SyncedEventData > OnSynced {
+		Action< HEU_SyncedEventData >? _onSynced ;
+		public Action< HEU_SyncedEventData >? OnSynced {
 			get => _onSynced ;
 			set => _onSynced = value ;
 		}
 
-		protected HEU_ThreadedTaskLoadGeo _loadTask ;
-
 		protected int _totalCookCount = 0 ;
-
 		protected bool _firstSyncComplete ;
+		protected HEU_ThreadedTaskLoadGeo? _loadTask ;
 
 		#endregion
 	}
 
 	[Serializable]
-	public struct HEU_GenerateOptions
-	{
+	public struct HEU_GenerateOptions {
 		public bool _generateUVs ;
 		public bool _generateTangents ;
 		public bool _generateNormals ;
 		public bool _useLODGroups ;
 		public bool _splitPoints ;
-	}
+	} ;
 
 } // HoudiniEngineUnity
