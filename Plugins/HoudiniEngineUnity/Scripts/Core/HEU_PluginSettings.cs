@@ -435,7 +435,7 @@ namespace HoudiniEngineUnity
 		}
 		else
 		{
-		    string msg = string.Format("Tag '{0}' does not exist in the Editor. Add it before setting it as the tag.", value);
+		    string? msg = string.Format("Tag '{0}' does not exist in the Editor. Add it before setting it as the tag.", value);
 		    HEU_EditorUtility.DisplayErrorDialog("Tag Does Not Exist", msg, "OK");
 		}
 	    }

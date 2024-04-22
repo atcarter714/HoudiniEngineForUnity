@@ -56,7 +56,7 @@ namespace HoudiniEngineUnity
 	private int _currentCookLogCount = 0;
 	private const int MAX_COOK_LOG_COUNT = 9001;
 
-	private string _lastLogStr = "";
+	private string? _lastLogStr = "";
 
 	private bool _uniqueStrOnly = true;
 
@@ -64,7 +64,7 @@ namespace HoudiniEngineUnity
 
 	public const long MaxLogSize = 50 * 1000 * 1000; // 50 MB
 
-	public void AppendCookLog(string logStr) {
+	public void AppendCookLog(string? logStr) {
 	    if (!HEU_PluginSettings.WriteCookLogs)
 	    {
 		return;
@@ -116,7 +116,7 @@ namespace HoudiniEngineUnity
 	    fi.Refresh();
 	}
 
-	public void WriteToLogFile(string logStr, bool checkLastLogStr = true)
+	public void WriteToLogFile(string? logStr, bool checkLastLogStr = true)
 	{
 	    if (_uniqueStrOnly && checkLastLogStr && logStr == _lastLogStr)
 	    {

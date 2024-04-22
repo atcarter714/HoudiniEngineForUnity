@@ -224,10 +224,10 @@ namespace HoudiniEngineUnity
 		    {
 			string msgPath = !string.IsNullOrEmpty(newPath) ? newPath : HEU_Platform.GetHoudiniEngineDefaultPath();
 
-			string confirmMsg = string.Format(
-				"Change the Houdini install path?\n"
-				+ "  New path: {0}\n\n"
-				+ "You will need to restart Unity to use this path!", msgPath);
+			string? confirmMsg = string.Format(
+											   "Change the Houdini install path?\n"
+											   + "  New path: {0}\n\n"
+											   + "You will need to restart Unity to use this path!", msgPath);
 
 			bool result = HEU_EditorUtility.DisplayDialog("Houdini Install Path Changed", confirmMsg, "Confirm", "Cancel");
 			if (result)

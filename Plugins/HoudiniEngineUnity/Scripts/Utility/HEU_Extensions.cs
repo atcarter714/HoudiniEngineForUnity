@@ -104,7 +104,7 @@ namespace HoudiniEngineUnity
 	    return bytes;
 	}
 
-	public static string AsString(this byte[] buffer)
+	public static string? AsString(this byte[] buffer)
 	{
 	    if (buffer == null)
 	    {

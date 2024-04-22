@@ -59,21 +59,20 @@ namespace HoudiniEngineUnity
 		/// <param name="cookNodeID">The ID of the node to load geometry from</param>
 		/// <param name="name">The name of the node to load geometry from</param>
 		/// <param name="filePath">For file load, the path to the fle</param>
-		public void SetupLoad( HEU_SessionBase session,    HEU_BaseSync ownerSync, LoadType loadType,
-							   HAPI_NodeId     cookNodeID, string       name,      string   filePath ) {
+		public void SetupLoad( HEU_SessionBase session,  HEU_BaseSync ownerSync,
+							   LoadType loadType, HAPI_NodeId  cookNodeID, 
+							   string? name, string? filePath ) {
 			_loadType = loadType ;
-
-			_filePath       = filePath ;
-			_ownerSync      = ownerSync ;
-			_session        = session ;
-			_name           = name ;
+			_filePath = filePath ;
+			_ownerSync = ownerSync ;
+			_session = session ;
+			_name = name ;
+			
 			_assetCachePath = GetValidAssetCacheFolderPath( _name ) ;
-
 			_generateOptions = _ownerSync._generateOptions ;
 
 			// Work data
-			_loadData             = new( )
-			{
+			_loadData = new( ) {
 				_cookNodeID = cookNodeID,
 				_loadStatus = HEU_LoadData.LoadStatus.NONE,
 				_logStr     = new( ),
@@ -87,10 +86,13 @@ namespace HoudiniEngineUnity
 		/// <param name="ownerSync">HEU_BaseSync object owns this and does Unity geometry creation</param>
 		/// <param name="cookNodeID">The load node's ID that was created in Houdini</param>
 		/// <param name="name">Name of the node</param>
-		public void SetupLoadNode( HEU_SessionBase session, HEU_BaseSync ownerSync, HAPI_NodeId cookNodeID,
-								   string          name ) {
-			SetupLoad( session, ownerSync, LoadType.NODE, cookNodeID, name, null ) ;
-		}
+		public void SetupLoadNode( HEU_SessionBase session,
+								   HEU_BaseSync ownerSync,
+								   HAPI_NodeId cookNodeID,
+								   string? name ) => SetupLoad( session, ownerSync,
+																LoadType.NODE, cookNodeID,
+																name, null
+															   ) ;
 
 		/// <summary>
 		/// Initial setup for loading a bgeo file.
@@ -215,8 +217,8 @@ namespace HoudiniEngineUnity
 			// Check cook results for any errors
 			if ( statusCode == HAPI_State.HAPI_STATE_READY_WITH_COOK_ERRORS ||
 				 statusCode == HAPI_State.HAPI_STATE_READY_WITH_FATAL_ERRORS ) {
-				string statusString = session.GetStatusString( HAPI_StatusType.HAPI_STATUS_COOK_RESULT,
-															   HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS ) ;
+				string? statusString = session.GetStatusString( HAPI_StatusType.HAPI_STATUS_COOK_RESULT,
+																HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS ) ;
 				AppendLog( HEU_LoadData.LoadStatus.ERROR, $"Cook failed: {statusString}." ) ;
 				return false ;
 			}
@@ -897,8 +899,9 @@ namespace HoudiniEngineUnity
 				strValue = strAttr[ 0 ] ;
 		}
 
-		void LoadFloatFromAttribute( HEU_SessionBase session,  HAPI_NodeId geoID, HAPI_NodeId partID,
-									 string          attrName, ref float   floatValue ) {
+		void LoadFloatFromAttribute( HEU_SessionBase session,
+									 HAPI_NodeId geoID, HAPI_NodeId partID,
+									 string attrName, ref float floatValue ) {
 			HAPI_AttributeInfo attrInfo   = new( ) ;
 			float[]            attrValues = new float[ 0 ] ;
 			HEU_GeneralUtility.GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref attrValues,
@@ -908,8 +911,9 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		void LoadLayerColorFromAttribute( HEU_SessionBase session,  HAPI_NodeId geoID, HAPI_NodeId partID,
-										  string          attrName, ref Color   colorValue ) {
+		void LoadLayerColorFromAttribute( HEU_SessionBase session,
+										  HAPI_NodeId geoID, HAPI_NodeId partID,
+										  string attrName, ref Color colorValue ) {
 			HAPI_AttributeInfo attrInfo   = new( ) ;
 			float[]            attrValues = new float[ 0 ] ;
 			HEU_GeneralUtility.GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref attrValues,
@@ -930,8 +934,9 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		void LoadLayerVector2FromAttribute( HEU_SessionBase session,  HAPI_NodeId geoID, HAPI_NodeId partID,
-											string          attrName, ref Vector2 vectorValue ) {
+		void LoadLayerVector2FromAttribute( HEU_SessionBase session,
+											HAPI_NodeId geoID, HAPI_NodeId partID,
+											string attrName, ref Vector2 vectorValue ) {
 			HAPI_AttributeInfo attrInfo   = new( ) ;
 			float[]            attrValues = new float[ 0 ] ;
 			HEU_GeneralUtility.GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref attrValues,
@@ -1023,8 +1028,8 @@ namespace HoudiniEngineUnity
 		}
 
 
-		public bool GenerateInstancerBuffers( HEU_SessionBase                     session, HAPI_NodeId nodeID,
-											  List< HAPI_PartInfo >               instancerParts,
+		public bool GenerateInstancerBuffers( HEU_SessionBase session,
+											  HAPI_NodeId nodeID, List< HAPI_PartInfo > instancerParts,
 											  out List< HEU_LoadBufferInstancer > instancerBuffers ) {
 			instancerBuffers = null ;
 			if ( instancerParts.Count == 0 ) {
@@ -1062,8 +1067,8 @@ namespace HoudiniEngineUnity
 		}
 
 		HEU_LoadBufferInstancer GeneratePartsInstancerBuffer( HEU_SessionBase session, HAPI_NodeId geoID,
-															  HAPI_PartId     partID,  string      partName,
-															  HAPI_PartInfo   partInfo ) {
+															  HAPI_PartId partID, string partName,
+															  HAPI_PartInfo partInfo ) {
 			// Get the instance node IDs to get the geometry to be instanced.
 			// Get the instanced count to all the instances. These will end up being mesh references to the mesh from instance node IDs.
 
@@ -1107,9 +1112,9 @@ namespace HoudiniEngineUnity
 			return instancerBuffer ;
 		}
 
-		HEU_LoadBufferInstancer GeneratePointAttributeInstancerBuffer(
-			HEU_SessionBase session,  HAPI_NodeId   geoID, HAPI_PartId partID,
-			string          partName, HAPI_PartInfo partInfo ) {
+		HEU_LoadBufferInstancer GeneratePointAttributeInstancerBuffer( HEU_SessionBase session,
+																	   HAPI_NodeId geoID, HAPI_PartId partID,
+																	   string partName, HAPI_PartInfo partInfo ) {
 			int numInstances = partInfo.pointCount ;
 			if ( numInstances <= 0 ) {
 				return null ;
@@ -1204,21 +1209,16 @@ namespace HoudiniEngineUnity
 			return null ;
 		}
 
-
-		public static HEU_LoadBufferVolume GetLoadBufferVolumeFromTileIndex(
-			int tileIndex, List< HEU_LoadBufferVolume > buffers ) {
-			foreach ( HEU_LoadBufferVolume buffer in buffers ) {
-				if ( buffer._tileIndex == tileIndex ) {
-					return buffer ;
-				}
-			}
+		public static HEU_LoadBufferVolume? GetLoadBufferVolumeFromTileIndex( int tileIndex,
+																			  List< HEU_LoadBufferVolume > buffers ) {
+			foreach ( HEU_LoadBufferVolume buffer in buffers )
+				if ( buffer._tileIndex == tileIndex ) return buffer ;
 
 			return null ;
 		}
 
-		public static string GetValidAssetCacheFolderPath( string name ) {
-			return HEU_AssetDatabase.CreateAssetCacheFolder( name ) ;
-		}
+		public static string? GetValidAssetCacheFolderPath( string name ) =>
+								HEU_AssetDatabase.CreateAssetCacheFolder( name ) ;
 
 		#endregion
 

@@ -884,7 +884,7 @@ namespace HoudiniEngineUnity
 	/// <summary>
 	/// Add given msg to log
 	/// </summary>
-	public void Log(string msg)
+	public void Log(string? msg)
 	{
 	    lock (_log)
 	    {

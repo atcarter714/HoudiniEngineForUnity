@@ -232,18 +232,14 @@ namespace HoudiniEngineUnity
 						}
 
 						DrawCurvesSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
-
 						DrawInputNodesSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
-
 						DrawTerrainSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
-
 						DrawInstanceInputs( _houdiniAsset, _houdiniAssetSerializedObject ) ;
 
 						bSkipAutoCook = DrawBakeSection( _houdiniAssetRoot, serializedObject, _houdiniAsset,
 														 _houdiniAssetSerializedObject, ref pendingBuildAction ) ;
 
 						DrawAssetOptions( _houdiniAsset, _houdiniAssetSerializedObject ) ;
-
 						DrawEventsSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
 					}
 				}
@@ -1282,9 +1278,7 @@ namespace HoudiniEngineUnity
 
 		void DrawTerrainSection( HEU_HoudiniAsset asset, SerializedObject assetObject ) {
 			int numVolumes = asset.GetVolumeCacheCount( ) ;
-			if ( numVolumes <= 0 ) {
-				return ;
-			}
+			if ( numVolumes < 1 ) return ;
 
 			HEU_EditorUI.BeginSection( ) ;
 			{

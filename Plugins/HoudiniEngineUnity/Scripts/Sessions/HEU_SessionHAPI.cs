@@ -484,7 +484,7 @@ namespace HoudiniEngineUnity
 						result = HEU_HAPIFunctions.HAPI_CloseSession( ref _sessionData._HAPISession ) ;
 						
 						if ( result is not HAPI_Result.HAPI_RESULT_SUCCESS ) {
-							string errorMsg = HEU_SessionManager.GetConnectionError( true ) ;
+							string? errorMsg = HEU_SessionManager.GetConnectionError( true ) ;
 							SetSessionErrorMsg( $"Closing session resulted in error.\nError: {result}\n{errorMsg}" ) ;
 						}
 					}
@@ -553,7 +553,7 @@ namespace HoudiniEngineUnity
 		/// Return the session info.
 		/// </summary>
 		/// <returns>The session information as a formatted string.</returns>
-		public override string GetSessionInfo( ) {
+		public override string? GetSessionInfo( ) {
 			if ( _sessionData is null ) 
 				return HEU_Defines.NO_EXISTING_SESSION ;
 			
@@ -710,10 +710,10 @@ namespace HoudiniEngineUnity
 				// Store the last call result so that we can check later
 				LastCallResultCode = result ;
 
-				string statusMessage = GetStatusString( HAPI_StatusType.HAPI_STATUS_CALL_RESULT,
-														HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_WARNINGS ) ;
-				string errorMsg = string.Format( "{0} : {1}\nIf session is invalid, try restarting Unity.", prependMsg,
-												 statusMessage ) ;
+				string? statusMessage = GetStatusString( HAPI_StatusType.HAPI_STATUS_CALL_RESULT,
+														 HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_WARNINGS ) ;
+				string? errorMsg = string.Format( "{0} : {1}\nIf session is invalid, try restarting Unity.", prependMsg,
+												  statusMessage ) ;
 				SetSessionErrorMsg( errorMsg, bLogError ) ;
 
 				bThrowError &= ThrowErrorOverride ;
@@ -840,7 +840,7 @@ namespace HoudiniEngineUnity
 		/// <param name="statusType"></param>
 		/// <param name="verbosity"></param>
 		/// <returns>True if successfully queried status string</returns>
-		public override string GetStatusString( HAPI_StatusType statusType, HAPI_StatusVerbosity verbosity ) {
+		public override string? GetStatusString( HAPI_StatusType statusType, HAPI_StatusVerbosity verbosity ) {
 			int bufferLength = 0 ;
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_GetStatusStringBufLength( ref _sessionData._HAPISession, statusType, verbosity,
@@ -869,7 +869,7 @@ namespace HoudiniEngineUnity
 		/// <param name="nodeId"> The node to parse </param>
 		/// <param name="verbosity"> The status verbosity. </param>
 		/// <returns>True if successfully queried status string</returns>
-		public override string ComposeNodeCookResult( HAPI_NodeId nodeId, HAPI_StatusVerbosity verbosity ) {
+		public override string? ComposeNodeCookResult( HAPI_NodeId nodeId, HAPI_StatusVerbosity verbosity ) {
 			int bufferLength = 0 ;
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_ComposeNodeCookResult( ref _sessionData._HAPISession, nodeId, verbosity,

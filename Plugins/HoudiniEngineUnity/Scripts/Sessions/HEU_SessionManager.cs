@@ -387,7 +387,7 @@ namespace HoudiniEngineUnity {
 
 		/// <summary>Return the session info.</summary>
 		/// <returns>The session information as a formatted string.</returns>
-		public static string GetSessionInfo( ) {
+		public static string? GetSessionInfo( ) {
 			HEU_SessionBase? sessionBase = GetDefaultSession( ) ;
 			return sessionBase is not null
 					   ? sessionBase.GetSessionInfo( )
@@ -439,7 +439,7 @@ namespace HoudiniEngineUnity {
 
 		/// <summary>Returns last session error.</summary>
 		/// <returns>The last session error.</returns>
-		public static string GetLastSessionError( ) {
+		public static string? GetLastSessionError( ) {
 			HEU_SessionBase? sessionBase = GetDefaultSession( ) ;
 			return sessionBase is not null 
 					   ? sessionBase.GetLastSessionError( )
@@ -465,7 +465,7 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static string GetConnectionError( bool clear ) {
+		public static string? GetConnectionError( bool clear ) {
 #if HOUDINIENGINEUNITY_ENABLED
 			HAPI_Result result = 
 				HEU_HAPIFunctions.HAPI_GetConnectionErrorLength( out int bufferLength ) ;

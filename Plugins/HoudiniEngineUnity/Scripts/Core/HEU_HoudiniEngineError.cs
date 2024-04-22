@@ -32,7 +32,7 @@ namespace HoudiniEngineUnity
     /// </summary>
     public class HEU_HoudiniEngineError : System.Exception
     {
-	protected string _errorMsg = "Unknown Error";
+	protected string? _errorMsg = "Unknown Error";
 
 
 	public HEU_HoudiniEngineError()
@@ -40,12 +40,12 @@ namespace HoudiniEngineUnity
 
 	}
 
-	internal HEU_HoudiniEngineError(string errorMsg)
+	internal HEU_HoudiniEngineError(string? errorMsg)
 	{
 	    _errorMsg = errorMsg;
 	}
 
-	public override string ToString()
+	public override string? ToString()
 	{
 	    return _errorMsg;
 	}

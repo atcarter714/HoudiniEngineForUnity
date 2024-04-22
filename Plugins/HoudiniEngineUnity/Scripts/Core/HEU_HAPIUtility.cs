@@ -67,7 +67,7 @@ namespace HoudiniEngineUnity
 	/// Tries to use existing or creates new session to find information.
 	/// </summary>
 	/// <returns>String containing installation and session information.</returns>
-	public static string GetHoudiniEngineInstallationInfo()
+	public static string? GetHoudiniEngineInstallationInfo()
 	{
 #if HOUDINIENGINEUNITY_ENABLED
 	    StringBuilder sb = new();
@@ -244,7 +244,7 @@ namespace HoudiniEngineUnity
 	/// Abstraction around Unity warning logger so provide some control for logging.
 	/// </summary>
 	/// <param name="message">String message to log</param>
-	public static void LogWarning(string message)
+	public static void LogWarning(string? message)
 	{
 	    HEU_Logger.LogWarning(message);
 	}
@@ -253,7 +253,7 @@ namespace HoudiniEngineUnity
 	/// Abstraction around Unity error logger so provide some control for logging.
 	/// </summary>
 	/// <param name="message">String message to log</param>
-	public static void LogError(string message)
+	public static void LogError(string? message)
 	{
 	    HEU_Logger.LogError(message);
 	}
@@ -614,7 +614,7 @@ namespace HoudiniEngineUnity
 
 		if (HEU_PluginSettings.WriteCookLogs)
 		{
-		    string cookStatus = session.GetStatusString(HAPI_StatusType.HAPI_STATUS_COOK_STATE, HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS);
+		    string? cookStatus = session.GetStatusString(HAPI_StatusType.HAPI_STATUS_COOK_STATE, HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS);
 		    HEU_CookLogs.Instance.AppendCookLog(cookStatus);
 		}
 	    }
@@ -623,7 +623,7 @@ namespace HoudiniEngineUnity
 	    if (statusCode == HAPI_State.HAPI_STATE_READY_WITH_COOK_ERRORS)
 	    {
 		// We should be able to continue even with these errors, but at least notify user.
-		string statusString = session.GetStatusString(HAPI_StatusType.HAPI_STATUS_COOK_RESULT, HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_WARNINGS);
+		string? statusString = session.GetStatusString(HAPI_StatusType.HAPI_STATUS_COOK_RESULT, HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_WARNINGS);
 		HEU_Logger.LogWarning(string.Format("Houdini Engine: Cooking finished with some warnings for asset: {0}\n{1}", assetName, statusString));
 		
 		if (HEU_PluginSettings.WriteCookLogs)
@@ -633,7 +633,7 @@ namespace HoudiniEngineUnity
 	    }
 	    else if (statusCode == HAPI_State.HAPI_STATE_READY_WITH_FATAL_ERRORS)
 	    {
-		string statusString = session.GetStatusString(HAPI_StatusType.HAPI_STATUS_COOK_RESULT, HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS);
+		string? statusString = session.GetStatusString(HAPI_StatusType.HAPI_STATUS_COOK_RESULT, HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS);
 		HEU_Logger.LogError(string.Format("Houdini Engine: Cooking failed for asset: {0}\n{1}", assetName, statusString));
 		if (HEU_PluginSettings.WriteCookLogs)
 		{

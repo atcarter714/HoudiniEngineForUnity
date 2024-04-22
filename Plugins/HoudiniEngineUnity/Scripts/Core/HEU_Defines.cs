@@ -108,9 +108,9 @@ namespace HoudiniEngineUnity
 	public const string HAPI_OBJPATH_1_PARAM = "objpath1";
 
 	// Messages
-	public const string NO_EXISTING_SESSION = "No existing session.";
-	public const string HEU_ERROR_TITLE = "Houdini Engine Error";
-	public const string HEU_INSTALL_INFO = "Houdini Engine Installation Info";
+	public const string? NO_EXISTING_SESSION = "No existing session.";
+	public const string  HEU_ERROR_TITLE     = "Houdini Engine Error";
+	public const string  HEU_INSTALL_INFO    = "Houdini Engine Installation Info";
 
 	// Storage
 	public const string PLUGIN_STORE_KEYS = "HoudiniEnginePluginKeys";

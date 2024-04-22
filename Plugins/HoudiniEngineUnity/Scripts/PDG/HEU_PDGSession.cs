@@ -511,7 +511,7 @@ namespace HoudiniEngineUnity
 	    eventInfo.eventType = (int)HAPI_PDG_EventType.HAPI_PDG_EVENT_NULL;
 	}
 
-	private void SetErrorState(string msg, bool bLogIt)
+	private void SetErrorState(string? msg, bool bLogIt)
 	{
 	    // Log first error
 	    if (!_errored && bLogIt)
@@ -872,8 +872,8 @@ namespace HoudiniEngineUnity
 	// Storage of latest PDG graph context data
 	public HAPI_PDG_GraphContextId[] _pdgContextIDs;
 
-	public bool _errored;
-	public string _errorMsg;
+	public bool    _errored;
+	public string? _errorMsg;
 
 	public HAPI_PDG_State _pdgState = HAPI_PDG_State.HAPI_PDG_STATE_READY;
 
