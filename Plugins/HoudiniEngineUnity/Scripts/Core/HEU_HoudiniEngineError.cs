@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2018> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -30,23 +30,13 @@ namespace HoudiniEngineUnity
     /// <summary>
     /// Houdini Engine base error class.
     /// </summary>
-    public class HEU_HoudiniEngineError : System.Exception
-    {
-        protected string _errorMsg = "Unknown Error";
+    public class HEU_HoudiniEngineError: System.Exception {
+	    protected string? _errorMsg = "Unknown Error";
 
+        public HEU_HoudiniEngineError( ) { }
 
-        public HEU_HoudiniEngineError()
-        {
-        }
+	    internal HEU_HoudiniEngineError(string? errorMsg) => _errorMsg = errorMsg ;
 
-        internal HEU_HoudiniEngineError(string errorMsg)
-        {
-            _errorMsg = errorMsg;
-        }
-
-        public override string ToString()
-        {
-            return _errorMsg;
-        }
+	    public override string? ToString() => _errorMsg ;
     }
 } // HoudiniEngineUnity

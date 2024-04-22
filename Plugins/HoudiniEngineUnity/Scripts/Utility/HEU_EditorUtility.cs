@@ -471,8 +471,8 @@ namespace HoudiniEngineUnity {
 		/// <param name="ok"></param>
 		/// <param name="cancel"></param>
 		/// <returns>True if OK button is pressed.</returns>
-		public static bool DisplayDialog( string title, string message, 
-										  string ok, string cancel = "" ) {
+		public static bool DisplayDialog( string title, string? message, 
+										  string ok,    string  cancel = "" ) {
 #if UNITY_EDITOR
 			return EditorUtility.DisplayDialog( title, message, ok, cancel ) ;
 #else
@@ -489,8 +489,8 @@ namespace HoudiniEngineUnity {
 		/// <param name="ok"></param>
 		/// <param name="cancel"></param>
 		/// <returns>True if OK button is pressed.</returns>
-		public static bool DisplayErrorDialog( string title, string message, 
-											   string ok, string cancel = "" ) {
+		public static bool DisplayErrorDialog( string title, string? message, 
+											   string ok,    string  cancel = "" ) {
 #if UNITY_EDITOR
 			return EditorUtility.DisplayDialog( $"{HEU_Defines.HEU_ERROR_TITLE}: {title}", message, ok, cancel ) ;
 #else
@@ -515,7 +515,7 @@ namespace HoudiniEngineUnity {
 			SerializedProperty? foundProperty = serializedObject.FindProperty( propertyName ) ;
 			if ( foundProperty is not null ) return foundProperty ;
 
-			string errorMsg =
+			string? errorMsg =
 				string.Format( "Property {0} not found on Object {1}. Make sure class {1} has member variable {0}.",
 							   propertyName, serializedObject.targetObject.GetType( ) ) ;
 

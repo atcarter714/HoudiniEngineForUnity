@@ -3765,7 +3765,7 @@ namespace HoudiniEngineUnity
             }
 =======
 			if ( HEU_PluginSettings.WriteCookLogs ) {
-				string nodeStatusAll =
+				string? nodeStatusAll =
 					session.ComposeNodeCookResult( _assetID, HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ALL ) ;
 				if ( nodeStatusAll != "" ) {
 					HEU_CookLogs.Instance.AppendCookLog( nodeStatusAll ) ;
@@ -3781,18 +3781,14 @@ namespace HoudiniEngineUnity
                 SetCookStatus(AssetCookStatus.NONE, _lastCookResult = AssetCookResult.ERRORED);
 =======
 			// Output or suppress errors
-			string nodeStatusError =
+			string? nodeStatusError =
 				session.ComposeNodeCookResult( _assetID, HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS ) ;
 			if ( nodeStatusError != "" ) {
 				SetCookStatus( AssetCookStatus.NONE, _lastCookResult = AssetCookResult.ERRORED ) ;
 >>>>>>>
 
-<<<<<<<
-                string resultString = string.Format(HEU_Defines.HEU_NAME + ": Failed to cook asset {0}! \n{1}", AssetName, nodeStatusError);
-=======
-				string resultString = string.Format( HEU_Defines.HEU_NAME + ": Failed to cook asset {0}! \n{1}",
-													 AssetName, nodeStatusError ) ;
->>>>>>>
+				string? resultString = string.Format( HEU_Defines.HEU_NAME + ": Failed to cook asset {0}! \n{1}",
+													  AssetName, nodeStatusError ) ;
 
 <<<<<<<
                 bool ignoreError = false;
@@ -4134,9 +4130,9 @@ namespace HoudiniEngineUnity
 
 					// Add to cook log
 					if ( HEU_PluginSettings.WriteCookLogs ) {
-						string cookStatus = session.GetStatusString( HAPI_StatusType.HAPI_STATUS_COOK_STATE,
-																	 HAPI_StatusVerbosity
-																		 .HAPI_STATUSVERBOSITY_ERRORS ) ;
+						string? cookStatus = session.GetStatusString( HAPI_StatusType.HAPI_STATUS_COOK_STATE,
+																	  HAPI_StatusVerbosity
+																		  .HAPI_STATUSVERBOSITY_ERRORS ) ;
 						HEU_CookLogs.Instance.AppendCookLog( cookStatus ) ;
 					}
 
@@ -4153,8 +4149,8 @@ namespace HoudiniEngineUnity
 
 				// Check cook results for any errors
 				if ( statusCode == HAPI_State.HAPI_STATE_READY_WITH_FATAL_ERRORS ) {
-					string statusString = session.GetStatusString( HAPI_StatusType.HAPI_STATUS_COOK_RESULT,
-																   HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS ) ;
+					string? statusString = session.GetStatusString( HAPI_StatusType.HAPI_STATUS_COOK_RESULT,
+																	HAPI_StatusVerbosity.HAPI_STATUSVERBOSITY_ERRORS ) ;
 					HEU_Logger.LogError( string.Format( HEU_Defines.HEU_NAME + ": Cooking failed for asset: {0}\n{1}",
 														AssetName, statusString ) ) ;
 
@@ -4163,9 +4159,9 @@ namespace HoudiniEngineUnity
 				else {
 					if ( statusCode == HAPI_State.HAPI_STATE_READY_WITH_COOK_ERRORS ) {
 						// We should be able to continue even with these errors, but at least notify user.
-						string statusString = session.GetStatusString( HAPI_StatusType.HAPI_STATUS_COOK_RESULT,
-																	   HAPI_StatusVerbosity
-																		   .HAPI_STATUSVERBOSITY_WARNINGS ) ;
+						string? statusString = session.GetStatusString( HAPI_StatusType.HAPI_STATUS_COOK_RESULT,
+																		HAPI_StatusVerbosity
+																			.HAPI_STATUSVERBOSITY_WARNINGS ) ;
 						HEU_Logger
 							.LogWarning( string.Format( HEU_Defines.HEU_NAME + ": Cooking finished with some errors for asset: {0}\n{1}",
 														AssetName, statusString ) ) ;
@@ -6988,7 +6984,7 @@ namespace HoudiniEngineUnity
             }
 =======
 			if ( !assetPreset._assetOPName.Equals( _assetOpName ) ) {
-				string presetErrorMsg =
+				string? presetErrorMsg =
 					string.Format( "The saved asset OP name from preset file: '{0}'\ndiffers from this asset's OP name: '{1}'.\nMake sure you are using the correct preset file.",
 								   assetPreset._assetOPName, _assetOpName ) ;
 				if ( !HEU_EditorUtility.DisplayDialog( "Preset Does Not Match", presetErrorMsg, "Continue Anyway",

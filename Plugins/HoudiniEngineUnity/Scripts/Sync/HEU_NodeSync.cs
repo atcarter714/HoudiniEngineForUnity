@@ -94,13 +94,13 @@ namespace HoudiniEngineUnity
 			return session.SaveNodeToFile( _cookNodeID, filePath ) ;
 		}
 
-		public static void CreateNodeSync( HEU_SessionBase session, string opName, string nodeNabel ) {
-			const HAPI_NodeId parentNodeId = -1 ;
+		public static void CreateNodeSync( HEU_SessionBase? session, string opName, string nodeNabel ) {
+			const HAPI_NodeId parentNodeId = HEU_Defines.HEU_INVALID_NODE_ID ;
 			session ??= HEU_SessionManager.GetDefaultSession( ) ;
-			if ( !session.IsSessionValid( ) ) return ;
-
-
-			if ( !session.CreateNode( parentNodeId, opName, nodeNabel, true, out HAPI_NodeId newNodeID ) ) {
+			if ( session?.IsSessionValid() is not true ) return ;
+			
+			if ( !session.CreateNode( parentNodeId, opName, nodeNabel,
+									  true, out HAPI_NodeId newNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create merge SOP node for connecting input assets." ) ;
 				return ;
 			}
@@ -112,18 +112,17 @@ namespace HoudiniEngineUnity
 
 			// But for SOP/subnet we actually do want the subnet SOP node ID
 			// hence the useSOPNodeID argument here is to override it.
-			bool          useSopNodeID = opName.Equals( "SOP/subnet" ) ;
-			HAPI_NodeInfo nodeInfo     = new( ) ;
+			bool useSopNodeID = opName.Equals( "SOP/subnet" ) ;
+			HAPI_NodeInfo nodeInfo = new( ) ;
 			if ( !session.GetNodeInfo( newNodeID, ref nodeInfo ) )
 				return ;
 
 			switch ( nodeInfo.type ) {
-				case HAPI_NodeType.HAPI_NODETYPE_SOP:
-				{
+				case HAPI_NodeType.HAPI_NODETYPE_SOP: {
 					if ( !useSopNodeID ) newNodeID = nodeInfo.parentId ;
 					break ;
 				}
-				case HAPI_NodeType.HAPI_NODETYPE_ANY:
+				/*case HAPI_NodeType.HAPI_NODETYPE_ANY:
 					break ;
 				case HAPI_NodeType.HAPI_NODETYPE_NONE:
 					break ;
@@ -142,21 +141,22 @@ namespace HoudiniEngineUnity
 				case HAPI_NodeType.HAPI_NODETYPE_DOP:
 					break ;
 				case HAPI_NodeType.HAPI_NODETYPE_TOP:
-					break ;
-				default:
-				{
+					break ;*/
+				default: {
 					if ( nodeInfo.type is not HAPI_NodeType.HAPI_NODETYPE_OBJ ) {
 						HEU_Logger.LogErrorFormat( "Unsupported node type {0}", nodeInfo.type ) ;
 						return ;
 					}
-
 					break ;
 				}
 			}
-
-			var          newGo    = HEU_GeneralUtility.CreateNewGameObject( nodeNabel ) ;
+			
+			var newGo = HEU_GeneralUtility.CreateNewGameObject( nodeNabel ) ;
 			HEU_NodeSync nodeSync = newGo.AddComponent< HEU_NodeSync >( ) ;
-			nodeSync.InitializeFromHoudini( session, newNodeID, nodeNabel, "" ) ;
+			
+			nodeSync.InitializeFromHoudini( session, newNodeID,
+											nodeNabel, string.Empty
+										  ) ;
 		}
 
 		#endregion

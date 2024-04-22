@@ -245,22 +245,18 @@ namespace HoudiniEngineUnity
                             HEU_EditorUI.DrawSeparator();
                         }
 
-                        DrawCurvesSection(_houdiniAsset, _houdiniAssetSerializedObject);
-
-                        DrawInputNodesSection(_houdiniAsset, _houdiniAssetSerializedObject);
-
-                        DrawTerrainSection(_houdiniAsset, _houdiniAssetSerializedObject);
-
-                        DrawInstanceInputs(_houdiniAsset, _houdiniAssetSerializedObject);
+						DrawCurvesSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
+						DrawInputNodesSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
+						DrawTerrainSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
+						DrawInstanceInputs( _houdiniAsset, _houdiniAssetSerializedObject ) ;
 
                         bSkipAutoCook = DrawBakeSection(_houdiniAssetRoot, serializedObject, _houdiniAsset,
                             _houdiniAssetSerializedObject, ref pendingBuildAction);
 
-                        DrawAssetOptions(_houdiniAsset, _houdiniAssetSerializedObject);
-
-                        DrawEventsSection(_houdiniAsset, _houdiniAssetSerializedObject);
-                    }
-                }
+						DrawAssetOptions( _houdiniAsset, _houdiniAssetSerializedObject ) ;
+						DrawEventsSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
+					}
+				}
 
                 ProcessPendingBuildAction(pendingBuildAction, pendingBuildProperty,
                     _houdiniAssetRoot, serializedObject, _houdiniAsset, _houdiniAssetSerializedObject);
@@ -1293,7 +1289,9 @@ namespace HoudiniEngineUnity
                     HEU_EditorUI.DrawSeparator();
                 }
 
-                HEU_EditorUI.EndSection();
+		void DrawTerrainSection( HEU_HoudiniAsset asset, SerializedObject assetObject ) {
+			int numVolumes = asset.GetVolumeCacheCount( ) ;
+			if ( numVolumes < 1 ) return ;
 
                 HEU_EditorUI.DrawSeparator();
             }

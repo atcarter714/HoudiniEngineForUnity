@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -24,278 +24,229 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace HoudiniEngineUnity
-{
-    /// <summary>
-    /// Base class that wraps threaded tasks.
-    /// Derive from this for custom threaded tasks.
-    /// </summary>
-    public class HEU_ThreadedTask
-    {
-        /// <summary>
-        /// Start the work in a new thread, with priority and background set.
-        /// </summary>
-        public virtual void Start()
-        {
-            Debug.Assert(!StopRequested, "StopRequested is true. Task didn't get reset!");
-            Debug.Assert(!IsComplete, "IsComplete is true. Task didn't get reset!");
 
-            if (_thread == null)
-            {
-                // Activate the task first ensuring it won't be stopped until complete or stopped
-                IsActive = true;
-                IsComplete = false;
+namespace HoudiniEngineUnity {
+	
+	/// <summary>
+	/// Base class that wraps threaded tasks.
+	/// Derive from this for custom threaded tasks.
+	/// </summary>
+	public class HEU_ThreadedTask {
+		
+		/// <summary>
+		/// Start the work in a new thread, with priority and background set.
+		/// </summary>
+		public virtual void Start( ) {
+			Debug.Assert( !StopRequested, "StopRequested is true. Task didn't get reset!" ) ;
+			Debug.Assert( !IsComplete, "IsComplete is true. Task didn't get reset!" ) ;
 
-                HEU_ThreadManager.Instance.AddTask(this);
+			if ( _thread == null ) {
+				// Activate the task first ensuring it won't be stopped until complete or stopped
+				IsActive   = true ;
+				IsComplete = false ;
 
-                _thread = new System.Threading.Thread(Run);
-                _thread.Priority = Priority;
-                _thread.IsBackground = IsBackground;
-                _thread.Start();
-            }
-            else
-            {
-                HEU_Logger.LogError("Thread already running!");
-            }
-        }
+				HEU_ThreadManager.Instance.AddTask( this ) ;
 
-        /// <summary>
-        /// Request the thread to stop.
-        /// </summary>
-        public virtual void Stop()
-        {
-            if (!IsComplete && _thread != null && _thread.IsAlive)
-            {
-                StopRequested = true;
-            }
-        }
+				_thread              = new System.Threading.Thread( Run ) ;
+				_thread.Priority     = Priority ;
+				_thread.IsBackground = IsBackground ;
+				_thread.Start( ) ;
+			}
+			else {
+				HEU_Logger.LogError( "Thread already running!" ) ;
+			}
+		}
 
-        /// <summary>
-        /// Abort the thread immediately.
-        /// </summary>
-        public virtual void Abort()
-        {
-            if (_thread != null)
-            {
-                _thread.Abort();
-                Reset();
-            }
-        }
+		/// <summary>
+		/// Request the thread to stop.
+		/// </summary>
+		public virtual void Stop( ) {
+			if ( !IsComplete && _thread != null && _thread.IsAlive ) {
+				StopRequested = true ;
+			}
+		}
 
-        /// <summary>
-        /// Reset this wrapper's state.
-        /// Aborts running thread.
-        /// </summary>
-        public virtual void Reset()
-        {
-            if (_thread != null)
-            {
-                if (_thread.IsAlive)
-                {
-                    _thread.Abort();
-                }
+		/// <summary>
+		/// Abort the thread immediately.
+		/// </summary>
+		public virtual void Abort( ) {
+			if ( _thread != null ) {
+				_thread.Abort( ) ;
+				Reset( ) ;
+			}
+		}
 
-                _thread = null;
-            }
+		/// <summary>
+		/// Reset this wrapper's state.
+		/// Aborts running thread.
+		/// </summary>
+		public virtual void Reset( ) {
+			if ( _thread != null ) {
+				if ( _thread.IsAlive ) {
+					_thread.Abort( ) ;
+				}
 
-            IsComplete = false;
-            IsActive = false;
-            StopRequested = false;
+				_thread = null ;
+			}
 
-            CleanUp();
+			IsComplete    = false ;
+			IsActive      = false ;
+			StopRequested = false ;
 
-            HEU_ThreadManager.Instance.RemoveTask(this);
-        }
+			CleanUp( ) ;
 
-        /// <summary>
-        /// Check if thread has finished or stopped,
-        /// and does callbacks for either state.
-        /// </summary>
-        public virtual void Update()
-        {
-            if (!IsActive)
-            {
-                return;
-            }
+			HEU_ThreadManager.Instance.RemoveTask( this ) ;
+		}
 
-            if (IsComplete)
-            {
-                IsActive = false;
+		/// <summary>
+		/// Check if thread has finished or stopped,
+		/// and does callbacks for either state.
+		/// </summary>
+		public virtual void Update( ) {
+			if ( !IsActive ) {
+				return ;
+			}
 
-                if (StopRequested)
-                {
-                    OnStopped();
-                }
-                else
-                {
-                    OnComplete();
-                }
-            }
-        }
+			if ( IsComplete ) {
+				IsActive = false ;
 
-        /// <summary>
-        /// Do the actual work. Derived classes should override this.
-        /// Not thread-safe.
-        /// </summary>
-        protected virtual void DoWork()
-        {
-        }
+				if ( StopRequested ) {
+					OnStopped( ) ;
+				}
+				else {
+					OnComplete( ) ;
+				}
+			}
+		}
 
-        /// <summary>
-        /// Callback when task is completed.
-        /// </summary>
-        protected virtual void OnComplete()
-        {
-        }
+		/// <summary>
+		/// Do the actual work. Derived classes should override this.
+		/// Not thread-safe.
+		/// </summary>
+		protected virtual void DoWork( ) { }
 
-        /// <summary>
-        /// Callback when task is stopped.
-        /// </summary>
-        protected virtual void OnStopped()
-        {
-        }
+		/// <summary>
+		/// Callback when task is completed.
+		/// </summary>
+		protected virtual void OnComplete( ) { }
 
-        /// <summary>
-        /// Clean up this thread wrapper.
-        /// </summary>
-        protected virtual void CleanUp()
-        {
-        }
+		/// <summary>
+		/// Callback when task is stopped.
+		/// </summary>
+		protected virtual void OnStopped( ) { }
 
-        /// <summary>
-        /// Internal thread function to execute the work.
-        /// </summary>
-        private void Run()
-        {
-            DoWork();
+		/// <summary>
+		/// Clean up this thread wrapper.
+		/// </summary>
+		protected virtual void CleanUp( ) { }
 
-            IsComplete = true;
-        }
+		/// <summary>
+		/// Internal thread function to execute the work.
+		/// </summary>
+		void Run( ) {
+			DoWork( ) ;
+
+			IsComplete = true ;
+		}
 
 
-        //	DATA ------------------------------------------------------------------------------------------------------
+		//	DATA ------------------------------------------------------------------------------------------------------
 
-        // Whether the work is completed
-        private bool _isComplete = false;
+		// Whether the work is completed
+		bool _isComplete = false ;
 
-        // Whether the thread is still running
-        private bool _isActive = false;
+		// Whether the thread is still running
+		bool _isActive = false ;
 
-        // Whether stop has been qurested
-        private bool _stopRequested = false;
+		// Whether stop has been qurested
+		bool _stopRequested = false ;
 
-        // Thread lock handle
-        private object _lockHandle = new object();
+		// Thread lock handle
+		readonly object _lockHandle = new( ) ;
 
-        // Actual thread object
-        private System.Threading.Thread _thread;
+		// Actual thread object
+		System.Threading.Thread? _thread ;
 
-        // Thread priority
-        private System.Threading.ThreadPriority _priority = System.Threading.ThreadPriority.Lowest;
+		// Thread priority
 
-        // Whether thread is running in the background
-        private bool _isBackground = true;
+		// Whether thread is running in the background
 
-        // Name of this wrapper instance or task name
-        protected string _name;
-        public string TaskName => _name;
+		// Name of this wrapper instance or task name
+		protected string? _name ;
+		public string? TaskName => _name ;
 
-        /// <summary>
-        /// Get or set task is complete
-        /// </summary>
-        public bool IsComplete
-        {
-            get
-            {
-                bool bTempComplete = false;
-                lock (_lockHandle)
-                {
-                    bTempComplete = _isComplete;
-                }
+		/// <summary>
+		/// Get or set task is complete
+		/// </summary>
+		public bool IsComplete {
+			get {
+				bool bTempComplete = false ;
+				lock ( _lockHandle ) {
+					bTempComplete = _isComplete ;
+				}
 
-                return bTempComplete;
-            }
+				return bTempComplete ;
+			}
 
-            set
-            {
-                lock (_lockHandle)
-                {
-                    _isComplete = value;
-                }
-            }
-        }
+			set {
+				lock ( _lockHandle ) {
+					_isComplete = value ;
+				}
+			}
+		}
 
-        /// <summary>
-        /// Get or set work is still executing (thread running)
-        /// </summary>
-        public bool IsActive
-        {
-            get
-            {
-                bool bTempActive = false;
-                lock (_lockHandle)
-                {
-                    bTempActive = _isActive;
-                }
+		/// <summary>
+		/// Get or set work is still executing (thread running)
+		/// </summary>
+		public bool IsActive {
+			get {
+				bool bTempActive = false ;
+				lock ( _lockHandle ) {
+					bTempActive = _isActive ;
+				}
 
-                return bTempActive;
-            }
+				return bTempActive ;
+			}
 
-            set
-            {
-                lock (_lockHandle)
-                {
-                    _isActive = value;
-                }
-            }
-        }
+			set {
+				lock ( _lockHandle ) {
+					_isActive = value ;
+				}
+			}
+		}
 
-        /// <summary>
-        /// Get or set request for thread to stop
-        /// </summary>
-        public bool StopRequested
-        {
-            get
-            {
-                bool bTempStop = false;
-                lock (_lockHandle)
-                {
-                    bTempStop = _stopRequested;
-                }
+		/// <summary>
+		/// Get or set request for thread to stop
+		/// </summary>
+		public bool StopRequested {
+			get {
+				bool bTempStop = false ;
+				lock ( _lockHandle ) {
+					bTempStop = _stopRequested ;
+				}
 
-                return bTempStop;
-            }
+				return bTempStop ;
+			}
 
-            set
-            {
-                lock (_lockHandle)
-                {
-                    _stopRequested = value;
-                }
-            }
-        }
+			set {
+				lock ( _lockHandle ) {
+					_stopRequested = value ;
+				}
+			}
+		}
 
-        /// <summary>
-        /// Get or set thread priority
-        /// </summary>
-        public System.Threading.ThreadPriority Priority
-        {
-            get => _priority;
-            set => _priority = value;
-        }
+		/// <summary>
+		/// Get or set thread priority
+		/// </summary>
+		public System.Threading.ThreadPriority Priority { get ; set ; } 
+								= System.Threading.ThreadPriority.Lowest ;
 
-        /// <summary>
-        /// Get or set thread should run in background or not
-        /// </summary>
-        public bool IsBackground
-        {
-            get => _isBackground;
-            set => _isBackground = value;
-        }
-    }
+		/// <summary>
+		/// Get or set thread should run in background or not
+		/// </summary>
+		public bool IsBackground { get ; set ; } = true ;
+	} ;
+	
 } // HoudiniEngineUnity

@@ -61,13 +61,14 @@ namespace HoudiniEngineUnity
     /// </summary>
     public static class HEU_HAPIUtility
     {
-        /// <summary>
-        /// Return Houdini Engine installation and session information.
-        /// Tries to use existing or creates new session to find information.
-        /// </summary>
-        /// <returns>String containing installation and session information.</returns>
-        public static string GetHoudiniEngineInstallationInfo()
-        {
+
+	/// <summary>
+	/// Return Houdini Engine installation and session information.
+	/// Tries to use existing or creates new session to find information.
+	/// </summary>
+	/// <returns>String containing installation and session information.</returns>
+	public static string? GetHoudiniEngineInstallationInfo()
+	{
 #if HOUDINIENGINEUNITY_ENABLED
 	    StringBuilder sb = new();
 
@@ -246,9 +247,23 @@ namespace HoudiniEngineUnity
                 }
             }
 
-            return null;
-        }
+	/// <summary>
+	/// Abstraction around Unity warning logger so provide some control for logging.
+	/// </summary>
+	/// <param name="message">String message to log</param>
+	public static void LogWarning(string? message)
+	{
+	    HEU_Logger.LogWarning(message);
+	}
 
+	/// <summary>
+	/// Abstraction around Unity error logger so provide some control for logging.
+	/// </summary>
+	/// <param name="message">String message to log</param>
+	public static void LogError(string? message)
+	{
+	    HEU_Logger.LogError(message);
+	}
         /// <summary>
         /// Abstraction around Unity warning logger so provide some control for logging.
         /// </summary>

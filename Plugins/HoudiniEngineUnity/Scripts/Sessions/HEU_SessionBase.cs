@@ -80,9 +80,9 @@ namespace HoudiniEngineUnity
 		}
 
 		// The last error message for this session
-		string _sessionErrorMsg ;
+		string? _sessionErrorMsg ;
 
-		public string GetSessionErrorMsg( ) {
+		public string? GetSessionErrorMsg( ) {
 			return _sessionErrorMsg ;
 		}
 
@@ -167,7 +167,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="msg">String message to set</param>
 		/// <param name="bLogError">Set to true if want to log error on console</param>
-		public virtual void SetSessionErrorMsg( string msg, bool bLogError = false ) {
+		public virtual void SetSessionErrorMsg( string? msg, bool bLogError = false ) {
 			_sessionErrorMsg = msg ;
 			if ( bLogError && LogErrorOverride )
 				HEU_Logger.LogError( _sessionErrorMsg ) ;
@@ -182,40 +182,40 @@ namespace HoudiniEngineUnity
 		/// <param name="bLogError">Whether to also log the error</param>
 		public virtual void SetSessionConnectionErrorMsg( string introMsg, HAPI_Result result, bool bIsHARSRunning,
 														  bool   bLogError = false ) {
-			string connectionError = HEU_SessionManager.GetConnectionError( true ) ;
-			string errorMsg = string.Format( "{0}"
-											 + "\nHARS was running: {1}"
-											 + "\n\n----------------------------------------"
-											 + "\nCode: {2}"
-											 + "\n{3}"
-											 + "\n------------------------------------------"
-											 + "\n\nPlease try the following:"
-											 + "\n\nCheck connection settings in HoudiniEngine > Plugin Settings > SESSION."
-											 + "\nMake sure pipe name is valid if using pipe mode, or server name and port are valid if using socket mode."
-											 + "\nRevert to default if not sure."
-											 + "\n\nForce close and reset sessions via HoudiniEngine > Session > Close All Sessions (then try again)."
-											 + "\n\nCheck that Houdini is installed here: {4}"
-											 + "\nYou can reinstall Houdini and Unity plugin."
-											 + "\nOr override Houdini install location in HoudiniEngine > Plugin Settings > GENERAL"
-											 + "\n\nRestart Unity and try again."
-											 + "\n\nKill any HARS process on local machine. Or restart machine if not sure."
-											 + "\n\nNote this message will be logged to Console."
-											 , introMsg, bIsHARSRunning, result, connectionError,
-											 HEU_Platform.GetHoudiniEnginePath( ) ) ;
+			string? connectionError = HEU_SessionManager.GetConnectionError( true ) ;
+			string? errorMsg = string.Format( "{0}"
+											  + "\nHARS was running: {1}"
+											  + "\n\n----------------------------------------"
+											  + "\nCode: {2}"
+											  + "\n{3}"
+											  + "\n------------------------------------------"
+											  + "\n\nPlease try the following:"
+											  + "\n\nCheck connection settings in HoudiniEngine > Plugin Settings > SESSION."
+											  + "\nMake sure pipe name is valid if using pipe mode, or server name and port are valid if using socket mode."
+											  + "\nRevert to default if not sure."
+											  + "\n\nForce close and reset sessions via HoudiniEngine > Session > Close All Sessions (then try again)."
+											  + "\n\nCheck that Houdini is installed here: {4}"
+											  + "\nYou can reinstall Houdini and Unity plugin."
+											  + "\nOr override Houdini install location in HoudiniEngine > Plugin Settings > GENERAL"
+											  + "\n\nRestart Unity and try again."
+											  + "\n\nKill any HARS process on local machine. Or restart machine if not sure."
+											  + "\n\nNote this message will be logged to Console."
+											  , introMsg, bIsHARSRunning, result, connectionError,
+											  HEU_Platform.GetHoudiniEnginePath( ) ) ;
 
 			SetSessionErrorMsg( errorMsg, bLogError ) ;
 		}
 
 		public virtual void SetLibraryErrorMsg( bool bLogError = false ) {
-			string msg = string.Format(
-									   "Houdini Engine libraries not found."
-									   + "\n\nMake sure Houdini is installed. Please visit http://www.sidefx.com/download to get the latest Production build."
-									   + "\nThis plugin requires Houdini version {0}. Install it, restart Unity, and try again."
-									   + "\n\nYou can also change to another installed version of Houdini via menu HoudiniEngine > Plugin Settings > GENERAL > Override Houdini Install Path."
-									   + "\n\nExpected library path should be: {1}"
-									   + "\n\nVisit http://www.sidefx.com/unity for documentation."
-									   , HEU_HoudiniVersion.HOUDINI_VERSION_STRING, HEU_Platform.GetHoudiniEnginePath( )
-									  ) ;
+			string? msg = string.Format(
+										"Houdini Engine libraries not found."
+										+ "\n\nMake sure Houdini is installed. Please visit http://www.sidefx.com/download to get the latest Production build."
+										+ "\nThis plugin requires Houdini version {0}. Install it, restart Unity, and try again."
+										+ "\n\nYou can also change to another installed version of Houdini via menu HoudiniEngine > Plugin Settings > GENERAL > Override Houdini Install Path."
+										+ "\n\nExpected library path should be: {1}"
+										+ "\n\nVisit http://www.sidefx.com/unity for documentation."
+										, HEU_HoudiniVersion.HOUDINI_VERSION_STRING, HEU_Platform.GetHoudiniEnginePath( )
+									   ) ;
 			SetSessionErrorMsg( msg, bLogError ) ;
 		}
 
@@ -302,7 +302,7 @@ namespace HoudiniEngineUnity
 		/// Return the session info.
 		/// </summary>
 		/// <returns>The session information as a formatted string.</returns>
-		public virtual string GetSessionInfo( ) => HEU_Defines.NO_EXISTING_SESSION ;
+		public virtual string? GetSessionInfo( ) => HEU_Defines.NO_EXISTING_SESSION ;
 
 		/// <summary>
 		/// Checks that the Houdini Engine session is valid.
@@ -320,7 +320,7 @@ namespace HoudiniEngineUnity
 		/// Returns last session error.
 		/// </summary>
 		/// <returns>The last session error.</returns>
-		public string GetLastSessionError( ) => _sessionErrorMsg ;
+		public string? GetLastSessionError( ) => _sessionErrorMsg ;
 
 		public virtual bool CheckVersionMatch( ) => false ;
 
@@ -369,7 +369,7 @@ namespace HoudiniEngineUnity
 		/// <param name="statusType"></param>
 		/// <param name="verbosity"></param>
 		/// <returns></returns>
-		public virtual string GetStatusString( HAPI_StatusType statusType, HAPI_StatusVerbosity verbosity ) {
+		public virtual string? GetStatusString( HAPI_StatusType statusType, HAPI_StatusVerbosity verbosity ) {
 			return "Unsupported plugin configuration." ;
 		}
 
@@ -379,7 +379,7 @@ namespace HoudiniEngineUnity
 		/// <param name="nodeId"> The node to parse </param>
 		/// <param name="verbosity"> The status verbosity. </param>
 		/// <returns>True if successfully queried status string</returns>
-		public virtual string ComposeNodeCookResult( HAPI_NodeId nodeId, HAPI_StatusVerbosity verbosity ) {
+		public virtual string? ComposeNodeCookResult( HAPI_NodeId nodeId, HAPI_StatusVerbosity verbosity ) {
 			return "" ;
 		}
 
