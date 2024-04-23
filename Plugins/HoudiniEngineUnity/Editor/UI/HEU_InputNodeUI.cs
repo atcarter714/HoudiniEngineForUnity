@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -158,11 +158,11 @@ The UNITY_MESH type can accept any GameObject (Including Terrain, HEU_BoundingVo
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-            string labelName = inputNode.LabelName;
-            if (!string.IsNullOrEmpty(labelName))
-            {
-                EditorGUILayout.LabelField(labelName);
-            }
+	    string? labelName = inputNode.LabelName;
+	    if (!string.IsNullOrEmpty(labelName))
+	    {
+		EditorGUILayout.LabelField(labelName);
+	    }
 
             EditorGUI.indentLevel++;
 
@@ -348,32 +348,27 @@ The UNITY_MESH type can accept any GameObject (Including Terrain, HEU_BoundingVo
                             EditorGUI.indentLevel--;
                         }
 #if UNITY_2022_1_OR_NEWER
-                        else if (inputObjectType == HEU_InputNode.InputObjectType.SPLINE &&
-                                 inputNode.SplineSettings != null)
-                        {
-                            if (!HEU_SplinesPacakageManager.IsInstalled())
-                            {
-                                HEU_EditorUI.DrawWarningLabel("Unity.Splines Package Missing");
-                                EditorGUILayout.LabelField(
-                                    "The 'Spline' Input Type requires the Unity.Splines package to be installed.");
+			else if (inputObjectType == HEU_InputNode.InputObjectType.SPLINE && inputNode.SplineSettings != null)
+			{
+				if (!HEU_SplinesPackageManager.IsInstalled())
+				{
+					HEU_EditorUI.DrawWarningLabel("Unity.Splines Package Missing");
+                    EditorGUILayout.LabelField("The 'Spline' Input Type requires the Unity.Splines package to be installed.");
 
-                                if (GUILayout.Button("Install"))
-                                    HEU_SplinesPacakageManager.Add();
-                            }
-                            else
-                            {
-                                HEU_EditorUI.DrawHeadingLabel("Spline settings");
-                                EditorGUI.indentLevel++;
-                                {
-                                    UnityEditor.SerializedProperty samplingResolution =
-                                        inputNode._uiCache._splineSettingsProperty.FindPropertyRelative(
-                                            "_samplingResolution");
-                                    samplingResolution.floatValue = EditorGUILayout.Slider(
-                                        _samplingResolutionContent.text, samplingResolution.floatValue, 0.0f, 100.0f);
-                                }
-                                EditorGUI.indentLevel--;
-                            }
-                        }
+                    if (GUILayout.Button("Install"))
+                        HEU_SplinesPackageManager.Add();
+                }
+				else
+				{
+					HEU_EditorUI.DrawHeadingLabel("Spline settings");
+					EditorGUI.indentLevel++;
+					{
+						UnityEditor.SerializedProperty samplingResolution = inputNode._uiCache._splineSettingsProperty.FindPropertyRelative("_samplingResolution");
+						samplingResolution.floatValue = EditorGUILayout.Slider(_samplingResolutionContent.text, samplingResolution.floatValue, 0.0f, 100.0f);
+					}
+					EditorGUI.indentLevel--;
+				}
+			}
 #endif
 
                         if (!bSkipElements)

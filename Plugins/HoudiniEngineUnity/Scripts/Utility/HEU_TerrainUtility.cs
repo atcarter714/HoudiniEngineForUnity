@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -38,29 +38,27 @@ namespace HoudiniEngineUnity
 
     public static class HEU_TerrainUtility
     {
-        /// <summary>
-        /// Creates terrain from given volumeInfo for the given gameObject.
-        /// If gameObject has a valid Terrain component, then it is reused.
-        /// Similarly, if the Terrain component has a valid TerrainData, or if the given terrainData is valid, then it is used.
-        /// Otherwise a new TerrainData is created and set to the Terrain.
-        /// Populates the volumePositionOffset with the heightfield offset position.
-        /// Returns true if successfully created the terrain, otherwise false.
-        /// </summary>
-        /// <param name="session">Houdini Engine session to query heightfield data from</param>
-        /// <param name="volumeInfo">Volume info pertaining to the heightfield to generate the Terrain from</param>
-        /// <param name="geoID">The geometry ID</param>
-        /// <param name="partID">The part ID (height layer)</param>
-        /// <param name="gameObject">The target GameObject containing the Terrain component</param>
-        /// <param name="terrainData">A valid TerrainData to use, or if empty, a new one is created and populated</param>
-        /// <param name="volumePositionOffset">Heightfield offset</param>
-        /// <param name="bakedMaterialPath">Folder path for caching material output</param>
-        /// <returns>True if successfully popupated the terrain</returns>
-        public static bool GenerateTerrainFromVolume(HEU_SessionBase session, ref HAPI_VolumeInfo volumeInfo,
-            HAPI_NodeId geoID, HAPI_PartId partID,
-            GameObject gameObject, ref TerrainData terrainData, out Vector3 volumePositionOffset, ref Terrain terrain,
-            string bakedMaterialPath)
-        {
-            volumePositionOffset = Vector3.zero;
+	/// <summary>
+	/// Creates terrain from given volumeInfo for the given gameObject.
+	/// If gameObject has a valid Terrain component, then it is reused.
+	/// Similarly, if the Terrain component has a valid TerrainData, or if the given terrainData is valid, then it is used.
+	/// Otherwise a new TerrainData is created and set to the Terrain.
+	/// Populates the volumePositionOffset with the heightfield offset position.
+	/// Returns true if successfully created the terrain, otherwise false.
+	/// </summary>
+	/// <param name="session">Houdini Engine session to query heightfield data from</param>
+	/// <param name="volumeInfo">Volume info pertaining to the heightfield to generate the Terrain from</param>
+	/// <param name="geoID">The geometry ID</param>
+	/// <param name="partID">The part ID (height layer)</param>
+	/// <param name="gameObject">The target GameObject containing the Terrain component</param>
+	/// <param name="terrainData">A valid TerrainData to use, or if empty, a new one is created and populated</param>
+	/// <param name="volumePositionOffset">Heightfield offset</param>
+	/// <param name="bakedMaterialPath">Folder path for caching material output</param>
+	/// <returns>True if successfully popupated the terrain</returns>
+	public static bool GenerateTerrainFromVolume(HEU_SessionBase session, ref HAPI_VolumeInfo volumeInfo, HAPI_NodeId geoID, HAPI_PartId partID,
+		GameObject gameObject, ref TerrainData terrainData, out Vector3 volumePositionOffset, ref Terrain terrain, string? bakedMaterialPath)
+	{
+	    volumePositionOffset = Vector3.zero;
 
             if (volumeInfo.zLength == 1 && volumeInfo.tupleSize == 1)
             {
@@ -133,10 +131,10 @@ namespace HoudiniEngineUnity
                     return false;
                 }
 
-                // Look up terrain material, if specified, on the height layer
-                string specifiedTerrainMaterialName = HEU_GeneralUtility.GetMaterialAttributeValueFromPart(session,
-                    geoID, partID);
-                SetTerrainMaterial(terrain, specifiedTerrainMaterialName, bakedMaterialPath);
+		// Look up terrain material, if specified, on the height layer
+		string? specifiedTerrainMaterialName = HEU_GeneralUtility.GetMaterialAttributeValueFromPart(session,
+			geoID, partID);
+		SetTerrainMaterial(terrain, specifiedTerrainMaterialName, bakedMaterialPath);
 
 #if !HEU_TERRAIN_COLLIDER_DISABLED
                 collider.terrainData = terrainData;
@@ -265,26 +263,24 @@ namespace HoudiniEngineUnity
             return false;
         }
 
-        /// <summary>
-        /// Sets a material on the given Terrain object.
-        /// Currently sets the default Terrain material from the plugin settings, if its valid.
-        /// </summary>
-        /// <param name="terrain">The terrain to set material for</param>
-        public static void SetTerrainMaterial(Terrain terrain, string specifiedMaterialName,
-            string bakedMaterialPath = "")
-        {
-            // Use material specified in Plugin settings.
-            string terrainMaterialPath = string.IsNullOrEmpty(specifiedMaterialName)
-                ? HEU_PluginSettings.DefaultTerrainMaterial
-                : specifiedMaterialName;
-            if (!string.IsNullOrEmpty(terrainMaterialPath))
-            {
-                Material material = HEU_MaterialFactory.LoadUnityMaterial(terrainMaterialPath);
-                if (material != null)
-                {
-#if UNITY_2019_2_OR_NEWER
-                    terrain.materialTemplate = material;
-#else
+	/// <summary>
+	/// Sets a material on the given Terrain object.
+	/// Currently sets the default Terrain material from the plugin settings, if its valid.
+	/// </summary>
+	/// <param name="terrain">The terrain to set material for</param>
+	public static void SetTerrainMaterial(Terrain terrain, string? specifiedMaterialName, string? bakedMaterialPath = "")
+	{
+	    // Use material specified in Plugin settings.
+	    string? terrainMaterialPath = string.IsNullOrEmpty(specifiedMaterialName) ? HEU_PluginSettings.DefaultTerrainMaterial :
+										  specifiedMaterialName;
+	    if (!string.IsNullOrEmpty(terrainMaterialPath))
+	    {
+	        Material material = HEU_MaterialFactory.LoadUnityMaterial(terrainMaterialPath);
+	        if (material != null)
+	        {
+	            #if UNITY_2019_2_OR_NEWER
+	                terrain.materialTemplate = material;
+	            #else
 	                terrain.materialType = Terrain.MaterialType.Custom;
 	                terrain.materialTemplate = material;
 #endif
@@ -305,18 +301,18 @@ namespace HoudiniEngineUnity
                         GetDefaultTerrainShaderName(), terrain.gameObject.name + "-Material", false);
                 }
 
-                // Use the hardcoded paths as a last resort
-                if (material == null)
-                {
-                    string defaultTerrainMaterialPath = GetDefaultTerrainMaterialPath();
-                    material = HEU_MaterialFactory.LoadUnityMaterial(defaultTerrainMaterialPath);
-                }
-
-                if (material != null)
-                {
-#if UNITY_2019_2_OR_NEWER
-                    terrain.materialTemplate = material;
-#else
+		// Use the hardcoded paths as a last resort
+		if (material == null)
+		{
+		    string? defaultTerrainMaterialPath = GetDefaultTerrainMaterialPath();
+		    material = HEU_MaterialFactory.LoadUnityMaterial(defaultTerrainMaterialPath);
+		}
+		
+	        if (material != null)
+	        {
+	            #if UNITY_2019_2_OR_NEWER
+	                terrain.materialTemplate = material;
+	            #else
 	                terrain.materialType = Terrain.MaterialType.Custom;
 	                terrain.materialTemplate = material;
 #endif
@@ -330,39 +326,39 @@ namespace HoudiniEngineUnity
             // TODO: If none specified, guess based on Render settings?
         }
 
-        public static string GetDefaultTerrainShaderName()
-        {
-            HEU_PipelineType pipeline = HEU_RenderingPipelineDefines.GetPipeline();
-            if (pipeline == HEU_PipelineType.HDRP)
-            {
-                return HEU_Defines.DEFAULT_TERRAIN_SHADER_HDRP;
-            }
-            else if (pipeline == HEU_PipelineType.URP)
-            {
-                return HEU_Defines.DEFAULT_TERRAIN_SHADER_URP;
-            }
-            else
-            {
-                return HEU_Defines.DEFAULT_TERRAIN_SHADER;
-            }
-        }
+	public static string? GetDefaultTerrainShaderName()
+	{
+	    HEU_PipelineType pipeline = HEU_RenderingPipelineDefines.GetPipeline();
+	    if (pipeline == HEU_PipelineType.HDRP)
+	    {
+		return HEU_Defines.DEFAULT_TERRAIN_SHADER_HDRP;
+	    }
+	    else if (pipeline == HEU_PipelineType.URP)
+	    {
+		return HEU_Defines.DEFAULT_TERRAIN_SHADER_URP;
+	    }
+	    else
+	    {
+		return HEU_Defines.DEFAULT_TERRAIN_SHADER;
+	    }
+	}
 
-        public static string GetDefaultTerrainMaterialPath()
-        {
-            HEU_PipelineType pipeline = HEU_RenderingPipelineDefines.GetPipeline();
-            if (pipeline == HEU_PipelineType.HDRP)
-            {
-                return HEU_Defines.DEFAULT_TERRAIN_MATERIAL_PATH_HDRP;
-            }
-            else if (pipeline == HEU_PipelineType.URP)
-            {
-                return HEU_Defines.DEFAULT_TERRAIN_MATERIAL_PATH_URP;
-            }
-            else
-            {
-                return HEU_Defines.DEFAULT_TERRAIN_MATERIAL_PATH;
-            }
-        }
+	public static string? GetDefaultTerrainMaterialPath()
+	{
+	    HEU_PipelineType pipeline = HEU_RenderingPipelineDefines.GetPipeline();
+	    if (pipeline == HEU_PipelineType.HDRP)
+	    {
+		return HEU_Defines.DEFAULT_TERRAIN_MATERIAL_PATH_HDRP;
+	    }
+	    else if (pipeline == HEU_PipelineType.URP)
+	    {
+		return HEU_Defines.DEFAULT_TERRAIN_MATERIAL_PATH_URP;
+	    }
+	    else
+	    {
+		return HEU_Defines.DEFAULT_TERRAIN_MATERIAL_PATH;
+	    }
+	}
 
         /// <summary>
         /// Retrieves the heightmap from Houdini for the given volume part, converts to Unity coordinates,
@@ -738,42 +734,41 @@ namespace HoudiniEngineUnity
         {
             List<HEU_TreePrototypeInfo> treePrototypes = new List<HEU_TreePrototypeInfo>();
 
-            // Each TreePrototype data is stored as a string attribute, under the 'HEU_Defines.HEIGHTFIELD_TREEPROTOTYPE + index'
-            // name. So check and parse until no more valid attributes found.
-            int index = 0;
-            while (true)
-            {
-                // Does this attribute exist?
-                string attrName = HEU_Defines.HEIGHTFIELD_TREEPROTOTYPE + index.ToString();
-                if (!HEU_GeneralUtility.HasAttribute(session, geoID, partID, attrName,
-                        HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM))
-                {
-                    break;
-                }
+	    // Each TreePrototype data is stored as a string attribute, under the 'HEU_Defines.HEIGHTFIELD_TREEPROTOTYPE + index'
+	    // name. So check and parse until no more valid attributes found.
+	    int index = 0;
+	    while (true)
+	    {
+		// Does this attribute exist?
+		string? attrName = HEU_Defines.HEIGHTFIELD_TREEPROTOTYPE + index.ToString();
+		if (!HEU_GeneralUtility.HasAttribute(session, geoID, partID, attrName, HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM))
+		{
+		    break;
+		}
 
                 index++;
 
-                // Get the string value
-                HAPI_AttributeInfo treeAttrInfo = new HAPI_AttributeInfo();
-                string[] protoAttrString = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
-                    attrName, ref treeAttrInfo);
-                if (protoAttrString == null || protoAttrString.Length == 0 || string.IsNullOrEmpty(protoAttrString[0]))
-                {
-                    break;
-                }
+		// Get the string value
+		HAPI_AttributeInfo treeAttrInfo = new HAPI_AttributeInfo();
+		string?[] protoAttrString = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
+																			  attrName, ref treeAttrInfo);
+		if (protoAttrString == null || protoAttrString.Length == 0 || string.IsNullOrEmpty(protoAttrString[0]))
+		{
+		    break;
+		}
 
-                // Parse the attribute string value:
-                // Only expecting a single element here, comma-separated for the asset path and bend factor:
-                // => asset_path,bend_factor
-                string[] properties = protoAttrString[0].Split(',');
-                if (properties.Length > 0 && !string.IsNullOrEmpty(properties[0]))
-                {
-                    HEU_TreePrototypeInfo prototype = new HEU_TreePrototypeInfo();
-                    prototype._prefabPath = properties[0];
-                    if (properties.Length >= 2)
-                    {
-                        float.TryParse(properties[1], out prototype._bendfactor);
-                    }
+		// Parse the attribute string value:
+		// Only expecting a single element here, comma-separated for the asset path and bend factor:
+		// => asset_path,bend_factor
+		string?[] properties = protoAttrString[0].Split(',');
+		if (properties.Length > 0 && !string.IsNullOrEmpty(properties[0]))
+		{
+		    HEU_TreePrototypeInfo prototype = new HEU_TreePrototypeInfo();
+		    prototype._prefabPath = properties[0];
+		    if (properties.Length >= 2)
+		    {
+			float.TryParse(properties[1], out prototype._bendfactor);
+		    }
 
                     treePrototypes.Add(prototype);
                 }
@@ -1052,18 +1047,18 @@ namespace HoudiniEngineUnity
                 detailPrototype = new HEU_DetailPrototype();
             }
 
-            HAPI_AttributeInfo prefabAttrInfo = new HAPI_AttributeInfo();
-            string[] prefabPaths = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
-                HEU_Defines.HEIGHTFIELD_DETAIL_PROTOTYPE_PREFAB, ref prefabAttrInfo);
+	    HAPI_AttributeInfo prefabAttrInfo = new HAPI_AttributeInfo();
+	    string?[] prefabPaths = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
+																		  HEU_Defines.HEIGHTFIELD_DETAIL_PROTOTYPE_PREFAB, ref prefabAttrInfo);
 
             if (prefabAttrInfo.exists && prefabPaths.Length >= 1)
             {
                 detailPrototype._prototypePrefab = prefabPaths[0];
             }
 
-            HAPI_AttributeInfo textureAttrInfo = new HAPI_AttributeInfo();
-            string[] texturePaths = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
-                HEU_Defines.HEIGHTFIELD_DETAIL_PROTOTYPE_TEXTURE, ref textureAttrInfo);
+	    HAPI_AttributeInfo textureAttrInfo = new HAPI_AttributeInfo();
+	    string?[] texturePaths = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
+																		   HEU_Defines.HEIGHTFIELD_DETAIL_PROTOTYPE_TEXTURE, ref textureAttrInfo);
 
             if (textureAttrInfo.exists && texturePaths.Length >= 1)
             {
@@ -1326,82 +1321,89 @@ namespace HoudiniEngineUnity
         }
 #endif
 
-        public static bool VolumeLayerHasAttributes(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID)
-        {
-            string[] layerAttrNames =
-            {
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TEXTURE_DIFFUSE_ATTR,
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TEXTURE_MASK_ATTR,
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TEXTURE_NORMAL_ATTR,
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_NORMAL_SCALE_ATTR,
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_METALLIC_ATTR,
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_SMOOTHNESS_ATTR,
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_SPECULAR_ATTR,
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TILE_OFFSET_ATTR,
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TILE_SIZE_ATTR
-            };
+	public static bool VolumeLayerHasAttributes(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID)
+	{
+	    string?[] layerAttrNames =
+	    {
+		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TEXTURE_DIFFUSE_ATTR,
+		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TEXTURE_MASK_ATTR,
+		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TEXTURE_NORMAL_ATTR,
+		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_NORMAL_SCALE_ATTR,
+		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_METALLIC_ATTR,
+		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_SMOOTHNESS_ATTR,
+		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_SPECULAR_ATTR,
+		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TILE_OFFSET_ATTR,
+		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TILE_SIZE_ATTR
+	    };
 
-            // Check if any of the layer attribute names show up in the existing primitive attributes
-            HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-            bool bResult = false;
-            foreach (string layerAttr in layerAttrNames)
-            {
-                bResult = session.GetAttributeInfo(geoID, partID, layerAttr, HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM,
-                    ref attrInfo);
-                if (bResult && attrInfo.exists)
-                {
-                    return true;
-                }
-            }
+	    // Check if any of the layer attribute names show up in the existing primitive attributes
+	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
+	    bool bResult = false;
+	    foreach (string? layerAttr in layerAttrNames)
+	    {
+		bResult = session.GetAttributeInfo(geoID, partID, layerAttr, HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM, ref attrInfo);
+		if (bResult && attrInfo.exists)
+		{
+		    return true;
+		}
+	    }
 
             return false;
         }
 
-        /// <summary>
-        /// Returns the heightfield layer type (HFLayerType) for the specified part.
-        /// </summary>
-        /// <param name="session">Current Houdini Engine session</param>
-        /// <param name="geoID">Heightfield object</param>
-        /// <param name="partID">Heightfield layer</param>
-        /// <param name="volumeName">Heightfield name</param>
-        /// <returns>The HFLayerType of the specified part, or HFLayerType.DEFAULT if not valid</returns>
-        public static HFLayerType GetHeightfieldLayerType(HEU_SessionBase session, HAPI_NodeId geoID,
-            HAPI_PartId partID, string volumeName)
-        {
-            HFLayerType layerType = HFLayerType.DEFAULT;
+	/// <summary>
+	/// Returns the heightfield layer type (HFLayerType) for the specified part.
+	/// </summary>
+	/// <param name="session">Current Houdini Engine session</param>
+	/// <param name="geoID">Heightfield object</param>
+	/// <param name="partID">Heightfield layer</param>
+	/// <param name="volumeName">Heightfield name</param>
+	/// <returns>The HFLayerType of the specified part, or HFLayerType.DEFAULT if not valid</returns>
+	public static HFLayerType GetHeightfieldLayerType(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? volumeName)
+	{
+	    HFLayerType layerType = HFLayerType.DEFAULT;
 
-            if (volumeName.Equals(HEU_Defines.HAPI_HEIGHTFIELD_LAYERNAME_HEIGHT))
-            {
-                layerType = HFLayerType.HEIGHT;
-            }
-            else if (volumeName.Equals(HEU_Defines.HAPI_HEIGHTFIELD_LAYERNAME_MASK))
-            {
-                layerType = HFLayerType.MASK;
-            }
-            else
-            {
-                HAPI_AttributeInfo layerTypeAttr = new HAPI_AttributeInfo();
-                string[] layerTypeStr = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
-                    HEU_Defines.HEIGHTFIELD_LAYER_ATTR_TYPE,
-                    ref layerTypeAttr);
-                if (layerTypeStr != null && layerTypeStr.Length >= 0 &&
-                    layerTypeStr[0].Equals(HEU_Defines.HEIGHTFIELD_LAYER_TYPE_DETAIL))
-                {
-                    layerType = HFLayerType.DETAIL;
-                }
-            }
+	    if (volumeName.Equals(HEU_Defines.HAPI_HEIGHTFIELD_LAYERNAME_HEIGHT))
+	    {
+		layerType = HFLayerType.HEIGHT;
+	    }
+	    else if (volumeName.Equals(HEU_Defines.HAPI_HEIGHTFIELD_LAYERNAME_MASK))
+	    {
+		layerType = HFLayerType.MASK;
+	    }
+	    else
+	    {
+		HAPI_AttributeInfo layerTypeAttr = new HAPI_AttributeInfo();
+		string?[] layerTypeStr = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, HEU_Defines.HEIGHTFIELD_LAYER_ATTR_TYPE,
+																		   ref layerTypeAttr);
+		if (layerTypeStr != null && layerTypeStr.Length >= 0 && layerTypeStr[0].Equals(HEU_Defines.HEIGHTFIELD_LAYER_TYPE_DETAIL))
+		{
+		    layerType = HFLayerType.DETAIL;
+		}
+	    }
+	    return layerType;
+	}
 
             return layerType;
         }
 
-        public static float GetHeightRangeFromHeightfield(HEU_SessionBase session, HAPI_NodeId geoID,
-            HAPI_PartId partID)
-        {
-            float heightRange = 0f;
-            HEU_GeneralUtility.GetAttributeFloatSingle(session, geoID, partID,
-                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_HEIGHT_RANGE, out heightRange);
-            return heightRange;
-        }
+	public static string? GetTerrainDataExportPathFromHeightfieldAttribute(HEU_SessionBase session, HAPI_NodeId geoID,
+																		   HAPI_PartId     partID)
+	{
+	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
+	    string?[] attrValue = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
+																		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINDATA_EXPORT_PATH,
+																		ref attrInfo);
+	    if (attrInfo.exists && attrValue.Length > 0 && string.IsNullOrEmpty(attrValue[0]))
+	    {
+		return attrValue[0];
+	    }
+	    return "";
+	}
+	// Copied from HoudiniLandscapeTranslator::ResampleData
+	public static float[] ResampleData(float[] data, int oldWidth, int oldHeight, int newWidth, int newHeight)
+	{
+	    float[] result = new float[newWidth * newHeight];
 
         public static string GetTerrainDataExportPathFromHeightfieldAttribute(HEU_SessionBase session,
             HAPI_NodeId geoID,

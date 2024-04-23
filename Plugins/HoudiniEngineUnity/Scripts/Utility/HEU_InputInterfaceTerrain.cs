@@ -380,7 +380,7 @@ namespace HoudiniEngineUnity
             for (int m = 0; m < alphaLayers; ++m)
             {
 #if UNITY_2018_3_OR_NEWER
-                string layerName = idt._terrainData.terrainLayers[m].name;
+		string? layerName = idt._terrainData.terrainLayers[m].name;
 #else
 				string layerName = "unity_alphamap_" + m + 1;
 #endif
@@ -473,24 +473,23 @@ namespace HoudiniEngineUnity
             return bResult;
         }
 
-        /// <summary>
-        /// Helper to set heightfield data for a specific volume node.
-        /// Used for a specific terrain layer.
-        /// </summary>
-        /// <param name="session">Session that the volume node resides in.</param>
-        /// <param name="volumeNodeID">ID of the target volume node</param>
-        /// <param name="partID">Part ID</param>
-        /// <param name="heightValues">Array of height or alpha values</param>
-        /// <param name="heightFieldName">Name of the layer</param>
-        /// <returns>True if successfully uploaded heightfield values</returns>
-        public bool SetHeightFieldData(HEU_SessionBase session, HAPI_NodeId volumeNodeID, HAPI_PartId partID,
-            float[] heightValues, string heightFieldName, ref HAPI_VolumeInfo baseVolumeInfo)
-        {
-            // Cook the node to get infos below
-            if (!session.CookNode(volumeNodeID, false))
-            {
-                return false;
-            }
+	/// <summary>
+	/// Helper to set heightfield data for a specific volume node.
+	/// Used for a specific terrain layer.
+	/// </summary>
+	/// <param name="session">Session that the volume node resides in.</param>
+	/// <param name="volumeNodeID">ID of the target volume node</param>
+	/// <param name="partID">Part ID</param>
+	/// <param name="heightValues">Array of height or alpha values</param>
+	/// <param name="heightFieldName">Name of the layer</param>
+	/// <returns>True if successfully uploaded heightfield values</returns>
+	public bool SetHeightFieldData(HEU_SessionBase session, HAPI_NodeId volumeNodeID, HAPI_PartId partID, float[] heightValues, string? heightFieldName, ref HAPI_VolumeInfo baseVolumeInfo)
+	{
+	    // Cook the node to get infos below
+	    if (!session.CookNode(volumeNodeID, false))
+	    {
+		return false;
+	    }
 
             // Get Geo, Part, and Volume infos
             HAPI_GeoInfo geoInfo = new HAPI_GeoInfo();
@@ -534,22 +533,21 @@ namespace HoudiniEngineUnity
             return true;
         }
 
-        /// <summary>
-        /// Writes out the TerrainData file path as a string attribute (primitive-owned) for the specified heightfield volume.
-        /// </summary>
-        /// <param name="session">Current Houdini session</param>
-        /// <param name="geoNodeID">Geometry object ID</param>
-        /// <param name="partID">Part ID (volume)</param>
-        /// <param name="terrainData">The TerrainData's file path is set as attribute</param>
-        /// <returns>True if successfully added the attribute.</returns>
-        public bool SetTerrainDataAttributesToHeightField(HEU_SessionBase session, HAPI_NodeId geoNodeID,
-            HAPI_PartId partID, TerrainData terrainData)
-        {
-            string assetPath = HEU_AssetDatabase.GetAssetPath(terrainData);
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                return false;
-            }
+	/// <summary>
+	/// Writes out the TerrainData file path as a string attribute (primitive-owned) for the specified heightfield volume.
+	/// </summary>
+	/// <param name="session">Current Houdini session</param>
+	/// <param name="geoNodeID">Geometry object ID</param>
+	/// <param name="partID">Part ID (volume)</param>
+	/// <param name="terrainData">The TerrainData's file path is set as attribute</param>
+	/// <returns>True if successfully added the attribute.</returns>
+	public bool SetTerrainDataAttributesToHeightField(HEU_SessionBase session, HAPI_NodeId geoNodeID, HAPI_PartId partID, TerrainData terrainData)
+	{
+	    string? assetPath = HEU_AssetDatabase.GetAssetPath(terrainData);
+	    if (string.IsNullOrEmpty(assetPath))
+	    {
+		return false;
+	    }
 
             HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
             attrInfo.exists = true;
@@ -566,34 +564,32 @@ namespace HoudiniEngineUnity
                 return false;
             }
 
-            string[] pathData = new string[] { assetPath };
-            if (!session.SetAttributeStringData(geoNodeID, partID,
-                    HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINDATA_FILE_ATTR, ref attrInfo, pathData, 0, 1))
-            {
-                HEU_Logger.LogError("Failed to set TerrainData file name to input heightfield.");
-                return false;
-            }
+	    string?[] pathData = new string?[] { assetPath };
+	    if (!session.SetAttributeStringData(geoNodeID, partID, HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINDATA_FILE_ATTR, ref attrInfo, pathData, 0, 1))
+	    {
+		HEU_Logger.LogError("Failed to set TerrainData file name to input heightfield.");
+		return false;
+	    }
 
             return true;
         }
 
 #if UNITY_2018_3_OR_NEWER
-        /// <summary>
-        /// Writes out the TerrainLayer file path as a string attribute (primitive-owned) for the specified heightfield volume.
-        /// </summary>
-        /// <param name="session">Current Houdini session</param>
-        /// <param name="geoNodeID">Geometry object ID</param>
-        /// <param name="partID">Part ID (volume)</param>
-        /// <param name="terrainLayer">The TerrainLayer's file path is set as attribute</param>
-        /// <returns>True if successfully added the attribute.</returns>
-        public bool SetTerrainLayerAttributesToHeightField(HEU_SessionBase session, HAPI_NodeId geoNodeID,
-            HAPI_PartId partID, TerrainLayer terrainLayer)
-        {
-            string assetPath = HEU_AssetDatabase.GetAssetPath(terrainLayer);
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                return false;
-            }
+	/// <summary>
+	/// Writes out the TerrainLayer file path as a string attribute (primitive-owned) for the specified heightfield volume.
+	/// </summary>
+	/// <param name="session">Current Houdini session</param>
+	/// <param name="geoNodeID">Geometry object ID</param>
+	/// <param name="partID">Part ID (volume)</param>
+	/// <param name="terrainLayer">The TerrainLayer's file path is set as attribute</param>
+	/// <returns>True if successfully added the attribute.</returns>
+	public bool SetTerrainLayerAttributesToHeightField(HEU_SessionBase session, HAPI_NodeId geoNodeID, HAPI_PartId partID, TerrainLayer terrainLayer)
+	{
+	    string? assetPath = HEU_AssetDatabase.GetAssetPath(terrainLayer);
+	    if (string.IsNullOrEmpty(assetPath))
+	    {
+		return false;
+	    }
 
             HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
             attrInfo.exists = true;
@@ -610,13 +606,12 @@ namespace HoudiniEngineUnity
                 return false;
             }
 
-            string[] pathData = new string[] { assetPath };
-            if (!session.SetAttributeStringData(geoNodeID, partID,
-                    HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINLAYER_FILE_ATTR, ref attrInfo, pathData, 0, 1))
-            {
-                HEU_Logger.LogError("Failed to set TerrainLayer file name to input heightfield");
-                return false;
-            }
+	    string?[] pathData = new string[] { assetPath };
+	    if (!session.SetAttributeStringData(geoNodeID, partID, HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINLAYER_FILE_ATTR, ref attrInfo, pathData, 0, 1))
+	    {
+		HEU_Logger.LogError("Failed to set TerrainLayer file name to input heightfield");
+		return false;
+	    }
 
             return true;
         }
@@ -642,16 +637,16 @@ namespace HoudiniEngineUnity
                 return;
             }
 
-            // For each prototype, fill up a string attribute owned by primitive.
-            // The string format is: tree_prefab_path,bend_factor
-            string prefabPath;
-            float bendFactor;
-            for (int i = 0; i < treePrototypes.Length; ++i)
-            {
-                if (treePrototypes[i] == null)
-                {
-                    continue;
-                }
+	    // For each prototype, fill up a string attribute owned by primitive.
+	    // The string format is: tree_prefab_path,bend_factor
+	    string? prefabPath;
+	    float bendFactor;
+	    for (int i = 0; i < treePrototypes.Length; ++i)
+	    {
+		if (treePrototypes[i] == null)
+		{
+		    continue;
+		}
 
                 prefabPath = HEU_AssetDatabase.GetAssetPath(treePrototypes[i].prefab);
                 if (prefabPath == null)
@@ -669,16 +664,15 @@ namespace HoudiniEngineUnity
                 attrInfo.tupleSize = 1;
                 attrInfo.originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID;
 
-                string attrName = HEU_Defines.HEIGHTFIELD_TREEPROTOTYPE + i.ToString();
-                if (!session.AddAttribute(geoNodeID, partID, attrName, ref attrInfo))
-                {
-                    HEU_Logger.LogError("Failed to add TreePrototype string attribute to input heightfield.");
-                    return;
-                }
+		string? attrName = HEU_Defines.HEIGHTFIELD_TREEPROTOTYPE + i.ToString();
+		if (!session.AddAttribute(geoNodeID, partID, attrName, ref attrInfo))
+		{
+		    HEU_Logger.LogError("Failed to add TreePrototype string attribute to input heightfield.");
+		    return;
+		}
 
-                string[] pathData = new string[] { string.Format("{0},{1}", prefabPath, bendFactor) };
-                if (!session.SetAttributeStringData(geoNodeID, partID, attrName, ref attrInfo, pathData, 0, 1))
-                {
+		string?[] pathData = new string[] { string.Format("{0},{1}", prefabPath, bendFactor) };
+		if (!session.SetAttributeStringData(geoNodeID, partID, attrName, ref attrInfo, pathData, 0, 1))
                     HEU_Logger.LogError("Failed to set TreePrototype string value to input heightfield.");
                     return;
                 }

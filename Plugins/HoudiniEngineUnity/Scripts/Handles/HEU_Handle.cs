@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -40,19 +40,14 @@ namespace HoudiniEngineUnity
     /// Currently only supports transform (xform) handle.
     /// </summary>
     [System.Serializable]
-    internal class HEU_Handle : ScriptableObject, IEquivable<HEU_Handle>
-    {
-        public enum HEU_HandleType
-        {
-            XFORM,
-            UNSUPPORTED
-        }
+    internal class HEU_Handle : ScriptableObject, IEquivable<HEU_Handle> {
+        public enum HEU_HandleType { XFORM, UNSUPPORTED, } ;
 
-        [SerializeField] private string _handleName;
+        [SerializeField] string? _handleName ;
 
-        public string HandleName => _handleName;
+        public string? HandleName => _handleName ;
 
-        [SerializeField] private HEU_HandleType _handleType;
+        [SerializeField] HEU_HandleType _handleType;
 
         public HEU_HandleType HandleType => _handleType;
 
@@ -136,12 +131,12 @@ namespace HoudiniEngineUnity
 
         //  LOGIC -----------------------------------------------------------------------------------------------------
 
-        public bool SetupHandle(HEU_SessionBase session, HAPI_NodeId assetID, int handleIndex, string handleName,
-            HEU_HandleType handleType, ref HAPI_HandleInfo handleInfo, HEU_Parameters parameters)
-        {
-            _handleIndex = handleIndex;
-            _handleName = handleName;
-            _handleType = handleType;
+	public bool SetupHandle(HEU_SessionBase session,    HAPI_NodeId assetID, int handleIndex, string? handleName,
+		HEU_HandleType                      handleType, ref HAPI_HandleInfo handleInfo, HEU_Parameters parameters)
+	{
+	    _handleIndex = handleIndex;
+	    _handleName = handleName;
+	    _handleType = handleType;
 
             HAPI_HandleBindingInfo[] handleBindingInfos = new HAPI_HandleBindingInfo[handleInfo.bindingsCount];
             if (!session.GetHandleBindingInfo(assetID, _handleIndex, handleBindingInfos, 0, handleInfo.bindingsCount))

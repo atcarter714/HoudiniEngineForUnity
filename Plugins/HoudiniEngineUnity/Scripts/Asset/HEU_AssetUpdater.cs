@@ -156,9 +156,9 @@ namespace HoudiniEngineUnity {
 					  && !HEU_EditorUtility.IsPrefabAsset( instance ) )
 				 || heu_root._houdiniAsset.WarnedPrefabNotSupported ) return ;
 
-			string       prefabPath = HEU_EditorUtility.GetPrefabAssetPath( instance ) ;
-			const string title      = HEU_Defines.HEU_PRODUCT_NAME + " Prefabs Not Supported" ;
-			string? message =
+			string? prefabPath = HEU_EditorUtility.GetPrefabAssetPath( instance ) ;
+			const string title = HEU_Defines.HEU_PRODUCT_NAME + " Prefabs Not Supported" ;
+			string message =
 				"Creating prefab of an HDA is not supported by HoudiniEngine.\n\n" +
 				"It is recommended to select 'Remove Prefab' to destroy new prefab " +
 				"and revert to original asset.\n\n" +

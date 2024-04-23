@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -39,17 +39,16 @@ namespace HoudiniEngineUnity
     /// </summary>
     public static class HEU_InputMeshUtility
     {
-        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-            string attrName,
-            int tupleSize, Vector3[] data, ref HAPI_PartInfo partInfo, bool bConvertToHoudiniCoordinateSystem)
-        {
-            HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-            attrInfo.exists = true;
-            attrInfo.owner = HAPI_AttributeOwner.HAPI_ATTROWNER_POINT;
-            attrInfo.storage = HAPI_StorageType.HAPI_STORAGETYPE_FLOAT;
-            attrInfo.count = partInfo.pointCount;
-            attrInfo.tupleSize = tupleSize;
-            attrInfo.originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID;
+	public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
+		int tupleSize, Vector3[] data, ref HAPI_PartInfo partInfo, bool bConvertToHoudiniCoordinateSystem)
+	{
+	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
+	    attrInfo.exists = true;
+	    attrInfo.owner = HAPI_AttributeOwner.HAPI_ATTROWNER_POINT;
+	    attrInfo.storage = HAPI_StorageType.HAPI_STORAGETYPE_FLOAT;
+	    attrInfo.count = partInfo.pointCount;
+	    attrInfo.tupleSize = tupleSize;
+	    attrInfo.originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID;
 
             float[] attrValues = new float[partInfo.pointCount * tupleSize];
 
@@ -72,17 +71,16 @@ namespace HoudiniEngineUnity
                 session.SetAttributeFloatData, partInfo.pointCount);
         }
 
-        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-            string attrName,
-            int tupleSize, float[] data, ref HAPI_PartInfo partInfo)
-        {
-            HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-            attrInfo.exists = true;
-            attrInfo.owner = HAPI_AttributeOwner.HAPI_ATTROWNER_POINT;
-            attrInfo.storage = HAPI_StorageType.HAPI_STORAGETYPE_FLOAT;
-            attrInfo.count = partInfo.pointCount;
-            attrInfo.tupleSize = tupleSize;
-            attrInfo.originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID;
+	public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
+		int tupleSize, float[] data, ref HAPI_PartInfo partInfo)
+	{
+	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
+	    attrInfo.exists = true;
+	    attrInfo.owner = HAPI_AttributeOwner.HAPI_ATTROWNER_POINT;
+	    attrInfo.storage = HAPI_StorageType.HAPI_STORAGETYPE_FLOAT;
+	    attrInfo.count = partInfo.pointCount;
+	    attrInfo.tupleSize = tupleSize;
+	    attrInfo.originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID;
 
             float[] attrValues = new float[partInfo.pointCount * tupleSize];
 
@@ -101,18 +99,16 @@ namespace HoudiniEngineUnity
                 session.SetAttributeFloatData, partInfo.pointCount);
         }
 
-        public static bool SetMeshVertexAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-            string attrName,
-            int tupleSize, Vector3[] data, int[] indices, ref HAPI_PartInfo partInfo,
-            bool bConvertToHoudiniCoordinateSystem)
-        {
-            HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-            attrInfo.exists = true;
-            attrInfo.owner = HAPI_AttributeOwner.HAPI_ATTROWNER_VERTEX;
-            attrInfo.storage = HAPI_StorageType.HAPI_STORAGETYPE_FLOAT;
-            attrInfo.count = partInfo.vertexCount;
-            attrInfo.tupleSize = tupleSize;
-            attrInfo.originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID;
+	public static bool SetMeshVertexAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
+		int tupleSize, Vector3[] data, int[] indices, ref HAPI_PartInfo partInfo, bool bConvertToHoudiniCoordinateSystem)
+	{
+	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
+	    attrInfo.exists = true;
+	    attrInfo.owner = HAPI_AttributeOwner.HAPI_ATTROWNER_VERTEX;
+	    attrInfo.storage = HAPI_StorageType.HAPI_STORAGETYPE_FLOAT;
+	    attrInfo.count = partInfo.vertexCount;
+	    attrInfo.tupleSize = tupleSize;
+	    attrInfo.originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID;
 
             float[] attrValues = new float[partInfo.vertexCount * tupleSize];
 
@@ -135,17 +131,16 @@ namespace HoudiniEngineUnity
                 session.SetAttributeFloatData, partInfo.vertexCount);
         }
 
-        public static bool SetMeshVertexFloatAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-            string attrName,
-            int tupleSize, float[] data, int[] indices, ref HAPI_PartInfo partInfo)
-        {
-            HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-            attrInfo.exists = true;
-            attrInfo.owner = HAPI_AttributeOwner.HAPI_ATTROWNER_VERTEX;
-            attrInfo.storage = HAPI_StorageType.HAPI_STORAGETYPE_FLOAT;
-            attrInfo.count = partInfo.vertexCount;
-            attrInfo.tupleSize = tupleSize;
-            attrInfo.originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID;
+	public static bool SetMeshVertexFloatAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
+		int tupleSize, float[] data, int[] indices, ref HAPI_PartInfo partInfo)
+	{
+	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
+	    attrInfo.exists = true;
+	    attrInfo.owner = HAPI_AttributeOwner.HAPI_ATTROWNER_VERTEX;
+	    attrInfo.storage = HAPI_StorageType.HAPI_STORAGETYPE_FLOAT;
+	    attrInfo.count = partInfo.vertexCount;
+	    attrInfo.tupleSize = tupleSize;
+	    attrInfo.originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID;
 
             float[] attrValues = new float[partInfo.vertexCount * tupleSize];
 
@@ -286,31 +281,7 @@ namespace HoudiniEngineUnity
                     rgb[i][1] = colors[i].g;
                     rgb[i][2] = colors[i].b;
 
-                    alpha[i][0] = colors[i].a;
-                }
-
-                bSuccess = HEU_InputMeshUtility.SetMeshPointAttribute(session, geoID, 0,
-                    HEU_HAPIConstants.HAPI_ATTRIB_COLOR, 3, rgb, ref partInfo, false);
-                if (!bSuccess)
-                {
-                    return false;
-                }
-
-                bSuccess = HEU_InputMeshUtility.SetMeshPointAttribute(session, geoID, 0, HEU_Defines.HAPI_ATTRIB_ALPHA,
-                    1, alpha, ref partInfo, false);
-                if (!bSuccess)
-                {
-                    return false;
-                }
-            }
-
-            // TODO: additional attributes (for painting)
-
-            return session.CommitGeo(geoID);
-        }
-
-        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-            string attrName, int tupleSize, Vector3Int[] data, ref HAPI_PartInfo partInfo)
+        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName, int tupleSize, Vector3Int[] data, ref HAPI_PartInfo partInfo)
         {
             HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
             attrInfo.exists = true;
@@ -340,8 +311,7 @@ namespace HoudiniEngineUnity
         }
 
         //Set string point attributes
-        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-            string attrName, string[] data, ref HAPI_PartInfo partInfo)
+        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName, string[] data, ref HAPI_PartInfo partInfo)
         {
             HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
             attrInfo.exists = true;
@@ -362,8 +332,7 @@ namespace HoudiniEngineUnity
         }
 
         //Set float detail attribute
-        public static bool SetMeshDetailAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-            string attrName, int tupleSize, Vector3 data, ref HAPI_PartInfo partInfo)
+        public static bool SetMeshDetailAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName, int tupleSize, Vector3 data, ref HAPI_PartInfo partInfo)
         {
             HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
             attrInfo.exists = true;

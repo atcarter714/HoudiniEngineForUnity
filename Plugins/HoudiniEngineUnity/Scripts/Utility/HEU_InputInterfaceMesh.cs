@@ -445,9 +445,9 @@ namespace HoudiniEngineUnity
 			for ( int u = 0; u < NumUVSets; ++u ) {
 				if ( uvs[ u ].Count <= 0 ) continue ;
 				// Skip uv1 as its used internally. So it goes: uv, uv2, ..., uv8
-				string uvName = u is 0
-									? HEU_HAPIConstants.HAPI_ATTRIB_UV
-									: $"{HEU_HAPIConstants.HAPI_ATTRIB_UV}{u + 1}" ;
+				string? uvName = u is 0
+									 ? HEU_HAPIConstants.HAPI_ATTRIB_UV
+									 : $"{HEU_HAPIConstants.HAPI_ATTRIB_UV}{u + 1}" ;
 				if ( HEU_InputMeshUtility.SetMeshVertexAttribute( session, displayNodeID, 0, uvName, 3,
 																  uvs[ u ].ToArray( ), vertIndices, ref partInfo,
 																  false ) ) continue ;
@@ -489,7 +489,7 @@ namespace HoudiniEngineUnity
 			if ( numMaterials > 0 ) {
 				bool bFoundAtleastOneValidMaterial = false ;
 
-				string[] materialIDs = new string[ partInfo.faceCount ] ;
+				string?[] materialIDs = new string[ partInfo.faceCount ] ;
 				for ( int g = 0; g < inputDataMeshes._inputMeshes.Count; ++g ) {
 					if ( inputDataMeshes._inputMeshes[ g ]._numSubMeshes !=
 						 inputDataMeshes._inputMeshes[ g ]._materials.Length ) {
@@ -498,7 +498,7 @@ namespace HoudiniEngineUnity
 					}
 
 					for ( int i = 0; i < inputDataMeshes._inputMeshes[ g ]._materials.Length; ++i ) {
-						string materialName =
+						string? materialName =
 							HEU_AssetDatabase.GetAssetPathWithSubAssetSupport( inputDataMeshes._inputMeshes[ g ]
 																				   ._materials[ i ] ) ;
 						if ( materialName == null ) {
@@ -560,7 +560,7 @@ namespace HoudiniEngineUnity
 			} ;
 
 			if ( session.AddAttribute( displayNodeID, 0, HEU_PluginSettings.UnityInputMeshAttr, ref attrInfo ) ) {
-				string[] primitiveNameAttr = new string[ partInfo.faceCount ] ;
+				string?[] primitiveNameAttr = new string[ partInfo.faceCount ] ;
 
 				for ( int g = 0; g < inputDataMeshes._inputMeshes.Count; ++g ) {
 					for ( int i = 0; i < inputDataMeshes._inputMeshes[ g ]._numSubMeshes; ++i ) {
@@ -744,7 +744,7 @@ namespace HoudiniEngineUnity
 				return false ;
 
 			HAPI_NodeId groupNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			string      groupName   = string.Format( "group{0}", inputIndex ) ;
+			string?     groupName   = string.Format( "group{0}", inputIndex ) ;
 
 			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out groupNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create group SOP node for connecting input assets." ) ;
@@ -803,7 +803,7 @@ namespace HoudiniEngineUnity
 			if ( !session.SetParamFloatValue( sphereNodeID, transformParamName, 2, center.z ) )
 				return false ;
 
-			string typeParamName = "type" ;
+			string? typeParamName = "type" ;
 			if ( !session.SetParamIntValue( sphereNodeID, typeParamName, 0, 1 ) )
 				return false ;
 
@@ -811,7 +811,7 @@ namespace HoudiniEngineUnity
 				return false ;
 
 			HAPI_NodeId groupNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			string      groupName   = string.Format( "group{0}", inputIndex ) ;
+			string?     groupName   = string.Format( "group{0}", inputIndex ) ;
 
 			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out groupNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create group SOP node for connecting input assets." ) ;
@@ -941,7 +941,7 @@ namespace HoudiniEngineUnity
 			}
 
 			HAPI_NodeId sphereNodeID = -1 ;
-			string      sphereName   = string.Format( "Sphyl{0}", inputIndex ) ;
+			string?     sphereName   = string.Format( "Sphyl{0}", inputIndex ) ;
 
 			if ( !CreateInputNodeForCollider( session, out sphereNodeID, parentNodeID, inputIndex, sphereName, vertices,
 											  indices ) )
@@ -950,7 +950,7 @@ namespace HoudiniEngineUnity
 			if ( !session.CookNode( sphereNodeID, false ) ) return false ;
 
 			HAPI_NodeId groupNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			string      groupName   = string.Format( "group{0}", inputIndex ) ;
+			string?     groupName   = string.Format( "group{0}", inputIndex ) ;
 
 			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out groupNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create group SOP node for connecting input assets." ) ;
@@ -1004,7 +1004,7 @@ namespace HoudiniEngineUnity
 			}
 
 			HAPI_NodeId meshNodeID = -1 ;
-			string      meshName   = string.Format( "MeshCollider{0}", inputIndex ) ;
+			string?     meshName   = string.Format( "MeshCollider{0}", inputIndex ) ;
 
 			if ( !CreateInputNodeForCollider( session, out meshNodeID, parentNodeID, inputIndex, meshName, verticesArr,
 											  indicesArr ) )
@@ -1013,7 +1013,7 @@ namespace HoudiniEngineUnity
 			if ( !session.CookNode( meshNodeID, false ) ) return false ;
 
 			HAPI_NodeId groupNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			string      groupName   = string.Format( "group{0}", inputIndex ) ;
+			string?     groupName   = string.Format( "group{0}", inputIndex ) ;
 
 			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out groupNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create group SOP node for connecting input assets." ) ;
@@ -1065,7 +1065,7 @@ namespace HoudiniEngineUnity
 		}
 
 		internal bool CreateInputNodeForCollider( HEU_SessionBase session, out HAPI_NodeId outNodeID,
-												  HAPI_NodeId     parentNodeId, int colliderIndex, string colliderName,
+												  HAPI_NodeId     parentNodeId, int colliderIndex, string? colliderName,
 												  float[]         colliderVertices, int[] colliderIndices ) {
 			outNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 
@@ -1160,8 +1160,8 @@ namespace HoudiniEngineUnity
 			public Mesh       _mesh ;
 			public Material[] _materials ;
 
-			public string _meshPath ;
-			public string _meshName ;
+			public string? _meshPath ;
+			public string  _meshName ;
 
 			public int _numVertices ;
 			public int _numSubMeshes ;

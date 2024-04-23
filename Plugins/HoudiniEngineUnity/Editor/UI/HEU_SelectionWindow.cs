@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -24,10 +24,12 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System ;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
+using Object = UnityEngine.Object ;
 
 namespace HoudiniEngineUnity
 {
@@ -209,6 +211,7 @@ namespace HoudiniEngineUnity
             }
         }
 
+        GameObject GetGameObjectFromType( Object obj, System.Type type ) {
         private GameObject GetGameObjectFromType(Object obj, System.Type type)
         {
             if (type == typeof(GameObject))
@@ -401,8 +404,8 @@ namespace HoudiniEngineUnity
         private SelectionResultHandler _selectionHandler;
 
         private HEU_InputNode _inputNode;
-
-        private System.Type _selectionType = typeof(GameObject);
+        
+	    Type? _selectionType = typeof(GameObject);
 
         private enum FilterLocationType
         {
@@ -420,9 +423,8 @@ namespace HoudiniEngineUnity
             Disabled
         }
 
-        private FilterActiveType _filterActive = FilterActiveType.Active;
-
-        private string _filterName = "";
-        private bool _filterRoots = false;
+        FilterActiveType _filterActive = FilterActiveType.Active;
+	    string? _filterName  = "";
+	    bool _filterRoots = false;
     }
 }

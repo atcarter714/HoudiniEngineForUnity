@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -98,7 +98,7 @@ namespace HoudiniEngineUnity
 
         public BuildType _buildType;
 
-        public HEU_HoudiniAsset _asset;
+	public string? _assetPath;
 
         public string _assetPath;
 

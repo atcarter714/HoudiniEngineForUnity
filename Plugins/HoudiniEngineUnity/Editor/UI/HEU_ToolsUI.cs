@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -598,6 +598,15 @@ namespace HoudiniEngineUnity
             }
         }
 
+
+	void DrawAttributeSelection( ) {
+	    // Try to re-use the last selected node
+	    string? lastSelectedNodeName = null;
+	    SerializedProperty lastSelectedNodeNameProperty = HEU_EditorUtility.GetSerializedProperty(_toolsInfoSerializedObject, "_lastAttributeNodeName");
+	    if (lastSelectedNodeNameProperty != null)
+	    {
+		    lastSelectedNodeName = lastSelectedNodeNameProperty.stringValue;
+	    }
         private void DrawAttributeSelection()
         {
             // Try to re-use the last selected node
@@ -609,8 +618,18 @@ namespace HoudiniEngineUnity
                 lastSelectedNodeName = lastSelectedNodeNameProperty.stringValue;
             }
 
-            HEU_AttributesStore foundAttributeStore = null;
+        HEU_AttributesStore foundAttributeStore = null;
 
+	    // Get the names of the all editable nodes having an attribute store for this asset
+	    // While doing that, we'll find the last selected attribute store
+	    int lastSelectedIndex = 0;
+	    List< string? > nodeNames = new( ) ;
+	    foreach (HEU_AttributesStore attributeStore in _attributesStores)
+	    {
+		    string? geoName = attributeStore.GeoName;
+		    if (!nodeNames.Contains(geoName))
+		    {
+		        nodeNames.Add(geoName);
             // Get the names of the all editable nodes having an attribute store for this asset
             // While doing that, we'll find the last selected attribute store
             int lastSelectedIndex = 0;
@@ -623,14 +642,13 @@ namespace HoudiniEngineUnity
                     nodeNames.Add(geoName);
 
                     // Either re-select last selected node, or select the first one found
-                    if (string.IsNullOrEmpty(lastSelectedNodeName) || lastSelectedNodeName.Equals(geoName))
-                    {
+                    if (string.IsNullOrEmpty(lastSelectedNodeName) || lastSelectedNodeName.Equals(geoName)){
                         lastSelectedNodeName = geoName;
                         lastSelectedIndex = nodeNames.Count - 1;
                         foundAttributeStore = attributeStore;
                     }
-                }
             }
+        }
 
             // Try to re-use the last selected attribute
             string lastSelectedAttributeName = null;

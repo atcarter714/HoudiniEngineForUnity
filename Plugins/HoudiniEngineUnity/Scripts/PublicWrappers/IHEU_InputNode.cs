@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -101,14 +101,14 @@ namespace HoudiniEngineUnity
         /// <summary>Input node name</summary>
         string InputName { get; }
 
-        /// <summary>Input node label</summary>
-        string LabelName { get; }
+	/// <summary>Input node name</summary>
+	string? InputName { get; }
 
-        /// <summary>Input node parameter</summary>
-        string ParamName { get; }
+	/// <summary>Input node label</summary>
+	string? LabelName { get; }
 
-        /// <summary>Mesh settings</summary>
-        HEU_InputInterfaceMeshSettings MeshSettings { get; }
+	/// <summary>Input node parameter</summary>
+	string? ParamName { get; }
 
         /// <summary>Tilemap settings</summary>
         HEU_InputInterfaceTilemapSettings TilemapSettings { get; }

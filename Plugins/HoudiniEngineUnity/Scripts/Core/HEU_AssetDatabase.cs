@@ -43,9 +43,9 @@ namespace HoudiniEngineUnity {
 	/// data probably does not need to persist past session.
 	/// </summary>
 	public static class HEU_AssetDatabase {
-		public static string GetAssetCachePath( ) {
+		public static string? GetAssetCachePath( ) {
 #if UNITY_EDITOR
-			string rootPath = HEU_Platform.BuildPath( "Assets", HEU_PluginSettings.AssetCachePath ) ;
+			string? rootPath = HEU_Platform.BuildPath( "Assets", HEU_PluginSettings.AssetCachePath ) ;
 			if ( !AssetDatabase.IsValidFolder( rootPath ) ) {
 				CreatePathWithFolders( rootPath ) ;
 			}
@@ -71,7 +71,7 @@ namespace HoudiniEngineUnity {
 		/// </summary>
 		/// <param name="inFullPath">Full path to parse</param>
 		/// <returns>Relative path to Assets/ folder, or null if invalid input path</returns>
-		public static string? GetAssetRelativePath( string inFullPath ) {
+		public static string? GetAssetRelativePath( string? inFullPath ) {
 			inFullPath = inFullPath.Replace( '\\', '/' ) ;
 			string replaceOld = Application.dataPath + HEU_Platform.DirectorySeparatorStr ;
 			string replaceNew = "Assets" + HEU_Platform.DirectorySeparatorStr ;
@@ -103,7 +103,7 @@ namespace HoudiniEngineUnity {
 		/// Also changes path to use forward slash.
 		/// </summary>
 		/// <param name="inPath">The path to validate for loading via AssetDatabase</param>
-		public static string GetValidAssetPath( string inPath ) {
+		public static string? GetValidAssetPath( string? inPath ) {
 			// The three relative paths to consider are:
 			// Assets/
 			// Packages/
@@ -111,7 +111,7 @@ namespace HoudiniEngineUnity {
 
 			inPath = inPath.Replace( '\\', '/' ) ;
 
-			string relPath = inPath ;
+			string? relPath = inPath ;
 
 			// Strip out project root to get the subfolder
 			string projectRoot = GetUnityProjectPath( ) + "/" ;
@@ -140,7 +140,7 @@ namespace HoudiniEngineUnity {
 			return inPath ;
 		}
 
-		public static string GetAssetPath( Object asset ) {
+		public static string? GetAssetPath( Object asset ) {
 #if UNITY_EDITOR
 			return AssetDatabase.GetAssetPath( asset ) ;
 #else
@@ -157,9 +157,9 @@ namespace HoudiniEngineUnity {
 		/// </summary>
 		/// <param name="asset">Asset to get path for</param>
 		/// <returns>Path of given asset</returns>
-		public static string GetAssetPathWithSubAssetSupport( Object asset ) {
+		public static string? GetAssetPathWithSubAssetSupport( Object asset ) {
 #if UNITY_EDITOR
-			string assetPath = AssetDatabase.GetAssetPath( asset ) ;
+			string? assetPath = AssetDatabase.GetAssetPath( asset ) ;
 			bool isSubAsset = IsSubAsset( asset ) ;
 			if ( !isSubAsset ) return assetPath ;
 			
@@ -187,7 +187,7 @@ namespace HoudiniEngineUnity {
 		/// <param name="fullPath">Path of asset to parse</param>
 		/// <param name="mainPath">Path to main asset</param>
 		/// <param name="subPath">Name of subasset if its a subasset, otherwise null for main asset</param>
-		public static void GetSubAssetPathFromPath( string fullPath, out string mainPath, out string? subPath ) {
+		public static void GetSubAssetPathFromPath( string? fullPath, out string? mainPath, out string? subPath ) {
 			mainPath = fullPath ;
 			subPath  = null ;
 
@@ -215,7 +215,7 @@ namespace HoudiniEngineUnity {
 		/// </summary>
 		/// <param name="inPath">Relative path to parse</param>
 		/// <returns>Returns full path to asset, or null if invalid input path</returns>
-		public static string GetAssetFullPath( string inPath ) {
+		public static string? GetAssetFullPath( string? inPath ) {
 			return HEU_Platform.GetFullPath( inPath ) ;
 		}
 
@@ -224,7 +224,7 @@ namespace HoudiniEngineUnity {
 		/// </summary>
 		/// <param name="inPath">Path to check</param>
 		/// <returns>True if given path starts relative to Assets/</returns>
-		public static bool IsPathRelativeToAssets( string inPath ) {
+		public static bool IsPathRelativeToAssets( string? inPath ) {
 			return inPath.StartsWith( GetAssetRelativePathStart( ) ) ;
 		}
 
@@ -233,17 +233,17 @@ namespace HoudiniEngineUnity {
 		/// </summary>
 		/// <param name="inPath">Path to check</param>
 		/// <returns>True if given path starts relative to Packages/</returns>
-		public static bool IsPathRelativeToPackages( string inPath ) {
+		public static bool IsPathRelativeToPackages( string? inPath ) {
 			return inPath.StartsWith( GetPackagesRelativePathStart( ) ) ;
 		}
 
 		public static string? GetAssetRootPath( Object asset ) {
 #if UNITY_EDITOR
-			string assetPath = GetAssetPath( asset ) ;
+			string? assetPath = GetAssetPath( asset ) ;
 			if ( string.IsNullOrEmpty( assetPath ) ) return null ;
 			
 			// We'll strip the path until we're under AssetCache/Baked/assetName or AssetCache/Working/assetName
-			string assetTypePath = GetAssetBakedPath( ) ;
+			string? assetTypePath = GetAssetBakedPath( ) ;
 			if ( !assetPath.StartsWith( assetTypePath ) ) {
 				assetTypePath = GetAssetWorkingPath( ) ;
 				if ( !assetPath.StartsWith( assetTypePath ) ) {
@@ -255,10 +255,10 @@ namespace HoudiniEngineUnity {
 														 + HEU_Platform.DirectorySeparator, 
 														 string.Empty ) ;
 			
-			string[ ] splits = removedBakedPath.Split( HEU_Platform.DirectorySeparator ) ;
+			string?[] splits = removedBakedPath.Split( HEU_Platform.DirectorySeparator ) ;
 			if ( string.IsNullOrEmpty( splits[ 0 ] ) ) return null ;
 			
-			string rootPath = HEU_Platform.BuildPath( assetTypePath, splits[ 0 ] ) ;
+			string? rootPath = HEU_Platform.BuildPath( assetTypePath, splits[ 0 ] ) ;
 			Debug.AssertFormat( AssetDatabase.IsValidFolder( rootPath ),
 								"Calculated root path {0} is invalid for asset at {1}.", rootPath, assetPath ) ;
 			return rootPath ;
@@ -273,7 +273,7 @@ namespace HoudiniEngineUnity {
 		/// </summary>
 		/// <param name="path">The input path to find unique path for</param>
 		/// <returns>A unique path for the given path.</returns>
-		public static string GetUniqueAssetPath( string path ) {
+		public static string? GetUniqueAssetPath( string? path ) {
 #if UNITY_EDITOR
 			return AssetDatabase.GenerateUniqueAssetPath( path ) ;
 #else
@@ -283,7 +283,7 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static string GetAssetOrScenePath( Object inputObject ) {
+		public static string? GetAssetOrScenePath( Object inputObject ) {
 #if UNITY_EDITOR
 			return AssetDatabase.GetAssetOrScenePath( inputObject ) ;
 #else
@@ -293,7 +293,7 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static bool IsPathInAssetCache( string path ) {
+		public static bool IsPathInAssetCache( string? path ) {
 			string? assetDBPath = path.StartsWith( Application.dataPath ) 
 									  ? GetAssetRelativePath( path )
 										: GetAssetCachePath( ) ;
@@ -313,7 +313,7 @@ namespace HoudiniEngineUnity {
 			if ( path?.StartsWith(Application.dataPath) is true )
 				path = GetAssetRelativePath( path ) ;
 
-			string bakedPath = GetAssetBakedPath( ) ;
+			string? bakedPath = GetAssetBakedPath( ) ;
 			return path?.StartsWith( bakedPath ) is true ;
 #else
 	    HEU_Logger.LogWarning(HEU_Defines.HEU_USERMSG_NONEDITOR_NOT_SUPPORTED);
@@ -332,7 +332,7 @@ namespace HoudiniEngineUnity {
 			if ( path?.StartsWith(Application.dataPath) is true )
 				path = GetAssetRelativePath( path ) ;
 			
-			string workingPath = GetAssetWorkingPath( ) ;
+			string? workingPath = GetAssetWorkingPath( ) ;
 			return path?.StartsWith( workingPath ) is true ;
 #else
 			HEU_Logger.LogWarning(HEU_Defines.HEU_USERMSG_NONEDITOR_NOT_SUPPORTED);
@@ -348,7 +348,7 @@ namespace HoudiniEngineUnity {
 		/// <returns></returns>
 		public static bool IsAssetInAssetCacheBakedFolder( Object asset ) {
 #if UNITY_EDITOR
-			string assetPath = GetAssetPath( asset ) ;
+			string? assetPath = GetAssetPath( asset ) ;
 			return IsPathInAssetCacheBakedFolder( assetPath ) ;
 #else
 			HEU_Logger.LogWarning(HEU_Defines.HEU_USERMSG_NONEDITOR_NOT_SUPPORTED);
@@ -358,7 +358,7 @@ namespace HoudiniEngineUnity {
 
 		public static bool IsAssetInAssetCacheWorkingFolder( Object asset ) {
 #if UNITY_EDITOR
-			string assetPath = GetAssetPath( asset ) ;
+			string? assetPath = GetAssetPath( asset ) ;
 			return IsPathInAssetCacheWorkingFolder( assetPath ) ;
 #else
 			HEU_Logger.LogWarning(HEU_Defines.HEU_USERMSG_NONEDITOR_NOT_SUPPORTED);
@@ -376,13 +376,13 @@ namespace HoudiniEngineUnity {
 		public static string? CreateAssetCacheFolder( string? suggestedAssetPath, int hash = 0 ) {
 #if UNITY_EDITOR
 			// We create a unique folder inside our plugin's asset database cache folder.
-			string assetDBPath = GetAssetCachePath( ) ;
-			string assetWorkingPath = HEU_Platform.BuildPath( assetDBPath, HEU_Defines.HEU_WORKING_PATH ) ;
+			string? assetDBPath      = GetAssetCachePath( ) ;
+			string? assetWorkingPath = HEU_Platform.BuildPath( assetDBPath, HEU_Defines.HEU_WORKING_PATH ) ;
 			
 			if ( !AssetDatabase.IsValidFolder(assetWorkingPath) )
 				AssetDatabase.CreateFolder( assetDBPath, HEU_Defines.HEU_WORKING_PATH ) ;
 
-			string fileName = HEU_Platform.GetFileNameWithoutExtension( suggestedAssetPath ) ;
+			string? fileName = HEU_Platform.GetFileNameWithoutExtension( suggestedAssetPath ) ;
 			if ( string.IsNullOrEmpty( fileName ) ) {
 				fileName = "AssetCache" ;
 				HEU_Logger.LogWarningFormat( "Unable to get file name from {0}. Using default value: {1}.",
@@ -417,7 +417,7 @@ namespace HoudiniEngineUnity {
 		/// Delete the asset cache folder path.
 		/// </summary>
 		/// <param name="assetCacheFolderPath"></param>
-		public static void DeleteAssetCacheFolder( string assetCacheFolderPath ) {
+		public static void DeleteAssetCacheFolder( string? assetCacheFolderPath ) {
 #if UNITY_EDITOR
 			if ( !string.IsNullOrEmpty( assetCacheFolderPath ) ) {
 				AssetDatabase.DeleteAsset( assetCacheFolderPath ) ;
@@ -459,7 +459,7 @@ namespace HoudiniEngineUnity {
 
 		public static void DeleteAssetIfInBakedFolder( Object asset ) {
 #if UNITY_EDITOR
-			string assetPath = GetAssetPath( asset ) ;
+			string? assetPath = GetAssetPath( asset ) ;
 			if ( IsPathInAssetCacheBakedFolder( assetPath ) ) {
 				AssetDatabase.DeleteAsset( assetPath ) ;
 			}
@@ -484,7 +484,7 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static bool CopyAsset( string path, string newPath ) {
+		public static bool CopyAsset( string? path, string? newPath ) {
 #if UNITY_EDITOR
 			return AssetDatabase.CopyAsset( path, newPath ) ;
 #else
@@ -506,13 +506,13 @@ namespace HoudiniEngineUnity {
 		/// <param name="type">Type of asset</param>
 		/// <param name="bOverwriteExisting"></param>
 		/// <returns>Returns loaded copy if exists or created, otherwise null</returns>
-		public static Object? CopyAndLoadAssetWithRelativePath( Object srcAsset,
-																string copyAssetFolder, string relativePath,
-																Type type, bool bOverwriteExisting ) {
+		public static Object? CopyAndLoadAssetWithRelativePath( Object  srcAsset,
+																string? copyAssetFolder, string? relativePath,
+																Type    type,            bool    bOverwriteExisting ) {
 #if UNITY_EDITOR
-			string srcAssetPath = GetAssetPath( srcAsset ) ;
+			string? srcAssetPath = GetAssetPath( srcAsset ) ;
 			if ( !string.IsNullOrEmpty( srcAssetPath ) && IsPathInAssetCache( srcAssetPath ) ) {
-				string copyAssetFullPath = copyAssetFolder ;
+				string? copyAssetFullPath = copyAssetFolder ;
 
 				if ( !string.IsNullOrEmpty( relativePath ) ) {
 					copyAssetFullPath = HEU_Platform.BuildPath( copyAssetFullPath, relativePath ) ;
@@ -540,8 +540,8 @@ namespace HoudiniEngineUnity {
 
 				CreatePathWithFolders( copyAssetFullPath ) ;
 
-				string fileName     = HEU_Platform.GetFileName( srcAssetPath ) ;
-				string newAssetPath = HEU_Platform.BuildPath( copyAssetFullPath, fileName ) ;
+				string? fileName     = HEU_Platform.GetFileName( srcAssetPath ) ;
+				string? newAssetPath = HEU_Platform.BuildPath( copyAssetFullPath, fileName ) ;
 
 				if ( ( !bOverwriteExisting && HEU_Platform.DoesFileExist( newAssetPath ) ) ||
 					 CopyAsset( srcAssetPath, newAssetPath ) ) {
@@ -572,11 +572,11 @@ namespace HoudiniEngineUnity {
 		/// <param name="type">The type of source asset</param>
 		/// <param name="bOverwriteExisting">Whether to overwrite existing copy if found</param>
 		/// <returns>Returns loaded copy if exists or created, otherwise null</returns>
-		public static Object? CopyAndLoadAssetFromAssetCachePath( Object srcAsset,
-																  string copyPath, Type type,
-																  bool bOverwriteExisting ) {
+		public static Object? CopyAndLoadAssetFromAssetCachePath( Object  srcAsset,
+																  string? copyPath, Type type,
+																  bool    bOverwriteExisting ) {
 #if UNITY_EDITOR
-			string srcAssetPath = GetAssetPath( srcAsset ) ;
+			string? srcAssetPath = GetAssetPath( srcAsset ) ;
 			if ( !string.IsNullOrEmpty( srcAssetPath ) && IsPathInAssetCache( srcAssetPath ) ) {
 				return CopyAndLoadAssetAtAnyPath( srcAsset, copyPath, type, bOverwriteExisting ) ;
 			}
@@ -597,16 +597,16 @@ namespace HoudiniEngineUnity {
 		/// <param name="type">The type of source asset</param>
 		/// <param name="bOverwriteExisting">Whether to overwrite existing copy if found</param>
 		/// <returns>Returns loaded copy if exists or created, otherwise null</returns>
-		public static Object? CopyAndLoadAssetAtAnyPath( Object srcAsset, 
-														 string copyPath, Type type,
-														 bool bOverwriteExisting ) {
+		public static Object? CopyAndLoadAssetAtAnyPath( Object  srcAsset, 
+														 string? copyPath, Type type,
+														 bool    bOverwriteExisting ) {
 #if UNITY_EDITOR
-			string srcAssetPath = GetAssetPath( srcAsset ) ;
+			string? srcAssetPath = GetAssetPath( srcAsset ) ;
 			if ( !string.IsNullOrEmpty( srcAssetPath ) ) {
 				CreatePathWithFolders( copyPath ) ;
 
-				string fileName     = HEU_Platform.GetFileName( srcAssetPath ) ;
-				string fullCopyPath = HEU_Platform.BuildPath( copyPath, fileName ) ;
+				string? fileName     = HEU_Platform.GetFileName( srcAssetPath ) ;
+				string? fullCopyPath = HEU_Platform.BuildPath( copyPath, fileName ) ;
 
 				if ( ( !bOverwriteExisting && HEU_Platform.DoesFileExist( fullCopyPath ) ) ||
 					 CopyAsset( srcAssetPath, fullCopyPath ) ) {
@@ -636,14 +636,14 @@ namespace HoudiniEngineUnity {
 		/// <param name="targetPath">Absolute path of destination</param>
 		/// <param name="type">Type of the asset</param>
 		/// <returns></returns>
-		public static Object? CopyAndLoadAssetAtGivenPath( Object srcAsset, string targetPath, Type type ) {
+		public static Object? CopyAndLoadAssetAtGivenPath( Object srcAsset, string? targetPath, Type type ) {
 #if UNITY_EDITOR
-			string srcAssetPath = GetAssetPath( srcAsset ) ;
+			string? srcAssetPath = GetAssetPath( srcAsset ) ;
 			if ( !string.IsNullOrEmpty( srcAssetPath ) ) {
-				string targetFolderPath = HEU_Platform.GetFolderPath( targetPath ) ;
+				string? targetFolderPath = HEU_Platform.GetFolderPath( targetPath ) ;
 				CreatePathWithFolders( targetFolderPath ) ;
 
-				string targetFileName = HEU_Platform.GetFileName( targetPath ) ;
+				string? targetFileName = HEU_Platform.GetFileName( targetPath ) ;
 				if ( string.IsNullOrEmpty( targetFileName ) ) {
 					HEU_Logger.LogErrorFormat( "Copying asset failed. Destination path must end with a file name: {0}!",
 											   targetPath ) ;
@@ -677,14 +677,14 @@ namespace HoudiniEngineUnity {
 		/// <param name="copyPath">The full path to the copy</param>
 		/// <param name="type">The type of source asset</param>
 		/// <returns>Returns loaded copy if exists or created, otherwise null</returns>
-		public static Object? CopyUniqueAndLoadAssetAtAnyPath( Object srcAsset, string copyPath, Type type ) {
+		public static Object? CopyUniqueAndLoadAssetAtAnyPath( Object srcAsset, string? copyPath, Type type ) {
 #if UNITY_EDITOR
-			string srcAssetPath = GetAssetPath( srcAsset ) ;
+			string? srcAssetPath = GetAssetPath( srcAsset ) ;
 			if ( !string.IsNullOrEmpty( srcAssetPath ) ) {
 				CreatePathWithFolders( copyPath ) ;
 
-				string fileName     = HEU_Platform.GetFileName( srcAssetPath ) ;
-				string fullCopyPath = HEU_Platform.BuildPath( copyPath, fileName ) ;
+				string? fileName     = HEU_Platform.GetFileName( srcAssetPath ) ;
+				string? fullCopyPath = HEU_Platform.BuildPath( copyPath, fileName ) ;
 
 				if ( HEU_Platform.DoesFileExist( fullCopyPath ) ) {
 					fullCopyPath = GetUniqueAssetPath( fullCopyPath ) ;
@@ -725,14 +725,14 @@ namespace HoudiniEngineUnity {
 		/// <param name="assetFileName">The asset's file name</param>
 		/// <param name="type">The type of asset</param>
 		/// <param name="bOverwriteExisting">Whether or not to overwrite if there is an existing file</param>
-		public static void CreateObjectInAssetCacheFolder( Object objectToCreate, string assetCacheRoot,
-														   string relativeFolderPath, string assetFileName,
-														   Type type, bool bOverwriteExisting ) {
+		public static void CreateObjectInAssetCacheFolder( Object  objectToCreate,     string? assetCacheRoot,
+														   string? relativeFolderPath, string? assetFileName,
+														   Type    type,               bool    bOverwriteExisting ) {
 #if UNITY_EDITOR
 			Debug.Assert( !string.IsNullOrEmpty( assetCacheRoot ),
 						  "Must give valid assetCacheFolderPath to create object at" ) ;
 
-			string subFolderPath = assetCacheRoot ;
+			string? subFolderPath = assetCacheRoot ;
 
 			if ( !string.IsNullOrEmpty( relativeFolderPath ) ) {
 				subFolderPath = HEU_Platform.BuildPath( subFolderPath, relativeFolderPath ) ;
@@ -759,7 +759,7 @@ namespace HoudiniEngineUnity {
 			CreatePathWithFolders( subFolderPath ) ;
 
 			// Add file name
-			string finalAssetPath = HEU_Platform.BuildPath( subFolderPath, assetFileName ) ;
+			string? finalAssetPath = HEU_Platform.BuildPath( subFolderPath, assetFileName ) ;
 
 			if ( HEU_Platform.DoesFileExist( finalAssetPath ) && !bOverwriteExisting ) {
 				finalAssetPath = AssetDatabase.GenerateUniqueAssetPath( finalAssetPath ) ;
@@ -781,7 +781,7 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static void CreateAsset( Object asset, string path ) {
+		public static void CreateAsset( Object asset, string? path ) {
 #if UNITY_EDITOR
 			AssetDatabase.CreateAsset( asset, path ) ;
 #else
@@ -789,10 +789,10 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static void CreateAddObjectInAssetCacheFolder( string assetName, string assetObjectFileName,
-															  Object objectToAdd, string relativeFolderPath,
-															  ref string exportRootPath,
-															  ref Object assetDBObject ) {
+		public static void CreateAddObjectInAssetCacheFolder( string?     assetName,   string? assetObjectFileName,
+															  Object      objectToAdd, string? relativeFolderPath,
+															  ref string? exportRootPath,
+															  ref Object  assetDBObject ) {
 #if UNITY_EDITOR
 			if ( string.IsNullOrEmpty( exportRootPath ) ) {
 				exportRootPath = CreateUniqueBakePath( assetName ) ;
@@ -857,7 +857,7 @@ namespace HoudiniEngineUnity {
 		/// <param name="assetPath">The asset's path</param>
 		/// <param name="type">The expected type of asset</param>
 		/// <returns>The loaded object</returns>
-		public static Object LoadAssetAtPath( string assetPath, Type type ) {
+		public static Object LoadAssetAtPath( string? assetPath, Type type ) {
 #if UNITY_EDITOR
 			return AssetDatabase.LoadAssetAtPath( assetPath, type ) ;
 #else
@@ -873,7 +873,7 @@ namespace HoudiniEngineUnity {
 		/// <param name="mainPath">The path to the container</param>
 		/// <param name="subAssetPath">The name of the subasset within the container</param>
 		/// <returns>The subasset object found or null if not</returns>
-		public static Object? LoadSubAssetAtPath( string mainPath, string subAssetPath ) {
+		public static Object? LoadSubAssetAtPath( string? mainPath, string subAssetPath ) {
 			Object[ ]? subObjects = LoadAllAssetRepresentationsAtPath( mainPath ) ;
 			if ( subObjects is not null ) return null ;
 			int numSubObjects = subObjects?.Length ?? 0 ;
@@ -885,7 +885,7 @@ namespace HoudiniEngineUnity {
 			return null ;
 		}
 
-		public static Object[]? LoadAllAssetsAtPath( string assetPath ) {
+		public static Object[]? LoadAllAssetsAtPath( string? assetPath ) {
 #if UNITY_EDITOR
 			return AssetDatabase.LoadAllAssetsAtPath( assetPath ) ;
 #else
@@ -895,7 +895,7 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static Object[]? LoadAllAssetRepresentationsAtPath( string assetPath ) {
+		public static Object[]? LoadAllAssetRepresentationsAtPath( string? assetPath ) {
 #if UNITY_EDITOR
 			return AssetDatabase.LoadAllAssetRepresentationsAtPath( assetPath ) ;
 #else
@@ -928,7 +928,7 @@ namespace HoudiniEngineUnity {
 		/// <summary>Import the asset at the given path.</summary>
 		/// <param name="assetPath"></param>
 		/// <param name="heuOptions"></param>
-		public static void ImportAsset( string assetPath, HEU_ImportAssetOptions heuOptions ) {
+		public static void ImportAsset( string? assetPath, HEU_ImportAssetOptions heuOptions ) {
 #if UNITY_EDITOR
 			ImportAssetOptions unityOptions = ImportAssetOptions.Default ;
 			switch ( heuOptions ) {
@@ -961,10 +961,10 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static string GetAssetWorkingPath( ) {
+		public static string? GetAssetWorkingPath( ) {
 #if UNITY_EDITOR
-			string dbRoot      = GetAssetCachePath( ) ;
-			string workingPath = HEU_Platform.BuildPath( dbRoot, HEU_Defines.HEU_WORKING_PATH ) ;
+			string?  dbRoot      = GetAssetCachePath( ) ;
+			string? workingPath = HEU_Platform.BuildPath( dbRoot, HEU_Defines.HEU_WORKING_PATH ) ;
 
 			if ( !AssetDatabase.IsValidFolder( workingPath ) ) {
 				AssetDatabase.CreateFolder( dbRoot, HEU_Defines.HEU_WORKING_PATH ) ;
@@ -978,10 +978,10 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static string GetAssetBakedPath( ) {
+		public static string? GetAssetBakedPath( ) {
 #if UNITY_EDITOR
-			string dbRoot    = GetAssetCachePath( ) ;
-			string bakedPath = HEU_Platform.BuildPath( dbRoot, HEU_Defines.HEU_BAKED_PATH ) ;
+			string?  dbRoot    = GetAssetCachePath( ) ;
+			string? bakedPath = HEU_Platform.BuildPath( dbRoot, HEU_Defines.HEU_BAKED_PATH ) ;
 
 			if ( !AssetDatabase.IsValidFolder( bakedPath ) ) {
 				AssetDatabase.CreateFolder( dbRoot, HEU_Defines.HEU_BAKED_PATH ) ;
@@ -995,7 +995,7 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static string GetAssetBakedPathWithAssetName( string assetName ) {
+		public static string? GetAssetBakedPathWithAssetName( string? assetName ) {
 #if UNITY_EDITOR
 			return HEU_Platform.BuildPath( GetAssetBakedPath( ), assetName ) ;
 #else
@@ -1005,9 +1005,9 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static string CreateUniqueBakePath( string assetName ) {
+		public static string? CreateUniqueBakePath( string? assetName ) {
 #if UNITY_EDITOR
-			string assetBakedPath = GetAssetBakedPathWithAssetName( assetName ) ;
+			string? assetBakedPath = GetAssetBakedPathWithAssetName( assetName ) ;
 			assetBakedPath = AssetDatabase.GenerateUniqueAssetPath( assetBakedPath ) ;
 
 			if ( !HEU_Platform.DoesPathExist( assetBakedPath ) ) {
@@ -1026,16 +1026,16 @@ namespace HoudiniEngineUnity {
 		/// Creates all folders in the given path if they don't exist.
 		/// </summary>
 		/// <param name="inPath">The path to create folders for</param>
-		public static void CreatePathWithFolders( string inPath ) {
+		public static void CreatePathWithFolders( string? inPath ) {
 #if UNITY_EDITOR
-			string   pathBuild = "" ;
-			string[] folders   = inPath.Split( HEU_Platform.DirectorySeparator ) ;
-			foreach ( string folder in folders ) {
+			string?    pathBuild = "" ;
+			string?[] folders   = inPath.Split( HEU_Platform.DirectorySeparator ) ;
+			foreach ( string? folder in folders ) {
 				if ( string.IsNullOrEmpty( folder ) ) {
 					break ;
 				}
 
-				string nextPath = "" ;
+				string? nextPath = "" ;
 				if ( string.IsNullOrEmpty( pathBuild ) ) {
 					nextPath = folder ;
 				}
@@ -1055,23 +1055,23 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static string AppendMeshesPathToAssetFolder( string inAssetCacheFolder ) {
+		public static string? AppendMeshesPathToAssetFolder( string? inAssetCacheFolder ) {
 			return HEU_Platform.BuildPath( inAssetCacheFolder, HEU_Defines.HEU_FOLDER_MESHES ) ;
 		}
 
-		public static string AppendTexturesPathToAssetFolder( string inAssetCacheFolder ) {
+		public static string? AppendTexturesPathToAssetFolder( string? inAssetCacheFolder ) {
 			return HEU_Platform.BuildPath( inAssetCacheFolder, HEU_Defines.HEU_FOLDER_TEXTURES ) ;
 		}
 
-		public static string AppendMaterialsPathToAssetFolder( string inAssetCacheFolder ) {
+		public static string? AppendMaterialsPathToAssetFolder( string? inAssetCacheFolder ) {
 			return HEU_Platform.BuildPath( inAssetCacheFolder, HEU_Defines.HEU_FOLDER_MATERIALS ) ;
 		}
 
-		public static string AppendTerrainPathToAssetFolder( string inAssetCacheFolder ) {
+		public static string? AppendTerrainPathToAssetFolder( string? inAssetCacheFolder ) {
 			return HEU_Platform.BuildPath( inAssetCacheFolder, HEU_Defines.HEU_FOLDER_TERRAIN ) ;
 		}
 
-		public static string[] GetAssetSubFolders( ) {
+		public static string?[] GetAssetSubFolders( ) {
 			return new[]
 			{
 				HEU_Defines.HEU_FOLDER_MESHES,
@@ -1081,12 +1081,12 @@ namespace HoudiniEngineUnity {
 			} ;
 		}
 
-		public static string AppendPrefabPath( string inAssetCacheFolder, string assetName ) {
-			string prefabPath = HEU_Platform.BuildPath( inAssetCacheFolder, assetName ) ;
+		public static string AppendPrefabPath( string? inAssetCacheFolder, string? assetName ) {
+			string? prefabPath = HEU_Platform.BuildPath( inAssetCacheFolder, assetName ) ;
 			return prefabPath + ".prefab" ;
 		}
 
-		public static string AppendMeshesAssetFileName( string assetName ) {
+		public static string? AppendMeshesAssetFileName( string? assetName ) {
 			return assetName + "_meshes.asset" ;
 		}
 
@@ -1112,7 +1112,7 @@ namespace HoudiniEngineUnity {
 		/// <returns>True if gameobject has been saved in a scene.</returns>
 		public static bool IsAssetSavedInScene( GameObject go ) {
 #if UNITY_EDITOR
-			string scenePath = GetAssetOrScenePath( go ) ;
+			string? scenePath = GetAssetOrScenePath( go ) ;
 			return !string.IsNullOrEmpty( scenePath ) ;
 #else
 	    HEU_Logger.LogWarning(HEU_Defines.HEU_USERMSG_NONEDITOR_NOT_SUPPORTED);
@@ -1141,8 +1141,8 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static string GetUniqueAssetPathForUnityAsset( Object obj ) {
-			string assetPath = GetAssetPath( obj ) ;
+		public static string? GetUniqueAssetPathForUnityAsset( Object obj ) {
+			string? assetPath = GetAssetPath( obj ) ;
 			if ( !string.IsNullOrEmpty( obj.name ) ) {
 				assetPath += "::name::" + obj.name ;
 			}
@@ -1153,7 +1153,7 @@ namespace HoudiniEngineUnity {
 			return assetPath ;
 		}
 
-		public static bool IsValidFolderName( string name ) {
+		public static bool IsValidFolderName( string? name ) {
 #if UNITY_EDITOR
 			if ( name.IndexOfAny( ";:<>?|".ToCharArray( ) ) != -1 ) {
 				return false ;
@@ -1171,19 +1171,19 @@ namespace HoudiniEngineUnity {
 		//! So we don't have to create a new array every time
 		static readonly string[ ] _uniqueAssetPathSplit = { "::", } ;
 		
-		public static T? LoadUnityAssetFromUniqueAssetPath< T >( string assetPath ) where T: Object {
+		public static T? LoadUnityAssetFromUniqueAssetPath< T >( string? assetPath ) where T: Object {
 			// Expecting assetPath to be of format: assetPath::name::assetname OR assetPath::id::assetid
 			// See GetUniqueAssetPathForUnityAsset()
 			if ( !assetPath.Contains( _uniqueAssetPathSplit[ 0 ] ) ) return null ;
 			
-			string[ ] splits = assetPath.Split( _uniqueAssetPathSplit,
+			string?[] splits = assetPath.Split( _uniqueAssetPathSplit,
 												StringSplitOptions.RemoveEmptyEntries ) ;
 			assetPath = splits[ 0 ] ;
 			if ( splits.Length < 3 ) return null ;
 				
-			bool   nameType  = splits[ 1 ].Equals( "name" ) ;
-			string assetName = splits[ 2 ] ;
-			int    assetID   = 0 ;
+			bool    nameType  = splits[ 1 ].Equals( "name" ) ;
+			string? assetName = splits[ 2 ] ;
+			int     assetID   = 0 ;
 
 			if ( !nameType && !int.TryParse(splits[ 2 ], out assetID) )
 				return null ; 

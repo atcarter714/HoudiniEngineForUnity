@@ -262,9 +262,9 @@ namespace HoudiniEngineUnity {
 		/// <param name="timeout"></param>
 		/// <param name="logError"></param>
 		/// <returns>True if successfully created session.</returns>
-		public static bool CreateThriftSocketSession( string hostName, int serverPort, 
-													  bool autoClose, float timeout,
-													  bool logError ) {
+		public static bool CreateThriftSocketSession( string? hostName,  int   serverPort, 
+													  bool    autoClose, float timeout,
+													  bool    logError ) {
 			CheckAndCloseExistingSession( ) ;
 			_defaultSession = CreateSessionObject( ) ;
 			return _defaultSession.CreateThriftSocketSession( true, hostName, serverPort, autoClose, timeout,
@@ -277,7 +277,7 @@ namespace HoudiniEngineUnity {
 		/// <param name="timeout"></param>
 		/// <param name="logError"></param>
 		/// <returns>True if successfully created session.</returns>
-		public static bool CreateThriftPipeSession( string pipeName, bool autoClose, float timeout, bool logError ) {
+		public static bool CreateThriftPipeSession( string? pipeName, bool autoClose, float timeout, bool logError ) {
 			CheckAndCloseExistingSession( ) ;
 
 			_defaultSession = CreateSessionObject( ) ;
@@ -292,19 +292,26 @@ namespace HoudiniEngineUnity {
 			return _defaultSession.CreateCustomSession( true ) ;
 		}
 
-		public static bool ConnectThriftSocketSession( string hostName, int serverPort, 
-													   bool autoClose, float timeout ) {
+		public static bool ConnectThriftSocketSession( string? hostName,  int   serverPort, 
+													   bool    autoClose, float timeout ) {
 			CheckAndCloseExistingSession( ) ;
 			_defaultSession = CreateSessionObject( ) ;
 			return _defaultSession.ConnectThriftSocketSession( true, hostName, serverPort, autoClose, timeout ) ;
 		}
+
+		public static bool ConnectThriftPipeSession( string? pipeName, bool autoClose, float timeout ) {
+			CheckAndCloseExistingSession( ) ;
+			_defaultSession = CreateSessionObject( ) ;
+			return _defaultSession.ConnectThriftPipeSession( true, pipeName, autoClose, timeout ) ;
+		}
+
 		public static void RecreateDefaultSessionData( ) {
 			CheckAndCloseExistingSession( ) ;
 			_defaultSession = CreateSessionObject( ) ;
 		}
 
-		public static bool ConnectSessionSyncUsingThriftSocket( string hostName, int  serverPort, bool autoClose, 
-																float  timeout,  bool logError ) {
+		public static bool ConnectSessionSyncUsingThriftSocket( string? hostName, int  serverPort, bool autoClose, 
+																float   timeout,  bool logError ) {
 			if ( _defaultSession is null ) 
 				RecreateDefaultSessionData( ) ;
 			
@@ -314,8 +321,8 @@ namespace HoudiniEngineUnity {
 																?? false ;
 		}
 
-		public static bool ConnectSessionSyncUsingThriftPipe( string pipeName, bool autoClose,
-															  float  timeout,  bool logError ) {
+		public static bool ConnectSessionSyncUsingThriftPipe( string? pipeName, bool autoClose,
+															  float   timeout,  bool logError ) {
 			if ( _defaultSession is null ) 
 				RecreateDefaultSessionData( ) ;
 
@@ -537,8 +544,8 @@ namespace HoudiniEngineUnity {
 			
 #if UNITY_EDITOR
 			const string fileExt  = "hip;*.hiplc;*.hipnc" ;
-			string lastPath = HEU_PluginSettings.LastLoadHIPPath ;
-			string filePath = EditorUtility.OpenFilePanel( "Open Houdini HIP", lastPath, fileExt ) ;
+			string?      lastPath = HEU_PluginSettings.LastLoadHIPPath ;
+			string?      filePath = EditorUtility.OpenFilePanel( "Open Houdini HIP", lastPath, fileExt ) ;
 			if ( string.IsNullOrEmpty( filePath ) ) return false ;
 			
 			HEU_PluginSettings.LastLoadHIPPath = filePath ;
@@ -655,7 +662,7 @@ namespace HoudiniEngineUnity {
 		}
 
 		public static bool OpenHoudini( string args ) {
-			string houdiniPath = HEU_PluginSettings.HoudiniDebugLaunchPath ;
+			string? houdiniPath = HEU_PluginSettings.HoudiniDebugLaunchPath ;
 
 #if UNITY_EDITOR_OSX
 	    houdiniPath = GetHoudiniPathOnMacOS(houdiniPath);
@@ -689,7 +696,7 @@ namespace HoudiniEngineUnity {
 
 			HEU_Logger.Log( "Saved session to " + HIPPath ) ;
 
-			string HoudiniPath = HEU_PluginSettings.HoudiniDebugLaunchPath ;
+			string? HoudiniPath = HEU_PluginSettings.HoudiniDebugLaunchPath ;
 
 #if UNITY_EDITOR_OSX
 	    HoudiniPath = GetHoudiniPathOnMacOS(HoudiniPath);
@@ -729,16 +736,16 @@ namespace HoudiniEngineUnity {
 		/// <param name="stringHandle">String handle to query.</param>
 		/// <param name="session"></param>
 		/// <returns>String value of the given string handle.</returns>
-		public static string GetString( int stringHandle, HEU_SessionBase? session = null ) {
+		public static string? GetString( int stringHandle, HEU_SessionBase? session = null ) {
 			if ( stringHandle < 1 ) return string.Empty ;
 			
 			session ??= GetOrCreateDefaultSession( ) ;
 			if ( session is null ) return string.Empty ;
-
+			
 			int length = session.GetStringBufferLength( stringHandle ) ;
 			if ( length < 1 ) return string.Empty ;
 			
-			string str = string.Empty ;
+			string? str = string.Empty ;
 			session.GetString( stringHandle, ref str, length ) ;
 			return str ;
 		}
@@ -749,8 +756,8 @@ namespace HoudiniEngineUnity {
 			HEU_SessionBase? sessionBase = GetOrCreateDefaultSession( ) ;
 			if ( sessionBase is null ) return null ;
 			
-			int numLength = strIndices.Length ;
-			string[ ] strValues = new string[ numLength ] ;
+			int       numLength = strIndices.Length ;
+			string?[] strValues = new string[ numLength ] ;
 			
 			for ( int i = 0; i < numLength; ++i ) {
 				int strIndex = strIndices[ i ] ;
@@ -807,7 +814,7 @@ namespace HoudiniEngineUnity {
 																	  groupCount ) ;
 
 			if ( !bSuccess ) return null ;
-			string[ ] nameStrings = new string[ groupCount ] ;
+			string?[] nameStrings = new string[ groupCount ] ;
 			for ( int i = 0; i < groupCount; ++i )
 				nameStrings[ i ] = GetString( groupNames[ i ], session ) ;
 			
@@ -880,7 +887,7 @@ namespace HoudiniEngineUnity {
 		/// <param name="inputIndex">Index of the input</param>
 		/// <param name="inputName">Input name string</param>
 		/// <returns>True if successfully queried the node</returns>
-		public static bool GetNodeInputName( HAPI_NodeId nodeID, int inputIndex, out string inputName ) {
+		public static bool GetNodeInputName( HAPI_NodeId nodeID, int inputIndex, out string? inputName ) {
 			inputName = string.Empty ;
 			HEU_SessionBase? sessionBase = GetOrCreateDefaultSession( ) ;
 			if ( sessionBase is null ) return false ;
@@ -963,7 +970,7 @@ namespace HoudiniEngineUnity {
 		
 		// GEOMETRY GETTERS -------------------------------------------------------------------------------------------
 
-		public static string GetUniqueMaterialShopName( HAPI_NodeId assetID, HAPI_NodeId materialID ) {
+		public static string? GetUniqueMaterialShopName( HAPI_NodeId assetID, HAPI_NodeId materialID ) {
 			HEU_SessionBase? sessionBase = GetOrCreateDefaultSession( ) ;
 			if ( sessionBase is null ) return string.Empty ;
 
@@ -983,8 +990,8 @@ namespace HoudiniEngineUnity {
 			if ( !sessionBase.GetNodeInfo( materialInfo.nodeId, ref materialNodeInfo ) )
 				return string.Empty ;
 
-			string assetNodeName    = GetString( assetNodeInfo.internalNodePathSH, sessionBase ) ;
-			string materialNodeName = GetString( materialNodeInfo.internalNodePathSH, sessionBase ) ;
+			string? assetNodeName    = GetString( assetNodeInfo.internalNodePathSH, sessionBase ) ;
+			string? materialNodeName = GetString( materialNodeInfo.internalNodePathSH, sessionBase ) ;
 			if ( assetNodeName.Length <= 0 || materialNodeName.Length <= 0 ) return string.Empty ;
 
 			// This throws exceptions because assetNodeName is not necessarily even part of the string ...

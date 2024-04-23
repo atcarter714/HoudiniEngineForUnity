@@ -120,13 +120,13 @@ namespace HoudiniEngineUnity
 		public HAPI_NodeId InputNodeID => _nodeID ;
 
 		/// <inheritdoc />
-		public string InputName => _inputName ;
+		public string? InputName => _inputName ;
 
 		/// <inheritdoc />
-		public string LabelName => _labelName ;
+		public string? LabelName => _labelName ;
 
 		/// <inheritdoc />
-		public string ParamName => _paramName ;
+		public string? ParamName => _paramName ;
 
 		/// <inheritdoc />
 		public HEU_InputInterfaceMeshSettings MeshSettings => _meshSettings ;
@@ -192,9 +192,9 @@ namespace HoudiniEngineUnity
 			set => _requiresUpload = value ;
 		}
 
-		[SerializeField] string _inputName ;
-		[SerializeField] string _labelName ;
-		[SerializeField] internal string _paramName ;
+		[SerializeField]          string? _inputName ;
+		[SerializeField]          string? _labelName ;
+		[SerializeField] internal string? _paramName ;
 		
 		[SerializeField] HAPI_NodeId _connectedNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 
@@ -549,8 +549,8 @@ namespace HoudiniEngineUnity
 
 		// LOGIC ------------------------------------------------------------------------------------------------------
 
-		internal static HEU_InputNode CreateSetupInput( HAPI_NodeId      nodeID,    int inputIndex, string inputName,
-														string           labelName, InputNodeType inputNodeType,
+		internal static HEU_InputNode CreateSetupInput( HAPI_NodeId      nodeID,    int inputIndex, string? inputName,
+														string?          labelName, InputNodeType inputNodeType,
 														HEU_HoudiniAsset parentAsset ) {
 			HEU_InputNode newInput = CreateInstance< HEU_InputNode >( ) ;
 			newInput._nodeID        = nodeID ;
@@ -1100,7 +1100,7 @@ namespace HoudiniEngineUnity
 			ClearUICache( ) ;
 		}
 
-		bool FindAddToInputHDA( string gameObjectName ) {
+		bool FindAddToInputHDA( string? gameObjectName ) {
 			HEU_HoudiniAssetRoot inputAssetRoot =
 				HEU_GeneralUtility.GetHDAByGameObjectNameInScene( gameObjectName ) ;
 

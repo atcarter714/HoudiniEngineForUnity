@@ -98,12 +98,9 @@ namespace HoudiniEngineUnity
             HAPI_NodeId newNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
             session.CreateInputNode(out newNodeID, inputName);
 
-            if (newNodeID == HEU_Defines.HEU_INVALID_NODE_ID ||
-                !HEU_HAPIUtility.IsNodeValidInHoudini(session, newNodeID))
-            {
-                Debug.LogError("Failed to create new input node in Houdini session!");
-                return false;
-            }
+	    string? inputName = null;
+	    HAPI_NodeId newNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
+	    session.CreateInputNode( out newNodeID, inputName );
 
             inputNodeID = newNodeID;
             if (!session.CookNode(inputNodeID, false))

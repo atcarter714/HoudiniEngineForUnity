@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -103,7 +103,7 @@ public class HEU_ExampleInstanceCustomAttribute : MonoBehaviour
         }
     }
 
-    private static void LogArray<T>(string name, T[] arr, int tupleSize)
+    static void LogArray<T>(string? name, T[] arr, int tupleSize)
     {
         int index = 0;
         int count = arr.Length / tupleSize;

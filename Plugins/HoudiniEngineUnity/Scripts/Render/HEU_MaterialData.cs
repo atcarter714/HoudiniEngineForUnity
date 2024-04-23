@@ -67,7 +67,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="materialInfo">This material's info from Houdini</param>
 		/// <param name="assetCacheFolderPath">Path to asset's cache folder</param>
-		public bool UpdateMaterialFromHoudini( HAPI_MaterialInfo materialInfo, string assetCacheFolderPath ) {
+		public bool UpdateMaterialFromHoudini( HAPI_MaterialInfo materialInfo, string? assetCacheFolderPath ) {
 			if ( _material == null ) {
 				return false ;
 			}
@@ -113,7 +113,7 @@ namespace HoudiniEngineUnity
 			}
 
 			if ( diffuseMapParmIndex >= 0 && diffuseMapParmIndex < parmInfos.Length ) {
-				string diffuseTextureFileName =
+				string? diffuseTextureFileName =
 					GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 														 parmInfos[ diffuseMapParmIndex ] ) ;
 				_material.mainTexture =
@@ -146,7 +146,7 @@ namespace HoudiniEngineUnity
 				}
 
 				if ( opacityMapParmIndex >= 0 && opacityMapParmIndex < parmInfos.Length ) {
-					string opacityTextureFileName =
+					string? opacityTextureFileName =
 						GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 															 parmInfos[ opacityMapParmIndex ] ) ;
 					_material.SetTexture( HEU_Defines.UNITY_SHADER_OPACITY_MAP,
@@ -183,7 +183,7 @@ namespace HoudiniEngineUnity
 				}
 
 				if ( specMapParmIndex >= 0 && specMapParmIndex < parmInfos.Length ) {
-					string specTextureFileName =
+					string? specTextureFileName =
 						GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 															 parmInfos[ specMapParmIndex ] ) ;
 					_material.SetTexture( HEU_Defines.UNITY_SHADER_SPEC_MAP,
@@ -215,7 +215,7 @@ namespace HoudiniEngineUnity
 
 
 				if ( metallicMapParmIndex > -1 && metallicMapParmIndex < parmInfos.Length ) {
-					string metallicTextureFileName =
+					string? metallicTextureFileName =
 						GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 															 parmInfos[ metallicMapParmIndex ] ) ;
 					_material.SetTexture( HEU_Defines.UNITY_SHADER_METALLIC_MAP,
@@ -237,7 +237,7 @@ namespace HoudiniEngineUnity
 			}
 
 			if ( normalMapParmIndex >= 0 && normalMapParmIndex < parmInfos.Length ) {
-				string normalTextureFileName =
+				string? normalTextureFileName =
 					GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 														 parmInfos[ normalMapParmIndex ] ) ;
 				Texture2D normalMap =
@@ -274,7 +274,7 @@ namespace HoudiniEngineUnity
 			}
 
 			if ( emissionMapParmIndex >= 0 && emissionMapParmIndex < parmInfos.Length ) {
-				string emissionTextureFileName =
+				string? emissionTextureFileName =
 					GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 														 parmInfos[ emissionMapParmIndex ] ) ;
 				_material.SetTexture( HEU_Defines.UNITY_SHADER_EMISSION_MAP,
@@ -308,7 +308,7 @@ namespace HoudiniEngineUnity
 			}
 
 			if ( roughMapParmIndex > -1 && roughMapParmIndex < parmInfos.Length ) {
-				string roughTextureFileName =
+				string? roughTextureFileName =
 					GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 														 parmInfos[ roughMapParmIndex ] ) ;
 				_material.SetTexture( HEU_Defines.UNITY_SHADER_SMOOTHNESS_MAP,
@@ -324,7 +324,7 @@ namespace HoudiniEngineUnity
 																  HEU_Defines.MAT_OGL_ROUGH_MAP_ATTR_ENABLED ) ;
 
 			if ( occlusionMapParmIndex >= 0 && occlusionMapParmIndex < parmInfos.Length ) {
-				string occlusionTextureFileName =
+				string? occlusionTextureFileName =
 					GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 														 parmInfos[ occlusionMapParmIndex ] ) ;
 				_material.SetTexture( HEU_Defines.UNITY_SHADER_OCCLUSION_MAP,
@@ -359,8 +359,8 @@ namespace HoudiniEngineUnity
 		// the hash of the material path on project (eg. Assets/Materials/materialname.mat)
 		[SerializeField] internal int _materialKey = HEU_Defines.HEU_INVALID_MATERIAL ;
 
-		bool UseLegacyShaders( HAPI_MaterialInfo materialInfo, string assetCacheFolderPath,
-							   HEU_SessionBase session, HAPI_NodeInfo nodeInfo, HAPI_ParmInfo[] parmInfos ) {
+		bool UseLegacyShaders( HAPI_MaterialInfo materialInfo, string?       assetCacheFolderPath,
+							   HEU_SessionBase   session,      HAPI_NodeInfo nodeInfo, HAPI_ParmInfo[] parmInfos ) {
 			// Diffuse texture - render & extract
 			int diffuseMapParmIndex =
 				HEU_ParameterUtility.FindTextureParamByNameOrTag( session, nodeInfo.id, parmInfos,
@@ -379,7 +379,7 @@ namespace HoudiniEngineUnity
 			}
 
 			if ( diffuseMapParmIndex >= 0 && diffuseMapParmIndex < parmInfos.Length ) {
-				string diffuseTextureFileName =
+				string? diffuseTextureFileName =
 					GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 														 parmInfos[ diffuseMapParmIndex ] ) ;
 				_material.mainTexture =
@@ -401,7 +401,7 @@ namespace HoudiniEngineUnity
 			}
 
 			if ( normalMapParmIndex >= 0 && normalMapParmIndex < parmInfos.Length ) {
-				string normalTextureFileName =
+				string? normalTextureFileName =
 					GetTextureFileNameFromMaterialParam( session, materialInfo.nodeId,
 														 parmInfos[ normalMapParmIndex ] ) ;
 				Texture2D normalMap =
@@ -462,17 +462,17 @@ namespace HoudiniEngineUnity
 		/// <param name="nodeID">Material node ID</param>
 		/// <param name="parmInfo">Parameter on material to query</param>
 		/// <returns>Given parameter's string value</returns>
-		internal static string GetTextureFileNameFromMaterialParam( HEU_SessionBase session, HAPI_NodeId nodeID,
-																	HAPI_ParmInfo   parmInfo ) {
-			const string DEFAULT_TEXTURE_NAME = "default_texture.png" ;
-			string       textureFileName      = DEFAULT_TEXTURE_NAME ;
+		internal static string? GetTextureFileNameFromMaterialParam( HEU_SessionBase session, HAPI_NodeId nodeID,
+																	 HAPI_ParmInfo   parmInfo ) {
+			const string? DEFAULT_TEXTURE_NAME = "default_texture.png" ;
+			string?       textureFileName      = DEFAULT_TEXTURE_NAME ;
 
-			string paramName = HEU_SessionManager.GetString( parmInfo.nameSH, session ) ;
+			string? paramName = HEU_SessionManager.GetString( parmInfo.nameSH, session ) ;
 			if ( !session.GetParmStringValue( nodeID, paramName, 0, true, 
 											  out HAPI_StringHandle stringValue ) ) 
 				return textureFileName ;
 			
-			string paramStrValue = HEU_SessionManager.GetString( stringValue, session ) ;
+			string? paramStrValue = HEU_SessionManager.GetString( stringValue, session ) ;
 
 			// The returned string needs to be cleaned up:
 			// eg. opdef:/Sop/testgeometry_pighead?lowres.jpg -> Sop_testgeometry_pighead_lowres.jpg
@@ -571,7 +571,7 @@ namespace HoudiniEngineUnity
 		internal static string GetSupportedFileFormat( HEU_SessionBase session, ref HAPI_ImageInfo imageInfo ) {
 			string desiredFileFormatName = null ;
 
-			string imageInfoFileFormat = HEU_SessionManager.GetString( imageInfo.imageFileFormatNameSH, session ) ;
+			string? imageInfoFileFormat = HEU_SessionManager.GetString( imageInfo.imageFileFormatNameSH, session ) ;
 
 			if ( !imageInfoFileFormat.Equals( HEU_HAPIConstants.HAPI_PNG_FORMAT_NAME )
 				 && !imageInfoFileFormat.Equals( HEU_HAPIConstants.HAPI_JPEG_FORMAT_NAME )

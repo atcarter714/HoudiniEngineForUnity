@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -57,9 +57,7 @@ namespace HoudiniEngineUnity
 
         private Vector2 _toolButtonScrollPos = Vector2.zero;
 
-        private GUIStyle _toolGridStyle;
-        private GUIStyle _buttonStyle;
-        private GUIStyle _popupStyle;
+	private string?[] _shelfNames;
 
         private bool _initializedUI;
 
@@ -317,8 +315,8 @@ namespace HoudiniEngineUnity
 
     public class HEU_ShowAddShelfWindow : EditorWindow
     {
-        public string _shelfName;
-        public string _shelfPath;
+        public string? _shelfName,
+                        _shelfPath ;
 
         public void OnGUI()
         {

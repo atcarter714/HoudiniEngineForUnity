@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -67,12 +67,8 @@ namespace HoudiniEngineUnity
             get { return _partID; }
         }
 
-        [SerializeField] private string _geoName;
-
-        public string GeoName
-        {
-            get { return _geoName; }
-        }
+        [SerializeField] string? _geoName ;
+        public string GeoName => _geoName ;
 
         [SerializeField] private List<HEU_AttributeData> _attributeDatas = new List<HEU_AttributeData>();
 

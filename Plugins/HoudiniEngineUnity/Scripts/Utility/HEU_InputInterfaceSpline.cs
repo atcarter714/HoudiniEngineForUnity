@@ -115,7 +115,7 @@ namespace HoudiniEngineUnity
                 return false ;
             }
 
-            string inputName = inputObject.name + "_0" ;
+            string? inputName = inputObject.name + "_0" ;
             session.CreateInputCurveNode( out HAPI_NodeId newNodeID, inputName ) ;
             if ( newNodeID is HEU_Defines.HEU_INVALID_NODE_ID ||
                  !HEU_HAPIUtility.IsNodeValidInHoudini( session, newNodeID ) ) {

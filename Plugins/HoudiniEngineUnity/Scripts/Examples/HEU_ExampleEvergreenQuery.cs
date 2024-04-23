@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -64,13 +64,13 @@ public class HEU_ExampleEvergreenQuery
     // Start is called before the first frame update
     public static void StartQuery()
     {
-        string evergreenAssetPath = "Assets/Plugins/HoudiniEngineUnity/HDAs/EverGreen.otl";
-        string evergreenFullPath = HEU_AssetDatabase.GetAssetFullPath(evergreenAssetPath);
-        if (string.IsNullOrEmpty(evergreenFullPath))
-        {
-            HEU_Logger.LogErrorFormat("Unable to load Evergreen asset at path: {0}", evergreenAssetPath);
-            return;
-        }
+	string? evergreenAssetPath = "Assets/Plugins/HoudiniEngineUnity/HDAs/EverGreen.otl";
+	string? evergreenFullPath  = HEU_AssetDatabase.GetAssetFullPath(evergreenAssetPath);
+	if (string.IsNullOrEmpty(evergreenFullPath))
+	{
+	    HEU_Logger.LogErrorFormat("Unable to load Evergreen asset at path: {0}", evergreenAssetPath);
+	    return;
+	}
 
         // Always need a Houdini Engine session in order to use the APIs.
         // This call will create a new session if one does not exist, or continue using
@@ -333,15 +333,15 @@ public class HEU_ExampleEvergreenQuery
             return;
         }
 
-        string[] attrNames = new string[count];
-        if (session.GetAttributeNames(geoID, partID, owner, ref attrNames, count))
-        {
-            for (int i = 0; i < attrNames.Length; ++i)
-            {
-                HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-                if (HEU_GeneralUtility.GetAttributeInfo(session, geoID, partID, attrNames[i], ref attrInfo) && attrInfo.exists)
-                {
-                    sb.AppendLine(string.Format("Attribute {0} has storage: {1}", attrNames[i], attrInfo.storage));
+	string?[] attrNames = new string[count];
+	if (session.GetAttributeNames(geoID, partID, owner, ref attrNames, count))
+	{
+	    for (int i = 0; i < attrNames.Length; ++i)
+	    {
+		HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
+		if (HEU_GeneralUtility.GetAttributeInfo(session, geoID, partID, attrNames[i], ref attrInfo) && attrInfo.exists)
+		{
+		    sb.AppendLine(string.Format("Attribute {0} has storage: {1}", attrNames[i], attrInfo.storage));
 
                     // Query the actual values with helper for each type
                     QueryAttributeByStorageType(session, geoID, partID, ref attrInfo, attrNames[i]);
@@ -358,27 +358,27 @@ public class HEU_ExampleEvergreenQuery
     /// <param name="partID">The part ID</param>
     /// <param name="attrInfo">A valid HAPI_AttributeInfo represendting the attribute</param>
     /// <param name="attrName">Name of the attribute</param>
-    public static void QueryAttributeByStorageType(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-        ref HAPI_AttributeInfo attrInfo, string attrName)
+    public static void QueryAttributeByStorageType(HEU_SessionBase session,  HAPI_NodeId geoID, HAPI_PartId partID,
+	    ref HAPI_AttributeInfo                                     attrInfo, string? attrName)
     {
         // Attribute values are usually accessed as arrays by their data type.
 
 #pragma warning disable 0219 // Ignore unused warning
 
-        if (attrInfo.storage == HAPI_StorageType.HAPI_STORAGETYPE_INT)
-        {
-            int[] data = new int[attrInfo.count];
-            HEU_GeneralUtility.GetAttribute(session, geoID, partID, attrName, ref attrInfo, ref data, session.GetAttributeIntData);
-        }
-        else if (attrInfo.storage == HAPI_StorageType.HAPI_STORAGETYPE_FLOAT)
-        {
-            float[] data = new float[attrInfo.count];
-            HEU_GeneralUtility.GetAttribute(session, geoID, partID, attrName, ref attrInfo, ref data, session.GetAttributeFloatData);
-        }
-        else if (attrInfo.storage == HAPI_StorageType.HAPI_STORAGETYPE_STRING)
-        {
-            string[] data = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, attrName, ref attrInfo);
-        }
+	if (attrInfo.storage == HAPI_StorageType.HAPI_STORAGETYPE_INT)
+	{
+	    int[] data = new int[attrInfo.count];
+	    HEU_GeneralUtility.GetAttribute(session, geoID, partID, attrName, ref attrInfo, ref data, session.GetAttributeIntData);
+	}
+	else if (attrInfo.storage == HAPI_StorageType.HAPI_STORAGETYPE_FLOAT)
+	{
+	    float[] data = new float[attrInfo.count];
+	    HEU_GeneralUtility.GetAttribute(session, geoID, partID, attrName, ref attrInfo, ref data, session.GetAttributeFloatData);
+	}
+	else if (attrInfo.storage == HAPI_StorageType.HAPI_STORAGETYPE_STRING)
+	{
+	    string?[] data = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, attrName, ref attrInfo);
+	}
 
 #pragma warning restore 0219
     }
@@ -390,7 +390,7 @@ public class HEU_ExampleEvergreenQuery
     /// <param name="geoName">The SOP geometry name</param>
     /// <param name="partID">The part ID</param>
     /// <param name="attrName">The attribute name</param>
-    public static void QueryAttribute(HEU_HoudiniAsset houdiniAsset, string objName, string geoName, HAPI_PartId partID, string attrName)
+    public static void QueryAttribute(HEU_HoudiniAsset houdiniAsset, string? objName, string? geoName, HAPI_PartId partID, string? attrName)
     {
         // Get access to the Houdini Engine session used by this asset.
         // This gives access to call Houdini Engine APIs directly.

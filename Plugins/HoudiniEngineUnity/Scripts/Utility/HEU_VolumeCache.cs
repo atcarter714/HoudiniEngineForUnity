@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -54,10 +54,10 @@ namespace HoudiniEngineUnity
     [System.Serializable]
     public class HEU_VolumeLayer : IEquivable<HEU_VolumeLayer>
     {
-        public string _layerName;
-        public float _strength = 1.0f;
-        public bool _uiExpanded;
-        public int _tile = 0;
+	public string? _layerName;
+	public float   _strength = 1.0f;
+	public bool    _uiExpanded;
+	public int     _tile = 0;
 
         public int _xLength;
         public int _yLength;
@@ -173,8 +173,8 @@ namespace HoudiniEngineUnity
     /// </summary>
     public class HEU_TreePrototypeInfo : IEquivable<HEU_TreePrototypeInfo>
     {
-        public string _prefabPath;
-        public float _bendfactor;
+	public string? _prefabPath;
+	public float   _bendfactor;
 
         public bool IsEquivalentTo(HEU_TreePrototypeInfo other)
         {
@@ -242,16 +242,16 @@ namespace HoudiniEngineUnity
     /// </summary>
     public class HEU_DetailPrototype : IEquivable<HEU_DetailPrototype>
     {
-        public string _prototypePrefab;
-        public string _prototypeTexture;
-        public float _bendFactor;
-        public Color _dryColor = Color.white;
-        public Color _healthyColor = Color.white;
-        public float _maxHeight;
-        public float _maxWidth;
-        public float _minHeight;
-        public float _minWidth;
-        public float _noiseSpread;
+	public string? _prototypePrefab;
+	public string? _prototypeTexture;
+	public float   _bendFactor;
+	public Color   _dryColor     = Color.white;
+	public Color   _healthyColor = Color.white;
+	public float   _maxHeight;
+	public float   _maxWidth;
+	public float   _minHeight;
+	public float   _minWidth;
+	public float   _noiseSpread;
 
         public int _renderMode;
 
@@ -308,8 +308,9 @@ namespace HoudiniEngineUnity
 
         public string ObjectName => _objName;
 
-        public string GeoName => _geoName;
+	public string? ObjectName { get { return _objName; } }
 
+	public string? GeoName { get { return _geoName; } }
 
         public TerrainData TerrainData => _terrainData;
 
@@ -341,8 +342,11 @@ namespace HoudiniEngineUnity
 
         [SerializeField] private string _geoName;
 
-        [SerializeField] private string _objName;
+	[SerializeField]
+	private string? _geoName;
 
+	[SerializeField]
+	private string? _objName;
 
         public bool _uiExpanded = true;
 
@@ -657,34 +661,42 @@ namespace HoudiniEngineUnity
             return outTexture != null;
         }
 
-        private bool LoadLayerFloatFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID,
-            string attrName, ref float floatValue)
-        {
-            HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-            float[] attrValues = new float[0];
-            HEU_GeneralUtility.GetAttribute(session, geoID, partID, attrName, ref attrInfo, ref attrValues,
-                session.GetAttributeFloatData);
-            if (attrValues != null && attrValues.Length > 0)
-            {
-                floatValue = attrValues[0];
-                return true;
-            }
+	private bool LoadLayerTextureFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string? attrName, out Texture2D outTexture)
+	{
+	    outTexture = null;
+	    // The texture path is stored as string primitive attribute. Only 1 string path per layer.
+	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
+	    string?[] texturePath = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, attrName, ref attrInfo);
+	    if (texturePath != null && texturePath.Length > 0 && !string.IsNullOrEmpty(texturePath[0]))
+	    {
+		outTexture = LoadAssetTexture(texturePath[0]);
+	    }
+	    return outTexture != null;
+	}
 
-            return false;
-        }
+	private bool LoadLayerFloatFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string? attrName, ref float floatValue)
+	{
+	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
+	    float[] attrValues = new float[0];
+	    HEU_GeneralUtility.GetAttribute(session, geoID, partID, attrName, ref attrInfo, ref attrValues, session.GetAttributeFloatData);
+	    if (attrValues != null && attrValues.Length > 0)
+	    {
+		floatValue = attrValues[0];
+		return true;
+	    }
+	    return false;
+	}
 
-        private bool LoadLayerColorFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID,
-            string attrName, ref Color colorValue)
-        {
-            HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-            float[] attrValues = new float[0];
-            HEU_GeneralUtility.GetAttribute(session, geoID, partID, attrName, ref attrInfo, ref attrValues,
-                session.GetAttributeFloatData);
-            if (attrValues != null && attrValues.Length >= 3 && attrInfo.tupleSize >= 3)
-            {
-                colorValue[0] = attrValues[0];
-                colorValue[1] = attrValues[1];
-                colorValue[2] = attrValues[2];
+	private bool LoadLayerColorFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string? attrName, ref Color colorValue)
+	{
+	    HAPI_AttributeInfo attrInfo = new( ) ;
+	    float[] attrValues = Array.Empty< float >( ) ;
+	    HEU_GeneralUtility.GetAttribute(session, geoID, partID, attrName, ref attrInfo, ref attrValues, session.GetAttributeFloatData);
+	    if (attrValues != null && attrValues.Length >= 3 && attrInfo.tupleSize >= 3)
+	    {
+		    colorValue[0] = attrValues[0];
+		    colorValue[1] = attrValues[1];
+		    colorValue[2] = attrValues[2];
 
                 if (attrInfo.tupleSize == 4 && attrValues.Length == 4)
                 {
@@ -1019,26 +1031,23 @@ namespace HoudiniEngineUnity
 
                 int terrainLayerIndex = -1;
 
-                // The TerrainLayer attribute overrides existing TerrainLayer. So if its set, load and use it.
-                string terrainLayerFile = HEU_GeneralUtility.GetAttributeStringValueSingleStrict(session, geoID, partID,
-                    HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINLAYER_FILE_ATTR,
-                    HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM);
-                if (!string.IsNullOrEmpty(terrainLayerFile))
-                {
-                    terrainLayer =
-                        HEU_AssetDatabase.LoadAssetAtPath(terrainLayerFile, typeof(TerrainLayer)) as TerrainLayer;
-                    if (terrainLayer == null)
-                    {
-                        HEU_Logger.LogWarningFormat("TerrainLayer, set via attribute, not found at: {0}",
-                            terrainLayerFile);
-                        // Not earlying out or skipping this layer due to error because we want to keep proper indexing
-                        // by creating a new TerrainLayer.
-                    }
-                    else
-                    {
-                        // TerrainLayer loaded from attribute. 
-                        // It could be an existing TerrainLayer that is already part of finalTerrainLayers 
-                        // or could be a new one which needs to be added.
+		// The TerrainLayer attribute overrides existing TerrainLayer. So if its set, load and use it.
+                string? terrainLayerFile = HEU_GeneralUtility.GetAttributeStringValueSingleStrict(session, geoID, partID,
+                                HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINLAYER_FILE_ATTR, HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM);
+		if (!string.IsNullOrEmpty(terrainLayerFile))
+		{
+		    terrainLayer = HEU_AssetDatabase.LoadAssetAtPath(terrainLayerFile, typeof(TerrainLayer)) as TerrainLayer;
+		    if (terrainLayer == null)
+		    {
+			HEU_Logger.LogWarningFormat("TerrainLayer, set via attribute, not found at: {0}", terrainLayerFile);
+			// Not earlying out or skipping this layer due to error because we want to keep proper indexing
+			// by creating a new TerrainLayer.
+		    }
+		    else
+		    {
+			// TerrainLayer loaded from attribute. 
+			// It could be an existing TerrainLayer that is already part of finalTerrainLayers 
+			// or could be a new one which needs to be added.
 
                         // If its a different TerrainLayer than existing, update the finalTerrainLayers, and index.
                         if (layer._terrainLayer != null && layer._terrainLayer != terrainLayer)
@@ -1098,31 +1107,28 @@ namespace HoudiniEngineUnity
                     alphaMapIndices[terrainLayerIndex] = m + 1;
                 }
 
-                // For existing TerrainLayer, make a copy of it if it has custom layer attributes
-                // because we don't want to change the original TerrainLayer.
-                if (!bNewTerrainLayer && layer._hasLayerAttributes)
-                {
-                    string bakedTerrainPath = houdiniAsset.GetValidAssetCacheFolderPath();
-                    bakedTerrainPath = HEU_Platform.BuildPath(bakedTerrainPath, relativeFolderPath);
-                    TerrainLayer prevTerrainLayer = terrainLayer;
-                    terrainLayer =
-                        HEU_AssetDatabase.CopyAndLoadAssetAtAnyPath(terrainLayer, bakedTerrainPath,
-                            typeof(TerrainLayer), true) as TerrainLayer;
-                    if (terrainLayer != null)
-                    {
-                        // Update the TerrainLayer reference in the list with this copy
-                        finalTerrainLayers[terrainLayerIndex] = terrainLayer;
-                    }
-                    else
-                    {
-                        HEU_Logger.LogErrorFormat("Unable to copy TerrainLayer '{0}' for generating Terrain. "
-                                                  + "Using original TerrainLayer. Will not be able to set any TerrainLayer properties.",
-                            layer._layerName);
-                        terrainLayer = prevTerrainLayer;
-                        bSetTerrainLayerProperties = false;
-                        // Again, continuing on to keep proper indexing.
-                    }
-                }
+		// For existing TerrainLayer, make a copy of it if it has custom layer attributes
+		// because we don't want to change the original TerrainLayer.
+		if (!bNewTerrainLayer && layer._hasLayerAttributes)
+		{
+		    string? bakedTerrainPath = houdiniAsset.GetValidAssetCacheFolderPath();
+		    bakedTerrainPath = HEU_Platform.BuildPath(bakedTerrainPath, relativeFolderPath);
+		    TerrainLayer prevTerrainLayer = terrainLayer;
+		    terrainLayer = HEU_AssetDatabase.CopyAndLoadAssetAtAnyPath(terrainLayer, bakedTerrainPath, typeof(TerrainLayer), true) as TerrainLayer;
+		    if (terrainLayer != null)
+		    {
+			// Update the TerrainLayer reference in the list with this copy
+			finalTerrainLayers[terrainLayerIndex] = terrainLayer;
+		    }
+		    else
+		    {
+			HEU_Logger.LogErrorFormat("Unable to copy TerrainLayer '{0}' for generating Terrain. "
+				+ "Using original TerrainLayer. Will not be able to set any TerrainLayer properties.", layer._layerName);
+			terrainLayer = prevTerrainLayer;
+			bSetTerrainLayerProperties = false;
+			// Again, continuing on to keep proper indexing.
+		    }
+		}
 
                 // Now override layer properties if they have been set via attributes
                 if (bSetTerrainLayerProperties)
@@ -1131,15 +1137,17 @@ namespace HoudiniEngineUnity
                         defaultTexture);
                 }
 
-                if (bNewTerrainLayer)
-                {
-                    // In order to retain the new TerrainLayer, it must be saved to the AssetDatabase.
-                    Object savedObject = null;
-                    string layerFileNameWithExt = terrainLayer.name;
-                    if (!layerFileNameWithExt.EndsWith(HEU_Defines.HEU_EXT_TERRAINLAYER))
-                    {
-                        layerFileNameWithExt += HEU_Defines.HEU_EXT_TERRAINLAYER;
-                    }
+		if (bNewTerrainLayer)
+		{
+		    // In order to retain the new TerrainLayer, it must be saved to the AssetDatabase.
+		    Object  savedObject          = null;
+		    string? layerFileNameWithExt = terrainLayer.name;
+		    if (!layerFileNameWithExt.EndsWith(HEU_Defines.HEU_EXT_TERRAINLAYER))
+		    {
+			layerFileNameWithExt += HEU_Defines.HEU_EXT_TERRAINLAYER;
+		    }
+		    houdiniAsset.AddToAssetDBCache(layerFileNameWithExt, terrainLayer, relativeFolderPath, ref savedObject);
+		}
 
                     houdiniAsset.AddToAssetDBCache(layerFileNameWithExt, terrainLayer, relativeFolderPath,
                         ref savedObject);
@@ -1487,18 +1495,15 @@ namespace HoudiniEngineUnity
             }
         }
 
-        internal static void CopyPrototype(HEU_DetailPrototype srcProto, HEU_DetailPrototype destProto)
-        {
-            destProto._bendFactor = srcProto._bendFactor;
-            destProto._dryColor = srcProto._dryColor;
-            destProto._healthyColor = srcProto._healthyColor;
-            destProto._maxHeight = srcProto._maxHeight;
-            destProto._maxWidth = srcProto._maxWidth;
-            destProto._minHeight = srcProto._minHeight;
-            destProto._minWidth = srcProto._minWidth;
-            destProto._noiseSpread = srcProto._noiseSpread;
-            destProto._renderMode = srcProto._renderMode;
-        }
+	internal static Texture2D LoadAssetTexture(string? path)
+	{
+	    Texture2D texture = HEU_MaterialFactory.LoadTexture(path);
+	    if (texture == null)
+	    {
+		HEU_Logger.LogErrorFormat("Unable to find the default Terrain texture at {0}. Make sure this default texture exists.", path);
+	    }
+	    return texture;
+	}
 
         internal static Texture2D LoadDefaultSplatTexture()
         {

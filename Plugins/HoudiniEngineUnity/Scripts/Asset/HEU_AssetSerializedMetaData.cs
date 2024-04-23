@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -45,15 +45,14 @@ namespace HoudiniEngineUnity
     {
         [SerializeField] private bool _softDeleted = false;
 
-        public bool SoftDeleted
-        {
-            get => _softDeleted;
-            set => _softDeleted = value;
-        }
+	// Map of (Curve name) -> List of curve node data for saving scale/rotation values between rebuilds.
+	[SerializeField]
+	private Dictionary< string?, List< CurveNodeData > > _savedCurveNodeData = new Dictionary< string?, List< CurveNodeData > >();
+	public Dictionary< string?, List< CurveNodeData > > SavedCurveNodeData { get { return _savedCurveNodeData; } }
 
-        // Map of (Curve name) -> List of curve node data for saving scale/rotation values between rebuilds.
-        [SerializeField] private Dictionary<string, List<CurveNodeData>> _savedCurveNodeData =
-            new Dictionary<string, List<CurveNodeData>>();
+	[SerializeField]
+	private Dictionary< string?, HEU_InputCurveInfo > _savedInputCurveInfo = new Dictionary< string?, HEU_InputCurveInfo >();
+	public Dictionary< string?, HEU_InputCurveInfo > SavedInputCurveInfo { get { return _savedInputCurveInfo; } }
 
         public Dictionary<string, List<CurveNodeData>> SavedCurveNodeData => _savedCurveNodeData;
 

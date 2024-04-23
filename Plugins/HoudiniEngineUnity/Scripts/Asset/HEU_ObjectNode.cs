@@ -65,7 +65,7 @@ namespace HoudiniEngineUnity
         public HAPI_NodeId ObjectID => _objectInfo.nodeId;
 
         /// <inheritdoc />
-        public string ObjectName => _objName;
+        public string? ObjectName => _objName;
 
         /// <inheritdoc />
         public HAPI_ObjectInfo ObjectInfo => _objectInfo;
@@ -80,7 +80,7 @@ namespace HoudiniEngineUnity
 
 		//  DATA ------------------------------------------------------------------------------------------------------
 
-		[SerializeField] string              _objName ;
+		[SerializeField] string?             _objName ;
 		[SerializeField] HEU_HoudiniAsset    _parentAsset ;
 		[SerializeField] HAPI_ObjectInfo     _objectInfo ;
 		[SerializeField] List< HEU_GeoNode > _geoNodes ;
@@ -139,7 +139,7 @@ namespace HoudiniEngineUnity
 		}
 
 		/// <inheritdoc />
-		public HEU_GeoNode GetGeoNode( string geoName ) {
+		public HEU_GeoNode GetGeoNode( string? geoName ) {
 			foreach ( HEU_GeoNode geoNode in _geoNodes ) {
 				if ( geoNode.GeoName.Equals( geoName ) ) {
 					return geoNode ;
@@ -214,7 +214,7 @@ namespace HoudiniEngineUnity
 		}
 
 		void SyncWithObjectInfo( HEU_SessionBase session ) {
-			string realName = HEU_SessionManager.GetString( _objectInfo.nameSH, session ) ;
+			string? realName = HEU_SessionManager.GetString( _objectInfo.nameSH, session ) ;
 			if ( !HEU_PluginSettings.ShortenFolderPaths || realName.Length < 3 ) {
 				_objName = realName ;
 			}
@@ -423,11 +423,11 @@ namespace HoudiniEngineUnity
 				// new or whether we already have it prior to cooking.
 				int numPostCookGeoInfos = postCookGeoInfos.Count ;
 				for ( int i = 0; i < numPostCookGeoInfos; i++ ) {
-					string geoName = HEU_SessionManager.GetString( postCookGeoInfos[ i ].nameSH, session ) ;
+					string? geoName = HEU_SessionManager.GetString( postCookGeoInfos[ i ].nameSH, session ) ;
 
 					bool bFound = false ;
 					for ( int j = 0; j < _geoNodes.Count; j++ ) {
-						string oldGeoName = _geoNodes[ j ].GeoName ;
+						string? oldGeoName = _geoNodes[ j ].GeoName ;
 
 						if ( geoName.Equals( oldGeoName )
 							 // Fixes Bug #124004
@@ -620,9 +620,9 @@ namespace HoudiniEngineUnity
 			//	_objectInfo.isInstancer, _objectInfo.isInstanced, HEU_SessionManager.GetString(_objectInfo.objectInstancePathSH, session), _objectInfo.objectToInstanceId, _objectInfo.nodeId);
 
 			// Is this a Houdini attribute instancer?
-			string instanceAttrName       = HEU_PluginSettings.InstanceAttr ;
-			string unityInstanceAttrName  = HEU_PluginSettings.UnityInstanceAttr ;
-			string instancePrefixAttrName = HEU_Defines.DEFAULT_INSTANCE_PREFIX_ATTR ;
+			string? instanceAttrName       = HEU_PluginSettings.InstanceAttr ;
+			string? unityInstanceAttrName  = HEU_PluginSettings.UnityInstanceAttr ;
+			string? instancePrefixAttrName = HEU_Defines.DEFAULT_INSTANCE_PREFIX_ATTR ;
 
 			HAPI_AttributeInfo instanceAttrInfo       = new HAPI_AttributeInfo( ) ;
 			HAPI_AttributeInfo unityInstanceAttrInfo  = new HAPI_AttributeInfo( ) ;
@@ -646,7 +646,7 @@ namespace HoudiniEngineUnity
 						HEU_GeneralUtility.GetAttributeInfo( session, _geoNodes[ i ].GeoID, parts[ j ].PartID,
 															 unityInstanceAttrName, ref unityInstanceAttrInfo ) ;
 
-						string[] instancePrefixes = null ;
+						string?[] instancePrefixes = null ;
 						HEU_GeneralUtility.GetAttributeInfo( session, _geoNodes[ i ].GeoID, parts[ j ].PartID,
 															 instancePrefixAttrName, ref instancePrefixAttrInfo ) ;
 						if ( instancePrefixAttrInfo.exists ) {
@@ -656,7 +656,7 @@ namespace HoudiniEngineUnity
 																		   ref instancePrefixAttrInfo ) ;
 						}
 
-						string[] instanceMaterialPaths = null ;
+						string?[] instanceMaterialPaths = null ;
 						HEU_GeneralUtility.GetAttributeInfo( session, _geoNodes[ i ].GeoID, parts[ j ].PartID,
 															 HEU_PluginSettings.UnityMaterialAttribName,
 															 ref materialAttrInfo ) ;

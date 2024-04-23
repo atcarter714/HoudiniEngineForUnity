@@ -33,99 +33,99 @@ using UnityEditor ;
 using UnityEngine ;
 using Object = UnityEngine.Object ;
 
-namespace HoudiniEngineUnity
-{
-    /// <summary>
-    /// Custom Inspector UI for Houdini Asset.
-    /// It uses HEU_HoudiniAssetRoot as the target object in order to access
-    /// the underlying HEU_HoudiniAsset object whih contains actual data and logic.
-    /// This allows to both show custom UI (via HEU_HoudiniAssetRoot) and 
-    /// exclude Houdini-specific data at runtime (via HEU_HoudiniAsset which is EditorOnly).
-    /// </summary>
-    [CustomEditor(typeof(HEU_HoudiniAssetRoot))]
-    public class HEU_HoudiniAssetUI : Editor
-    {
-        //	DATA ------------------------------------------------------------------------------------------------------
+namespace HoudiniEngineUnity {
+	
+	/// <summary>
+	/// Custom Inspector UI for Houdini Asset.
+	/// It uses HEU_HoudiniAssetRoot as the target object in order to access
+	/// the underlying HEU_HoudiniAsset object whih contains actual data and logic.
+	/// This allows to both show custom UI (via HEU_HoudiniAssetRoot) and 
+	/// exclude Houdini-specific data at runtime (via HEU_HoudiniAsset which is EditorOnly).
+	/// </summary>
+	[CustomEditor( typeof( HEU_HoudiniAssetRoot ) )]
+	public class HEU_HoudiniAssetUI: Editor {
+		//	DATA ------------------------------------------------------------------------------------------------------
 
-        // The root gameobject for an HDA. Used to show this custom UI.
-        private HEU_HoudiniAssetRoot _houdiniAssetRoot;
+		// The root gameobject for an HDA. Used to show this custom UI.
+		HEU_HoudiniAssetRoot? _houdiniAssetRoot ;
 
-        // Actual HDA data and logic
-        private HEU_HoudiniAsset _houdiniAsset;
+		// Actual HDA data and logic
+		HEU_HoudiniAsset? _houdiniAsset ;
 
-        // Serialized asset object
-        private SerializedObject _houdiniAssetSerializedObject;
+		// Serialized asset object
+		SerializedObject? _houdiniAssetSerializedObject ;
 
-        // Cache reference to the custom parameter editor
-        private Editor _parameterEditor;
+		// Cache reference to the custom parameter editor
+		Editor? _parameterEditor ;
 
-        // Cache reference to the custom curve editor
-        private Editor _curveEditor;
+		// Cache reference to the custom curve editor
+		Editor? _curveEditor ;
 
-        // Cache reference to the custom curve parameter editor
-        private Editor _curveParameterEditor;
+		// Cache reference to the custom curve parameter editor
+		Editor? _curveParameterEditor ;
 
-        // Cache reference to the custom Tools editor
-        private Editor _toolsEditor;
+		// Cache reference to the custom Tools editor
+		Editor? _toolsEditor ;
 
-        // Cache reference to the custom Handles editor
-        private Editor _handlesEditor;
+		// Cache reference to the custom Handles editor
+		Editor? _handlesEditor ;
 
-        // Draws UI for instance inputs
-        private HEU_InstanceInputUI _instanceInputUI;
+		// Draws UI for instance inputs
+		HEU_InstanceInputUI? _instanceInputUI ;
 
-        private SceneView _sceneView;
+		SceneView? _sceneView ;
 
         //	GUI CONTENT -----------------------------------------------------------------------------------------------
 
-        private static Texture2D _reloadhdaIcon;
-        private static Texture2D _recookhdaIcon;
-        private static Texture2D _bakegameobjectIcon;
-        private static Texture2D _bakeprefabIcon;
-        private static Texture2D _bakeandreplaceIcon;
-        private static Texture2D _removeheIcon;
-        private static Texture2D _duplicateAssetIcon;
-        private static Texture2D _resetParamIcon;
+		static Texture2D? _reloadhdaIcon ;
+		static Texture2D? _recookhdaIcon ;
+		static Texture2D? _bakegameobjectIcon ;
+		static Texture2D? _bakeprefabIcon ;
+		static Texture2D? _bakeandreplaceIcon ;
+		static Texture2D? _removeheIcon ;
+		static Texture2D? _duplicateAssetIcon ;
+		static Texture2D? _resetParamIcon ;
 
-        private static GUIContent _reloadhdaContent;
-        private static GUIContent _recookhdaContent;
-        private static GUIContent _bakegameobjectContent;
-        private static GUIContent _bakeprefabContent;
-        private static GUIContent _bakeandreplaceContent;
-        private static GUIContent _removeheContent;
-        private static GUIContent _duplicateContent;
-        private static GUIContent _resetParamContent;
+		static GUIContent? _reloadhdaContent ;
+		static GUIContent? _recookhdaContent ;
+		static GUIContent? _bakegameobjectContent ;
+		static GUIContent? _bakeprefabContent ;
+		static GUIContent? _bakeandreplaceContent ;
+		static GUIContent? _removeheContent ;
+		static GUIContent? _duplicateContent ;
+		static GUIContent? _resetParamContent ;
 
-        private static GUIContent _dragAndDropField = new GUIContent("Drag & drop GameObjects / Prefabs:",
-            "Place GameObjects and/or Prefabs here that were previously baked out and need to be updated, then click Bake Update.");
+		static readonly GUIContent? _dragAndDropField = new( "Drag & drop GameObjects / Prefabs:",
+															 "Place GameObjects and/or Prefabs here that were previously baked out and need to be updated, then click Bake Update." ) ;
 
-        private static GUIContent _resetMaterialOverridesButton = new GUIContent("Reset Material Overrides",
-            "Remove overridden materials, and replace with generated materials for this asset's output.");
+		static readonly GUIContent? _resetMaterialOverridesButton =
+			new( "Reset Material Overrides",
+				 "Remove overridden materials, and replace with generated materials for this asset's output." ) ;
 
-        private static GUIContent _projectCurvePointsButton = new GUIContent("Project Curve",
-            "Project all points in curves to colliders or layers specified above.");
+		static readonly GUIContent? _projectCurvePointsButton =
+			new( "Project Curve", "Project all points in curves to colliders or layers specified above." ) ;
 
-        private static GUIContent _savePresetButton =
-            new GUIContent("Save HDA Preset", "Save the HDA's current preset to a file.");
+		static readonly GUIContent? _savePresetButton = new( "Save HDA Preset", "Save the HDA's current preset to a file." ) ;
 
-        private static GUIContent _loadPresetButton =
-            new GUIContent("Load HDA Preset", "Load a HDA preset file into this asset and cook it.");
+		static readonly GUIContent? _loadPresetButton =
+			new( "Load HDA Preset", "Load a HDA preset file into this asset and cook it." ) ;
 
-        private static GUIContent _useCurveScaleRotContent = new GUIContent("Disable Curve scale/rot",
-            "Disables the usage of scale/rot attributes. Useful if the scale/rot attribute values are causing issues with your curve.");
+		static readonly GUIContent? _useCurveScaleRotContent = new( "Disable Curve scale/rot",
+																	"Disables the usage of scale/rot attributes. Useful if the scale/rot attribute values are causing issues with your curve." ) ;
 
-        private static GUIContent _cookCurveOnDragContent = new GUIContent("Cook Curve on Drag",
-            "Cooks the curve while you are dragging the curve point. Useful if you need responsiveness over performance. Disable this option to improve performance.");
+		static readonly GUIContent? _cookCurveOnDragContent = new( "Cook Curve on Drag",
+																   "Cooks the curve while you are dragging the curve point. Useful if you need responsiveness over performance. Disable this option to improve performance." ) ;
 
-        private static GUIContent _curveFrameSelectedNodesContent = new GUIContent("Frame Selected Nodes Only",
-            "Frames only the currently selected nodes when you press the F hotkey instead of the whole curve.");
+		static readonly GUIContent? _curveFrameSelectedNodesContent =
+			new( "Frame Selected Nodes Only",
+				 "Frames only the currently selected nodes when you press the F hotkey instead of the whole curve." ) ;
 
-        private static GUIContent _curveFrameSelectedNodeDistanceContent = new GUIContent(
-            "Frame Selected Node Distance",
-            "The distance between the selected node and the editor camera when you frame the selected node.");
+		static readonly GUIContent? _curveFrameSelectedNodeDistanceContent =
+			new( "Frame Selected Node Distance",
+				 "The distance between the selected node and the editor camera when you frame the selected node." ) ;
 
-        private static HashSet<string> _delayAutoCookStrings = new HashSet<string>
-            { "ColorPickerChanged", "CurveChanged", "GradientPickerChanged" };
+		static readonly HashSet< string > _delayAutoCookStrings =
+			new( ) { "ColorPickerChanged", "CurveChanged", "GradientPickerChanged", } ;
 
         //	LOGIC -----------------------------------------------------------------------------------------------------
 
@@ -197,27 +197,24 @@ namespace HoudiniEngineUnity
             // Eg. After a delete, Undo requires us to re-acquire references.
             TryAcquiringAsset();
 
-            string msg = "Houdini Engine Asset Error\n" +
-                         "No HEU_HoudiniAsset found!";
-            if (_houdiniAsset == null || !_houdiniAsset.IsValidForInteraction(ref msg))
-            {
-                DrawHDAUIMessage(msg);
-                return;
-            }
+			string msg = "Houdini Engine Asset Error\n" +
+						 "No HEU_HoudiniAsset found!" ;
+			if ( !_houdiniAsset || !_houdiniAsset!.IsValidForInteraction(ref msg) ) {
+				DrawHDAUIMessage( msg ) ;
+				return ;
+			}
 
             // Always hook into asset UI callback. This could have got reset on code refresh.
             _houdiniAsset.RefreshUIDelegate = RefreshUI;
 
-            serializedObject.Update();
-            _houdiniAssetSerializedObject.Update();
+			serializedObject.Update( ) ;
+			_houdiniAssetSerializedObject?.Update( ) ;
 
             bool guiEnabled = GUI.enabled;
 
-            using (new EditorGUILayout.VerticalScope())
-            {
-                DrawHeaderSection();
-
-                DrawLicenseInfo();
+			using ( new EditorGUILayout.VerticalScope( ) ) {
+				DrawHeaderSection( ) ;
+				DrawLicenseInfo( ) ;
 
                 HEU_HoudiniAsset.AssetBuildAction pendingBuildAction = HEU_HoudiniAsset.AssetBuildAction.NONE;
                 SerializedProperty pendingBuildProperty =
@@ -230,20 +227,17 @@ namespace HoudiniEngineUnity
                 // Track changes to Houdini Asset gameobject
                 EditorGUI.BeginChangeCheck();
 
-                bool bSkipAutoCook = DrawGenerateSection(_houdiniAssetRoot, serializedObject, _houdiniAsset,
-                    _houdiniAssetSerializedObject, ref pendingBuildAction);
-                if (!bSkipAutoCook)
-                {
-                    SerializedProperty assetCookStatusProperty =
-                        HEU_EditorUtility.GetSerializedProperty(_houdiniAssetSerializedObject, "_cookStatus");
-                    if (assetCookStatusProperty != null)
-                    {
-                        // If this is a Curve asset, we don't need to draw parameters as its redundant
-                        if (_houdiniAsset.AssetTypeInternal != HEU_HoudiniAsset.HEU_AssetType.TYPE_CURVE)
-                        {
-                            DrawParameters(_houdiniAsset.Parameters, ref _parameterEditor);
-                            HEU_EditorUI.DrawSeparator();
-                        }
+				bool bSkipAutoCook = DrawGenerateSection( _houdiniAssetRoot, serializedObject, _houdiniAsset,
+														  _houdiniAssetSerializedObject, ref pendingBuildAction ) ;
+				if ( !bSkipAutoCook ) {
+					SerializedProperty? assetCookStatusProperty =
+						HEU_EditorUtility.GetSerializedProperty( _houdiniAssetSerializedObject, "_cookStatus" ) ;
+					if ( assetCookStatusProperty != null ) {
+						// If this is a Curve asset, we don't need to draw parameters as its redundant
+						if ( _houdiniAsset.AssetTypeInternal is not HEU_HoudiniAsset.HEU_AssetType.TYPE_CURVE ) {
+							DrawParameters( _houdiniAsset.Parameters, ref _parameterEditor ) ;
+							HEU_EditorUI.DrawSeparator( ) ;
+						}
 
 						DrawCurvesSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
 						DrawInputNodesSection( _houdiniAsset, _houdiniAssetSerializedObject ) ;
@@ -383,9 +377,15 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawHDAUIMessage(string msg)
-        {
-            HEU_EditorUI.DrawSeparator();
+				GUIStyle labelStyle = new( GUI.skin.label )
+				{
+					fontStyle = FontStyle.Bold,
+					normal =
+					{
+						textColor = HEU_EditorUI.IsEditorDarkSkin( ) ? Color.yellow : Color.red,
+					},
+				} ;
+				EditorGUILayout.LabelField( "Houdini Engine Indie - For Limited Commercial Use Only", labelStyle ) ;
 
             GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
             labelStyle.fontStyle = FontStyle.Bold;
@@ -397,42 +397,71 @@ namespace HoudiniEngineUnity
             HEU_EditorUI.DrawSeparator();
         }
 
-        /// <summary>
-        /// Draw the Object Instance Inputs section for given asset.
-        /// </summary>
-        /// <param name="asset">The HDA asset</param>
-        /// <param name="assetObject">Serialized HDA asset object</param>
-        private void DrawInstanceInputs(HEU_HoudiniAsset asset, SerializedObject assetObject)
-        {
-            if (_instanceInputUI == null)
-            {
-                _instanceInputUI = new HEU_InstanceInputUI();
-            }
+			GUIStyle labelStyle = new( GUI.skin.label )
+			{
+				fontStyle = FontStyle.Bold,
+				normal =
+				{
+					textColor = HEU_EditorUI.IsEditorDarkSkin( ) ? Color.yellow : Color.red,
+				},
+				alignment = TextAnchor.MiddleCenter,
+				wordWrap  = true,
+			} ;
+
+			EditorGUILayout.LabelField( msg, labelStyle ) ;
+			HEU_EditorUI.DrawSeparator( ) ;
+		}
 
             _instanceInputUI.DrawInstanceInputs(asset, assetObject);
         }
 
-        /// <summary>
-        /// Draw asset options for given asset.
-        /// </summary>
-        /// <param name="asset">The HDA asset</param>
-        /// <param name="assetObject">Serialized HDA asset object</param>
-        private void DrawAssetOptions(HEU_HoudiniAsset asset, SerializedObject assetObject)
-        {
-            GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-            buttonStyle.fontSize = 12;
-            buttonStyle.alignment = TextAnchor.MiddleCenter;
-            buttonStyle.fixedHeight = 24;
+		/// <summary>
+		/// Draw asset options for given asset.
+		/// </summary>
+		/// <param name="asset">The HDA asset</param>
+		/// <param name="assetObject">Serialized HDA asset object</param>
+		void DrawAssetOptions( HEU_HoudiniAsset asset, SerializedObject assetObject ) {
+			GUIStyle buttonStyle = new( GUI.skin.button )
+			{
+				fontSize    = 12,
+				alignment   = TextAnchor.MiddleCenter,
+				fixedHeight = 24,
+			} ;
 
-            HEU_EditorUI.BeginSection();
-            {
-                SerializedProperty showHDAOptionsProperty = assetObject.FindProperty("_showHDAOptions");
+			HEU_EditorUI.BeginSection( ) ;
+			{
+				SerializedProperty showHDAOptionsProperty =
+					assetObject.FindProperty( "_showHDAOptions" ) ;
 
-                showHDAOptionsProperty.boolValue =
-                    HEU_EditorUI.DrawFoldOut(showHDAOptionsProperty.boolValue, "ASSET OPTIONS");
-                if (showHDAOptionsProperty.boolValue)
-                {
-                    EditorGUI.indentLevel++;
+				showHDAOptionsProperty.boolValue =
+					HEU_EditorUI.DrawFoldOut( showHDAOptionsProperty.boolValue,
+											  "ASSET OPTIONS" ) ;
+
+				if ( showHDAOptionsProperty.boolValue ) {
+					++EditorGUI.indentLevel ;
+					EditorGUILayout.BeginHorizontal( ) ;
+
+					// If inspector is not too small, create two columns for more visually pleasing UX
+					int  shortenLength = 420 ;
+					int  screenWidth   = Screen.width ;
+					bool useTwoColumns = screenWidth > shortenLength ;
+
+					void _generateSection( ) {
+						HEU_EditorUI.BeginSimpleSection( "Generate" ) ;
+						HEU_EditorUI.DrawPropertyField( assetObject, "_useOutputNodes", "Use output nodes",
+														"Create outputs using output nodes. Note: Requires a full rebuild if changed" ) ;
+						HEU_EditorUI.DrawPropertyField( assetObject, "_useLODGroups", "LOD Groups",
+														"Automatically create Unity LOD group if found." ) ;
+						HEU_EditorUI.DrawPropertyField( assetObject, "_generateNormals", "Normals",
+														"Generate normals in Unity for output geometry." ) ;
+						HEU_EditorUI.DrawPropertyField( assetObject, "_generateTangents", "Tangents",
+														"Generate tangents in Unity for output geometry." ) ;
+						HEU_EditorUI.DrawPropertyField( assetObject, "_generateUVs", "UVs",
+														"Force Unity to generate UVs for output geometry." ) ;
+						HEU_EditorUI.DrawPropertyField( assetObject, "_generateMeshUsingPoints", "Using Points",
+														"Use point attributes instead of vertex attributes for geometry. Ignores vertex attributes." ) ;
+						HEU_EditorUI.EndSimpleSection( ) ;
+					}
 
                     EditorGUILayout.BeginHorizontal();
 
@@ -490,21 +519,31 @@ namespace HoudiniEngineUnity
 
                     EditorGUILayout.EndVertical();
 
-                    if (useTwoColumns)
-                    {
-                        EditorGUILayout.BeginVertical();
-                        drawGenerateSection();
-                        EditorGUILayout.EndVertical();
-                    }
+					using ( var hs = new EditorGUILayout.HorizontalScope( ) ) {
+						if ( GUILayout.Button( _savePresetButton, buttonStyle ) ) {
+							const string filePattern = "heupreset" ;
+							string?      fileName    = asset.AssetName ;
+							string newPath =
+								EditorUtility.SaveFilePanel( "Save HDA preset", "",
+															 fileName + "." + filePattern,
+															 filePattern ) ;
 
-                    EditorGUILayout.EndHorizontal();
+							if ( !string.IsNullOrEmpty( newPath ) ) {
+								HEU_AssetPresetUtility.SaveAssetPresetToFile( asset, newPath ) ;
+							}
+						}
 
-                    if (asset.NumAttributeStores() > 0)
-                    {
-                        HEU_EditorUI.DrawPropertyField(assetObject, "_editableNodesToolsEnabled",
-                            "Enable Editable Node Tools",
-                            "Displays Editable Node Tools and generates the node's geometry, if asset has editable nodes.");
-                    }
+						if ( GUILayout.Button( _loadPresetButton, buttonStyle ) ) {
+							const string filePattern = "heupreset,preset" ;
+							string? newPath = EditorUtility.OpenFilePanel( "Load HDA preset",
+																		   "",
+																		   filePattern ) ;
+
+							if ( !string.IsNullOrEmpty( newPath ) ) {
+								HEU_AssetPresetUtility.LoadPresetFileIntoAssetAndCook( asset, newPath ) ;
+							}
+						}
+					}
 
                     if (asset.NumHandles() > 0)
                     {
@@ -512,22 +551,28 @@ namespace HoudiniEngineUnity
                             "Creates Houdini Handles if asset has them.");
                     }
 
-                    EditorGUILayout.Space();
+					if ( GUILayout.Button( _resetMaterialOverridesButton, buttonStyle ) ) {
+						asset.ResetMaterialOverrides( ) ;
+					}
 
-                    using (var hs = new EditorGUILayout.HorizontalScope())
-                    {
-                        if (GUILayout.Button(_savePresetButton, buttonStyle))
-                        {
-                            string fileName = asset.AssetName;
-                            string filePattern = "heupreset";
-                            string newPath = EditorUtility.SaveFilePanel("Save HDA preset", "",
-                                fileName + "." + filePattern, filePattern);
+					--EditorGUI.indentLevel ;
+				}
+			}
 
-                            if (newPath != null && !string.IsNullOrEmpty(newPath))
-                            {
-                                HEU_AssetPresetUtility.SaveAssetPresetToFile(asset, newPath);
-                            }
-                        }
+			HEU_EditorUI.EndSection( ) ;
+			HEU_EditorUI.DrawSeparator( ) ;
+		}
+
+		static HEU_HoudiniAsset.AssetCookStatus GetCookStatusFromSerializedAsset( SerializedObject assetObject ) {
+			HEU_HoudiniAsset.AssetCookStatus cookStatus = HEU_HoudiniAsset.AssetCookStatus.NONE ;
+			
+			SerializedProperty? cookStatusProperty =
+				HEU_EditorUtility.GetSerializedProperty( assetObject, "_cookStatus" ) ;
+			// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+			if ( cookStatusProperty != null ) {
+				cookStatus = (HEU_HoudiniAsset.AssetCookStatus)cookStatusProperty.enumValueIndex ;
+			}
+			// ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 
                         if (GUILayout.Button(_loadPresetButton, buttonStyle))
                         {
@@ -549,63 +594,82 @@ namespace HoudiniEngineUnity
                         asset.ResetMaterialOverrides();
                     }
 
-                    EditorGUI.indentLevel--;
-                }
-            }
-            HEU_EditorUI.EndSection();
+			const float buttonHeight = 30f,
+						widthPadding = 55f ;
+			float screenWidth       = EditorGUIUtility.currentViewWidth ;
+			float doubleButtonWidth = Mathf.Round( screenWidth - widthPadding + _mainButtonSeparatorDistance ) ;
+			float singleButtonWidth = Mathf.Round( ( screenWidth - widthPadding ) * 0.5f ) ;
 
-            HEU_EditorUI.DrawSeparator();
-        }
+			_mainButtonStyle = new( GUI.skin.button )
+			{
+				fontSize    = 12,
+				wordWrap    = true,
+				fixedHeight = buttonHeight,
+				fontStyle   = FontStyle.Bold,
+				clipping    = TextClipping.Clip,
+				alignment   = TextAnchor.MiddleCenter,
+				padding     = { left = 6, right = 6, },
+				margin      = { left = 0, right = 0, },
+			} ;
 
-        private static HEU_HoudiniAsset.AssetCookStatus GetCookStatusFromSerializedAsset(SerializedObject assetObject)
-        {
-            HEU_HoudiniAsset.AssetCookStatus cookStatus = HEU_HoudiniAsset.AssetCookStatus.NONE;
+			_mainCentredButtonStyle = new( _mainButtonStyle )
+			{
+				alignment = TextAnchor.MiddleCenter,
+			} ;
 
-            SerializedProperty cookStatusProperty = HEU_EditorUtility.GetSerializedProperty(assetObject, "_cookStatus");
-            if (cookStatusProperty != null)
-            {
-                cookStatus = (HEU_HoudiniAsset.AssetCookStatus)cookStatusProperty.enumValueIndex;
-            }
+			_mainButtonSetStyle = new( GUI.skin.box ) ;
+			RectOffset br                         = _mainButtonSetStyle.margin ;
+			br.left                    = br.right = 4 ;
+			_mainButtonSetStyle.margin = br ;
 
             return cookStatus;
         }
 
-        private static GUIStyle _mainButtonStyle;
-        private static GUIStyle _mainCentredButtonStyle;
-        private static GUIStyle _mainButtonSetStyle;
-        private static GUIStyle _mainBoxStyle;
-        private static GUIStyle _mainPromptStyle;
+			_mainPromptStyle = new( GUI.skin.button )
+			{
+				fontSize    = 11,
+				fixedHeight = 30,
+				alignment   = TextAnchor.MiddleCenter,
+				margin      = { left = 34, right = 34, },
+			} ;
+		}
 
-        private const float _mainButtonSeparatorDistance = 5f;
+		/// <summary>Draw the Generate section.</summary>
+		static bool DrawGenerateSection( HEU_HoudiniAssetRoot assetRoot,
+										 SerializedObject assetRootSerializedObject,
+										 HEU_HoudiniAsset asset, SerializedObject assetObject,
+										 ref HEU_HoudiniAsset.AssetBuildAction pendingBuildAction ) {
+			bool bSkipAutoCook = false ;
+			CreateMainButtonStyle( ) ;
+			_recookhdaContent!.text = "  Recook" ;
 
-        private static void CreateMainButtonStyle()
-        {
-            if (_mainButtonStyle != null)
-            {
-                return;
-            }
+			HEU_HoudiniAsset.AssetCookStatus cookStatus = GetCookStatusFromSerializedAsset( assetObject ) ;
 
-            float screenWidth = EditorGUIUtility.currentViewWidth;
+			if ( cookStatus is HEU_HoudiniAsset.AssetCookStatus.SELECT_SUBASSET ) {
+				// Prompt user to select subasset
+				GUIStyle promptStyle = new( GUI.skin.label ) {
+					fontStyle = FontStyle.Bold,
+					normal = {
+						textColor = HEU_EditorUI.IsEditorDarkSkin( )
+										? Color.green
+										: Color.blue,
+					},
+				} ;
+				EditorGUILayout.LabelField( "SELECT AN ASSET TO INSTANTIATE:", promptStyle ) ;
 
             float buttonHeight = 30f;
             float widthPadding = 55f;
             float doubleButtonWidth = Mathf.Round(screenWidth - widthPadding + _mainButtonSeparatorDistance);
             float singleButtonWidth = Mathf.Round((screenWidth - widthPadding) * 0.5f);
 
-            _mainButtonStyle = new GUIStyle(GUI.skin.button);
-            _mainButtonStyle.fontStyle = FontStyle.Bold;
-            _mainButtonStyle.fontSize = 12;
-            _mainButtonStyle.alignment = TextAnchor.MiddleCenter;
-            _mainButtonStyle.fixedHeight = buttonHeight;
-            _mainButtonStyle.padding.left = 6;
-            _mainButtonStyle.padding.right = 6;
-            _mainButtonStyle.margin.left = 0;
-            _mainButtonStyle.margin.right = 0;
-            _mainButtonStyle.clipping = TextClipping.Clip;
-            _mainButtonStyle.wordWrap = true;
+				int selectedIndex = -1 ;
+				string?[ ]? subassetNames = asset.SubassetNames ;
 
-            _mainCentredButtonStyle = new GUIStyle(_mainButtonStyle);
-            _mainCentredButtonStyle.alignment = TextAnchor.MiddleCenter;
+				for ( int i = 0; i < subassetNames?.Length; ++i ) {
+					if ( GUILayout.Button( subassetNames[ i ], _mainPromptStyle ) ) {
+						selectedIndex = i ;
+						break ;
+					}
 
             _mainButtonSetStyle = new GUIStyle(GUI.skin.box);
             RectOffset br = _mainButtonSetStyle.margin;
@@ -613,20 +677,33 @@ namespace HoudiniEngineUnity
             br.right = 4;
             _mainButtonSetStyle.margin = br;
 
-            _mainBoxStyle = new GUIStyle(GUI.skin.GetStyle("ColorPickerBackground"));
-            br = _mainBoxStyle.margin;
-            br.left = 4;
-            br.right = 4;
-            _mainBoxStyle.margin = br;
-            _mainBoxStyle.padding = br;
+				if ( selectedIndex >= 0 ) {
+					SerializedProperty? selectedIndexProperty =
+						HEU_EditorUtility.GetSerializedProperty( assetObject, "_selectedSubassetIndex" ) ;
+					// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+					if ( selectedIndexProperty != null ) {
+						selectedIndexProperty.intValue = selectedIndex ;
+					}
+					// ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+				}
 
-            _mainPromptStyle = new GUIStyle(GUI.skin.button);
-            _mainPromptStyle.fontSize = 11;
-            _mainPromptStyle.alignment = TextAnchor.MiddleCenter;
-            _mainPromptStyle.fixedHeight = 30;
-            _mainPromptStyle.margin.left = 34;
-            _mainPromptStyle.margin.right = 34;
-        }
+				bSkipAutoCook = true ;
+			}
+			else {
+				HEU_EditorUI.BeginSection( ) ; 
+				{
+					switch ( cookStatus ) {
+						case HEU_HoudiniAsset.AssetCookStatus.COOKING
+							 or HEU_HoudiniAsset.AssetCookStatus.POSTCOOK:
+							_recookhdaContent.text = "  Cooking Asset" ;
+							break ;
+						case HEU_HoudiniAsset.AssetCookStatus.LOADING
+							 or HEU_HoudiniAsset.AssetCookStatus.POSTLOAD:
+							_reloadhdaContent!.text = "  Loading Asset" ;
+							break ;
+					}
+
+					SerializedProperty showGenerateProperty = assetObject.FindProperty( "_showGenerateSection" ) ;
 
         /// <summary>
         /// Draw the Generate section.
@@ -666,35 +743,47 @@ namespace HoudiniEngineUnity
                         break;
                     }
 
-                    EditorGUILayout.Separator();
-                }
+		static void ProcessPendingBuildAction( HEU_HoudiniAsset.AssetBuildAction pendingBuildAction,
+											   SerializedProperty pendingBuildProperty,
+											   HEU_HoudiniAssetRoot assetRoot,
+											   SerializedObject assetRootSerializedObject,
+											   HEU_HoudiniAsset asset,
+											   SerializedObject assetObject ) {
+			if ( pendingBuildAction is HEU_HoudiniAsset.AssetBuildAction.NONE ) return ;
 
-                if (selectedIndex >= 0)
-                {
-                    SerializedProperty selectedIndexProperty =
-                        HEU_EditorUtility.GetSerializedProperty(assetObject, "_selectedSubassetIndex");
-                    if (selectedIndexProperty != null)
-                    {
-                        selectedIndexProperty.intValue = selectedIndex;
-                    }
-                }
+			// Sanity check to make sure the asset is part of the AssetUpater
+			HEU_AssetUpdater.AddAssetForUpdate( asset ) ;
 
-                bSkipAutoCook = true;
-            }
-            else
-            {
-                HEU_EditorUI.BeginSection();
-                {
-                    if (cookStatus == HEU_HoudiniAsset.AssetCookStatus.COOKING ||
-                        cookStatus == HEU_HoudiniAsset.AssetCookStatus.POSTCOOK)
-                    {
-                        _recookhdaContent.text = "  Cooking Asset";
-                    }
-                    else if (cookStatus == HEU_HoudiniAsset.AssetCookStatus.LOADING ||
-                             cookStatus == HEU_HoudiniAsset.AssetCookStatus.POSTLOAD)
-                    {
-                        _reloadhdaContent.text = "  Loading Asset";
-                    }
+			// Apply pending build action based on user UI interaction above
+			pendingBuildProperty.enumValueIndex = (int)pendingBuildAction ;
+
+			// Recook should only update parameters that haven't changed. Otherwise if not checking and updating parameters,
+			// then buttons will trigger callbacks on Recook which is not desired.
+			if ( pendingBuildAction is not HEU_HoudiniAsset.AssetBuildAction.COOK )
+				return ;
+
+			// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+			SerializedProperty? checkParameterChange =
+				HEU_EditorUtility.GetSerializedProperty( assetObject, "_checkParameterChangeForCook" ) ;
+			if ( checkParameterChange is not null ) {
+				checkParameterChange.boolValue = true ;
+			}
+
+			// But we do want to always upload input geometry on user hitting Recook expliclity
+			SerializedProperty? forceUploadInputs =
+				HEU_EditorUtility.GetSerializedProperty( assetObject, "_forceUploadInputs" ) ;
+			if ( forceUploadInputs is not null ) {
+				forceUploadInputs.boolValue = true ;
+			}
+		}
+		// ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+
+		static bool DrawBakeSection( HEU_HoudiniAssetRoot assetRoot,
+									 SerializedObject assetRootSerializedObject,
+									 IHEU_HoudiniAsset asset,
+									 SerializedObject assetObject,
+									 ref HEU_HoudiniAsset.AssetBuildAction pendingBuildAction ) {
+			bool bSkipAutoCook = false ;
 
                     SerializedProperty showGenerateProperty = assetObject.FindProperty("_showGenerateSection");
 
@@ -704,22 +793,15 @@ namespace HoudiniEngineUnity
                     {
                         HEU_EditorUI.DrawSeparator();
 
-                        using (var hs = new EditorGUILayout.HorizontalScope(_mainBoxStyle))
-                        {
-                            if (GUILayout.Button(_reloadhdaContent, _mainButtonStyle))
-                            {
-                                pendingBuildAction = HEU_HoudiniAsset.AssetBuildAction.RELOAD;
-                                bSkipAutoCook = true;
-                            }
-
-                            GUILayout.Space(_mainButtonSeparatorDistance);
-
-                            if (!bSkipAutoCook && GUILayout.Button(_recookhdaContent, _mainButtonStyle))
-                            {
-                                pendingBuildAction = HEU_HoudiniAsset.AssetBuildAction.COOK;
-                                bSkipAutoCook = true;
-                            }
-                        }
+					using ( var hs = new EditorGUILayout.HorizontalScope( _mainBoxStyle ) ) {
+						if ( GUILayout.Button( _bakegameobjectContent, _mainButtonStyle ) )
+							asset.BakeToNewStandalone( ) ;
+						
+						GUILayout.Space( _mainButtonSeparatorDistance ) ;
+						
+						if ( GUILayout.Button( _bakeprefabContent, _mainButtonStyle ) )
+							asset.BakeToNewPrefab( ) ;
+					}
 
                         using (var hs = new EditorGUILayout.HorizontalScope(_mainBoxStyle))
                         {
@@ -729,24 +811,71 @@ namespace HoudiniEngineUnity
                                 bSkipAutoCook = true;
                             }
 
-                            GUILayout.Space(_mainButtonSeparatorDistance);
+					using ( var hs2 = new EditorGUILayout.VerticalScope( _mainBoxStyle ) ) {
+						if ( GUILayout.Button( _bakeandreplaceContent, _mainCentredButtonStyle ) ) {
+							if ( assetRoot is not { _bakeTargets: { Count: > 0, }, } ) {
+								// No bake target means user probably forgot to set one. So complain!
+								HEU_EditorUtility.DisplayDialog( "No Bake Targets",
+																 "Bake Update requires at least one valid GameObject.\n" +
+																 "\nDrag a GameObject or Prefab onto the Drag and drop GameObjects / Prefabs field!",
+																 "OK" ) ;
+							}
+						}
+						else {
+							int numTargets = assetRoot._bakeTargets.Count ;
+							for ( int i = 0; i < numTargets; ++i ) {
+								GameObject bakeGO = assetRoot._bakeTargets[ i ] ;
+								
+								if ( bakeGO ) {
+									if ( HEU_EditorUtility.IsPrefabAsset( bakeGO ) )
+										asset.BakeToExistingPrefab( bakeGO ) ;
+										// Prefab asset means its the source prefab, and not an instance of it
+									else asset.BakeToExistingStandalone( bakeGO ) ;
+										// This is for all standalone (including prefab instances)
+								}
+								
+								else {
+									HEU_Logger.LogWarning( "Unable to bake to null target at index " + i ) ;
+								}
+							}
+						}
+					}
 
-                            if (GUILayout.Button(_resetParamContent, _mainButtonStyle))
-                            {
-                                pendingBuildAction = HEU_HoudiniAsset.AssetBuildAction.RESET_PARAMS;
-                                bSkipAutoCook = true;
-                            }
-                        }
-                    }
-                }
+					using ( var hs3 = new EditorGUILayout.VerticalScope( _mainButtonSetStyle ) ) {
+						SerializedProperty bakeTargetsProp = assetRootSerializedObject.FindProperty( "_bakeTargets" ) ;
 
-                HEU_EditorUI.EndSection();
-            }
+						// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+						if ( bakeTargetsProp is not null && _dragAndDropField is not null )
+							// ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+							EditorGUILayout.PropertyField( bakeTargetsProp, _dragAndDropField, true ) ;
 
-            HEU_EditorUI.DrawSeparator();
+						HEU_EditorUI.BeginSimpleSection( "Bake Update" ) ;
+						HEU_EditorUI.DrawPropertyField( assetObject, "_bakeUpdateKeepPreviousTransformValues",
+														"Keep Previous Transform Values",
+														"Copy previous transform values when doing a Bake Update." ) ;
+						HEU_EditorUI.EndSimpleSection( ) ;
+					}
+				}
+			}
 
-            return bSkipAutoCook;
-        }
+			HEU_EditorUI.EndSection( ) ;
+			HEU_EditorUI.DrawSeparator( ) ;
+			return bSkipAutoCook ;
+		}
+
+		/// <summary>Draw the Houdini Engine header image</summary>
+		public static void DrawHeaderSection( ) {
+			GUI.backgroundColor = new( 0.2f, 0.2f, 0.2f ) ;
+			string fileName = HEU_EditorUI.IsEditorDarkSkin( )
+								  ? "heu_hengine_d"
+									: "heu_hengine" ;
+			
+			Texture2D? headerImage = Resources.Load( fileName ) as Texture2D ;
+			
+			HEU_EditorUI.DrawSeparator( ) ;
+			GUILayout.Label( headerImage ) ;
+			GUI.backgroundColor = Color.white ;
+		}
 
         private static void ProcessPendingBuildAction(
             HEU_HoudiniAsset.AssetBuildAction pendingBuildAction,
@@ -864,110 +993,34 @@ namespace HoudiniEngineUnity
                             }
                         }
 
-                        using (var hs = new EditorGUILayout.VerticalScope(_mainButtonSetStyle))
-                        {
-                            SerializedProperty bakeTargetsProp = assetRootSerializedObject.FindProperty("_bakeTargets");
-                            if (bakeTargetsProp != null)
-                            {
-                                EditorGUILayout.PropertyField(bakeTargetsProp, _dragAndDropField, true);
-                            }
-                        }
+		void DrawCurvesSection( HEU_HoudiniAsset asset, SerializedObject assetObject ) {
+			if ( !asset.IsAssetValid( ) ) {
+				return ;
+			}
 
-                        HEU_EditorUI.BeginSimpleSection("Bake Update");
-                        HEU_EditorUI.DrawPropertyField(assetObject, "_bakeUpdateKeepPreviousTransformValues",
-                            "Keep Previous Transform Values",
-                            "Copy previous transform values when doing a Bake Update.");
-                        HEU_EditorUI.EndSimpleSection();
-                    }
-                }
-            }
-            HEU_EditorUI.EndSection();
+			if ( asset.GetEditableCurveCount( ) <= 0 ) {
+				return ;
+			}
 
-            HEU_EditorUI.DrawSeparator();
+			GUIStyle buttonStyle = new( GUI.skin.button )
+			{
+				fontSize    = 11,
+				fixedHeight = 24,
+				margin      = { left = 34, },
+				alignment   = TextAnchor.MiddleCenter,
+			} ;
 
-            return bSkipAutoCook;
-        }
+			HEU_EditorUI.BeginSection( ) ;
+			{
+				List< HEU_Curve >? curves = asset.Curves ;
 
-        /// <summary>
-        /// Draw the Houdini Engine header image
-        /// </summary>
-        public static void DrawHeaderSection()
-        {
-            GUI.backgroundColor = new Color(0.2f, 0.2f, 0.2f);
-            string fileName = HEU_EditorUI.IsEditorDarkSkin() ? "heu_hengine_d" : "heu_hengine";
-            Texture2D headerImage = Resources.Load(fileName) as Texture2D;
-
-            HEU_EditorUI.DrawSeparator();
-            GUILayout.Label(headerImage);
-
-            GUI.backgroundColor = Color.white;
-        }
-
-        /// <summary>
-        /// Draw Asset Events section.
-        /// </summary>
-        /// <param name="asset"></param>
-        /// <param name="assetObject"></param>
-        private void DrawEventsSection(HEU_HoudiniAsset asset, SerializedObject assetObject)
-        {
-            HEU_EditorUI.BeginSection();
-            {
-                SerializedProperty showEventsProperty = assetObject.FindProperty("_showEventsSection");
-
-                showEventsProperty.boolValue = HEU_EditorUI.DrawFoldOut(showEventsProperty.boolValue, "EVENTS");
-                if (showEventsProperty.boolValue)
-                {
-                    HEU_EditorUI.DrawSeparator();
-
-                    SerializedProperty reloadDataEvent = assetObject.FindProperty("_reloadDataEvent");
-                    EditorGUILayout.PropertyField(reloadDataEvent, new GUIContent("Rebuild Events"));
-
-                    HEU_EditorUI.DrawSeparator();
-
-                    SerializedProperty recookDataEvent = assetObject.FindProperty("_cookedDataEvent");
-                    EditorGUILayout.PropertyField(recookDataEvent, new GUIContent("Cooked Events"));
-
-                    HEU_EditorUI.DrawSeparator();
-
-                    SerializedProperty bakedDataEvent = assetObject.FindProperty("_bakedDataEvent");
-                    EditorGUILayout.PropertyField(bakedDataEvent, new GUIContent("Baked Events"));
-
-                    HEU_EditorUI.DrawSeparator();
-
-                    SerializedProperty preAssetEvent = assetObject.FindProperty("_preAssetEvent");
-                    EditorGUILayout.PropertyField(preAssetEvent, new GUIContent("Pre-Asset Events"));
-                }
-            }
-
-            HEU_EditorUI.EndSection();
-
-            HEU_EditorUI.DrawSeparator();
-        }
-
-        private void DrawParameters(HEU_Parameters parameters, ref Editor parameterEditor)
-        {
-            if (parameters != null)
-            {
-                SerializedObject paramObject = new SerializedObject(parameters);
-                Editor.CreateCachedEditor(paramObject.targetObject, null, ref parameterEditor);
-                parameterEditor.OnInspectorGUI();
-            }
-        }
-
-        private void DrawCurvesSection(HEU_HoudiniAsset asset, SerializedObject assetObject)
-        {
-            if (!asset.IsAssetValid())
-            {
-                return;
-            }
-
-				SerializedProperty showCurvesProperty =
+				SerializedProperty? showCurvesProperty =
 					HEU_EditorUtility.GetSerializedProperty( assetObject, "_showCurvesSection" ) ;
 				// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 				if ( showCurvesProperty is not null ) {
 					showCurvesProperty.boolValue = HEU_EditorUI.DrawFoldOut( showCurvesProperty.boolValue, "CURVES" ) ;
-				// ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-					
+					// ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+
 					if ( showCurvesProperty.boolValue ) {
 
             if (asset.GetEditableCurveCount() <= 0)
@@ -981,51 +1034,90 @@ namespace HoudiniEngineUnity
             buttonStyle.fixedHeight = 24;
             buttonStyle.margin.left = 34;
 
-            HEU_EditorUI.BeginSection();
-            {
-                List<HEU_Curve> curves = asset.Curves;
+						for ( int i = 0; i < serializedCurves.Count; ++i ) {
+							HEU_Curve curve = curves[ i ] ;
+							SerializedObject serializedCurve = serializedCurves[ i ] ;
+							
+							EditorGUI.BeginChangeCheck( ) ;
 
+							if ( curve.CurveDataType is HEU_CurveDataType.HAPI_COORDS_PARAM ) {
+								HEU_EditorUI.DrawHeadingLabel( "Input Curve Info:" ) ;
+								++EditorGUI.indentLevel ;
+								
+								// Create the UI manually to have more control
+								SerializedProperty? inputCurveInfoProperty =
+									HEU_EditorUtility.GetSerializedProperty( serializedCurve, "_inputCurveInfo" ) ;
 
-                SerializedProperty showCurvesProperty =
-                    HEU_EditorUtility.GetSerializedProperty(assetObject, "_showCurvesSection");
-                if (showCurvesProperty != null)
-                {
-                    showCurvesProperty.boolValue = HEU_EditorUI.DrawFoldOut(showCurvesProperty.boolValue, "CURVES");
-                    if (showCurvesProperty.boolValue)
-                    {
-                        HEU_EditorUI.DrawHeadingLabel("Curve Data");
+								void _onCurveTypeChanged( int value ) {
+									SerializedProperty? orderProperty =
+										inputCurveInfoProperty?.FindPropertyRelative( "order" ) ;
+									int curOrder = orderProperty?.intValue ?? 0 ;
+									if ( orderProperty is not null ) {
+										HAPI_CurveType curveType = (HAPI_CurveType)value ;
 
-                        EditorGUI.indentLevel++;
+										if ( curOrder < 4 && curveType is
+												 HAPI_CurveType.HAPI_CURVETYPE_NURBS
+												 or HAPI_CurveType.HAPI_CURVETYPE_BEZIER )
+											orderProperty.intValue = 4 ;
 
-                        List<SerializedObject> serializedCurves = new List<SerializedObject>();
-                        for (int i = 0; i < curves.Count; i++)
-                        {
-                            serializedCurves.Add(new SerializedObject(curves[i]));
-                        }
+										else if ( curveType is HAPI_CurveType.HAPI_CURVETYPE_LINEAR )
+											orderProperty.intValue = 2 ;
+									}
+								}
 
-                        bool bHasBeenModifiedInInspector = false;
+								var cInfo = inputCurveInfoProperty?.FindPropertyRelative( "curveType" ) ;
+								if ( cInfo is not null )
+									HEU_EditorUtility.EnumToPopup( cInfo,
+																   "Curve Type",
+																   (int)curve.InputCurveInfo.curveType,
+																   HEU_InputCurveInfo.GetCurveTypeNames( ),
+																   true,
+																   "Type of the curve. Can be Linear, NURBs or Bezier. " +
+																   "May impose restrictions on the order depending on what you choose.",
+																   _onCurveTypeChanged
+																 ) ;
 
-                        for (int i = 0; i < serializedCurves.Count; i++)
-                        {
-                            HEU_Curve curve = curves[i];
+								if ( inputCurveInfoProperty is not null ) {
+									EditorGUILayout.PropertyField( inputCurveInfoProperty
+																	   .FindPropertyRelative( "order" ) ) ;
 
-                            SerializedObject serializedCurve = serializedCurves[i];
-                            EditorGUI.BeginChangeCheck();
+									EditorGUILayout.PropertyField( inputCurveInfoProperty
+																	   .FindPropertyRelative( "closed" ) ) ;
 
-                            if (curve.CurveDataType == HEU_CurveDataType.HAPI_COORDS_PARAM)
-                            {
-                                HEU_EditorUI.DrawHeadingLabel("Input Curve Info:");
-                                EditorGUI.indentLevel++;
+									EditorGUILayout.PropertyField( inputCurveInfoProperty
+																	   .FindPropertyRelative( "reverse" ) ) ;
 
-                                // Create the UI manually to have more control
-                                SerializedProperty inputCurveInfoProperty =
-                                    HEU_EditorUtility.GetSerializedProperty(serializedCurve, "_inputCurveInfo");
+									HEU_EditorUtility.EnumToPopup(
+																  inputCurveInfoProperty
+																	  .FindPropertyRelative( "inputMethod" ),
+																  "Input Method",
+																  (int)curve.InputCurveInfo.inputMethod,
+																  HEU_InputCurveInfo.GetInputMethodNames( ),
+																  true,
+																  "How the curve behaves with respect to the provided CVs. " +
+																  "Can be either CVs, which influence the curve, or breakpoints, which intersects the curve."
+																 ) ;
 
-                                System.Action<int> onCurveTypeChanged = (int value) =>
-                                {
-                                    SerializedProperty orderProperty =
-                                        inputCurveInfoProperty.FindPropertyRelative("order");
-                                    int curOrder = orderProperty.intValue;
+									using ( new EditorGUI.DisabledScope( curve.InputCurveInfo.inputMethod !=
+																		 HAPI_InputCurveMethod
+																			 .HAPI_CURVEMETHOD_BREAKPOINTS ) ) {
+										HEU_EditorUtility.EnumToPopup(
+																	  inputCurveInfoProperty
+																		  .FindPropertyRelative( "breakpointParameterization" ),
+																	  "Breakpoint Parameterization",
+																	  (int)curve.InputCurveInfo
+																		  .breakpointParameterization,
+																	  HEU_InputCurveInfo
+																		  .GetBreakpointParameterizationNames( ),
+																	  true,
+																	  "Defines which method is used to refine the curve when using breakpoints."
+																	 ) ;
+									}
+
+								}
+
+								--EditorGUI.indentLevel ;
+							}
 
                                     HAPI_CurveType curveType = (HAPI_CurveType)value;
                                     if (curOrder < 4 && (curveType == HAPI_CurveType.HAPI_CURVETYPE_NURBS ||
@@ -1050,102 +1142,105 @@ namespace HoudiniEngineUnity
                                     onCurveTypeChanged
                                 );
 
-                                EditorGUILayout.PropertyField(inputCurveInfoProperty.FindPropertyRelative("order"));
+							--EditorGUI.indentLevel ;
 
-                                EditorGUILayout.PropertyField(inputCurveInfoProperty.FindPropertyRelative("closed"));
+							if ( curve.Parameters )
+								DrawParameters( curve.Parameters, ref _curveParameterEditor ) ;
 
-                                EditorGUILayout.PropertyField(inputCurveInfoProperty.FindPropertyRelative("reverse"));
+							++EditorGUI.indentLevel ;
+						}
 
-                                HEU_EditorUtility.EnumToPopup(
-                                    inputCurveInfoProperty.FindPropertyRelative("inputMethod"),
-                                    "Input Method",
-                                    (int)curve.InputCurveInfo.inputMethod,
-                                    HEU_InputCurveInfo.GetInputMethodNames(),
-                                    true,
-                                    "How the curve behaves with respect to the provided CVs. Can be either CVs, which influence the curve, or breakpoints, which intersects the curve."
-                                );
+						if ( bHasBeenModifiedInInspector ) {
+							if ( asset.GetEditableCurveCount( ) > 0 ) {
+								HEU_Curve[ ]? curvesArray = asset ? asset!.Curves?.ToArray( ) : null ;
+								if ( curvesArray is null ) {
+									HEU_Logger.LogError( "Curves array is null!" ) ;
+									return ;
+								}
+								
+								var objArray = UnsafeUtility.As< HEU_Curve[], Object[] >( ref curvesArray ) ;
+								CreateCachedEditor( objArray, null, ref _curveEditor ) ;
 
-                                using (new EditorGUI.DisabledScope(curve.InputCurveInfo.inputMethod !=
-                                                                   HAPI_InputCurveMethod.HAPI_CURVEMETHOD_BREAKPOINTS))
-                                {
-                                    HEU_EditorUtility.EnumToPopup(
-                                        inputCurveInfoProperty.FindPropertyRelative("breakpointParameterization"),
-                                        "Breakpoint Parameterization",
-                                        (int)curve.InputCurveInfo.breakpointParameterization,
-                                        HEU_InputCurveInfo.GetBreakpointParameterizationNames(),
-                                        true,
-                                        "Defines which method is used to refine the curve when using breakpoints."
-                                    );
-                                }
+								if ( _curveEditor is HEU_CurveUI curve_ui ) curve_ui.RepaintCurves( ) ;
 
-                                EditorGUI.indentLevel--;
-                            }
+								if ( _houdiniAsset && HEU_PluginSettings.CookingEnabled
+														&& asset.AutoCookOnParameterChange ) {
+										_houdiniAsset!.RequestCook( bCheckParametersChanged: true, bAsync: false,
+																   bSkipCookCheck: false, bUploadParameters: true ) ;
+								}
+							}
+						}
 
-                            HEU_EditorUtility.EditorDrawSerializedProperty(serializedCurve, "_curveNodeData",
-                                label: curve.CurveName + " Data");
+						--EditorGUI.indentLevel ;
+						HEU_EditorUI.DrawSeparator( ) ;
+						HEU_EditorUI.DrawHeadingLabel( "Curve Node Settings" ) ;
+						++EditorGUI.indentLevel ;
 
-                            if (EditorGUI.EndChangeCheck())
-                            {
-                                curves[i].SetEditState(HEU_Curve.CurveEditState.REQUIRES_GENERATION);
-                                serializedCurve.ApplyModifiedProperties();
+						SerializedProperty? curveEditorProperty =
+							HEU_EditorUtility.GetSerializedProperty( assetObject, "_curveEditorEnabled" ) ;
 
-                                bHasBeenModifiedInInspector = true;
-                            }
+						// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+						if ( curveEditorProperty is not null )
+							EditorGUILayout.PropertyField( curveEditorProperty ) ;
+						// ReSharper restore ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 
-                            EditorGUI.indentLevel--;
+						SerializedProperty? useScaleRotProperty =
+							HEU_EditorUtility.GetSerializedProperty( assetObject, "_curveDisableScaleRotation" ) ;
 
-                            if (curve.Parameters != null)
-                            {
-                                DrawParameters(curve.Parameters, ref _curveParameterEditor);
-                            }
+						bool oldUseScaleRotValue = useScaleRotProperty?.boolValue ?? false ;
+						if ( useScaleRotProperty is not null )
+							useScaleRotProperty.boolValue =
+								EditorGUILayout.Toggle( _useCurveScaleRotContent, useScaleRotProperty.boolValue ) ;
+						
+						if ( useScaleRotProperty?.boolValue != oldUseScaleRotValue )
+							for ( int i = 0; i < curves.Count; ++i )
+								curves[ i ].SetEditState( HEU_Curve.CurveEditState.REQUIRES_GENERATION ) ;
 
-                            EditorGUI.indentLevel++;
-                        }
+						SerializedProperty? curveCookOnDragProperty =
+							HEU_EditorUtility.GetSerializedProperty( assetObject, "_curveCookOnDrag" ) ;
+						if ( curveCookOnDragProperty is not null )
+							curveCookOnDragProperty.boolValue =
+								EditorGUILayout.Toggle( _cookCurveOnDragContent, curveCookOnDragProperty.boolValue ) ;
 
-                        if (bHasBeenModifiedInInspector)
-                        {
-                            if (asset.GetEditableCurveCount() > 0)
-                            {
-                                HEU_Curve[] curvesArray = asset.Curves.ToArray();
-                                Editor.CreateCachedEditor(curvesArray, null, ref _curveEditor);
-                                (_curveEditor as HEU_CurveUI).RepaintCurves();
+						SerializedProperty? curveFrameSelectedNodesProperty =
+							HEU_EditorUtility.GetSerializedProperty( assetObject, "_curveFrameSelectedNodes" ) ;
+						if ( curveFrameSelectedNodesProperty is not null )
+							curveFrameSelectedNodesProperty.boolValue =
+								EditorGUILayout.Toggle( _curveFrameSelectedNodesContent,
+														curveFrameSelectedNodesProperty.boolValue ) ;
 
-                                if (HEU_PluginSettings.CookingEnabled && asset.AutoCookOnParameterChange)
-                                {
-                                    _houdiniAsset.RequestCook(bCheckParametersChanged: true, bAsync: false,
-                                        bSkipCookCheck: false, bUploadParameters: true);
-                                }
-                            }
-                        }
-
-                        EditorGUI.indentLevel--;
-
-                        HEU_EditorUI.DrawSeparator();
-
-                        HEU_EditorUI.DrawHeadingLabel("Curve Node Settings");
-
-                        EditorGUI.indentLevel++;
-
-                        SerializedProperty curveEditorProperty =
-                            HEU_EditorUtility.GetSerializedProperty(assetObject, "_curveEditorEnabled");
-                        if (curveEditorProperty != null)
-                        {
-                            EditorGUILayout.PropertyField(curveEditorProperty);
-                        }
+						++EditorGUI.indentLevel ;
+						using ( new EditorGUI.DisabledScope( !curveFrameSelectedNodesProperty!.boolValue ) ) {
+							HEU_EditorUtility.EditorDrawFloatProperty( assetObject, "_curveFrameSelectedNodeDistance",
+																	   label: _curveFrameSelectedNodeDistanceContent!
+																		   .text,
+																	   tooltip: _curveFrameSelectedNodeDistanceContent
+																		   .tooltip ) ;
+						}
+						EditorGUI.indentLevel -= 2 ;
+						HEU_EditorUI.DrawHeadingLabel( "Collision Settings" ) ;
+						++EditorGUI.indentLevel ;
 
                         SerializedProperty useScaleRotProperty =
                             HEU_EditorUtility.GetSerializedProperty(assetObject, "_curveDisableScaleRotation");
 
-                        bool oldUseScaleRotValue = useScaleRotProperty.boolValue;
-                        useScaleRotProperty.boolValue =
-                            EditorGUILayout.Toggle(_useCurveScaleRotContent, useScaleRotProperty.boolValue);
-                        if (useScaleRotProperty.boolValue != oldUseScaleRotValue)
-                        {
-                            for (int i = 0; i < curves.Count; ++i)
-                            {
-                                curves[i].SetEditState(HEU_Curve.CurveEditState.REQUIRES_GENERATION);
-                            }
-                        }
+						SerializedProperty? curveCollisionProperty =
+							HEU_EditorUtility.GetSerializedProperty( assetObject, "_curveDrawCollision" ) ;
+						if ( curveCollisionProperty is not null ) {
+							EditorGUILayout.PropertyField( curveCollisionProperty,
+														   new GUIContent( "Collision Type" ) ) ;
+							switch ( curveCollisionProperty.enumValueIndex ) {
+								case (int)HEU_Curve.CurveDrawCollision.COLLIDERS:
+									HEU_EditorUtility.EditorDrawSerializedProperty( assetObject, "_curveDrawColliders",
+										label: "Colliders" ) ;
+									projectLabel += "Colliders" ;
+									break ;
+								case (int)HEU_Curve.CurveDrawCollision.LAYERMASK:
+									HEU_EditorUtility.EditorDrawSerializedProperty( assetObject, "_curveDrawLayerMask",
+										label: "Layer Mask" ) ;
+									projectLabel += "Layer" ;
+									break ;
+							}
 
                         SerializedProperty curveFrameSelectedNodesProperty =
                             HEU_EditorUtility.GetSerializedProperty(assetObject, "_curveFrameSelectedNodes");
@@ -1153,20 +1248,22 @@ namespace HoudiniEngineUnity
                             EditorGUILayout.Toggle(_curveFrameSelectedNodesContent,
                                 curveFrameSelectedNodesProperty.boolValue);
 
-                        EditorGUI.indentLevel++;
-                        using (new EditorGUI.DisabledScope(!curveFrameSelectedNodesProperty.boolValue))
-                        {
-                            HEU_EditorUtility.EditorDrawFloatProperty(assetObject, "_curveFrameSelectedNodeDistance",
-                                label: _curveFrameSelectedNodeDistanceContent.text,
-                                tooltip: _curveFrameSelectedNodeDistanceContent.tooltip);
-                        }
+							--EditorGUI.indentLevel ;
+							HEU_EditorUI.DrawHeadingLabel( "Projection Settings" ) ;
+							++EditorGUI.indentLevel ;
+							
+							SerializedProperty? projectCurveToSceneViewProperty =
+								HEU_EditorUtility.GetSerializedProperty( assetObject, "_curveProjectDirectionToView" ) ;
+							HEU_EditorUtility.EditorDrawSerializedProperty( assetObject, "_curveProjectDirectionToView",
+																			label: "Project Direction To Scene View",
+																			tooltip:
+																			"Project the curve points according to the scene view." ) ;
 
-                        EditorGUI.indentLevel--;
+							bool curveToSceneView = projectCurveToSceneViewProperty?.boolValue ?? false ;
+							Vector3 projectDir = Vector3.down ;
 
-                        EditorGUI.indentLevel--;
-
-                        HEU_EditorUI.DrawHeadingLabel("Collision Settings");
-                        EditorGUI.indentLevel++;
+							if ( curveToSceneView && _sceneView ) {
+								Quaternion sceneRot = _sceneView!.rotation ;
 
                         string projectLabel = "Project Curves To ";
 
@@ -1191,56 +1288,57 @@ namespace HoudiniEngineUnity
 
                             HEU_EditorUI.DrawSeparator();
 
-                            EditorGUI.indentLevel--;
-                            HEU_EditorUI.DrawHeadingLabel("Projection Settings");
-                            EditorGUI.indentLevel++;
+							_projectCurvePointsButton.text = projectLabel ;
+							if ( GUILayout.Button( _projectCurvePointsButton, buttonStyle,
+												   GUILayout.MaxWidth( 180 ) ) ) {
+								SerializedProperty? projectDirProperty =
+									HEU_EditorUtility.GetSerializedProperty( assetObject, "_curveProjectDirection" ) ;
+								SerializedProperty? maxDistanceProperty =
+									HEU_EditorUtility.GetSerializedProperty( assetObject, "_curveProjectMaxDistance" ) ;
 
-                            SerializedProperty projectCurveToSceneViewProperty =
-                                HEU_EditorUtility.GetSerializedProperty(assetObject, "_curveProjectDirectionToView");
-                            HEU_EditorUtility.EditorDrawSerializedProperty(assetObject, "_curveProjectDirectionToView",
-                                label: "Project Direction To Scene View",
-                                tooltip: "Project the curve points according to the scene view.");
+								if ( !curveToSceneView && projectDirProperty is not null )
+									projectDir = projectDirProperty.vector3Value ;
 
-                            bool curveToSceneView = projectCurveToSceneViewProperty.boolValue;
-                            Vector3 projectDir = Vector3.down;
+								float maxDistance = maxDistanceProperty?.floatValue ?? 0 ;
+								
+								for ( int i = 0; i < curves.Count; ++i )
+									curves[ i ].ProjectToCollidersInternal( asset, projectDir, maxDistance ) ;
+							}
+						}
 
-                            if (curveToSceneView && _sceneView != null)
-                            {
-                                Quaternion sceneRot = _sceneView.rotation;
-
-                                if (sceneRot != Quaternion.identity)
-                                {
-                                    projectDir = sceneRot * Vector3.forward;
-                                }
-                                else
-                                {
-                                    curveToSceneView = false; // Fallback to hard coded direction
-                                }
-                            }
-
-                            using (new EditorGUI.DisabledScope(curveToSceneView))
-                            {
-                                HEU_EditorUtility.EditorDrawSerializedProperty(assetObject, "_curveProjectDirection",
-                                    label: "Project Direction",
-                                    tooltip: "The ray cast direction for projecting the curve points.");
-                            }
+						--EditorGUI.indentLevel ;
+					}
+				}
+			}
+			HEU_EditorUI.EndSection( ) ;
 
                             HEU_EditorUtility.EditorDrawFloatProperty(assetObject, "_curveProjectMaxDistance",
                                 label: "Project Max Distance",
                                 tooltip: "The maximum ray cast distance for projecting the curve points.");
 
-                            _projectCurvePointsButton.text = projectLabel;
-                            if (GUILayout.Button(_projectCurvePointsButton, buttonStyle, GUILayout.MaxWidth(180)))
-                            {
-                                SerializedProperty projectDirProperty =
-                                    HEU_EditorUtility.GetSerializedProperty(assetObject, "_curveProjectDirection");
-                                SerializedProperty maxDistanceProperty =
-                                    HEU_EditorUtility.GetSerializedProperty(assetObject, "_curveProjectMaxDistance");
+		void DrawInputNodesSection( HEU_HoudiniAsset asset, SerializedObject assetObject ) {
+			if ( !asset || !asset.IsAssetValid( ) ) {
+				HEU_Logger.LogError( "Invalid asset!" ) ;
+				return ;
+			}
+			List< HEU_InputNode >? inputNodes = asset.GetNonParameterInputNodes( ) ;
+			if ( inputNodes is not { Count: > 0, } ) return ;
+			
+			HEU_EditorUI.BeginSection( ) ;
 
-                                if (!curveToSceneView && projectDirProperty != null)
-                                {
-                                    projectDir = projectDirProperty.vector3Value;
-                                }
+			SerializedProperty? showInputNodesProperty =
+				HEU_EditorUtility.GetSerializedProperty( assetObject, "_showInputNodesSection" ) ;
+			if ( showInputNodesProperty is not null ) {
+				showInputNodesProperty.boolValue =
+					HEU_EditorUI.DrawFoldOut( showInputNodesProperty.boolValue, "INPUT NODES" ) ;
+
+				if ( showInputNodesProperty.boolValue ) {
+					foreach ( HEU_InputNode inputNode in inputNodes ) {
+						HEU_InputNodeUI.EditorDrawInputNode( inputNode ) ;
+						if ( inputNodes is { Count: > 1, } )
+							HEU_EditorUI.DrawSeparator( ) ;
+					}
+				}
 
                                 float maxDistance = maxDistanceProperty != null ? maxDistanceProperty.floatValue : 0;
 
@@ -1257,69 +1355,126 @@ namespace HoudiniEngineUnity
             }
             HEU_EditorUI.EndSection();
 
-            HEU_EditorUI.DrawSeparator();
-        }
+			// Curve Editor
+			if ( asset.CurveEditorEnabled ) {
+				if ( asset.GetEditableCurveCount( ) > 0 ) {
+					var curvesArray = asset.Curves?.ToArray( ) ;
+					if ( curvesArray is not { Length: > 0, } ) {
+						HEU_Logger.LogError( "No curves found for curve editor" ) ;
+						return ;
+					}
 
-        private void DrawInputNodesSection(HEU_HoudiniAsset asset, SerializedObject assetObject)
-        {
-            List<HEU_InputNode> inputNodes = asset.GetNonParameterInputNodes();
-            if (inputNodes.Count > 0)
-            {
-                HEU_EditorUI.BeginSection();
+					Object[]? objArray = UnsafeUtility.As< HEU_Curve[], Object[] >( ref curvesArray ) ;
+					CreateCachedEditor( objArray, null, ref _curveEditor ) ;
 
-                SerializedProperty showInputNodesProperty =
-                    HEU_EditorUtility.GetSerializedProperty(assetObject, "_showInputNodesSection");
-                if (showInputNodesProperty != null)
-                {
-                    showInputNodesProperty.boolValue =
-                        HEU_EditorUI.DrawFoldOut(showInputNodesProperty.boolValue, "INPUT NODES");
-                    if (showInputNodesProperty.boolValue)
-                    {
-                        foreach (HEU_InputNode inputNode in inputNodes)
-                        {
-                            HEU_InputNodeUI.EditorDrawInputNode(inputNode);
+					if ( _curveEditor is HEU_CurveUI heu_curve )
+						heu_curve.UpdateSceneCurves( asset ) ;
 
-                            if (inputNodes.Count > 1)
-                            {
-                                HEU_EditorUI.DrawSeparator();
-                            }
-                        }
-                    }
+					bool bRequiresCook =
+						!Array.TrueForAll( curvesArray,
+										   c => c.EditState
+													is not HEU_Curve.CurveEditState.REQUIRES_GENERATION
+										 ) ;
 
-                    HEU_EditorUI.DrawSeparator();
-                }
+					if ( bRequiresCook
+						 && HEU_PluginSettings.CookingEnabled
+						 && asset.AutoCookOnParameterChange ) {
+						if ( !_houdiniAsset ) return ;
+						_houdiniAsset!.RequestCook( bCheckParametersChanged: true,
+												   bAsync: false,
+												   bSkipCookCheck: false,
+												   bUploadParameters: true
+												 ) ;
+					}
+				}
+			}
+
+			// Tools Editor
+			if ( asset.EditableNodesToolsEnabled ) {
+				List< HEU_AttributesStore >? attributesStores = asset.AttributeStores ;
+				if ( attributesStores?.Count > 0 ) {
+					Object[ ] attributesStoresArray =
+						attributesStores.Cast< Object >( )
+											.ToArray( ) ;
+
+					if ( attributesStoresArray is not { Length: > 0, } ) {
+						HEU_Logger.LogError( "No attributes stores found for tools editor" ) ;
+						return ;
+					}
+
+					CreateCachedEditor( attributesStoresArray, null, ref _toolsEditor ) ;
+					HEU_ToolsUI? toolsUI = ( _toolsEditor as HEU_ToolsUI ) ;
+
+					if ( toolsUI ) toolsUI!.DrawToolsEditor( asset ) ;
+
+					if ( asset.ToolsInfo is { _liveUpdate: true, _isPainting: false, } ) {
+						bool bAttributesDirty =
+							!Array.TrueForAll( attributesStoresArray,
+											   s => !( (HEU_AttributesStore)s ).AreAttributesDirty( ) ) ;
+						if ( bAttributesDirty ) {
+							if ( !_houdiniAsset ) {
+								HEU_Logger.LogError( "No Houdini Asset found!" ) ;
+								return ;
+							}
+							_houdiniAsset!.RequestCook( bCheckParametersChanged: true, bAsync: false,
+													   bSkipCookCheck: false, bUploadParameters: true ) ;
+						}
+					}
+				}
+			}
+
+			// Handles
+			if ( asset.HandlesEnabled ) {
+				List< HEU_Handle > handles = asset.GetHandles( ) ;
+				if ( handles is not { Count: > 0, } ) return ;
+				HEU_Handle[ ] handlesArray = handles.ToArray( ) ;
+				
+				CreateCachedEditor( handlesArray, null, ref _handlesEditor ) ;
+				HEU_HandlesUI handlesUI = ( _handlesEditor as HEU_HandlesUI ) ;
+				bool bHandlesChanged = handlesUI?.DrawHandles( asset ) ?? false ;
+
+				if ( bHandlesChanged ) {
+					if ( !_houdiniAsset ) {
+						HEU_Logger.LogError( "No Houdini Asset found!" ) ;
+						return ;
+					}
+					_houdiniAsset.RequestCook( bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: false,
+											   bUploadParameters: true ) ;
+				}
+			}
+		}
 
 		void DrawTerrainSection( HEU_HoudiniAsset asset, SerializedObject assetObject ) {
 			int numVolumes = asset.GetVolumeCacheCount( ) ;
 			if ( numVolumes < 1 ) return ;
 
-                HEU_EditorUI.DrawSeparator();
-            }
-        }
-
+			HEU_EditorUI.BeginSection( ) ;
+			{
+				SerializedProperty? showTerrainProperty =
+					HEU_EditorUtility.GetSerializedProperty( assetObject, "_showTerrainSection" ) ;
+				if ( showTerrainProperty != null ) {
+					showTerrainProperty.boolValue =
+						HEU_EditorUI.DrawFoldOut( showTerrainProperty.boolValue, "TERRAIN" ) ;
+					if ( showTerrainProperty.boolValue ) {
+						// Draw each volume layer
+						List< HEU_VolumeCache >? volumeCaches = asset.VolumeCaches ;
+						int numCaches = volumeCaches?.Count ?? 0 ;
+						
+						for ( int i = 0; i < numCaches; ++i ) {
+							SerializedObject? cacheObjectSerialized = new( volumeCaches?[ i ] ) ;
+							bool bChanged = false ;
+							bool bStrengthChanged = false ;
 							SerializedProperty layersProperty = cacheObjectSerialized.FindProperty( "_layers" ) ;
+							
 							if ( layersProperty == null || layersProperty.arraySize is 0 ) {
 								continue ;
 							}
 
-            // Curve Editor
-            if (asset.CurveEditorEnabled)
-            {
-                if (asset.GetEditableCurveCount() > 0)
-                {
-                    HEU_Curve[] curvesArray = asset.Curves.ToArray();
-                    Editor.CreateCachedEditor(curvesArray, null, ref _curveEditor);
-                    (_curveEditor as HEU_CurveUI).UpdateSceneCurves(asset);
+							string heading = $"{volumeCaches[ i ].ObjectName}-{volumeCaches[ i ].GeoName}:" ;
 
-                    bool bRequiresCook = !System.Array.TrueForAll(curvesArray,
-                        c => c.EditState != HEU_Curve.CurveEditState.REQUIRES_GENERATION);
-                    if (bRequiresCook && HEU_PluginSettings.CookingEnabled && asset.AutoCookOnParameterChange)
-                    {
-                        _houdiniAsset.RequestCook(bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: false,
-                            bUploadParameters: true);
-                    }
-                }
-            }
+							if ( HEU_EditorUI.DrawFoldOutSerializedProperty( HEU_EditorUtility.GetSerializedProperty( cacheObjectSerialized, "_uiExpanded" ),
+																			 heading, ref bChanged ) ) {
+								EditorGUI.indentLevel++ ;
 
             // Tools Editor
             if (asset.EditableNodesToolsEnabled)
@@ -1356,14 +1511,14 @@ namespace HoudiniEngineUnity
                     HEU_HandlesUI handlesUI = (_handlesEditor as HEU_HandlesUI);
                     bool bHandlesChanged = handlesUI.DrawHandles(asset);
 
-                    if (bHandlesChanged)
-                    {
-                        _houdiniAsset.RequestCook(bCheckParametersChanged: true, bAsync: false, bSkipCookCheck: false,
-                            bUploadParameters: true);
-                    }
-                }
-            }
-        }
+									SerializedProperty uiExpandedProperty =
+										layerProperty.FindPropertyRelative( "_uiExpanded" ) ;
+									bool bExpanded    = uiExpandedProperty?.boolValue ?? true ;
+									bool bNewExpanded = HEU_EditorUI.DrawFoldOut( bExpanded, layerName ) ;
+									if ( uiExpandedProperty != null && bExpanded != bNewExpanded ) {
+										bChanged                     = true ;
+										uiExpandedProperty.boolValue = bNewExpanded ;
+									}
 
         private void DrawTerrainSection(HEU_HoudiniAsset asset, SerializedObject assetObject)
         {

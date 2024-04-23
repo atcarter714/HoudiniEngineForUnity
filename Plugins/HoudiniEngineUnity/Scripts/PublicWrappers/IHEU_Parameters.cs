@@ -51,18 +51,14 @@ using HAPI_PartId = System.Int32 ;
 
 
 
-namespace HoudiniEngineUnity
-{
+namespace HoudiniEngineUnity {
 	
 	/// <summary>
 	/// Houdini Input curve ramp interpolation type
 	/// </summary>
-	public enum HEU_HoudiniRampInterpolationTypeWrapper {
-		CONSTANT    = 0,
-		LINEAR      = 1,
-		CATMULL_ROM = 2,
-	} ;
+	public enum HEU_HoudiniRampInterpolationTypeWrapper { CONSTANT = 0, LINEAR = 1, CATMULL_ROM = 2, } ;
 
+	
 	/// <summary>
 	/// Wrapper class to represent a ramp point
 	/// </summary>
@@ -106,42 +102,42 @@ namespace HoudiniEngineUnity
 	/// Supported types are bool, int, float, string, float ramp, color ramp
 	/// </summary>
 	public class HEU_ParameterTupleWrapper {
-		public bool[] BoolValues {
+		public bool[]? BoolValues {
 			get => _boolValues ;
 			set => _boolValues = value ;
 		}
-
-		public int[] IntValues {
+		
+		public int[]? IntValues {
 			get => _intValues ;
 			set => _intValues = value ;
 		}
 
-		public float[] FloatValues {
+		public float[]? FloatValues {
 			get => _floatValues ;
 			set => _floatValues = value ;
 		}
 
-		public string[] StringValues {
+		public string[]? StringValues {
 			get => _stringValues ;
 			set => _stringValues = value ;
 		}
 
-		public HEU_FloatRampPointWrapper[] FloatRampValues {
+		public HEU_FloatRampPointWrapper[]? FloatRampValues {
 			get => _floatRampValues ;
 			set => _floatRampValues = value ;
 		}
 
-		public HEU_ColorRampPointWrapper[] ColorRampValues {
+		public HEU_ColorRampPointWrapper[]? ColorRampValues {
 			get => _colorRampValues ;
 			set => _colorRampValues = value ;
 		}
 
-		internal bool[] _boolValues ;
-		internal int[] _intValues ;
-		internal float[] _floatValues ;
-		internal string[] _stringValues ;
-		internal HEU_FloatRampPointWrapper[] _floatRampValues ;
-		internal HEU_ColorRampPointWrapper[] _colorRampValues ;
+		internal bool[]? _boolValues ;
+		internal int[]? _intValues ;
+		internal float[]? _floatValues ;
+		internal string[]? _stringValues ;
+		internal HEU_FloatRampPointWrapper[]? _floatRampValues ;
+		internal HEU_ColorRampPointWrapper[]? _colorRampValues ;
 
 		public HEU_ParameterTupleWrapper( ) { }
 
@@ -176,13 +172,13 @@ namespace HoudiniEngineUnity
 		List< HEU_ParameterData > GetParameters( ) ;
 
 		/// <summary>Gets the parameter at index</summary>
-		HEU_ParameterData GetParameter( int listIndex ) ;
+		HEU_ParameterData? GetParameter( int listIndex ) ;
 
 		/// <summary>Gets the parameter of the name</summary>
-		HEU_ParameterData GetParameter( string name ) ;
+		HEU_ParameterData? GetParameter( string? name ) ;
 
 		/// <summary>Gets the parameter with the parameter ID</summary>
-		HEU_ParameterData GetParameterWithParmID( HAPI_ParmId parmID ) ;
+		HEU_ParameterData? GetParameterWithParmID( HAPI_ParmId parmID ) ;
 
 		/// <summary>Remove parameter at the index</summary>
 		void RemoveParameter( int listIndex ) ;
@@ -211,7 +207,7 @@ namespace HoudiniEngineUnity
 		/// <param name="atIndex">The index of the parameter tuple to set. </param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetFloatParameterValue( string parameterName, float value, int atIndex = 0, bool bRecookAsset = false ) ;
+		bool SetFloatParameterValue( string? parameterName, float value, int atIndex = 0, bool bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets a HDA float parameter
@@ -220,7 +216,7 @@ namespace HoudiniEngineUnity
 		/// <param name="value">The value of the parameter, if fetched</param>
 		/// <param name="atIndex">The index of the parameter tuple to get. </param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetFloatParameterValue( string parameterName, out float value, int atIndex = 0 ) ;
+		bool GetFloatParameterValue( string? parameterName, out float value, int atIndex = 0 ) ;
 
 		/// <summary>
 		/// Sets HDA floats parameter
@@ -229,7 +225,7 @@ namespace HoudiniEngineUnity
 		/// <param name="values">The values of the parameter</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetFloatParameterValues( string parameterName, float[] values, bool bRecookAsset = false ) ;
+		bool SetFloatParameterValues( string? parameterName, float[] values, bool bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets HDA float parameters
@@ -237,14 +233,14 @@ namespace HoudiniEngineUnity
 		/// <param name="parameterName">Name of the parameter tuple</param>
 		/// <param name="values">The values of the parameter, if fetched</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetFloatParameterValues( string parameterName, out float[] values ) ;
+		bool GetFloatParameterValues( string? parameterName, out float[]? values ) ;
 
 		/// <summary>Sets a HDA color parameter.</summary>
 		/// <param name="parameterName">Name of the parameter tuple</param>
 		/// <param name="value">The value of the parameter</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetColorParameterValue( string parameterName, Color value, bool bRecookAsset = false ) ;
+		bool SetColorParameterValue( string? parameterName, Color value, bool bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets a HDA color parameter
@@ -252,7 +248,7 @@ namespace HoudiniEngineUnity
 		/// <param name="parameterName">Name of the parameter tuple</param>
 		/// <param name="value">The value of the parameter, if fetched</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetColorParameterValue( string parameterName, out Color value ) ;
+		bool GetColorParameterValue( string? parameterName, out Color value ) ;
 
 		/// <summary>
 		/// Sets a HDA int parameter
@@ -262,7 +258,7 @@ namespace HoudiniEngineUnity
 		/// <param name="atIndex">The index of the parameter tuple to set. </param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetIntParameterValue( string parameterName, int value, int atIndex = 0, bool bRecookAsset = false ) ;
+		bool SetIntParameterValue( string? parameterName, int value, int atIndex = 0, bool bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets a HDA int parameter
@@ -271,7 +267,7 @@ namespace HoudiniEngineUnity
 		/// <param name="value">The value of the parameter, if fetched</param>
 		/// <param name="atIndex">The index of the parameter tuple to get. </param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetIntParameterValue( string parameterName, out int value, int atIndex = 0 ) ;
+		bool GetIntParameterValue( string? parameterName, out int value, int atIndex = 0 ) ;
 
 		/// <summary>
 		/// Sets HDA int parameters
@@ -280,7 +276,7 @@ namespace HoudiniEngineUnity
 		/// <param name="values">The values of the parameter</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetIntParameterValues( string parameterName, int[] values, bool bRecookAsset = false ) ;
+		bool SetIntParameterValues( string? parameterName, int[] values, bool bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets HDA int parameters
@@ -288,7 +284,7 @@ namespace HoudiniEngineUnity
 		/// <param name="parameterName">Name of the parameter tuple</param>
 		/// <param name="values">The values of the parameter, if fetched</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetIntParameterValues( string parameterName, out int[] values ) ;
+		bool GetIntParameterValues( string? parameterName, out int[] values ) ;
 
 		/// <summary>
 		/// Sets HDA choice parameter
@@ -297,7 +293,7 @@ namespace HoudiniEngineUnity
 		/// <param name="value">The value of the parameter</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetChoiceParameterValue( string parameterName, int value, bool bRecookAsset = false ) ;
+		bool SetChoiceParameterValue( string? parameterName, int value, bool bRecookAsset = false ) ;
 
 
 		/// <summary>
@@ -306,7 +302,7 @@ namespace HoudiniEngineUnity
 		/// <param name="parameterName">Name of the parameter</param>
 		/// <param name="value">The value of the parameter</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetChoiceParameterValue( string parameterName, out int value ) ;
+		bool GetChoiceParameterValue( string? parameterName, out int value ) ;
 
 		/// <summary>
 		/// Sets a HDA bool parameter
@@ -316,7 +312,7 @@ namespace HoudiniEngineUnity
 		/// <param name="atIndex">The index of the parameter tuple to set.</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetBoolParameterValue( string parameterName, bool value, int atIndex = 0, bool bRecookAsset = false ) ;
+		bool SetBoolParameterValue( string? parameterName, bool value, int atIndex = 0, bool bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets a HDA bool parameter
@@ -325,7 +321,7 @@ namespace HoudiniEngineUnity
 		/// <param name="value">The value of the parameter, if fetched</param>
 		/// <param name="atIndex">The index of the parameter tuple to set.</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetBoolParameterValue( string parameterName, out bool value, int atIndex = 0 ) ;
+		bool GetBoolParameterValue( string? parameterName, out bool value, int atIndex = 0 ) ;
 
 		/// <summary>
 		/// Set a HDA string parameters
@@ -335,7 +331,7 @@ namespace HoudiniEngineUnity
 		/// <param name="atIndex">The index of the parameter tuple to set.</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetStringParameterValue( string parameterName, string value, int atIndex = 0, bool bRecookAsset = false ) ;
+		bool SetStringParameterValue( string? parameterName, string value, int atIndex = 0, bool bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets a HDA string parameter
@@ -344,7 +340,7 @@ namespace HoudiniEngineUnity
 		/// <param name="value">The value of the parameter, if fetched</param>
 		/// <param name="atIndex">The index of the parameter tuple to get. </param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetStringParameterValue( string parameterName, out string value, int atIndex = 0 ) ;
+		bool GetStringParameterValue( string? parameterName, out string value, int atIndex = 0 ) ;
 
 		/// <summary>
 		/// Sets HDA string parameters
@@ -353,7 +349,7 @@ namespace HoudiniEngineUnity
 		/// <param name="values">The values of the parameter</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetStringParameterValues( string parameterName, string[] values, bool bRecookAsset = false ) ;
+		bool SetStringParameterValues( string? parameterName, string[] values, bool bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets HDA string parameters
@@ -361,7 +357,7 @@ namespace HoudiniEngineUnity
 		/// <param name="parameterName">Name of the parameter tuple</param>
 		/// <param name="values">The values of the parameter, if fetched</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetStringParameterValues( string parameterName, out string[] values ) ;
+		bool GetStringParameterValues( string? parameterName, out string[]? values ) ;
 
 		/// <summary>
 		/// Sets a HDA asset ref parameter
@@ -371,8 +367,8 @@ namespace HoudiniEngineUnity
 		/// <param name="atIndex">The index of the parameter tuple to get. </param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetAssetRefParameterValue( string parameterName, GameObject value, int atIndex = 0,
-										bool   bRecookAsset = false ) ;
+		bool SetAssetRefParameterValue( string? parameterName, GameObject value, int atIndex = 0,
+										bool    bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets a HDA asset ref parameter
@@ -381,7 +377,7 @@ namespace HoudiniEngineUnity
 		/// <param name="value">The value of the parameter, if fetched</param>
 		/// <param name="atIndex">The index of the parameter tuple to get. </param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetAssetRefParameterValue( string parameterName, out GameObject value, int atIndex = 0 ) ;
+		bool GetAssetRefParameterValue( string? parameterName, out GameObject? value, int atIndex = 0 ) ;
 
 		/// <summary>
 		/// Sets HDA asset ref parameters
@@ -390,7 +386,7 @@ namespace HoudiniEngineUnity
 		/// <param name="values">The values of the parameter</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetAssetRefParameterValues( string parameterName, GameObject[] values, bool bRecookAsset = false ) ;
+		bool SetAssetRefParameterValues( string? parameterName, GameObject[] values, bool bRecookAsset = false ) ;
 
 		/// <summary>
 		/// Gets HDA asset ref parameters
@@ -398,7 +394,7 @@ namespace HoudiniEngineUnity
 		/// <param name="parameterName">Name of the parameter</param>
 		/// <param name="values">The values of the parameter, if fetched</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetAssetRefParameterValues( string parameterName, out GameObject[] values ) ;
+		bool GetAssetRefParameterValues( string? parameterName, out GameObject[]? values ) ;
 
 		/// <summary>
 		/// Sets number of ramp parameter points
@@ -407,13 +403,13 @@ namespace HoudiniEngineUnity
 		/// <param name="numPoints">The number of points to set</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetRampParameterNumPoints( string parameterName, int numPoints, bool bRecookAsset = false ) ;
+		bool SetRampParameterNumPoints( string? parameterName, int numPoints, bool bRecookAsset = false ) ;
 
 		/// <summary>Gets number of ramp points in the HDA ramp parameter.</summary>
 		/// <param name="parameterName">Name of the parameter tuple</param>
 		/// <param name="numPoints">Number of ramp points</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetRampParameterNumPoints( string parameterName, out int numPoints ) ;
+		bool GetRampParameterNumPoints( string? parameterName, out int numPoints ) ;
 
 		/// <summary>
 		/// Sets a HDA float ramp parammeter value
@@ -426,7 +422,7 @@ namespace HoudiniEngineUnity
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
 		bool SetFloatRampParameterPointValue(
-			string parameterName,
+			string? parameterName,
 			int    pointIndex,
 			float  pointPosition,
 			float  pointValue,
@@ -444,7 +440,7 @@ namespace HoudiniEngineUnity
 		/// <param name="interpolationType">The interpolation type of the point</param>
 		/// <returns>Whether or not the operation was successful</returns>
 		bool GetFloatRampParameterPointValue(
-				string                                      parameterName,
+				string?                                      parameterName,
 				int                                         pointIndex,
 				out float                                   pointPosition,
 				out float                                   pointValue,
@@ -458,7 +454,7 @@ namespace HoudiniEngineUnity
 		/// <param name="rampPoints">The points to set the parameter to</param>
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool SetFloatRampParameterPoints( string                      parameterName,
+		bool SetFloatRampParameterPoints( string?                     parameterName,
 										  HEU_FloatRampPointWrapper[] rampPoints,
 										  bool                        bRecookAsset = false
 			) ;
@@ -470,8 +466,8 @@ namespace HoudiniEngineUnity
 		/// <param name="rampPoints">The parameter ramp points</param>
 		/// <returns>Whether or not the operation was successful</returns>
 		bool GetFloatRampParameterPoints(
-				string                          parameterName,
-				out HEU_FloatRampPointWrapper[] rampPoints
+				string?                           parameterName,
+				out HEU_FloatRampPointWrapper[]? rampPoints
 			) ;
 
 		/// <summary>Sets a HDA color ramp parammeter value.</summary>
@@ -483,7 +479,7 @@ namespace HoudiniEngineUnity
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
 		bool SetColorRampParameterPointValue(
-				string parameterName,
+				string? parameterName,
 				int    pointIndex,
 				float  pointPosition,
 				Color  pointValue,
@@ -502,7 +498,7 @@ namespace HoudiniEngineUnity
 		/// <param name="interpolationType">The interpolation type of the point</param>
 		/// <returns>Whether or not the operation was successful</returns>
 		bool GetColorRampParameterPointValue(
-				string                                      parameterName,
+				string?                                      parameterName,
 				int                                         pointIndex,
 				out float                                   pointPosition,
 				out Color                                   pointValue,
@@ -517,7 +513,7 @@ namespace HoudiniEngineUnity
 		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
 		/// <returns>Whether or not the operation was successful</returns>
 		bool SetColorRampParameterPoints(
-				string                      parameterName,
+				string?                      parameterName,
 				HEU_ColorRampPointWrapper[] rampPoints,
 				bool                        bRecookAsset = false
 			) ;
@@ -528,14 +524,14 @@ namespace HoudiniEngineUnity
 		/// <param name="parameterName">Name of the parameter</param>
 		/// <param name="rampPoints">The specified points to get</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool GetColorRampParameterPoints( string parameterName, out HEU_ColorRampPointWrapper[] rampPoints ) ;
+		bool GetColorRampParameterPoints( string? parameterName, out HEU_ColorRampPointWrapper[]? rampPoints ) ;
 
 		/// <summary>
 		/// Trigger the button with te parameter name
 		/// </summary>
 		/// <param name="parameterName">The name of the parameter to trigger</param>
 		/// <returns>Whether or not the operation was successful</returns>
-		bool TriggerButtonParameter( string parameterName ) ;
+		bool TriggerButtonParameter( string? parameterName ) ;
 
 
 		/// <summary>

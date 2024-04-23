@@ -60,8 +60,7 @@ using HAPI_NodeFlagsBits = System.Int32;
 #endregion
 
 
-namespace HoudiniEngineUnity
-{
+namespace HoudiniEngineUnity {
 
     /// <summary>A Transform with Quaternion rotation.</summary>
     [StructLayout( LayoutKind.Sequential )]
@@ -88,58 +87,58 @@ namespace HoudiniEngineUnity
 
         public HAPI_RSTOrder rstOrder ;
     } ;
-
+    
     /// <summary>A Transform with Euler rotation.</summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
-    public partial struct HAPI_TransformEuler
-    {
-        [MarshalAs( UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_POSITION_VECTOR_SIZE,
+    [Serializable, StructLayout( LayoutKind.Sequential ),]
+    public partial struct HAPI_TransformEuler {
+        [MarshalAs( UnmanagedType.ByValArray, 
+                    SizeConst = HEU_HAPIConstants.HAPI_POSITION_VECTOR_SIZE, 
                     ArraySubType = UnmanagedType.R4 )]
-        public float[] position ;
+        public float[ ] position ;
 
-        [MarshalAs( UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_EULER_VECTOR_SIZE,
+        [MarshalAs( UnmanagedType.ByValArray, 
+                    SizeConst = HEU_HAPIConstants.HAPI_EULER_VECTOR_SIZE, 
                     ArraySubType = UnmanagedType.R4 )]
-        public float[] rotationEuler ;
-
-        [MarshalAs( UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_SCALE_VECTOR_SIZE,
+        public float[ ] rotationEuler ;
+        
+        [MarshalAs( UnmanagedType.ByValArray,
+                    SizeConst = HEU_HAPIConstants.HAPI_SCALE_VECTOR_SIZE,
                     ArraySubType = UnmanagedType.R4 )]
-        public float[] scale ;
-
-        [MarshalAs( UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_SHEAR_VECTOR_SIZE,
+        public float[ ] scale ;
+        
+        [MarshalAs( UnmanagedType.ByValArray,
+                    SizeConst = HEU_HAPIConstants.HAPI_SHEAR_VECTOR_SIZE,
                     ArraySubType = UnmanagedType.R4 )]
-        public float[] shear ;
+        public float[ ] shear ;
 
         public HAPI_XYZOrder rotationOrder ;
-
         public HAPI_RSTOrder rstOrder ;
-
     } ;
-
+    
     /// <summary>Identifies a session</summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
-    public partial struct HAPI_Session
-    {
-        public HAPI_SessionType
-            type ; //The type of session determines the which implementation will beused to communicate with the Houdini Engine library.
-
-        public HAPI_SessionId
-            id ; //Some session types support multiple simultaneous sessions. This meansthat each session needs to have a unique identifier.
-
+    [Serializable, StructLayout( LayoutKind.Sequential ), ]
+    public partial struct HAPI_Session {
+        /// <summary>The type of session determines the which implementation will be used to communicate with the Houdini Engine library.</summary>
+        public HAPI_SessionType type ;
+        /// <summary>Some session types support multiple simultaneous sessions. This means that each session needs to have a unique identifier.</summary>
+        public HAPI_SessionId id ;
     } ;
 
     /// <summary>Options to configure a Thrift server being started from HARC.</summary>
     [StructLayout( LayoutKind.Sequential )]
-    public partial struct HAPI_ThriftServerOptions
-    {
-        [MarshalAs( UnmanagedType.U1 )]
-        public HAPI_Bool autoClose ; //Close the server automatically when all clients disconnect from it.
+    public partial struct HAPI_ThriftServerOptions {
+        /// <summary>Close the server automatically when all clients disconnect from it.</summary>
+        [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool autoClose ;
 
-        [MarshalAs( UnmanagedType.R4 )]
-        public float
-            timeoutMs ; //Timeout in milliseconds for waiting on the server tosignal that it ready to serve. If the server failsto signal within this time interval the start server call failsand the server process is terminated.
-
+        /// <summary>
+        /// Timeout in milliseconds for waiting on the server tosignal that it ready to serve.
+        /// If the server failsto signal within this time interval the start server call fails
+        /// and the server process is terminated.
+        /// </summary>
+        [MarshalAs( UnmanagedType.R4 )] public float timeoutMs ; 
+        
+        /// <summary>The verbosity level of the server status.</summary>
         public HAPI_StatusVerbosity verbosity ;
-
     } ;
 
     /// <summary>Data for global timeline used with HAPI_SetTimelineOptions.</summary>
@@ -150,7 +149,7 @@ namespace HoudiniEngineUnity
     } ;
 
     /// <summary>Meta-data about an HDA returned by HAPI_GetAssetInfo.</summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
+    [Serializable, StructLayout( LayoutKind.Sequential ),]
     public partial struct HAPI_AssetInfo {
         /// <summary>Use the node id to get the asset parameters.</summary>
         /// <remarks>See HAPI_Nodes_Basics.</remarks>
@@ -297,7 +296,7 @@ namespace HoudiniEngineUnity
     } ;
 
     /// <summary>Meta-data for a Houdini Node.</summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
+    [Serializable, StructLayout( LayoutKind.Sequential ),]
     public partial struct HAPI_NodeInfo
     {
         public HAPI_NodeId id ;
@@ -358,7 +357,7 @@ namespace HoudiniEngineUnity
     } ;
 
     /// <summary>Contains parameter information like name label type and size.</summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
+    [Serializable, StructLayout( LayoutKind.Sequential ),]
     public partial struct HAPI_ParmInfo
     {
         public HAPI_ParmId
@@ -486,7 +485,7 @@ namespace HoudiniEngineUnity
     } ;
 
     /// <summary>Meta-data for a combo-box / choice parm.</summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
+    [Serializable, StructLayout( LayoutKind.Sequential ),]
     public partial struct HAPI_ParmChoiceInfo
     {
         public HAPI_ParmId parentParmId ;
@@ -502,7 +501,7 @@ namespace HoudiniEngineUnity
     /// Contains handle information such as the type of handle translate, rotate, scale, softxform, etc
     /// and the number ofparameters the current handle is bound to.
     /// </summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
+    [Serializable, StructLayout( LayoutKind.Sequential ),]
     public partial struct HAPI_HandleInfo {
         public HAPI_StringHandle nameSH, typeNameSH ;
         [MarshalAs( UnmanagedType.I4 )] public int bindingsCount ;
@@ -512,7 +511,7 @@ namespace HoudiniEngineUnity
     /// Contains binding information that maps the handle parameter tothe asset parameter.
     /// The index is only used for int and float vectorand colour parms.
     /// </summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
+    [Serializable, StructLayout( LayoutKind.Sequential ),]
     public partial struct HAPI_HandleBindingInfo {
         public HAPI_StringHandle handleParmNameSH, assetParmNameSH ;
         public HAPI_ParmId assetParmId ;
@@ -520,7 +519,7 @@ namespace HoudiniEngineUnity
     } ;
 
     /// <summary>Meta-data for an OBJ Node.</summary>
-    [Serializable, StructLayout(LayoutKind.Sequential)]
+    [Serializable, StructLayout(LayoutKind.Sequential),]
     public partial struct HAPI_ObjectInfo {
         public HAPI_StringHandle nameSH;              
 
@@ -551,7 +550,7 @@ namespace HoudiniEngineUnity
     };
 
     /// <summary>Meta-data for a SOP Node.</summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
+    [Serializable, StructLayout( LayoutKind.Sequential ),]
     public partial struct HAPI_GeoInfo {
         public HAPI_GeoType type ;
         public HAPI_StringHandle nameSH ;
@@ -658,7 +657,7 @@ namespace HoudiniEngineUnity
     } ;
 
     /// <summary>Meta-data describing an attribute.</summary>
-    [Serializable, StructLayout( LayoutKind.Sequential )]
+    [Serializable, StructLayout( LayoutKind.Sequential ),]
     public partial struct HAPI_AttributeInfo {
         [MarshalAs( UnmanagedType.U1 )] public HAPI_Bool exists ;
 
@@ -974,7 +973,7 @@ namespace HoudiniEngineUnity
 
     };
 
-    [Serializable, StructLayout(LayoutKind.Sequential)]
+    [Serializable, StructLayout(LayoutKind.Sequential),]
     public partial struct HAPI_Viewport          //Contains the information for synchronizing viewport between Houdiniand other applications. When SessionSync is enabled Houdini willupdate this struct with its viewport state. It will also updateits own viewport if this struct has changed.The data stored is in Houdini right-handed Y-up coordinate system.
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = HEU_HAPIConstants.HAPI_POSITION_VECTOR_SIZE, ArraySubType = UnmanagedType.R4)]
@@ -988,7 +987,7 @@ namespace HoudiniEngineUnity
 
     };
 
-    [Serializable, StructLayout(LayoutKind.Sequential)]
+    [Serializable, StructLayout(LayoutKind.Sequential),]
     public partial struct HAPI_SessionSyncInfo          //Contains the information for synchronizing general SessionSyncstate between Houdini and other applications. When SessionSyncis enabled Houdini will update this struct with its state.It will also update its internal state if this struct haschanged.
     {
         [MarshalAs(UnmanagedType.U1)]

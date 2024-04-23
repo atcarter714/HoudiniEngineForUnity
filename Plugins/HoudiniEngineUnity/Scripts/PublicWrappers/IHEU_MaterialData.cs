@@ -85,7 +85,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="materialInfo">This material's info from Houdini</param>
 		/// <param name="assetCacheFolderPath">Path to asset's cache folder</param>
-		bool UpdateMaterialFromHoudini( HAPI_MaterialInfo materialInfo, string assetCacheFolderPath ) ;
+		bool UpdateMaterialFromHoudini( HAPI_MaterialInfo materialInfo, string? assetCacheFolderPath ) ;
 
 
 		/// <summary>

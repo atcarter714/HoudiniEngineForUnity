@@ -62,8 +62,8 @@ namespace HoudiniEngineUnity
         /// <summary>The part name of the HDA</summary>
         string PartName { get; }
 
-        /// <summary>The geo id of the HDA</summary>
-        HAPI_NodeId GeoID { get; }
+	/// <summary>The part name of the HDA</summary>
+	string? PartName { get; }
 
         /// <summary>The part type of the HDA</summary>
         HAPI_PartType PartType { get; }
@@ -122,20 +122,17 @@ namespace HoudiniEngineUnity
         /// <summary>Sets the gameObject name</summary>
         void SetGameObjectName(string partName);
 
-        /// <summary>Sets the gameObject of this part</summary>
-        void SetGameObject(GameObject gameObject);
+	/// <summary>Sets the gameObject name</summary>
+	void SetGameObjectName(string? partName);
 
         /// <summary>Sets the volume layer name</summary>
         void SetVolumeLayerName(string name);
 
-        /// <summary>Gets the volume layer name</summary>
-        string GetVolumeLayerName();
+	/// <summary>Sets the volume layer name</summary>
+	void SetVolumeLayerName(string? name);
 
-        /// <summary>
-        /// Destroy all generated data.
-        /// </summary>
-        /// <param name="bIsRebuild">Whether or not this is a rebuild (retains some data)</param>
-        void DestroyAllData(bool bIsRebuild = false);
+	/// <summary>Gets the volume layer name</summary>
+	string? GetVolumeLayerName();
 
 
         /// <summary>
@@ -189,12 +186,12 @@ namespace HoudiniEngineUnity
         /// <param name="bEnabled">True if set collider state is enabled.</param>
         void SetColliderState(bool bEnabled);
 
-        /// <summary>
-        /// Returns HEU_ObjectInstanceInfo with matching _instancedObjectPath.
-        /// </summary>
-        /// <param name="path">The path to match with _instancedObjectPath</param>
-        /// <returns>HEU_ObjectInstanceInfo with matching _instancedObjectPath or null if none found</returns>
-        HEU_ObjectInstanceInfo GetObjectInstanceInfoWithObjectPath(string path);
+	/// <summary>
+	/// Returns HEU_ObjectInstanceInfo with matching _instancedObjectPath.
+	/// </summary>
+	/// <param name="path">The path to match with _instancedObjectPath</param>
+	/// <returns>HEU_ObjectInstanceInfo with matching _instancedObjectPath or null if none found</returns>
+	HEU_ObjectInstanceInfo GetObjectInstanceInfoWithObjectPath(string? path);
 
         /// <summary>
         /// Returns HEU_ObjectInstanceInfo with matching objNodeID
@@ -210,13 +207,13 @@ namespace HoudiniEngineUnity
         /// <param name="offsetPosition">The position to set the terrain at</param>
         void SetTerrainOffsetPosition(Vector3 offsetPosition);
 
-        /// <summary>
-        /// Saves the given terrainData to the AssetDatabase for this part.
-        /// Adds to existing saved asset file or creates this as the root asset.
-        /// </summary>
-        /// <param name="terrainData">The TerrainData object to save</param>
-        /// <param name="exportPathRelative">The relative export path</param>
-        /// <param name="exportPathUser">The user exported path</param>
-        void SetTerrainData(TerrainData terrainData, string exportPathRelative, string exportPathUser);
+	/// <summary>
+	/// Saves the given terrainData to the AssetDatabase for this part.
+	/// Adds to existing saved asset file or creates this as the root asset.
+	/// </summary>
+	/// <param name="terrainData">The TerrainData object to save</param>
+	/// <param name="exportPathRelative">The relative export path</param>
+	/// <param name="exportPathUser">The user exported path</param>
+	void SetTerrainData(TerrainData terrainData, string? exportPathRelative, string? exportPathUser);
     }
 } // HoudiniEngineUnity

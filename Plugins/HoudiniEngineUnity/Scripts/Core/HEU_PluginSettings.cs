@@ -35,17 +35,17 @@ namespace HoudiniEngineUnity
     /// </summary>
     public static class HEU_PluginSettings
     {
-        public static string HoudiniEngineEnvFilePath
-        {
-            get
-            {
-                string path = "Assets/unity_houdini.env";
-                HEU_PluginStorage.Instance.Get("HEU_EnvFilePathRel", out path, path);
-                return path;
-            }
-            set
-            {
-                HEU_PluginStorage.Instance.Set("HEU_EnvFilePathRel", value);
+	public static string? HoudiniEngineEnvFilePath
+	{
+	    get
+	    {
+		string? path = "Assets/unity_houdini.env";
+		HEU_PluginStorage.Instance.Get("HEU_EnvFilePathRel", out path, path);
+		return path;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HEU_EnvFilePathRel", value);
 
                 // Reload the environment
                 HEU_PluginStorage.Instance.LoadAssetEnvironmentPaths();
@@ -129,60 +129,88 @@ namespace HoudiniEngineUnity
             set => HEU_PluginStorage.Instance.Set("HAPI_ChildTransformChangeTriggersCooks", value);
         }
 
-        public static string CollisionGroupName
-        {
-            get
-            {
-                string sValue = HEU_Defines.DEFAULT_COLLISION_GEO;
-                HEU_PluginStorage.Instance.Get("HAPI_CollisionGroupName", out sValue, sValue);
-                return sValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_CollisionGroupName", value);
-        }
+	public static string? CollisionGroupName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_COLLISION_GEO;
+		HEU_PluginStorage.Instance.Get("HAPI_CollisionGroupName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_CollisionGroupName", value);
+	    }
+	}
 
-        public static string RenderedCollisionGroupName
-        {
-            get
-            {
-                string sValue = HEU_Defines.DEFAULT_RENDERED_COLLISION_GEO;
-                HEU_PluginStorage.Instance.Get("HAPI_RenderedCollisionGroupName", out sValue, sValue);
-                return sValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_RenderedCollisionGroupName", value);
-        }
+	public static string? RenderedCollisionGroupName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_RENDERED_COLLISION_GEO;
+		HEU_PluginStorage.Instance.Get("HAPI_RenderedCollisionGroupName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_RenderedCollisionGroupName", value);
+	    }
+	}
 
-        public static string RenderedConvexCollisionGroupName
-        {
-            get
-            {
-                string sValue = HEU_Defines.DEFAULT_RENDERED_CONVEX_COLLISION_GEO;
-                HEU_PluginStorage.Instance.Get("HAPI_RenderedConvexCollisionGroupName", out sValue, sValue);
-                return sValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_RenderedConvexCollisionGroupName", value);
-        }
+	public static string? RenderedConvexCollisionGroupName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_RENDERED_CONVEX_COLLISION_GEO;
+		HEU_PluginStorage.Instance.Get("HAPI_RenderedConvexCollisionGroupName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_RenderedConvexCollisionGroupName", value);
+	    }
+	}
 
-        public static string UnityMaterialAttribName
-        {
-            get
-            {
-                string sValue = HEU_Defines.DEFAULT_UNITY_MATERIAL_ATTR;
-                HEU_PluginStorage.Instance.Get("HAPI_UnityMaterialAttribName", out sValue, sValue);
-                return sValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_UnityMaterialAttribName", value);
-        }
+	public static string? UnityMaterialAttribName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_UNITY_MATERIAL_ATTR;
+		HEU_PluginStorage.Instance.Get("HAPI_UnityMaterialAttribName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_UnityMaterialAttribName", value);
+	    }
+	}
 
-        public static string UnitySubMaterialAttribName
-        {
-            get
-            {
-                string sValue = HEU_Defines.DEFAULT_UNITY_SUBMATERIAL_NAME_ATTR;
-                HEU_PluginStorage.Instance.Get("HAPI_UnitySubMaterialNameAttribName", out sValue, sValue);
-                return sValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_UnitySubMaterialNameAttribName", value);
-        }
+	public static string? UnitySubMaterialAttribName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_UNITY_SUBMATERIAL_NAME_ATTR;
+		HEU_PluginStorage.Instance.Get("HAPI_UnitySubMaterialNameAttribName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_UnitySubMaterialNameAttribName", value);
+	    }
+	}
+	public static string? UnitySubMaterialIndexAttribName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_UNITY_SUBMATERIAL_INDEX_ATTR;
+		HEU_PluginStorage.Instance.Get("HAPI_UnitySubMaterialIndexAttribName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_UnitySubMaterialIndexAttribName", value);
+	    }
+	}
 
         public static string UnitySubMaterialIndexAttribName
         {
@@ -195,39 +223,61 @@ namespace HoudiniEngineUnity
             set => HEU_PluginStorage.Instance.Set("HAPI_UnitySubMaterialIndexAttribName", value);
         }
 
+	public static string? UnityTagAttributeName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_UNITY_TAG_ATTR;
+		HEU_PluginStorage.Instance.Get("HAPI_UnityTagAttribName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_UnityTagAttribName", value);
+	    }
+	}
 
-        public static string UnityTagAttributeName
-        {
-            get
-            {
-                string sValue = HEU_Defines.DEFAULT_UNITY_TAG_ATTR;
-                HEU_PluginStorage.Instance.Get("HAPI_UnityTagAttribName", out sValue, sValue);
-                return sValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_UnityTagAttribName", value);
-        }
+	public static string? UnityStaticAttributeName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_UNITY_STATIC_ATTR;
+		HEU_PluginStorage.Instance.Get("HAPI_UnityStaticAttribName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_UnityStaticAttribName", value);
+	    }
+	}
 
-        public static string UnityStaticAttributeName
-        {
-            get
-            {
-                string sValue = HEU_Defines.DEFAULT_UNITY_STATIC_ATTR;
-                HEU_PluginStorage.Instance.Get("HAPI_UnityStaticAttribName", out sValue, sValue);
-                return sValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_UnityStaticAttribName", value);
-        }
+	public static string? UnityScriptAttributeName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_UNITY_SCRIPT_ATTR;
+		HEU_PluginStorage.Instance.Get("HAPI_UnityScriptAttribName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_UnityScriptAttribName", value);
+	    }
+	}
 
-        public static string UnityScriptAttributeName
-        {
-            get
-            {
-                string sValue = HEU_Defines.DEFAULT_UNITY_SCRIPT_ATTR;
-                HEU_PluginStorage.Instance.Get("HAPI_UnityScriptAttribName", out sValue, sValue);
-                return sValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_UnityScriptAttribName", value);
-        }
+	public static string? UnityLayerAttributeName
+	{
+	    get
+	    {
+		string? sValue = HEU_Defines.DEFAULT_UNITY_LAYER_ATTR;
+		HEU_PluginStorage.Instance.Get("HAPI_UnityLayerAttribName", out sValue, sValue);
+		return sValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_UnityLayerAttribName", value);
+	    }
+	}
 
         public static string UnityLayerAttributeName
         {
@@ -251,71 +301,91 @@ namespace HoudiniEngineUnity
             set => HEU_PluginStorage.Instance.Set("HAPI_Gamma", value);
         }
 
-        public static float NormalGenerationThresholdAngle
-        {
-            get
-            {
-                float angle = 80f;
-                HEU_PluginStorage.Instance.Get("HAPI_NormalGenerationThresholdAngle", out angle, angle);
-                return angle;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_NormalGenerationThresholdAngle", value);
-        }
+	public static string? LastLoadHDAPath
+	{
+	    get
+	    {
+		string? lastPath = "";
+		HEU_PluginStorage.Instance.Get("HAPI_LastLoadHDAPath", out lastPath, lastPath);
+		return lastPath;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_LastLoadHDAPath", value);
+	    }
+	}
 
-        public static string LastLoadHDAPath
-        {
-            get
-            {
-                string lastPath = "";
-                HEU_PluginStorage.Instance.Get("HAPI_LastLoadHDAPath", out lastPath, lastPath);
-                return lastPath;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_LastLoadHDAPath", value);
-        }
+	public static string? LastLoadHIPPath
+	{
+	    get
+	    {
+		string? lastPath = "";
+		HEU_PluginStorage.Instance.Get("HAPI_LastLoadHIPPath", out lastPath, lastPath);
+		return lastPath;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_LastLoadHIPPath", value);
+	    }
+	}
 
-        public static string LastLoadHIPPath
-        {
-            get
-            {
-                string lastPath = "";
-                HEU_PluginStorage.Instance.Get("HAPI_LastLoadHIPPath", out lastPath, lastPath);
-                return lastPath;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_LastLoadHIPPath", value);
-        }
+	public static string? InstanceAttr
+	{
+	    get
+	    {
+		string? attrValue = HEU_HAPIConstants.HAPI_ATTRIB_INSTANCE;
+		HEU_PluginStorage.Instance.Get("HAPI_InstanceAttr", out attrValue, attrValue);
+		return attrValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_InstanceAttr", value);
+	    }
+	}
 
-        public static string InstanceAttr
-        {
-            get
-            {
-                string attrValue = HEU_HAPIConstants.HAPI_ATTRIB_INSTANCE;
-                HEU_PluginStorage.Instance.Get("HAPI_InstanceAttr", out attrValue, attrValue);
-                return attrValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_InstanceAttr", value);
-        }
+	public static string? UnityInstanceAttr
+	{
+	    get
+	    {
+		string? attrValue = HEU_Defines.DEFAULT_UNITY_INSTANCE_ATTR;
+		HEU_PluginStorage.Instance.Get("HAPI_UnityInstanceAttr", out attrValue, attrValue);
+		return attrValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_UnityInstanceAttr", value);
+	    }
+	}
 
-        public static string UnityInstanceAttr
-        {
-            get
-            {
-                string attrValue = HEU_Defines.DEFAULT_UNITY_INSTANCE_ATTR;
-                HEU_PluginStorage.Instance.Get("HAPI_UnityInstanceAttr", out attrValue, attrValue);
-                return attrValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_UnityInstanceAttr", value);
-        }
+	public static string? UnityInputMeshAttr
+	{
+	    get
+	    {
+		string? attrValue = HEU_Defines.DEFAULT_UNITY_INPUT_MESH_ATTR;
+		HEU_PluginStorage.Instance.Get("HAPI_UnityInputMeshAttr", out attrValue, attrValue);
+		return attrValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_UnityInputMeshAttr", value);
+	    }
+	}
 
-        public static string UnityInputMeshAttr
-        {
-            get
-            {
-                string attrValue = HEU_Defines.DEFAULT_UNITY_INPUT_MESH_ATTR;
-                HEU_PluginStorage.Instance.Get("HAPI_UnityInputMeshAttr", out attrValue, attrValue);
-                return attrValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_UnityInputMeshAttr", value);
-        }
+	public static Color LineColor
+	{
+	    get
+	    {
+		Color   storedColor    = new Color(0f, 1f, 0f, 1f);
+		string? storedColorStr = HEU_GeneralUtility.ColorToString(storedColor);
+		HEU_PluginStorage.Instance.Get("HAPI_LineColor", out storedColorStr, storedColorStr);
+		return HEU_GeneralUtility.StringToColor(storedColorStr);
+	    }
+	    set
+	    {
+		string? storeColorStr = HEU_GeneralUtility.ColorToString(value);
+		HEU_PluginStorage.Instance.Set("HAPI_LineColor", storeColorStr);
+	    }
+	}
 
         public static Color LineColor
         {
@@ -344,30 +414,41 @@ namespace HoudiniEngineUnity
             set => HEU_PluginStorage.Instance.Set("HAPI_UseHybridCurveEditing", value);
         }
 
+	public static string? EditorOnly_Tag
+	{
+	    get
+	    {
+		string? attrValue = HEU_Defines.UNITY_EDITORONLY_TAG;
+		HEU_PluginStorage.Instance.Get("HAPI_EditorOnlyTag", out attrValue, attrValue);
+		return attrValue;
+	    }
+	    set
+	    {
+		if (HEU_GeneralUtility.DoesUnityTagExist(value))
+		{
+		    HEU_PluginStorage.Instance.Set("HAPI_EditorOnlyTag", value);
+		}
+		else
+		{
+		    string? msg = string.Format("Tag '{0}' does not exist in the Editor. Add it before setting it as the tag.", value);
+		    HEU_EditorUtility.DisplayErrorDialog("Tag Does Not Exist", msg, "OK");
+		}
+	    }
+	}
 
-        public static string EditorOnly_Tag
-        {
-            get
-            {
-                string attrValue = HEU_Defines.UNITY_EDITORONLY_TAG;
-                HEU_PluginStorage.Instance.Get("HAPI_EditorOnlyTag", out attrValue, attrValue);
-                return attrValue;
-            }
-            set
-            {
-                if (HEU_GeneralUtility.DoesUnityTagExist(value))
-                {
-                    HEU_PluginStorage.Instance.Set("HAPI_EditorOnlyTag", value);
-                }
-                else
-                {
-                    string msg =
-                        string.Format("Tag '{0}' does not exist in the Editor. Add it before setting it as the tag.",
-                            value);
-                    HEU_EditorUtility.DisplayErrorDialog("Tag Does Not Exist", msg, "OK");
-                }
-            }
-        }
+	public static string? HDAData_Name
+	{
+	    get
+	    {
+		string? attrValue = HEU_Defines.UNITY_HDADATA_NAME;
+		HEU_PluginStorage.Instance.Get("HAPI_HDADataName", out attrValue, attrValue);
+		return attrValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_HDADataName", value);
+	    }
+	}
 
         public static string HDAData_Name
         {
@@ -391,25 +472,33 @@ namespace HoudiniEngineUnity
                     return SessionMode.Pipe;
                 }
 
-                return SessionMode.Socket;
-            }
-            set
-            {
-                int mode = (int)value;
-                HEU_PluginStorage.Instance.Set("HAPI_SessionMode", mode);
-            }
-        }
+	public static string? Session_PipeName
+	{
+	    get
+	    {
+		string? attrValue = HEU_Defines.HEU_SESSION_PIPENAME;
+		HEU_PluginStorage.Instance.Get("HAPI_SessionPipeName", out attrValue, attrValue);
+		return attrValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_SessionPipeName", value);
+	    }
+	}
 
-        public static string Session_PipeName
-        {
-            get
-            {
-                string attrValue = HEU_Defines.HEU_SESSION_PIPENAME;
-                HEU_PluginStorage.Instance.Get("HAPI_SessionPipeName", out attrValue, attrValue);
-                return attrValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_SessionPipeName", value);
-        }
+	public static string? Session_Localhost
+	{
+	    get
+	    {
+		string? attrValue = HEU_Defines.HEU_SESSION_LOCALHOST;
+		HEU_PluginStorage.Instance.Get("HAPI_SessionLocalhost", out attrValue, attrValue);
+		return attrValue;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_SessionLocalhost", value);
+	    }
+	}
 
         public static string Session_Localhost
         {
@@ -455,16 +544,19 @@ namespace HoudiniEngineUnity
             set => HEU_PluginStorage.Instance.Set("HAPI_SessionAutoclose", value);
         }
 
-        public static bool Curves_ShowInSceneView
-        {
-            get
-            {
-                bool attrValue = true;
-                HEU_PluginStorage.Instance.Get("HAPI_CurvesShowInSceneView", out attrValue, attrValue);
-                return attrValue;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_CurvesShowInSceneView", value);
-        }
+	public static string? AssetCachePath
+	{
+	    get
+	    {
+		string? path = HEU_Defines.HEU_ASSET_CACHE_PATH;
+		HEU_PluginStorage.Instance.Get("HAPI_AssetCachePath", out path, path);
+		return path;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_AssetCachePath", value);
+	    }
+	}
 
         public static string AssetCachePath
         {
@@ -499,38 +591,39 @@ namespace HoudiniEngineUnity
             set => HEU_PluginStorage.Instance.Set("HAPI_HEngineToolsShelves", value);
         }
 
-        public static int HEngineShelfSelectedIndex
-        {
-            get
-            {
-                int selectedIndex = 0;
-                HEU_PluginStorage.Instance.Get("HAPI_HEngineShelfSelectedIndex", out selectedIndex, selectedIndex);
-                return selectedIndex;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_HEngineShelfSelectedIndex", value);
-        }
+	public static string? DefaultTerrainMaterial
+	{
+	    get
+	    {
+		string? path = "";
+		HEU_PluginStorage.Instance.Get("HAPI_DefaultTerrainMaterial", out path, path);
+		return path;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_DefaultTerrainMaterial", value);
+	    }
+	}
 
-        public static string DefaultTerrainMaterial
-        {
-            get
-            {
-                string path = "";
-                HEU_PluginStorage.Instance.Get("HAPI_DefaultTerrainMaterial", out path, path);
-                return path;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_DefaultTerrainMaterial", value);
-        }
+	public static string? TerrainSplatTextureDefault
+	{
+	    get
+	    {
+		string? path = HEU_Defines.HEU_TERRAIN_SPLAT_DEFAULT;
+		HEU_PluginStorage.Instance.Get("HAPI_TerrainSplatTextureDefault", out path, path);
+		return path;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_TerrainSplatTextureDefault", value);
+	    }
+	}
 
-        public static string TerrainSplatTextureDefault
-        {
-            get
-            {
-                string path = HEU_Defines.HEU_TERRAIN_SPLAT_DEFAULT;
-                HEU_PluginStorage.Instance.Get("HAPI_TerrainSplatTextureDefault", out path, path);
-                return path;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_TerrainSplatTextureDefault", value);
-        }
+	public static string? DefaultStandardShader
+	{
+	    get
+	    {
+		string? path;
 
         public static string DefaultStandardShader
         {
@@ -574,10 +667,11 @@ namespace HoudiniEngineUnity
                     path = HEU_Defines.HOUDINI_SHADER_PREFIX + path;
                 }
 
-                return path;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_DefaultStandardShader", value);
-        }
+	public static string? DefaultVertexColorShader
+	{
+	    get
+	    {
+		string? path;
 
         public static string DefaultVertexColorShader
         {
@@ -621,10 +715,11 @@ namespace HoudiniEngineUnity
                     path = HEU_Defines.HOUDINI_SHADER_PREFIX + path;
                 }
 
-                return path;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_DefaultVertexColorShader", value);
-        }
+	public static string? DefaultTransparentShader
+	{
+	    get
+	    {
+		string? path;
 
         public static string DefaultTransparentShader
         {
@@ -668,10 +763,11 @@ namespace HoudiniEngineUnity
                     path = HEU_Defines.HOUDINI_SHADER_PREFIX + path;
                 }
 
-                return path;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_DefaultTransparentShader", value);
-        }
+	public static string? DefaultCurveShader
+	{
+	    get
+	    {
+		string? path = HEU_Defines.DEFAULT_CURVE_SHADER;
 
         public static string DefaultCurveShader
         {
@@ -725,30 +821,14 @@ namespace HoudiniEngineUnity
             set => HEU_PluginStorage.Instance.Set("HAPI_SupportSphereType", value);
         }
 
-        public static bool SetCurrentThreadToInvariantCulture
-        {
-            get
-            {
-                bool bValue = true;
-                HEU_PluginStorage.Instance.Get("HAPI_SetCurrentThreadToInvariantCulture", out bValue, bValue);
-                return bValue;
-            }
-            set
-            {
-                HEU_PluginStorage.Instance.Set("HAPI_SetCurrentThreadToInvariantCulture", value);
-                HEU_PluginStorage.SetCurrentCulture(value);
-            }
-        }
-
-        public static string HoudiniDebugLaunchPath
-        {
-            get
-            {
+	public static string? HoudiniDebugLaunchPath
+	{
+	    get
+	    {
 #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
 		string path = HEU_Platform.GetHoudiniEnginePath();
 #else
-                string path = HEU_Platform.GetHoudiniEnginePath() + HEU_HoudiniVersion.HAPI_BIN_PATH +
-                              HEU_Platform.DirectorySeparator + "houdini";
+		string? path = HEU_Platform.GetHoudiniEnginePath() + HEU_HoudiniVersion.HAPI_BIN_PATH + HEU_Platform.DirectorySeparator + "houdini";
 #endif
                 HEU_PluginStorage.Instance.Get("HEU_HoudiniDebugLaunchPath", out path, path);
                 return path;
@@ -756,16 +836,19 @@ namespace HoudiniEngineUnity
             set { HEU_PluginStorage.Instance.Set("HEU_HoudiniDebugLaunchPath", value); }
         }
 
-        public static string LastExportPath
-        {
-            get
-            {
-                string path = "";
-                HEU_PluginStorage.Instance.Get("HAPI_LastExportPath", out path, path);
-                return path;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_LastExportPath", value);
-        }
+	public static string? LastExportPath
+	{
+	    get
+	    {
+		string? path = "";
+		HEU_PluginStorage.Instance.Get("HAPI_LastExportPath", out path, path);
+		return path;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_LastExportPath", value);
+	    }
+	}
 
         public static int InputSelectionFilterLocation
         {
@@ -800,16 +883,19 @@ namespace HoudiniEngineUnity
             set => HEU_PluginStorage.Instance.Set("HAPI_InputFilterRoots", value);
         }
 
-        public static string InputSelectionFilterName
-        {
-            get
-            {
-                string selection = "";
-                HEU_PluginStorage.Instance.Get("HAPI_InputFilterName", out selection, selection);
-                return selection;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_InputFilterName", value);
-        }
+	public static string? InputSelectionFilterName
+	{
+	    get
+	    {
+		string? selection = "";
+		HEU_PluginStorage.Instance.Get("HAPI_InputFilterName", out selection, selection);
+		return selection;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_InputFilterName", value);
+	    }
+	}
 
         public static bool CookOptionSplitGeosByGroup
         {
@@ -833,27 +919,33 @@ namespace HoudiniEngineUnity
             set => HEU_PluginStorage.Instance.Set("HAPI_MaxVerticesPerPrimitive", value);
         }
 
-        public static string HoudiniInstallPath
-        {
-            get
-            {
-                string path = "";
-                HEU_PluginStorage.Instance.Get("HAPI_HoudiniInstallPath", out path, path);
-                return path;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_HoudiniInstallPath", value);
-        }
+	public static string? HoudiniInstallPath
+	{
+	    get
+	    {
+		string? path = "";
+		HEU_PluginStorage.Instance.Get("HAPI_HoudiniInstallPath", out path, path);
+		return path;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_HoudiniInstallPath", value);
+	    }
+	}
 
-        public static string LastHoudiniVersion
-        {
-            get
-            {
-                string version = "";
-                HEU_PluginStorage.Instance.Get("HAPI_LastHoudiniVersion", out version, version);
-                return version;
-            }
-            set => HEU_PluginStorage.Instance.Set("HAPI_LastHoudiniVersion", value);
-        }
+	public static string? LastHoudiniVersion
+	{
+	    get
+	    {
+		string? version = "";
+		HEU_PluginStorage.Instance.Get("HAPI_LastHoudiniVersion", out version, version);
+		return version;
+	    }
+	    set
+	    {
+		HEU_PluginStorage.Instance.Set("HAPI_LastHoudiniVersion", value);
+	    }
+	}
 
         public static bool SessionSyncAutoCook
         {

@@ -40,12 +40,12 @@ namespace HoudiniEngineUnity
 	
 	public class HEU_LoadBufferBase {
 		public HAPI_NodeId         _id ;
-		public string              _name ;
+		public string?             _name ;
 		public bool                _bInstanced ;
 		public bool                _bInstancer ;
 		public HEU_GeneratedOutput _generatedOutput ;
 
-		public void InitializeBuffer( HAPI_NodeId id, string name, bool bInstanced, bool bInstancer ) {
+		public void InitializeBuffer( HAPI_NodeId id, string? name, bool bInstanced, bool bInstancer ) {
 			_id         = id ;
 			_name       = name ;
 			_bInstanced = bInstanced ;
@@ -80,8 +80,8 @@ namespace HoudiniEngineUnity
 
 		public Vector3 _position ;
 
-		public string _terrainDataPath ;
-		public string _terrainDataExportPath ;
+		public string? _terrainDataPath ;
+		public string? _terrainDataExportPath ;
 
 		public HEU_VolumeScatterTrees _scatterTrees ;
 
@@ -91,20 +91,20 @@ namespace HoudiniEngineUnity
 		public HEU_DetailProperties        _detailProperties ;
 
 		// Specified terrain material
-		public string _specifiedTerrainMaterialName ;
+		public string? _specifiedTerrainMaterialName ;
 	} ;
 
 	public class HEU_LoadBufferVolumeLayer {
-		public string      _layerName ;
+		public string?     _layerName ;
 		public HAPI_PartId _partID ;
 		public int         _heightMapWidth ;
 		public int         _heightMapHeight ;
 		public float       _strength = 1.0f ;
 
-		public string  _diffuseTexturePath ;
-		public string  _maskTexturePath ;
+		public string? _diffuseTexturePath ;
+		public string? _maskTexturePath ;
 		public float   _metallic = 0f ;
-		public string  _normalTexturePath ;
+		public string? _normalTexturePath ;
 		public float   _normalScale   = 0.5f ;
 		public float   _smoothness    = 0f ;
 		public Color   _specularColor = Color.gray ;
@@ -127,7 +127,7 @@ namespace HoudiniEngineUnity
 		public Vector3 _maxBounds ;
 		public Vector3 _center ;
 
-		public string _layerPath ;
+		public string? _layerPath ;
 
 		public bool _hasLayerAttributes ;
 
@@ -136,16 +136,16 @@ namespace HoudiniEngineUnity
 	
 	public class HEU_LoadBufferInstancer: HEU_LoadBufferBase {
 		public HAPI_Transform[ ] _instanceTransforms ;
-		public string[ ] _instancePrefixes ;
+		public string?[]         _instancePrefixes ;
 
 		// Instancing with parts as source
 		public HAPI_NodeId[ ] _instanceNodeIDs ;
 
 		// Instancing with asset path as source (single or multi)
-		public string[ ] _assetPaths ;
+		public string?[] _assetPaths ;
 
 		// Override collision asset paths
-		public string[ ] _collisionAssetPaths ;
+		public string?[] _collisionAssetPaths ;
 	} ;
 
 } // HoudiniEngineUnity

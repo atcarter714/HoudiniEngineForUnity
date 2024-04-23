@@ -123,16 +123,17 @@ namespace HoudiniEngineUnity
             set => _topOutputFilter = value;
         }
 
+	public string? AssetPath { get { return _assetPath; } }
 
         public HEU_HoudiniAsset ParentAsset => _heu;
 
-        public string AssetPath => _assetPath;
+	public string? AssetName { get { return _assetName; } }
 
         public GameObject AssetGO => _assetGO;
 
         public string AssetName => _assetName;
 
-        public HAPI_NodeId AssetID => _assetID;
+	public string?[] TopNetworkNames { get { return _topNetworkNames; } }
 
         public List<HEU_TOPNetworkData> TopNetworks => _topNetworks;
 
@@ -140,7 +141,8 @@ namespace HoudiniEngineUnity
 
         public int SelectedTOPNetwork => _selectedTOPNetwork;
 
-        public HEU_LinkStateWrapper PDGLinkState => LinkState_InternalToWrapper(_linkState);
+	// The root directory for generated output
+	public string? OutputCachePathRoot { get { return _outputCachePathRoot; } }
 
         // The root gameobject to place all loaded geometry under
         public GameObject LoadRootGameObject => _loadRootGameObject;
@@ -157,12 +159,14 @@ namespace HoudiniEngineUnity
         //	DATA ------------------------------------------------------------------------------------------------------
 
 #pragma warning disable 0414
-        [SerializeField] private string _assetPath;
+	[SerializeField]
+	private string? _assetPath;
 
         [SerializeField] private GameObject _assetGO;
 #pragma warning restore 0414
 
-        [SerializeField] private string _assetName;
+	[SerializeField]
+	private string? _assetName;
 
         [SerializeField] private HAPI_NodeId _assetID = HEU_Defines.HEU_INVALID_NODE_ID;
 
@@ -172,8 +176,9 @@ namespace HoudiniEngineUnity
         // List of TOP networks within HDA
         [SerializeField] private List<HEU_TOPNetworkData> _topNetworks = new List<HEU_TOPNetworkData>();
 
-        // Names of TOP networks within HDA
-        [SerializeField] private string[] _topNetworkNames = new string[0];
+	// Names of TOP networks within HDA
+	[SerializeField]
+	private string?[] _topNetworkNames = new string[0];
 
         // Currently selected TOP network
         [SerializeField] private int _selectedTOPNetwork;
@@ -201,8 +206,9 @@ namespace HoudiniEngineUnity
 
         internal HEU_WorkItemTally _workItemTally = new HEU_WorkItemTally();
 
-        // The root gameobject to place all loaded geometry under
-        [SerializeField] private GameObject _loadRootGameObject;
+	// The root directory for generated output
+	[SerializeField]
+	private string? _outputCachePathRoot;
 
         // The root directory for generated output
         [SerializeField] private string _outputCachePathRoot;
@@ -219,16 +225,9 @@ namespace HoudiniEngineUnity
         // PUBLIC FUNCTIONS =========================================================================================
 
 
-        public void Setup(HEU_HoudiniAsset hdaAsset)
-        {
-            _heu = hdaAsset;
-            _assetGO = _heu.RootGameObject;
-            _assetPath = _heu.AssetPath;
-            _assetName = _heu.AssetName;
-            _bUseTOPNodeFilter = true;
-            _bUseTOPOutputFilter = true;
-            _topNodeFilter = HEU_Defines.DEFAULT_TOP_NODE_FILTER;
-            _topOutputFilter = HEU_Defines.DEFAULT_TOP_OUTPUT_FILTER;
+	    // Use the HDAs cache folder for generating output files
+	    string? hdaCachePath = _heu.GetValidAssetCacheFolderPath();
+	    _outputCachePathRoot = HEU_Platform.BuildPath(hdaCachePath, "PDGCache");
 
             // Use the HDAs cache folder for generating output files
             string hdaCachePath = _heu.GetValidAssetCacheFolderPath();
@@ -492,23 +491,29 @@ namespace HoudiniEngineUnity
             return _heu != null ? _heu.GetAssetSession(true) : null;
         }
 
-        public HEU_TOPNodeData GetTOPNode(HAPI_NodeId nodeID)
-        {
-            int numNetworks = _topNetworks.Count;
-            for (int i = 0; i < numNetworks; ++i)
-            {
-                int numNodes = _topNetworks[i]._topNodes.Count;
-                for (int j = 0; j < numNodes; ++j)
-                {
-                    if (_topNetworks[i]._topNodes[j]._nodeID == nodeID)
-                    {
-                        return _topNetworks[i]._topNodes[j];
-                    }
-                }
-            }
+	public static HEU_TOPNetworkData GetTOPNetworkByName(string? name, List<HEU_TOPNetworkData> topNetworks)
+	{
+	    for (int i = 0; i < topNetworks.Count; ++i)
+	    {
+		if (topNetworks[i]._nodeName.Equals(name))
+		{
+		    return topNetworks[i];
+		}
+	    }
+	    return null;
+	}
 
-            return null;
-        }
+	public static HEU_TOPNodeData GetTOPNodeByName(string? name, List<HEU_TOPNodeData> topNodes)
+	{
+	    for (int i = 0; i < topNodes.Count; ++i)
+	    {
+		if (topNodes[i]._nodeName.Equals(name))
+		{
+		    return topNodes[i];
+		}
+	    }
+	    return null;
+	}
 
         public string GetTOPNodeStatus(HEU_TOPNodeData topNode)
         {
@@ -726,8 +731,8 @@ namespace HoudiniEngineUnity
                     return false;
                 }
 
-                string nodeName = HEU_SessionManager.GetString(topNodeInfo.nameSH, session);
-                //HEU_Logger.LogFormat("Top node: {0} - {1}", nodeName, topNodeInfo.type);
+		string? nodeName = HEU_SessionManager.GetString(topNodeInfo.nameSH, session);
+		//HEU_Logger.LogFormat("Top node: {0} - {1}", nodeName, topNodeInfo.type);
 
                 // Skip any non TOP or SOP networks
                 if (topNodeInfo.type != HAPI_NodeType.HAPI_NODETYPE_TOP &&
@@ -839,8 +844,8 @@ namespace HoudiniEngineUnity
                     return false;
                 }
 
-                string nodeName = HEU_SessionManager.GetString(childNodeInfo.nameSH, session);
-                //HEU_Logger.LogFormat("TOP Node: name={0}, type={1}", nodeName, childNodeInfo.type);
+		string? nodeName = HEU_SessionManager.GetString(childNodeInfo.nameSH, session);
+		//HEU_Logger.LogFormat("TOP Node: name={0}, type={1}", nodeName, childNodeInfo.type);
 
                 TOPNodeTags tags = new TOPNodeTags();
                 if (useHEngineData)
@@ -1017,9 +1022,8 @@ namespace HoudiniEngineUnity
                     }
                 }
 
-                result._generatedGOs.Clear();
-            }
-        }
+	    string? workItemName = HEU_SessionManager.GetString(workItemInfo.nameSH, session);
+	    //HEU_Logger.LogFormat("Work item: {0}:: name={1}, results={2}", workItemInfo.index, workItemName, workItemInfo.numResults);
 
 
         /// <summary>
@@ -1049,12 +1053,8 @@ namespace HoudiniEngineUnity
                 return;
             }
 
-            HEU_TOPWorkResult result = GetWorkResultByID(topNode, workItemID);
-            if (result == null)
-            {
-                result = new HEU_TOPWorkResult();
-                result._workItemIndex = workItemInfo.index;
-                result._workItemID = workItemID;
+		string? tag  = HEU_SessionManager.GetString(resultInfos[i].tagSH, session);
+		string? path = HEU_SessionManager.GetString(resultInfos[i].filePathSH, session);
 
                 topNode._workResults.Add(result);
             }
@@ -1073,6 +1073,10 @@ namespace HoudiniEngineUnity
                 string tag = HEU_SessionManager.GetString(resultInfos[i].tagSH, session);
                 string path = HEU_SessionManager.GetString(resultInfos[i].filePathSH, session);
 
+		string? name = string.Format("{0}_{1}_{2}",
+									 topNode._parentName,
+									 workItemName,
+									 workItemInfo.index);
 
                 //HEU_Logger.LogFormat("Result for work item {0}: result={1}, tag={2}, path={3}", result._workItemIndex, i, tag, path);
 
@@ -1270,12 +1274,12 @@ namespace HoudiniEngineUnity
             bool bLogError = session.LogErrorOverride;
             session.LogErrorOverride = false;
 
-            int numStrings = nodeInfo.parmStringValueCount;
-            HAPI_StringHandle henginedatash = 0;
-            if (numStrings > 0 && session.GetParamStringValue(topNodeID, "henginedata", 0, out henginedatash))
-            {
-                string henginedatastr = HEU_SessionManager.GetString(henginedatash, session);
-                //HEU_Logger.Log("HEngine data: " + henginedatastr);
+	    int numStrings = nodeInfo.parmStringValueCount;
+	    HAPI_StringHandle henginedatash = 0;
+	    if (numStrings > 0 && session.GetParamStringValue(topNodeID, "henginedata", 0, out henginedatash))
+	    {
+		string? henginedatastr = HEU_SessionManager.GetString(henginedatash, session);
+		//HEU_Logger.Log("HEngine data: " + henginedatastr);
 
                 if (!string.IsNullOrEmpty(henginedatastr))
                 {

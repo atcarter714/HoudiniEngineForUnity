@@ -65,7 +65,7 @@ namespace HoudiniEngineUnity
 		HAPI_GeoInfo GeoInfo { get ; }
 
 		/// <summary>The GeoName of the node in Houdini </summary>
-		string GeoName { get ; }
+		string? GeoName { get ; }
 
 		/// <summary>The GeoType of the node in Houdini </summary>
 		HAPI_GeoType GeoType { get ; }

@@ -302,18 +302,18 @@ namespace HoudiniEngineUnity
 
 		// Writes meshes and materials to the asset cache
 		// Note: It might be useful to merge with BakePartToGameObject in the future to include terrain automatically
-		internal void WriteOutputToAssetCache( GameObject parentObject, string outputPath, bool bIsInstancer ) {
+		internal void WriteOutputToAssetCache( GameObject parentObject, string? outputPath, bool bIsInstancer ) {
 			BakeGameObjectComponents( _outputData._gameObject, parentObject, _outputData._gameObject.name, outputPath,
 									  bIsInstancer ) ;
 		}
 
 		// Bakes GameObject components (Used for both standard pipeline and PDG)
-		internal static void BakeGameObjectComponents( GameObject sourceGO, GameObject targetGO, string assetName,
-													   string outputPath, bool bIsInstancer ) {
+		internal static void BakeGameObjectComponents( GameObject sourceGO,   GameObject targetGO, string? assetName,
+													   string?    outputPath, bool       bIsInstancer ) {
 			Object assetDBObject = null ;
 			Dictionary< Mesh, Mesh > sourceToTargetMeshMap = new( ) ;
 			Dictionary< Material, Material > sourceToCopiedMaterials = new( ) ;
-			string newAssetDBObjectFileName = HEU_AssetDatabase.AppendMeshesAssetFileName( assetName ) ;
+			string? newAssetDBObjectFileName = HEU_AssetDatabase.AppendMeshesAssetFileName( assetName ) ;
 
 			HEU_PartData.BakePartToGameObject(
 											  partData: null,

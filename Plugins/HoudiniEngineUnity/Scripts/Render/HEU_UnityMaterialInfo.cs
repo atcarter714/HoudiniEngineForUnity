@@ -1,4 +1,5 @@
-﻿/*
+
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -24,22 +25,22 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace HoudiniEngineUnity
-{
-    /// <summary>
-    /// Container for Unity and Substance material data
-    /// </summary>
-    public class HEU_UnityMaterialInfo
-    {
-        public string _unityMaterialPath;
-        public string _substancePath;
-        public int _substanceIndex;
+namespace HoudiniEngineUnity {
+    
+    /// <summary>Container for Unity and Substance material data.</summary>
+    public class HEU_UnityMaterialInfo {
+	    public string? _unityMaterialPath;
+	    public string? _substancePath;
+	    public int _substanceIndex;
 
-        public HEU_UnityMaterialInfo(string unityMaterialPath, string substancePath, int substanceIndex)
-        {
+	    public HEU_UnityMaterialInfo( string? unityMaterialPath,
+                                      string? substancePath,
+                                      int substanceIndex ) {
             _unityMaterialPath = unityMaterialPath;
-            _substancePath = substancePath;
-            _substanceIndex = substanceIndex;
-        }
-    }
+            _unityMaterialPath = unityMaterialPath;
+	        _substancePath = substancePath;
+	        _substanceIndex = substanceIndex;
+	    }
+    } ;
+    
 } // HoudiniEngineUnity

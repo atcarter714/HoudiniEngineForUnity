@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -132,7 +132,15 @@ namespace HoudiniEngineUnity
                 }
             }
 
-            private ArrayWrapper<float> _floatArrayValue;
+	    private ArrayWrapper< string? > _stringArrayValue;
+	    public ArrayWrapper< string? > StringArrayValue
+	    {
+		get
+		{
+		    if (_fieldType != UIDataFieldType.STRING_ARRAY)
+		    {
+			HEU_Logger.LogError("Error: Field type incorrect!");
+		    }
 
             public ArrayWrapper<float> FloatArrayValue
             {

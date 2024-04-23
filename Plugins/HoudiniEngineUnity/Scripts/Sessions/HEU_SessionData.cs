@@ -59,7 +59,7 @@ namespace HoudiniEngineUnity
 		[SerializeField] bool _initialized ;
 
 		// Name of pipe (for pipe session)
-		[SerializeField] string _pipeName ;
+		[SerializeField] string? _pipeName ;
 
 		[SerializeField] int _port ;
 #pragma warning restore 0414
@@ -148,7 +148,7 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		public string PipeName {
+		public string? PipeName {
 			get {
 #if HOUDINIENGINEUNITY_ENABLED
 				return _pipeName ;

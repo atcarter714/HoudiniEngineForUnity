@@ -64,7 +64,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public void InitializeFromHoudini( HEU_SessionBase session,  HAPI_NodeId nodeID,
-										   string          nodeName, string      filePath ) {
+										   string?         nodeName, string      filePath ) {
 			Initialize( ) ;
 			_sessionID        = session.GetSessionData( ).SessionID ;
 			_cookNodeID       = nodeID ;
@@ -94,7 +94,7 @@ namespace HoudiniEngineUnity
 			return session.SaveNodeToFile( _cookNodeID, filePath ) ;
 		}
 
-		public static void CreateNodeSync( HEU_SessionBase? session, string opName, string nodeNabel ) {
+		public static void CreateNodeSync( HEU_SessionBase? session, string? opName, string? nodeNabel ) {
 			const HAPI_NodeId parentNodeId = HEU_Defines.HEU_INVALID_NODE_ID ;
 			session ??= HEU_SessionManager.GetDefaultSession( ) ;
 			if ( session?.IsSessionValid() is not true ) return ;

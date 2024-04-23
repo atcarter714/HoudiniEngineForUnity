@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -71,8 +71,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        // UI name for new node
-        public string _newNodeName = "geo1";
+	// UI name for new node
+	public string? _newNodeName = "geo1";
 
         // UI index of node type
         public int _nodeTypeIndex = 0;

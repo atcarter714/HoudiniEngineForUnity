@@ -32,14 +32,15 @@ namespace HoudiniEngineUnity {
 	public class HEU_Logger {
 		public static void Log( string text ) => Debug.Log( text ) ;
 
-		public static void LogFormat( string text, params object[] args ) => Debug.LogFormat( text, args ) ;
+		public static void LogFormat( string text, params object?
+										  [] args ) => Debug.LogFormat( text, args ) ;
 
 		public static void LogWarning( string? text ) {
 			Debug.LogWarning( text ) ;
 			LogToCookLogsIfOn( text ) ;
 		}
 
-		public static void LogWarningFormat( string? text, params object[] args ) {
+		public static void LogWarningFormat( string? text, params object?[] args ) {
 			Debug.LogWarningFormat( text, args ) ;
 			LogToCookLogsIfOnFormat( text, args ) ;
 		}
@@ -49,7 +50,7 @@ namespace HoudiniEngineUnity {
 			LogToCookLogsIfOn( text ) ;
 		}
 
-		public static void LogErrorFormat( string? text, params object[] args ) {
+		public static void LogErrorFormat( string? text, params object?[] args ) {
 			Debug.LogErrorFormat( text, args ) ;
 			LogToCookLogsIfOnFormat( text, args ) ;
 		}
@@ -64,7 +65,7 @@ namespace HoudiniEngineUnity {
 			LogToCookLogsIfOn( text ) ;
 		}
 
-		public static void LogAssertionFormat( string? text, params object[] args ) {
+		public static void LogAssertionFormat( string? text, params object?[] args ) {
 			Debug.LogAssertionFormat( text, args ) ;
 			LogToCookLogsIfOnFormat( text, args ) ;
 		}
@@ -75,7 +76,7 @@ namespace HoudiniEngineUnity {
 			}
 		}
 
-		static void LogToCookLogsIfOnFormat( string? text, params object[] args ) {
+		static void LogToCookLogsIfOnFormat( string? text, params object?[] args ) {
 			if ( !HEU_PluginSettings.WriteCookLogs ) return ;
 			text = string.Format( text, args ) ;
 			HEU_CookLogs.Instance.WriteToLogFile( text ) ;

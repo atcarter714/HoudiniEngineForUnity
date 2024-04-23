@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -189,8 +189,8 @@ namespace HoudiniEngineUnity
         /// <inheritdoc />
         public List<CurveNodeData> CurveNodeData => _curveNodeData;
 
-        /// <inheritdoc />
-        public HEU_Parameters Parameters => _parameters;
+	/// <inheritdoc />
+	public string? CurveName { get { return _curveName; } }
 
         /// <inheritdoc />
         public string CurveName => _curveName;
@@ -251,8 +251,8 @@ namespace HoudiniEngineUnity
             EDIT
         }
 
-        // Preferred interaction mode when this a curve selected. Allows for quick access for curve editing.
-        public static Interaction PreferredNextInteractionMode = Interaction.VIEW;
+	[SerializeField]
+	private string? _curveName;
 
         internal enum CurveDrawCollision
         {
@@ -384,8 +384,14 @@ namespace HoudiniEngineUnity
                 return _curveNodeData[pointIndex].position;
             }
 
-            return Vector3.zero;
-        }
+	    /// <inheritdoc />
+	    public void SetCurveName( string? curveName ) {
+            if( string.IsNullOrEmpty(curveName) )
+                throw new ArgumentNullException( nameof(curveName) ) ;
+        
+	        if ( _targetGameObject )
+		        HEU_GeneralUtility.RenameGameObject( _targetGameObject, curveName ) ;
+	    }
 
         /// <inheritdoc />
         public List<CurveNodeData> GetAllPointTransforms()

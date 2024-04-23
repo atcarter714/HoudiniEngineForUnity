@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -62,8 +62,8 @@ namespace HoudiniEngineUnity
         /// <summary>The object name of the HDA</summary>
         string ObjectName { get; }
 
-        /// <summary>The object info of the HDA</summary>
-        HAPI_ObjectInfo ObjectInfo { get; }
+	/// <summary>The object name of the HDA</summary>
+	string? ObjectName { get; }
 
         /// <summary>The geo nodes of the HDA</summary>
         List<HEU_GeoNode> GeoNodes { get; }
@@ -110,12 +110,12 @@ namespace HoudiniEngineUnity
         /// <returns>Valid HEU_GeoNode or null if no match</returns>
         HEU_GeoNode GetGeoNode(string geoName);
 
-        /// <summary>
-        /// Gets the curves under this object node
-        /// </summary>
-        /// <param name="curves">List of curves to add. </param>
-        /// <param name="bEditableOnly">Whether to filter editable nodes or not</param>
-        void GetCurves(List<HEU_Curve> curves, bool bEditableOnly);
+	/// <summary>
+	/// Returns the HEU_GeoNode with the given name.
+	/// </summary>
+	/// <param name="geoName">The name to check</param>
+	/// <returns>Valid HEU_GeoNode or null if no match</returns>
+	HEU_GeoNode GetGeoNode(string? geoName);
 
         /// <summary>
         /// Gets the output geo nodes

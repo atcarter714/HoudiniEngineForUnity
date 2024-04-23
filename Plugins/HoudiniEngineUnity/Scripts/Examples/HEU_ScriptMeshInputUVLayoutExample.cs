@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -117,17 +117,16 @@ public class HEU_ScriptMeshInputUVLayoutExample
             }
 
 
-            // Create the input node in Houdini.
-            // Houdini Engine automatically creates a new object to contain the input node.
-            string inputName = null;
-            HAPI_NodeId inputNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
-            session.CreateInputNode(out inputNodeID, inputName);
-            if (inputNodeID == HEU_Defines.HEU_INVALID_NODE_ID ||
-                !HEU_HAPIUtility.IsNodeValidInHoudini(session, inputNodeID))
-            {
-                HEU_Logger.LogErrorFormat("Failed to create new input node in Houdini session!");
-                break;
-            }
+	    // Create the input node in Houdini.
+	    // Houdini Engine automatically creates a new object to contain the input node.
+	    string? inputName = null;
+	    HAPI_NodeId inputNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
+	    session.CreateInputNode(out inputNodeID, inputName);
+	    if (inputNodeID == HEU_Defines.HEU_INVALID_NODE_ID || !HEU_HAPIUtility.IsNodeValidInHoudini(session, inputNodeID))
+	    {
+		HEU_Logger.LogErrorFormat("Failed to create new input node in Houdini session!");
+		break;
+	    }
 
             // Need the HAPI_NodeInfo of the new input node to get its details, such as parent object ID.
             HAPI_NodeInfo nodeInfo = new HAPI_NodeInfo();
@@ -184,8 +183,8 @@ public class HEU_ScriptMeshInputUVLayoutExample
             // materialCache will contain the list of materials generated..
             List<HEU_MaterialData> materialCache = new List<HEU_MaterialData>();
 
-            // Suggested name of the folder within this project where output files might be written out to (eg. materials).
-            string assetCachePathName = "uvlayoutcache";
+	    // Suggested name of the folder within this project where output files might be written out to (eg. materials).
+	    string? assetCachePathName = "uvlayoutcache";
 
             // First create a HEU_GenerateGeoCache which will contain the geometry data from Houdiini.
             // This will get all the geometry data buffers from Houdini from the UVLayout node, along with the materials (new or existing).

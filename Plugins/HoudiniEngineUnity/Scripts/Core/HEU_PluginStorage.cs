@@ -200,7 +200,7 @@ namespace HoudiniEngineUnity {
 			MarkDirtyForSave( ) ;
 		}
 
-		public void Set( string key, string value ) {
+		public void Set( string key, string? value ) {
 			StoreData data = new( )
 			{
 				_type     = DataType.STRING,
@@ -270,7 +270,7 @@ namespace HoudiniEngineUnity {
 			return false ;
 		}
 
-		public bool Get( string key, out string? value, string defaultValue ) {
+		public bool Get( string key, out string? value, string? defaultValue ) {
 			if ( _dataMap.TryGetValue( key, out StoreData? data ) ) {
 				if ( data._type is DataType.STRING ) {
 					value = data?._valueStr ;
@@ -325,7 +325,7 @@ namespace HoudiniEngineUnity {
 
 
 		// Path to the plugin settings ini file. Placed in the project root (i.e. Assets/../)
-		public static string SettingsFilePath( ) =>
+		public static string? SettingsFilePath( ) =>
 			Path.Combine( Application.dataPath,
 						  ".." + Path.DirectorySeparatorChar + HEU_Defines.PLUGIN_SETTINGS_FILE
 						) ;
@@ -335,7 +335,7 @@ namespace HoudiniEngineUnity {
 		/// </summary>
 		public bool SavePluginData( ) {
 			try {
-				string settingsFilePath = SettingsFilePath( ) ;
+				string? settingsFilePath = SettingsFilePath( ) ;
 				using ( StreamWriter writer = new( settingsFilePath, false ) ) {
 					writer.WriteLine( "Houdini Engine for Unity Plugin Settings" ) ;
 					writer.WriteLine( "Version=" + PluginSettingsVersion ) ;
@@ -373,7 +373,7 @@ namespace HoudiniEngineUnity {
 		/// <returns>True if successfully loaded.</returns>
 		public bool LoadPluginData( ) {
 			// First check if settings pref file exists
-			string settingsFilePath = SettingsFilePath( ) ;
+			string? settingsFilePath = SettingsFilePath( ) ;
 			if ( !HEU_Platform.DoesFileExist( settingsFilePath ) ) {
 				// Try reading from EditorPrefs to see if this is still using the old method
 				return ReadFromEditorPrefs( ) ;
@@ -406,9 +406,9 @@ namespace HoudiniEngineUnity {
 				Match match = regex.Match( line ) ;
 				if ( !match.Success || match.Groups.Count < 4 ) continue ;
 
-				string keyStr   = match.Groups[ 1 ].Value ;
-				string typeStr  = match.Groups[ 2 ].Value ;
-				string valueStr = match.Groups[ 3 ].Value ;
+				string  keyStr   = match.Groups[ 1 ].Value ;
+				string? typeStr  = match.Groups[ 2 ].Value ;
+				string  valueStr = match.Groups[ 3 ].Value ;
 
 				if ( string.IsNullOrEmpty( keyStr )
 					 || string.IsNullOrEmpty( typeStr )
@@ -496,7 +496,7 @@ namespace HoudiniEngineUnity {
 
 
 		// Session file path. Stored at project root (i.e. Assets/../)
-		public static string SessionFilePath( ) =>
+		public static string? SessionFilePath( ) =>
 			Path.Combine( Application.dataPath,
 						  ".." + Path.DirectorySeparatorChar + HEU_Defines.PLUGIN_SESSION_FILE
 						) ;
@@ -549,7 +549,7 @@ namespace HoudiniEngineUnity {
 		/// </summary>
 		public static void DeleteAllSavedSessionData( ) {
 #if UNITY_EDITOR
-			string path = SessionFilePath( ) ;
+			string? path = SessionFilePath( ) ;
 			try {
 				if ( File.Exists( path ) )
 					File.Delete( SessionFilePath( ) ) ;
@@ -569,7 +569,7 @@ namespace HoudiniEngineUnity {
 		/// When assets are loaded, these mappings are used to find real paths.
 		/// </summary>
 		public void LoadAssetEnvironmentPaths( ) {
-			string envPath = HEU_Platform.GetHoudiniEngineEnvironmentFilePathFull( ) ;
+			string? envPath = HEU_Platform.GetHoudiniEngineEnvironmentFilePathFull( ) ;
 			if ( string.IsNullOrEmpty( envPath )
 				 || !HEU_Platform.DoesFileExist( envPath ) )
 				return ;
@@ -595,7 +595,7 @@ namespace HoudiniEngineUnity {
 		/// </summary>
 		/// <param name="inPath">The real path to convert</param>
 		/// <returns>The mapped path if a valid environment mapping is found for it, otherwise inPath is returned.</returns>
-		public string ConvertRealPathToEnvKeyedPath( string inPath ) {
+		public string? ConvertRealPathToEnvKeyedPath( string? inPath ) {
 			if ( string.IsNullOrEmpty( inPath ) || inPath.StartsWith( HEU_Defines.HEU_ENVPATH_KEY ) ) {
 				return inPath ;
 			}

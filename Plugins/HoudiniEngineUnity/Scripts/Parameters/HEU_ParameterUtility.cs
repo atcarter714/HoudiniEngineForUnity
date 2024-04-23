@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -41,9 +41,9 @@ namespace HoudiniEngineUnity
     /// </summary>
     public static class HEU_ParameterUtility
     {
-        public static bool GetToggle(HEU_HoudiniAsset asset, string paramName, out bool outValue)
-        {
-            outValue = false;
+	public static bool GetToggle(HEU_HoudiniAsset asset, string? paramName, out bool outValue)
+	{
+	    outValue = false;
 
             if (asset == null || asset.Parameters == null)
             {
@@ -53,145 +53,145 @@ namespace HoudiniEngineUnity
             return asset.Parameters.GetBoolParameterValue(paramName, out outValue);
         }
 
-        public static bool SetToggle(HEU_HoudiniAsset asset, string paramName, bool setValue)
-        {
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool SetToggle(HEU_HoudiniAsset asset, string? paramName, bool setValue)
+	{
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.SetBoolParameterValue(paramName, setValue);
         }
 
-        public static bool GetInt(HEU_HoudiniAsset asset, string paramName, out int outValue)
-        {
-            outValue = 0;
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool GetInt(HEU_HoudiniAsset asset, string? paramName, out int outValue)
+	{
+	    outValue = 0;
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.GetIntParameterValue(paramName, out outValue);
         }
 
-        public static bool SetInt(HEU_HoudiniAsset asset, string paramName, int setValue)
-        {
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool SetInt(HEU_HoudiniAsset asset, string? paramName, int setValue)
+	{
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.SetIntParameterValue(paramName, setValue);
         }
 
-        public static bool GetFloat(HEU_HoudiniAsset asset, string paramName, out float outValue)
-        {
-            outValue = 0;
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool GetFloat(HEU_HoudiniAsset asset, string? paramName, out float outValue)
+	{
+	    outValue = 0;
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.GetFloatParameterValue(paramName, out outValue);
         }
 
-        public static bool GetFloats(HEU_HoudiniAsset asset, string paramName, out float[] outValues)
-        {
-            outValues = null;
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool GetFloats(HEU_HoudiniAsset asset, string? paramName, out float[] outValues)
+	{
+	    outValues = null;
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.GetFloatParameterValues(paramName, out outValues);
         }
 
-        public static bool SetFloat(HEU_HoudiniAsset asset, string paramName, float setValue)
-        {
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool SetFloat(HEU_HoudiniAsset asset, string? paramName, float setValue)
+	{
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.SetFloatParameterValue(paramName, setValue);
         }
 
-        public static bool SetFloats(HEU_HoudiniAsset asset, string paramName, float[] setValues)
-        {
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool SetFloats(HEU_HoudiniAsset asset, string? paramName, float[] setValues)
+	{
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.SetFloatParameterValues(paramName, setValues);
         }
 
-        public static bool GetString(HEU_HoudiniAsset asset, string paramName, out string outValue)
-        {
-            outValue = null;
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool GetString(HEU_HoudiniAsset asset, string? paramName, out string outValue)
+	{
+	    outValue = null;
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.GetStringParameterValue(paramName, out outValue);
         }
 
-        public static bool SetString(HEU_HoudiniAsset asset, string paramName, string setValue)
-        {
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool SetString(HEU_HoudiniAsset asset, string? paramName, string setValue)
+	{
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.SetStringParameterValue(paramName, setValue);
         }
 
-        public static bool SetChoice(HEU_HoudiniAsset asset, string paramName, int setValue)
-        {
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool SetChoice(HEU_HoudiniAsset asset, string? paramName, int setValue)
+	{
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.SetChoiceParameterValue(paramName, setValue);
         }
 
-        public static bool GetChoice(HEU_HoudiniAsset asset, string paramName, out int outValue)
-        {
-            outValue = 0;
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool GetChoice(HEU_HoudiniAsset asset, string? paramName, out int outValue)
+	{
+	    outValue = 0;
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.GetChoiceParameterValue(paramName, out outValue);
         }
 
-        public static bool SetInputNode(HEU_HoudiniAsset asset, string paramName, GameObject obj, int index)
-        {
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool SetInputNode(HEU_HoudiniAsset asset, string? paramName, GameObject obj, int index)
+	{
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.SetAssetRefParameterValue(paramName, obj);
         }
 
-        public static bool GetInputNode(HEU_HoudiniAsset asset, string paramName, int index, out GameObject obj)
-        {
-            obj = null;
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool GetInputNode(HEU_HoudiniAsset asset, string? paramName, int index, out GameObject obj)
+	{
+	    obj = null;
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.GetAssetRefParameterValue(paramName, out obj);
         }
 
-        public static bool GetColor(HEU_HoudiniAsset asset, string paramName, out Color getValue)
-        {
-            getValue = Color.black;
+	public static bool GetColor(HEU_HoudiniAsset asset, string? paramName, out Color getValue)
+	{
+	    getValue = Color.black;
 
             if (asset == null || asset.Parameters == null)
             {
@@ -201,12 +201,12 @@ namespace HoudiniEngineUnity
             return asset.Parameters.GetColorParameterValue(paramName, out getValue);
         }
 
-        public static bool SetColor(HEU_HoudiniAsset asset, string paramName, Color setValue)
-        {
-            if (asset == null || asset.Parameters == null)
-            {
-                return false;
-            }
+	public static bool SetColor(HEU_HoudiniAsset asset, string? paramName, Color setValue)
+	{
+	    if (asset == null || asset.Parameters == null)
+	    {
+		return false;
+	    }
 
             return asset.Parameters.SetColorParameterValue(paramName, setValue);
         }
@@ -252,13 +252,16 @@ namespace HoudiniEngineUnity
                 return outParmId;
             }
 
-            // Check if the matching "use" parameter exists.
-            int foundUseParmId = GetParameterIndexFromNameOrTag(session, nodeID, parameters, useTextureParmName);
-            if (foundUseParmId >= 0)
-            {
-                // Found a valid "use" parameter. Check if it is disabled.
-                int[] useValue = new int[1];
-                int intValuesIndex = parameters[foundUseParmId].intValuesIndex;
+	    // Finally, make sure that the found texture parm is not empty!
+	    int[] parmValueHandle = new int[1];
+	    if (session.GetParamStringValues(nodeID, parmValueHandle, parameters[outParmId].stringValuesIndex, 1))
+	    {
+		string? parmValue = HEU_SessionManager.GetString(parmValueHandle[0], session);
+		if (string.IsNullOrEmpty(parmValue))
+		{
+		    return -1;
+		}
+	    }
 
                 if (session.GetParamIntValues(nodeID, useValue, parameters[foundUseParmId].intValuesIndex, 1))
                 {

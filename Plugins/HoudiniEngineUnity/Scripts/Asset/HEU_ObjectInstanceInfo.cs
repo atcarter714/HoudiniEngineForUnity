@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) <2020> Side Effects Software Inc.
  * All rights reserved.
  *
@@ -57,8 +57,8 @@ namespace HoudiniEngineUnity
         // If first element in _instancedGameObjects is a Houdini Engine object node, then this would be its node ID
         public HAPI_NodeId _instancedObjectNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
 
-        // Path in Unity to the instanced object (could be empty or null if not a Unity instanced object)
-        public string _instancedObjectPath;
+	// Path in Unity to the instanced object (could be empty or null if not a Unity instanced object)
+	public string? _instancedObjectPath;
 
         // Instances using the source instanced object
         public List<GameObject> _instances = new List<GameObject>();

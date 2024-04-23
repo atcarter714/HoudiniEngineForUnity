@@ -149,9 +149,10 @@ namespace HoudiniEngineUnity {
 			if ( string.IsNullOrEmpty( HAPIPath ) ) return HAPIPath ;
 			
 			// First check if the last stored installed Houdini version matches current installed version
-			string lastHoudiniVersion = HEU_PluginSettings.LastHoudiniVersion ;
+			string? lastHoudiniVersion = HEU_PluginSettings.LastHoudiniVersion ;
 			if ( string.IsNullOrEmpty( lastHoudiniVersion ) ) return HAPIPath ;
-			if ( lastHoudiniVersion.Equals( HEU_HoudiniVersion.HOUDINI_VERSION_STRING ) ) return HAPIPath ;
+			if ( lastHoudiniVersion?.Equals( HEU_HoudiniVersion.HOUDINI_VERSION_STRING ) is true )
+				return HAPIPath ;
 			
 			// Mismatch means different version of the plugin has been installed.
 			// Ask user if they want to update their HAPIPath.
@@ -214,7 +215,7 @@ namespace HoudiniEngineUnity {
 			foreach ( string path in systemPath!.Split( ';' ) ) {
 				if ( !Directory.Exists(path) ) continue ;
 
-				string libPath = $"{path}/{HEU_HoudiniVersion.HAPI_LIBRARY}.dll" ;
+				string? libPath = $"{path}/{HEU_HoudiniVersion.HAPI_LIBRARY}.dll" ;
 				if ( !DoesFileExist( libPath ) ) continue ;
 				
 				LibPath = libPath.Replace( "\\", "/" ) ;
@@ -304,7 +305,12 @@ namespace HoudiniEngineUnity {
 		/// <param name="searchPattern">File name pattern to search for</param>
 		/// <param name="bRecursive">Search all directories or just the top</param>
 		/// <returns>Array of file paths found or null if error</returns>
-		public static string[ ]? GetFilesInFolder( string folderPath, string searchPattern, bool bRecursive ) {
+		public static string[ ]? GetFilesInFolder( string? folderPath, string searchPattern, bool bRecursive ) {
+			if ( string.IsNullOrEmpty(folderPath) ) {
+				HEU_Logger.LogWarning( "Failed to get files in folder. Folder path is null or empty!" ) ;
+				return null ;
+			}
+			
 			try {
 				return Directory.GetFiles( folderPath,
 										   searchPattern,
@@ -319,9 +325,9 @@ namespace HoudiniEngineUnity {
 			}
 		}
 
-		public static string GetFileName( string path ) => Path.GetFileName( path ) ;
+		public static string? GetFileName( string? path ) => Path.GetFileName( path ) ;
 
-		public static string GetFileNameWithoutExtension( string? path ) => 
+		public static string? GetFileNameWithoutExtension( string? path ) => 
 															string.IsNullOrEmpty( path )
 																? string.Empty
 																	: Path.GetFileNameWithoutExtension( path ) ;
@@ -330,16 +336,21 @@ namespace HoudiniEngineUnity {
 		/// <param name="path"></param>
 		/// <param name="bRemoveDirectorySeparatorAtEnd"></param>
 		/// <returns></returns>
-		public static string GetFolderPath( string path, bool bRemoveDirectorySeparatorAtEnd = false ) {
-			string resultPath = path ;
+		public static string? GetFolderPath( string? path, bool bRemoveDirectorySeparatorAtEnd = false ) {
+			if ( string.IsNullOrEmpty(path) ) {
+				HEU_Logger.LogWarning( "Failed to get folder path. Path is null or empty!" ) ;
+				return null ;
+			}
+			
+			string? resultPath = path ;
 			string fileName = Path.GetFileName( path ) ;
 			
 			//! TODO: WTF is this? If `fileName` is null/empty then replace with empty string?
 			if ( !string.IsNullOrEmpty(fileName) )
-				resultPath = path.Replace( fileName, string.Empty ) ;
+				resultPath = path?.Replace( fileName, string.Empty ) ;
 			
 			if ( bRemoveDirectorySeparatorAtEnd )
-				resultPath = resultPath.TrimEnd( '\\', '/' ) ;
+				resultPath = resultPath?.TrimEnd( '\\', '/' ) ;
 			
 			return resultPath ;
 		}
@@ -355,7 +366,7 @@ namespace HoudiniEngineUnity {
 		/// <param name="folder2"></param>
 		/// <param name="args"></param>
 		/// <returns>Returns platform-compatible path of given folders</returns>
-		public static string BuildPath( string folder1, string folder2, params object[ ] args ) {
+		public static string? BuildPath( string? folder1, string? folder2, params object?[] args ) {
 			char separator = DirectorySeparator ;
 			StringBuilder sb = new( ) ;
 			sb.Append( folder1 ) ;
@@ -373,17 +384,19 @@ namespace HoudiniEngineUnity {
 		/// <summary>Removes and returns the last directory separator character from given string.</summary>
 		/// <param name="inPath">Path to parse</param>
 		/// <returns>Returns the last directory separator character from given string</returns>
-		public static string TrimLastDirectorySeparator( string inPath ) => inPath.TrimEnd( new[] { DirectorySeparator, } ) ;
-		public static bool DoesPathExist( string inPath ) => File.Exists( inPath ) || Directory.Exists( inPath ) ;
-		public static bool DoesFileExist( string inPath ) => File.Exists( inPath ) ;
-		public static bool DoesDirectoryExist( string inPath ) => Directory.Exists( inPath ) ;
+		public static string? TrimLastDirectorySeparator( string? inPath ) => inPath?.TrimEnd( DirectorySeparator ) ;
+		public static bool DoesPathExist( string? inPath ) => File.Exists( inPath ) || Directory.Exists( inPath ) ;
+		public static bool DoesFileExist( string? inPath ) => File.Exists( inPath ) ;
+		public static bool DoesDirectoryExist( string? inPath ) => Directory.Exists( inPath ) ;
 		public static bool CreateDirectory( string inPath ) => Directory.CreateDirectory( inPath ).Exists ;
 		public static string? GetParentDirectory( string inPath ) => Directory.GetParent( inPath )?.FullName ;
-		public static string GetFullPath( string inPath ) => Path.GetFullPath( inPath ) ;
-		public static bool IsPathRooted( string inPath ) => Path.IsPathRooted( inPath ) ;
-		public static void WriteBytes( string path, byte[] bytes ) => File.WriteAllBytes( path, bytes ) ;
+		public static string? GetFullPath( string inPath ) => Path.GetFullPath( inPath ) ;
+		public static bool IsPathRooted( string? inPath ) => Path.IsPathRooted( inPath ) ;
+		public static void WriteBytes( string path, byte[ ] bytes ) => File.WriteAllBytes( path, bytes ) ;
 		
-		public static bool WriteAllText( string path, string text ) {
+		public static bool WriteAllText( string? path, string? text ) {
+			if ( string.IsNullOrEmpty(path) || string.IsNullOrEmpty(text) ) return false ;
+			
 			try {
 				File.WriteAllText( path, text ) ;
 				return true ;
@@ -396,7 +409,12 @@ namespace HoudiniEngineUnity {
 			return false ;
 		}
 
-		public static string ReadAllText( string path ) {
+		public static string? ReadAllText( string? path ) {
+			if ( string.IsNullOrEmpty(path) ) {
+				HEU_Logger.LogWarning( "Failed to load from file. Path is null or empty!" ) ;
+				return null ;
+			}
+			
 			try {
 				if ( File.Exists(path) )
 					return File.ReadAllText( path ) ;
@@ -411,7 +429,12 @@ namespace HoudiniEngineUnity {
 		/// <summary>Returns environment value of given key, if found.</summary>
 		/// <param name="key">Key to get the environment value for</param>
 		/// <returns>Environment value as string, or empty if none found</returns>
-		public static string? GetEnvironmentValue( string key ) {
+		public static string? GetEnvironmentValue( string? key ) {
+			if ( string.IsNullOrEmpty(key) ) {
+				HEU_Logger.LogWarning( "Failed to get environment value. Key is null or empty!" ) ;
+				return null ;
+			}
+			
 			string? value = Environment.GetEnvironmentVariable( key, EnvironmentVariableTarget.Machine ) ;
 			
 			if ( string.IsNullOrEmpty(value) )
@@ -422,8 +445,8 @@ namespace HoudiniEngineUnity {
 			return value ;
 		}
 
-		public static string GetHoudiniEngineEnvironmentFilePathFull( ) {
-			string envPath = HEU_PluginSettings.HoudiniEngineEnvFilePath ;
+		public static string? GetHoudiniEngineEnvironmentFilePathFull( ) {
+			string? envPath = HEU_PluginSettings.HoudiniEngineEnvFilePath ;
 
 			if ( !IsPathRooted(envPath) ) 
 				envPath = HEU_AssetDatabase.GetAssetFullPath( envPath ) ;
@@ -433,7 +456,13 @@ namespace HoudiniEngineUnity {
 										: string.Empty ;
 		}
 		
-		public static bool LoadFileIntoMemory( string path, out byte[ ]? buffer ) {
+		public static bool LoadFileIntoMemory( string? path, out byte[ ]? buffer ) {
+			if ( string.IsNullOrEmpty(path) ) {
+				HEU_Logger.LogWarning( "Failed to open file. Path is null or empty!" ) ;
+				buffer = null ;
+				return false ;
+			}
+			
 			buffer = null ;
 			try {
 				if ( File.Exists( path ) ) buffer = File.ReadAllBytes( path ) ;
