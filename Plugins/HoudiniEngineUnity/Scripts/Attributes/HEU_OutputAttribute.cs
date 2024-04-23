@@ -33,7 +33,7 @@ namespace HoudiniEngineUnity
 	/// </summary>
 	[Serializable] public class HEU_OutputAttribute {
 		// Name of attribute
-		public string _name ;
+		public string? _name ;
 
 		// Class ownership
 		public HAPI_AttributeOwner _class ;
@@ -47,7 +47,7 @@ namespace HoudiniEngineUnity
 		// Arrays of values, based on class.
 		public int[ ]    _intValues ;
 		public float[ ]  _floatValues ;
-		public string[ ] _stringValues ;
+		public string?[] _stringValues ;
 	}
 
 }

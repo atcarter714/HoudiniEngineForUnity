@@ -95,7 +95,7 @@ namespace HoudiniEngineUnity
 
 	public HEU_HoudiniAsset _asset;
 
-	public string _assetPath;
+	public string? _assetPath;
 
 	public Vector3 _position = Vector3.zero;
 

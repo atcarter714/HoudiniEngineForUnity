@@ -75,7 +75,7 @@ namespace HoudiniEngineUnity
 		HEU_Parameters Parameters { get ; }
 
 		/// <summary> The name of the curve. </summary>
-		string CurveName { get ; }
+		string? CurveName { get ; }
 
 		/// <summary>Whether or not this is an input curve</summary>
 		bool IsInputCurve { get ; }
@@ -96,7 +96,7 @@ namespace HoudiniEngineUnity
 		/// Sets the curve name
 		/// </summary>
 		/// <param name="name">The name to set it to</param>
-		void SetCurveName( string name ) ;
+		void SetCurveName( string? name ) ;
 
 		/// <summary>
 		/// Sets a curve point

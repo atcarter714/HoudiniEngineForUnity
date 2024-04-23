@@ -57,10 +57,10 @@ namespace HoudiniEngineUnity
     public interface IHEU_HoudiniAssetSubcomponent
     {
 	/// <summary>The parent HDA of this subcomponent</summary>
-	HEU_HoudiniAsset ParentAsset { get; }
+	HEU_HoudiniAsset? ParentAsset { get; }
 
 	/// <summary>A helper to get the session</summary>
-	HEU_SessionBase GetSession();
+	HEU_SessionBase? GetSession();
 
 	/// <summary>A helper to recook the asset with default parameters</summary>
 	void Recook();

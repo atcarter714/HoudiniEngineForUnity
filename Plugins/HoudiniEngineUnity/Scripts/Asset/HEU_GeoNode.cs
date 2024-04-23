@@ -77,7 +77,7 @@ namespace HoudiniEngineUnity
 		public HAPI_GeoInfo GeoInfo => _geoInfo ;
 
 		/// <inheritdoc />
-		public string GeoName => _geoName ;
+		public string? GeoName => _geoName ;
 
 		/// <inheritdoc />
 		public HAPI_GeoType GeoType => _geoInfo.type ;
@@ -114,12 +114,12 @@ namespace HoudiniEngineUnity
 
 		//	DATA ------------------------------------------------------------------------------------------------------
 
-		[SerializeField] HAPI_GeoInfo _geoInfo ;
-		[SerializeField] string _geoName ;
+		[SerializeField] HAPI_GeoInfo         _geoInfo ;
+		[SerializeField] string?              _geoName ;
 		[SerializeField] List< HEU_PartData > _parts ;
-		[SerializeField] HEU_ObjectNode _containerObjectNode ;
-		[SerializeField] HEU_InputNode _inputNode ;
-		[SerializeField] HEU_Curve _geoCurve ;
+		[SerializeField] HEU_ObjectNode       _containerObjectNode ;
+		[SerializeField] HEU_InputNode        _inputNode ;
+		[SerializeField] HEU_Curve            _geoCurve ;
 
 		// Deprecated by _volumeCaches. Keeping it for backwards compatibility on saved assets.
 		[SerializeField] HEU_VolumeCache _volumeCache ;
@@ -312,7 +312,7 @@ namespace HoudiniEngineUnity
 			_containerObjectNode = containerObjectNode ;
 			_geoInfo             = geoInfo ;
 
-			string realName = HEU_SessionManager.GetString( _geoInfo.nameSH, session ) ;
+			string? realName = HEU_SessionManager.GetString( _geoInfo.nameSH, session ) ;
 			if ( !HEU_PluginSettings.ShortenFolderPaths || realName.Length < 3 ) {
 				_geoName = HEU_SessionManager.GetString( _geoInfo.nameSH, session ) ;
 			}
@@ -378,7 +378,7 @@ namespace HoudiniEngineUnity
 						HEU_PartData oldMatchedPart = null ;
 
 						foreach ( HEU_PartData oldPart in oldParts ) {
-							string partName = HEU_SessionManager.GetString( partInfo.nameSH, session ) ;
+							string? partName = HEU_SessionManager.GetString( partInfo.nameSH, session ) ;
 							if ( oldPart.PartName.Equals( partName ) ) {
 								oldMatchedPart = oldPart ;
 							}
@@ -464,7 +464,7 @@ namespace HoudiniEngineUnity
 			if ( IsGeoInputType( ) ) {
 				// Setup for input node to accept inputs
 				if ( _inputNode == null ) {
-					string partName = HEU_SessionManager.GetString( partInfo.nameSH, session ) ;
+					string? partName = HEU_SessionManager.GetString( partInfo.nameSH, session ) ;
 					_inputNode = HEU_InputNode.CreateSetupInput( GeoID, 0, partName, partName,
 																 HEU_InputNode.InputNodeType.NODE, ParentAsset ) ;
 					if ( _inputNode != null ) {
@@ -597,9 +597,9 @@ namespace HoudiniEngineUnity
 					_parts.Add( partData ) ;
 
 					// Set unique name for the part
-					string partName = HEU_PluginSettings.UseFullPathNamesForOutput
-										  ? GeneratePartFullName( partData.PartName )
-										  : partData.PartName ;
+					string? partName = HEU_PluginSettings.UseFullPathNamesForOutput
+										   ? GeneratePartFullName( partData.PartName )
+										   : partData.PartName ;
 					partData.SetGameObjectName( partName ) ;
 
 					// For intermediate or default-type editable nodes, setup the HEU_AttributeStore
@@ -711,7 +711,7 @@ namespace HoudiniEngineUnity
 				return ;
 			}
 
-			string curveName = GenerateGeoCurveName( ) ;
+			string? curveName = GenerateGeoCurveName( ) ;
 			curveName = HEU_EditorUtility.GetUniqueNameForSibling( ParentAsset.RootGameObject.transform, curveName ) ;
 
 			bool bNewCurve = ( _geoCurve == null ) ;
@@ -790,11 +790,11 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="partName"></param>
 		/// <returns></returns>
-		internal string GeneratePartFullName( string partName ) {
+		internal string? GeneratePartFullName( string? partName ) {
 			return _containerObjectNode.ObjectName + "_" + GeoName + "_" + partName ;
 		}
 
-		internal string GenerateGeoCurveName( ) {
+		internal string? GenerateGeoCurveName( ) {
 			// For a geo curve, just use the geo node name. 
 			// The curve editor presumes this is unique for multiple curves in same asset.
 			return _geoName ;

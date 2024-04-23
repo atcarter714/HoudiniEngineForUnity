@@ -61,7 +61,7 @@ namespace HoudiniEngineUnity
 	HAPI_NodeId ObjectID { get; }
 
 	/// <summary>The object name of the HDA</summary>
-	string ObjectName { get; }
+	string? ObjectName { get; }
 
 	/// <summary>The object info of the HDA</summary>
 	HAPI_ObjectInfo ObjectInfo { get; }
@@ -109,7 +109,7 @@ namespace HoudiniEngineUnity
 	/// </summary>
 	/// <param name="geoName">The name to check</param>
 	/// <returns>Valid HEU_GeoNode or null if no match</returns>
-	HEU_GeoNode GetGeoNode(string geoName);
+	HEU_GeoNode GetGeoNode(string? geoName);
 
 	/// <summary>
 	/// Gets the curves under this object node

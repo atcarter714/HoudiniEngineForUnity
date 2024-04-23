@@ -41,7 +41,7 @@ namespace HoudiniEngineUnity
     /// </summary>
     public static class HEU_ParameterUtility
     {
-	public static bool GetToggle(HEU_HoudiniAsset asset, string paramName, out bool outValue)
+	public static bool GetToggle(HEU_HoudiniAsset asset, string? paramName, out bool outValue)
 	{
 	    outValue = false;
 
@@ -53,7 +53,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.GetBoolParameterValue(paramName, out outValue);
 	}
 
-	public static bool SetToggle(HEU_HoudiniAsset asset, string paramName, bool setValue)
+	public static bool SetToggle(HEU_HoudiniAsset asset, string? paramName, bool setValue)
 	{
 	    if (asset == null || asset.Parameters == null)
 	    {
@@ -63,7 +63,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.SetBoolParameterValue(paramName, setValue);
 	}
 
-	public static bool GetInt(HEU_HoudiniAsset asset, string paramName, out int outValue)
+	public static bool GetInt(HEU_HoudiniAsset asset, string? paramName, out int outValue)
 	{
 	    outValue = 0;
 	    if (asset == null || asset.Parameters == null)
@@ -74,7 +74,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.GetIntParameterValue(paramName, out outValue);
 	}
 
-	public static bool SetInt(HEU_HoudiniAsset asset, string paramName, int setValue)
+	public static bool SetInt(HEU_HoudiniAsset asset, string? paramName, int setValue)
 	{
 	    if (asset == null || asset.Parameters == null)
 	    {
@@ -84,7 +84,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.SetIntParameterValue(paramName, setValue);
 	}
 
-	public static bool GetFloat(HEU_HoudiniAsset asset, string paramName, out float outValue)
+	public static bool GetFloat(HEU_HoudiniAsset asset, string? paramName, out float outValue)
 	{
 	    outValue = 0;
 	    if (asset == null || asset.Parameters == null)
@@ -95,7 +95,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.GetFloatParameterValue(paramName, out outValue);
 	}
 
-	public static bool GetFloats(HEU_HoudiniAsset asset, string paramName, out float[] outValues)
+	public static bool GetFloats(HEU_HoudiniAsset asset, string? paramName, out float[] outValues)
 	{
 	    outValues = null;
 	    if (asset == null || asset.Parameters == null)
@@ -106,7 +106,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.GetFloatParameterValues(paramName, out outValues);
 	}
 
-	public static bool SetFloat(HEU_HoudiniAsset asset, string paramName, float setValue)
+	public static bool SetFloat(HEU_HoudiniAsset asset, string? paramName, float setValue)
 	{
 	    if (asset == null || asset.Parameters == null)
 	    {
@@ -116,7 +116,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.SetFloatParameterValue(paramName, setValue);
 	}
 
-	public static bool SetFloats(HEU_HoudiniAsset asset, string paramName, float[] setValues)
+	public static bool SetFloats(HEU_HoudiniAsset asset, string? paramName, float[] setValues)
 	{
 	    if (asset == null || asset.Parameters == null)
 	    {
@@ -126,7 +126,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.SetFloatParameterValues(paramName, setValues);
 	}
 
-	public static bool GetString(HEU_HoudiniAsset asset, string paramName, out string outValue)
+	public static bool GetString(HEU_HoudiniAsset asset, string? paramName, out string outValue)
 	{
 	    outValue = null;
 	    if (asset == null || asset.Parameters == null)
@@ -137,7 +137,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.GetStringParameterValue(paramName, out outValue);
 	}
 
-	public static bool SetString(HEU_HoudiniAsset asset, string paramName, string setValue)
+	public static bool SetString(HEU_HoudiniAsset asset, string? paramName, string setValue)
 	{
 	    if (asset == null || asset.Parameters == null)
 	    {
@@ -147,7 +147,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.SetStringParameterValue(paramName, setValue);
 	}
 
-	public static bool SetChoice(HEU_HoudiniAsset asset, string paramName, int setValue)
+	public static bool SetChoice(HEU_HoudiniAsset asset, string? paramName, int setValue)
 	{
 	    if (asset == null || asset.Parameters == null)
 	    {
@@ -157,7 +157,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.SetChoiceParameterValue(paramName, setValue);
 	}
 
-	public static bool GetChoice(HEU_HoudiniAsset asset, string paramName, out int outValue)
+	public static bool GetChoice(HEU_HoudiniAsset asset, string? paramName, out int outValue)
 	{
 	    outValue = 0;
 	    if (asset == null || asset.Parameters == null)
@@ -168,7 +168,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.GetChoiceParameterValue(paramName, out outValue);
 	}
 
-	public static bool SetInputNode(HEU_HoudiniAsset asset, string paramName, GameObject obj, int index)
+	public static bool SetInputNode(HEU_HoudiniAsset asset, string? paramName, GameObject obj, int index)
 	{
 	    if (asset == null || asset.Parameters == null)
 	    {
@@ -178,7 +178,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.SetAssetRefParameterValue(paramName, obj);
 	}
 
-	public static bool GetInputNode(HEU_HoudiniAsset asset, string paramName, int index, out GameObject obj)
+	public static bool GetInputNode(HEU_HoudiniAsset asset, string? paramName, int index, out GameObject obj)
 	{
 	    obj = null;
 	    if (asset == null || asset.Parameters == null)
@@ -189,7 +189,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.GetAssetRefParameterValue(paramName, out obj);
 	}
 
-	public static bool GetColor(HEU_HoudiniAsset asset, string paramName, out Color getValue)
+	public static bool GetColor(HEU_HoudiniAsset asset, string? paramName, out Color getValue)
 	{
 	    getValue = Color.black;
 
@@ -201,7 +201,7 @@ namespace HoudiniEngineUnity
 	    return asset.Parameters.GetColorParameterValue(paramName, out getValue);
 	}
 
-	public static bool SetColor(HEU_HoudiniAsset asset, string paramName, Color setValue)
+	public static bool SetColor(HEU_HoudiniAsset asset, string? paramName, Color setValue)
 	{
 	    if (asset == null || asset.Parameters == null)
 	    {
@@ -269,7 +269,7 @@ namespace HoudiniEngineUnity
 	    int[] parmValueHandle = new int[1];
 	    if (session.GetParamStringValues(nodeID, parmValueHandle, parameters[outParmId].stringValuesIndex, 1))
 	    {
-		string parmValue = HEU_SessionManager.GetString(parmValueHandle[0], session);
+		string? parmValue = HEU_SessionManager.GetString(parmValueHandle[0], session);
 		if (string.IsNullOrEmpty(parmValue))
 		{
 		    return -1;

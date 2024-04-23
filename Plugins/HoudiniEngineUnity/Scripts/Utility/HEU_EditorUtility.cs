@@ -416,7 +416,7 @@ namespace HoudiniEngineUnity {
 		/// <param name="parentTransform">Target parent for a new GameObject. Null means root level</param>
 		/// <param name="name">Requested name for a new GameObject</param>
 		/// <returns>Unique name for sibling gameobject</returns>
-		public static string GetUniqueNameForSibling( Transform parentTransform, string name ) {
+		public static string? GetUniqueNameForSibling( Transform parentTransform, string? name ) {
 #if UNITY_EDITOR
 			return GameObjectUtility.GetUniqueNameForSibling( parentTransform, name ) ;
 #else
@@ -1052,7 +1052,7 @@ namespace HoudiniEngineUnity {
 
 				int numNodes = outputGeoNodes.Count ;
 				for ( int j = 0; j < numNodes; ++j ) {
-					string exportPath =
+					string? exportPath =
 						$"{exportDir}/{asset.RootGameObject.name}_{outputGeoNodes[ j ].GeoName}.{exportExt}" ;
 
 					if ( !session.SaveGeoToFile( outputGeoNodes[ j ].GeoID, exportPath ) ) {
@@ -1068,7 +1068,7 @@ namespace HoudiniEngineUnity {
 			}
 		}
 
-		public static string EditorSaveFolderPanel( string title, string folder, string defaultName ) {
+		public static string? EditorSaveFolderPanel( string title, string? folder, string defaultName ) {
 #if UNITY_EDITOR
 			return EditorUtility.SaveFolderPanel( title, folder, defaultName ) ;
 #else
@@ -1104,7 +1104,7 @@ namespace HoudiniEngineUnity {
 
 		// Gets the object parent folder for meshes, materials, or terrains
 		// Skips material paths that are not in generatedMaterials
-		public static string GetObjectParentFolder( GameObject parentObject, HashSet< Material > generatedMaterials ) {
+		public static string? GetObjectParentFolder( GameObject parentObject, HashSet< Material > generatedMaterials ) {
 #if UNITY_EDITOR
 			List< string > possiblePaths = new( ) ;
 
@@ -1154,7 +1154,7 @@ namespace HoudiniEngineUnity {
 				}
 			}
 
-			string targetAssetPath = HEU_GeneralUtility.LongestCommonPrefix( possiblePaths ) ;
+			string? targetAssetPath = HEU_GeneralUtility.LongestCommonPrefix( possiblePaths ) ;
 
 			// Fallback to the gameobject name if we can't find a good path
 			if ( targetAssetPath == string.Empty ) {
@@ -1169,10 +1169,10 @@ namespace HoudiniEngineUnity {
 		static string GetObjectParentFolderHelper( int instanceID ) {
 			string targetAssetPath = string.Empty ;
 #if UNITY_EDITOR
-			string currentObjectPath = AssetDatabase.GetAssetPath( instanceID ) ;
+			string? currentObjectPath = AssetDatabase.GetAssetPath( instanceID ) ;
 			if ( !HEU_Platform.DoesFileExist( currentObjectPath ) ) return targetAssetPath ;
 
-			string combinedPath =
+			string? combinedPath =
 				HEU_Platform.GetParentDirectory( HEU_Platform.GetParentDirectory( currentObjectPath ) ) ;
 
 			if ( HEU_Platform.DoesDirectoryExist( combinedPath ) ) {
@@ -1191,7 +1191,7 @@ namespace HoudiniEngineUnity {
 #endif
 		}
 
-		public static void SetTextureToNormalMap( string filename ) {
+		public static void SetTextureToNormalMap( string? filename ) {
 #if UNITY_EDITOR && UNITY_2018_4_OR_NEWER
 			TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath( filename ) ;
 			importer.textureType = TextureImporterType.NormalMap ;

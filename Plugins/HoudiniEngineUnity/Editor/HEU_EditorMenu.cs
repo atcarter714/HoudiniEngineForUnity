@@ -234,7 +234,7 @@ namespace HoudiniEngineUnity
 	    if (HEU_SessionManager.ValidatePluginSession())
 	    {
 		string[] extensions = { "HDAs", "otl,hda,otllc,hdalc,otlnc,hdanc" };
-		string hdaPath = EditorUtility.OpenFilePanelWithFilters("Load Houdini Digital Asset", HEU_PluginSettings.LastLoadHDAPath, extensions);
+		string? hdaPath = EditorUtility.OpenFilePanelWithFilters("Load Houdini Digital Asset", HEU_PluginSettings.LastLoadHDAPath, extensions);
 		LoadHoudiniAssetFromPath(hdaPath, false);
 	    }
 	}
@@ -244,7 +244,7 @@ namespace HoudiniEngineUnity
 	{
 	    if (HEU_SessionManager.ValidatePluginSession())
 	    {
-		string hdaPath = EditorUtility.OpenFolderPanel("Load Houdini Digital Asset (Expanded)", HEU_PluginSettings.LastLoadHDAPath, "");
+		string? hdaPath = EditorUtility.OpenFolderPanel("Load Houdini Digital Asset (Expanded)", HEU_PluginSettings.LastLoadHDAPath, "");
 		LoadHoudiniAssetFromPath(hdaPath, false);
 	    }
 	}
@@ -255,7 +255,7 @@ namespace HoudiniEngineUnity
 	    if (HEU_SessionManager.ValidatePluginSession())
 	    {
 		string[] extensions = { "HDAs", "otl,hda,otllc,hdalc,otlnc,hdanc" };
-		string hdaPath = EditorUtility.OpenFilePanelWithFilters("Load Houdini Digital Asset", HEU_PluginSettings.LastLoadHDAPath, extensions);
+		string? hdaPath = EditorUtility.OpenFilePanelWithFilters("Load Houdini Digital Asset", HEU_PluginSettings.LastLoadHDAPath, extensions);
 		LoadHoudiniAssetFromPath(hdaPath, true);
 	    }
 	}
@@ -270,7 +270,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	private static void LoadHoudiniAssetFromPath(string hdaPath, bool bLoadFromMemory)
+	private static void LoadHoudiniAssetFromPath(string? hdaPath, bool bLoadFromMemory)
 	{
 	    if (!string.IsNullOrEmpty(hdaPath))
 	    {

@@ -64,14 +64,14 @@ namespace HoudiniEngineUnity
 	public int _version;
 
 	// Asset's full OP name
-	public string _assetOPName;
+	public string? _assetOPName;
 
 	// Main parameter preset
 	public byte[] _parameterPreset;
 
 	// List of curve names and their parameter presets
-	public List<string> _curveNames = new List<string>();
-	public List<byte[]> _curvePresets = new List<byte[]>();
+	public List< string? > _curveNames   = new List< string? >();
+	public List<byte[]>    _curvePresets = new List<byte[]>();
 
 	[OptionalField(VersionAdded = 2)]
 	public List<HEU_InputPreset> inputPresets = new List<HEU_InputPreset>();
@@ -97,10 +97,10 @@ namespace HoudiniEngineUnity
 	public List<HEU_InputObjectPreset> _inputObjectPresets = new List<HEU_InputObjectPreset>();
 
 	// Deprecated and replaced with _inputAssetPresets. Leaving it in for backwards compatibility.
-	public string _inputAssetName;
+	public string? _inputAssetName;
 
-	public int _inputIndex;
-	public string _inputName;
+	public int     _inputIndex;
+	public string? _inputName;
 
 	public bool _keepWorldTransform;
 	public bool _packGeometryBeforeMerging;
@@ -115,8 +115,8 @@ namespace HoudiniEngineUnity
     [System.Serializable]
     public class HEU_InputObjectPreset
     {
-	public string _gameObjectName;
-	public bool _isSceneObject;
+	public string? _gameObjectName;
+	public bool    _isSceneObject;
 
 	public bool _useTransformOffset = false;
 
@@ -131,7 +131,7 @@ namespace HoudiniEngineUnity
     [System.Serializable]
     public class HEU_InputAssetPreset
     {
-	public string _gameObjectName;
+	public string? _gameObjectName;
     }
 
     /// <summary>
@@ -140,8 +140,8 @@ namespace HoudiniEngineUnity
     [System.Serializable]
     public class HEU_VolumeLayerPreset
     {
-	public string _layerName;
-	public float _strength;
+	public string? _layerName;
+	public float   _strength;
 
 	public bool _uiExpanded;
 
@@ -156,15 +156,15 @@ namespace HoudiniEngineUnity
     [System.Serializable]
     public class HEU_VolumeCachePreset
     {
-	public string _objName;
-	public string _geoName;
-	public bool _uiExpanded;
+	public string? _objName;
+	public string? _geoName;
+	public bool    _uiExpanded;
 
 	public List<HEU_VolumeLayerPreset> _volumeLayersPresets = new List<HEU_VolumeLayerPreset>();
 
 	// Path to TerrainData object
 	[OptionalField(VersionAdded = 6)]
-	public string _terrainDataPath;
+	public string? _terrainDataPath;
 
 	// Tile index of HF volume
 	[OptionalField(VersionAdded = 6)]
@@ -248,7 +248,7 @@ namespace HoudiniEngineUnity
 	/// </summary>
 	/// <param name="asset">Asset to load preset into</param>
 	/// <param name="filePath">Full path to file containing preset. File must have been written out by SaveAssetPresetToFile.</param>
-	public static void LoadPresetFileIntoAssetAndCook(HEU_HoudiniAsset asset, string filePath)
+	public static void LoadPresetFileIntoAssetAndCook(HEU_HoudiniAsset asset, string? filePath)
 	{
 	    try
 	    {

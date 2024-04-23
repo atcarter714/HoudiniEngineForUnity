@@ -60,9 +60,9 @@ namespace HoudiniEngineUnity
 
 	int TileIndex { get; }
 
-	string ObjectName { get; }
+	string? ObjectName { get; }
 
-	string GeoName { get; }
+	string? GeoName { get; }
 
 	TerrainData TerrainData { get; }
 
@@ -72,7 +72,7 @@ namespace HoudiniEngineUnity
 
 	void ResetParameters();
 
-	HEU_VolumeLayer GetLayer(string layerName);
+	HEU_VolumeLayer GetLayer(string? layerName);
 
 
 	void PopulatePreset(HEU_VolumeCachePreset cachePreset);

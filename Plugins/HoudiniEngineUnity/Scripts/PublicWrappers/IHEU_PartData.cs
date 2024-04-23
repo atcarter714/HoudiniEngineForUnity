@@ -61,7 +61,7 @@ namespace HoudiniEngineUnity
 	HAPI_PartId PartID { get; }
 
 	/// <summary>The part name of the HDA</summary>
-	string PartName { get; }
+	string? PartName { get; }
 
 	/// <summary>The geo id of the HDA</summary>
 	HAPI_NodeId GeoID { get; }
@@ -121,16 +121,16 @@ namespace HoudiniEngineUnity
 	bool HaveInstancesBeenGenerated();
 
 	/// <summary>Sets the gameObject name</summary>
-	void SetGameObjectName(string partName);
+	void SetGameObjectName(string? partName);
 
 	/// <summary>Sets the gameObject of this part</summary>
 	void SetGameObject(GameObject gameObject);
 
 	/// <summary>Sets the volume layer name</summary>
-	void SetVolumeLayerName(string name);
+	void SetVolumeLayerName(string? name);
 
 	/// <summary>Gets the volume layer name</summary>
-	string GetVolumeLayerName();
+	string? GetVolumeLayerName();
 
 	/// <summary>
 	/// Destroy all generated data.
@@ -195,7 +195,7 @@ namespace HoudiniEngineUnity
 	/// </summary>
 	/// <param name="path">The path to match with _instancedObjectPath</param>
 	/// <returns>HEU_ObjectInstanceInfo with matching _instancedObjectPath or null if none found</returns>
-	HEU_ObjectInstanceInfo GetObjectInstanceInfoWithObjectPath(string path);
+	HEU_ObjectInstanceInfo GetObjectInstanceInfoWithObjectPath(string? path);
 
 	/// <summary>
 	/// Returns HEU_ObjectInstanceInfo with matching objNodeID
@@ -218,7 +218,7 @@ namespace HoudiniEngineUnity
 	/// <param name="terrainData">The TerrainData object to save</param>
 	/// <param name="exportPathRelative">The relative export path</param>
 	/// <param name="exportPathUser">The user exported path</param>
-	void SetTerrainData(TerrainData terrainData, string exportPathRelative, string exportPathUser);
+	void SetTerrainData(TerrainData terrainData, string? exportPathRelative, string? exportPathUser);
     }
 
 

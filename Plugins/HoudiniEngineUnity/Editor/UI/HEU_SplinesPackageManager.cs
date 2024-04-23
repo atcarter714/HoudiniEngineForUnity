@@ -30,39 +30,37 @@ using UnityEditor.PackageManager;
 using UnityEngine;
 
 
-namespace HoudiniEngineUnity
-{
-    public static class HEU_SplinesPacakageManager
-    {
-        static AddRequest Request;
+namespace HoudiniEngineUnity {
 
-        public static bool IsInstalled()
-        {
+    public static class HEU_SplinesPackageManager {
+        static AddRequest? Request ;
+
+        public static bool IsInstalled( ) {
 #if UNITY_SPLINES_INSTALLED
-            return true;
+            return true ;
 #else
             return false;
 #endif
         }
 
-        public static void Add()
-        {
+        public static void Add( ) {
             // Add the Untiy.Splines package to the project
-            Request = Client.Add("com.unity.splines");
-            EditorApplication.update += Progress;
+            Request                  =  Client.Add( "com.unity.splines" ) ;
+            EditorApplication.update += Progress ;
         }
 
-        static void Progress()
-        {
-            if (Request.IsCompleted)
-            {
-                if (Request.Status == StatusCode.Success)
-                    Debug.Log("Installed: " + Request.Result.packageId);
-                else if (Request.Status >= StatusCode.Failure)
-                    Debug.Log(Request.Error.message);
-
-                EditorApplication.update -= Progress;
+        static void Progress( ) {
+            if ( !( Request?.IsCompleted ?? false ) ) return ;
+            switch ( Request.Status ) {
+                case StatusCode.Success:
+                    Debug.Log( "Installed: " + Request.Result.packageId ) ;
+                    break ;
+                case >= StatusCode.Failure:
+                    Debug.Log( Request.Error.message ) ;
+                    break ;
             }
+
+            EditorApplication.update -= Progress ;
         }
-    }
+    } ;
 }

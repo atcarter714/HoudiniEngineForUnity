@@ -587,7 +587,7 @@ namespace HoudiniEngineUnity
 	private void DrawAttributeSelection()
 	{
 	    // Try to re-use the last selected node
-	    string lastSelectedNodeName = null;
+	    string? lastSelectedNodeName = null;
 	    SerializedProperty lastSelectedNodeNameProperty = HEU_EditorUtility.GetSerializedProperty(_toolsInfoSerializedObject, "_lastAttributeNodeName");
 	    if (lastSelectedNodeNameProperty != null)
 	    {
@@ -598,11 +598,11 @@ namespace HoudiniEngineUnity
 
 	    // Get the names of the all editable nodes having an attribute store for this asset
 	    // While doing that, we'll find the last selected attribute store
-	    int lastSelectedIndex = 0;
-	    List<string> nodeNames = new List<string>();
+	    int             lastSelectedIndex = 0;
+	    List< string? > nodeNames         = new List< string? >();
 	    foreach (HEU_AttributesStore attributeStore in _attributesStores)
 	    {
-		string geoName = attributeStore.GeoName;
+		string? geoName = attributeStore.GeoName;
 		if (!nodeNames.Contains(geoName))
 		{
 		    nodeNames.Add(geoName);
@@ -618,7 +618,7 @@ namespace HoudiniEngineUnity
 	    }
 
 	    // Try to re-use the last selected attribute
-	    string lastSelectedAttributeName = null;
+	    string? lastSelectedAttributeName = null;
 	    SerializedProperty lastSelectedAttributeProperty = HEU_EditorUtility.GetSerializedProperty(_toolsInfoSerializedObject, "_lastAttributeName");
 	    if (lastSelectedAttributeProperty != null)
 	    {
@@ -636,7 +636,7 @@ namespace HoudiniEngineUnity
 
 		foreach (HEU_AttributesStore attributeStore in _attributesStores)
 		{
-		    string geoName = attributeStore.GeoName;
+		    string? geoName = attributeStore.GeoName;
 		    if (geoName.Equals(lastSelectedNodeName))
 		    {
 			foundAttributeStore = attributeStore;
@@ -665,7 +665,7 @@ namespace HoudiniEngineUnity
 	    }
 
 	    // Get attribute names for selected node
-	    List<string> attributeNames = _selectedAttributesStore.GetAttributeNames();
+	    List< string? > attributeNames = _selectedAttributesStore.GetAttributeNames();
 
 	    // Find the last selected attribute index
 	    int lastAttributeIndex = -1;
@@ -873,7 +873,7 @@ namespace HoudiniEngineUnity
 	    else if (_selectedAttributeData._attributeType == HEU_AttributeData.AttributeType.STRING)
 	    {
 		// Copy values to display
-		string[] values = new string[arraySize];
+		string?[] values = new string[arraySize];
 		for (int i = 0; i < arraySize; ++i)
 		{
 		    values[i] = _selectedAttributeData._stringValues[ptIndex + i];

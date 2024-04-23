@@ -100,13 +100,13 @@ namespace HoudiniEngineUnity
 	HAPI_NodeId InputNodeID { get; }
 
 	/// <summary>Input node name</summary>
-	string InputName { get; }
+	string? InputName { get; }
 
 	/// <summary>Input node label</summary>
-	string LabelName { get; }
+	string? LabelName { get; }
 
 	/// <summary>Input node parameter</summary>
-	string ParamName { get; }
+	string? ParamName { get; }
 
 	/// <summary>Mesh settings</summary>
 	HEU_InputInterfaceMeshSettings MeshSettings { get; }

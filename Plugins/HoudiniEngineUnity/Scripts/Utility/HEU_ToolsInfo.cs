@@ -45,7 +45,7 @@ namespace HoudiniEngineUnity
 
 	public float[] _paintFloatValue = new float[0];
 
-	public string[] _paintStringValue = new string[0];
+	public string?[] _paintStringValue = new string[0];
 
 	public HAPI_NodeId _lastAttributesGeoID;
 

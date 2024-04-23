@@ -94,7 +94,7 @@ namespace HoudiniEngineUnity
 
 	    HEU_InputDataTilemap inputTilemap = GenerateTilemapDataFromGameObject(inputObject);
 
-	    string inputName = null;
+	    string? inputName = null;
 	    HAPI_NodeId newNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
 	    session.CreateInputNode( out newNodeID, inputName );
 

@@ -388,7 +388,7 @@ namespace HoudiniEngineUnity
 
 	    if (eventInfo.msgSH >= 0)
 	    {
-		string eventMsg = HEU_SessionManager.GetString(eventInfo.msgSH, session);
+		string? eventMsg = HEU_SessionManager.GetString(eventInfo.msgSH, session);
 		if (!string.IsNullOrEmpty(eventMsg))
 		{
 		    AddEventMessage(string.Format("<color={0}>{1} - {2}: {3}</color>\n",

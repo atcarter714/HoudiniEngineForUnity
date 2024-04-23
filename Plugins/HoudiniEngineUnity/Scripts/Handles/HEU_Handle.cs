@@ -49,9 +49,9 @@ namespace HoudiniEngineUnity
 	}
 
 	[SerializeField]
-	private string _handleName;
+	private string? _handleName;
 
-	public string HandleName { get { return _handleName; } }
+	public string? HandleName { get { return _handleName; } }
 
 	[SerializeField]
 	private HEU_HandleType _handleType;
@@ -121,8 +121,8 @@ namespace HoudiniEngineUnity
 
 	//  LOGIC -----------------------------------------------------------------------------------------------------
 
-	public bool SetupHandle(HEU_SessionBase session, HAPI_NodeId assetID, int handleIndex, string handleName,
-		HEU_HandleType handleType, ref HAPI_HandleInfo handleInfo, HEU_Parameters parameters)
+	public bool SetupHandle(HEU_SessionBase session,    HAPI_NodeId assetID, int handleIndex, string? handleName,
+		HEU_HandleType                      handleType, ref HAPI_HandleInfo handleInfo, HEU_Parameters parameters)
 	{
 	    _handleIndex = handleIndex;
 	    _handleName = handleName;
@@ -149,7 +149,7 @@ namespace HoudiniEngineUnity
 
 	    for (int i = 0; i < handleBindingInfos.Length; ++i)
 	    {
-		string parmName = HEU_SessionManager.GetString(handleBindingInfos[i].handleParmNameSH, session);
+		string? parmName = HEU_SessionManager.GetString(handleBindingInfos[i].handleParmNameSH, session);
 
 		//string assetParmName = HEU_SessionManager.GetString(handleBindingInfos[i].assetParmNameSH, session);
 		//HEU_Logger.LogFormat("Handle {0} has parm {1} with asset parm {2} with asset parm id {3}", handleName, parmName, assetParmName, handleBindingInfos[i].assetParmId);

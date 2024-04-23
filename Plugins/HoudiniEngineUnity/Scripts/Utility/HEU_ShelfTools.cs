@@ -24,6 +24,7 @@
 * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using System ;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,7 +39,7 @@ namespace HoudiniEngineUnity
     [System.Serializable]
     public class HEU_ShelfToolData
     {
-	public string _name = "";
+	public string? _name = "";
 
 	public enum ToolType
 	{
@@ -52,23 +53,23 @@ namespace HoudiniEngineUnity
 
 	public string _toolTip = "";
 
-	public string _iconPath = "";
+	public string? _iconPath = "";
 
-	public string _assetPath = "";
+	public string? _assetPath = "";
 
 	public string _helpURL = "";
 
 	public string[] _targets;
 
-	public string _jsonPath = "";
+	public string? _jsonPath = "";
     }
 
     [System.Serializable]
     public class HEU_Shelf
     {
-	public string _shelfName;
+	public string? _shelfName;
 
-	public string _shelfPath;
+	public string? _shelfPath;
 
 	public bool _defaultShelf;
 
@@ -138,12 +139,12 @@ namespace HoudiniEngineUnity
 	    return null;
 	}
 
-	public static string GetShelfStorageEntry(string shelfName, string shelfPath)
+	public static string GetShelfStorageEntry(string? shelfName, string? shelfPath)
 	{
 	    return string.Format("{0}={1}", shelfName, shelfPath);
 	}
 
-	public static void GetSplitShelfEntry(string shelfEntry, out string shelfName, out string shelfPath)
+	public static void GetSplitShelfEntry(string shelfEntry, out string? shelfName, out string? shelfPath)
 	{
 	    shelfName = "";
 	    shelfPath = "";
@@ -181,8 +182,8 @@ namespace HoudiniEngineUnity
 	    int numShelves = shelfEntries.Count;
 	    for (int i = 0; i < numShelves; i++)
 	    {
-		string shelfName = "";
-		string shelfPath = "";
+		string?  shelfName = "";
+		string? shelfPath = "";
 
 		GetSplitShelfEntry(shelfEntries[i], out shelfName, out shelfPath);
 
@@ -211,7 +212,7 @@ namespace HoudiniEngineUnity
 
 	    foreach (HEU_Shelf shelf in _shelves)
 	    {
-		string realShelfPath = HEU_HAPIUtility.GetRealPathFromHFSPath(shelf._shelfPath);
+		string? realShelfPath = HEU_HAPIUtility.GetRealPathFromHFSPath(shelf._shelfPath);
 
 		if (!HEU_Platform.DoesPathExist(realShelfPath))
 		{
@@ -242,17 +243,17 @@ namespace HoudiniEngineUnity
 	    _shelvesLoaded = true;
 	}
 
-	public static bool LoadToolsFromDirectory(string folderPath, out List<HEU_ShelfToolData> tools)
+	public static bool LoadToolsFromDirectory(string? folderPath, out List<HEU_ShelfToolData> tools)
 	{
 	    tools = new List<HEU_ShelfToolData>();
 
-	    string[] filePaths = HEU_Platform.GetFilesInFolder(folderPath, "*.json", true);
+	    string?[] filePaths = HEU_Platform.GetFilesInFolder(folderPath, "*.json", true);
 	    bool bResult = false;
 	    try
 	    {
 		if (filePaths != null)
 		{
-		    foreach (string fileName in filePaths)
+		    foreach (string? fileName in filePaths)
 		    {
 			HEU_ShelfToolData tool = LoadToolFromJsonFile(fileName);
 			if (tool != null)
@@ -264,7 +265,7 @@ namespace HoudiniEngineUnity
 		    bResult = true;
 		}
 	    }
-	    catch (System.Exception ex)
+	    catch (Exception? ex)
 	    {
 		HEU_Logger.LogErrorFormat("Parsing JSON files in directory caused exception: {0}", ex);
 		return false;
@@ -273,7 +274,7 @@ namespace HoudiniEngineUnity
 	    return bResult;
 	}
 
-	public static HEU_ShelfToolData LoadToolFromJsonFile(string jsonFilePath)
+	public static HEU_ShelfToolData LoadToolFromJsonFile(string? jsonFilePath)
 	{
 	    string json = null;
 	    try
@@ -292,7 +293,7 @@ namespace HoudiniEngineUnity
 	    return tool;
 	}
 
-	public static HEU_ShelfToolData LoadToolFromJsonString(string json, string jsonFilePath)
+	public static HEU_ShelfToolData LoadToolFromJsonString(string json, string? jsonFilePath)
 	{
 	    //HEU_Logger.Log("Loading json: " + jsonFilePath);
 
@@ -385,7 +386,7 @@ namespace HoudiniEngineUnity
 			    toolData._assetPath = GetToolAssetPath(toolData, toolData._assetPath);
 			}
 
-			string realPath = HEU_PluginStorage.Instance.ConvertEnvKeyedPathToReal(toolData._assetPath);
+			string? realPath = HEU_PluginStorage.Instance.ConvertEnvKeyedPathToReal(toolData._assetPath);
 			if (!HEU_Platform.DoesFileExist(realPath))
 			{
 			    HEU_Logger.LogErrorFormat("Houdini Engine shelf tool at {0} does not exist!", realPath);
@@ -420,7 +421,7 @@ namespace HoudiniEngineUnity
 	    return null;
 	}
 
-	public static HEU_Shelf AddShelf(string shelfName, string shelfPath)
+	public static HEU_Shelf AddShelf(string? shelfName, string? shelfPath)
 	{
 	    if (_shelves.Find((HEU_Shelf shelf) => shelf._shelfName == shelfName) != null)
 	    {
@@ -493,7 +494,7 @@ namespace HoudiniEngineUnity
 
 	    GameObject[] selectedObjects = HEU_EditorUtility.GetSelectedObjects();
 
-	    string assetPath = toolData._assetPath;
+	    string? assetPath = toolData._assetPath;
 
 	    if (toolData._toolType == HEU_ShelfToolData.ToolType.GENERATOR)
 	    {
@@ -523,7 +524,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	public static void ExecuteToolGenerator(string toolName, string toolPath, Vector3 targetPosition, Quaternion targetRotation, Vector3 targetScale)
+	public static void ExecuteToolGenerator(string? toolName, string? toolPath, Vector3 targetPosition, Quaternion targetRotation, Vector3 targetScale)
 	{
 	    GameObject go = HEU_HAPIUtility.InstantiateHDA(toolPath, targetPosition, HEU_SessionManager.GetOrCreateDefaultSession(), true);
 	    if (go != null)
@@ -588,7 +589,7 @@ namespace HoudiniEngineUnity
 	    return true;
 	}
 
-	public static void ExecuteToolNoInput(string toolName, string toolPath)
+	public static void ExecuteToolNoInput(string? toolName, string? toolPath)
 	{
 	    GameObject go = HEU_HAPIUtility.InstantiateHDA(toolPath, Vector3.zero, HEU_SessionManager.GetOrCreateDefaultSession(), false);
 	    if (go == null)
@@ -601,7 +602,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	public static void ExecuteToolOperatorSingle(string toolName, string toolPath, GameObject[] inputObjects)
+	public static void ExecuteToolOperatorSingle(string? toolName, string? toolPath, GameObject[] inputObjects)
 	{
 	    // Single operator means single asset input. If multiple inputs are provided, create tool for each input.
 
@@ -707,7 +708,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	public static void ExecuteToolOperatorMultiple(string toolName, string toolPath, GameObject[] inputObjects)
+	public static void ExecuteToolOperatorMultiple(string? toolName, string? toolPath, GameObject[] inputObjects)
 	{
 	    GameObject outputObjectToSelect = null;
 
@@ -804,7 +805,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	public static void ExecuteToolBatch(string toolName, string toolPath, GameObject[] batchObjects)
+	public static void ExecuteToolBatch(string? toolName, string? toolPath, GameObject[] batchObjects)
 	{
 	    // This is same as the single path. The batch setting should be removed as its unnecessary.
 	    ExecuteToolOperatorSingle(toolName, toolPath, batchObjects);
@@ -826,7 +827,7 @@ namespace HoudiniEngineUnity
 	    return inPath;
 	}
 
-	public static string GetToolIconPath(HEU_ShelfToolData tool, string inPath)
+	public static string? GetToolIconPath(HEU_ShelfToolData tool, string? inPath)
 	{
 	    if (string.IsNullOrEmpty(inPath) || inPath.Equals("."))
 	    {
@@ -850,7 +851,7 @@ namespace HoudiniEngineUnity
 	    return inPath;
 	}
 
-	public static string GetToolAssetPath(HEU_ShelfToolData tool, string inPath)
+	public static string? GetToolAssetPath(HEU_ShelfToolData tool, string? inPath)
 	{
 	    if (string.IsNullOrEmpty(inPath) || inPath.Equals("."))
 	    {

@@ -56,7 +56,7 @@ namespace HoudiniEngineUnity
 	/// <param name="bakedMaterialPath">Folder path for caching material output</param>
 	/// <returns>True if successfully popupated the terrain</returns>
 	public static bool GenerateTerrainFromVolume(HEU_SessionBase session, ref HAPI_VolumeInfo volumeInfo, HAPI_NodeId geoID, HAPI_PartId partID,
-		GameObject gameObject, ref TerrainData terrainData, out Vector3 volumePositionOffset, ref Terrain terrain, string bakedMaterialPath)
+		GameObject gameObject, ref TerrainData terrainData, out Vector3 volumePositionOffset, ref Terrain terrain, string? bakedMaterialPath)
 	{
 	    volumePositionOffset = Vector3.zero;
 
@@ -131,7 +131,7 @@ namespace HoudiniEngineUnity
 		}
 
 		// Look up terrain material, if specified, on the height layer
-		string specifiedTerrainMaterialName = HEU_GeneralUtility.GetMaterialAttributeValueFromPart(session,
+		string? specifiedTerrainMaterialName = HEU_GeneralUtility.GetMaterialAttributeValueFromPart(session,
 			geoID, partID);
 		SetTerrainMaterial(terrain, specifiedTerrainMaterialName, bakedMaterialPath);
 
@@ -258,11 +258,11 @@ namespace HoudiniEngineUnity
 	/// Currently sets the default Terrain material from the plugin settings, if its valid.
 	/// </summary>
 	/// <param name="terrain">The terrain to set material for</param>
-	public static void SetTerrainMaterial(Terrain terrain, string specifiedMaterialName, string bakedMaterialPath = "")
+	public static void SetTerrainMaterial(Terrain terrain, string? specifiedMaterialName, string? bakedMaterialPath = "")
 	{
 	    // Use material specified in Plugin settings.
-	    string terrainMaterialPath = string.IsNullOrEmpty(specifiedMaterialName) ? HEU_PluginSettings.DefaultTerrainMaterial :
-	        specifiedMaterialName;
+	    string? terrainMaterialPath = string.IsNullOrEmpty(specifiedMaterialName) ? HEU_PluginSettings.DefaultTerrainMaterial :
+										  specifiedMaterialName;
 	    if (!string.IsNullOrEmpty(terrainMaterialPath))
 	    {
 	        Material material = HEU_MaterialFactory.LoadUnityMaterial(terrainMaterialPath);
@@ -293,7 +293,7 @@ namespace HoudiniEngineUnity
 		// Use the hardcoded paths as a last resort
 		if (material == null)
 		{
-		    string defaultTerrainMaterialPath = GetDefaultTerrainMaterialPath();
+		    string? defaultTerrainMaterialPath = GetDefaultTerrainMaterialPath();
 		    material = HEU_MaterialFactory.LoadUnityMaterial(defaultTerrainMaterialPath);
 		}
 		
@@ -315,7 +315,7 @@ namespace HoudiniEngineUnity
 	    // TODO: If none specified, guess based on Render settings?
 	}
 
-	public static string GetDefaultTerrainShaderName()
+	public static string? GetDefaultTerrainShaderName()
 	{
 	    HEU_PipelineType pipeline = HEU_RenderingPipelineDefines.GetPipeline();
 	    if (pipeline == HEU_PipelineType.HDRP)
@@ -332,7 +332,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	public static string GetDefaultTerrainMaterialPath()
+	public static string? GetDefaultTerrainMaterialPath()
 	{
 	    HEU_PipelineType pipeline = HEU_RenderingPipelineDefines.GetPipeline();
 	    if (pipeline == HEU_PipelineType.HDRP)
@@ -715,7 +715,7 @@ namespace HoudiniEngineUnity
 	    while (true)
 	    {
 		// Does this attribute exist?
-		string attrName = HEU_Defines.HEIGHTFIELD_TREEPROTOTYPE + index.ToString();
+		string? attrName = HEU_Defines.HEIGHTFIELD_TREEPROTOTYPE + index.ToString();
 		if (!HEU_GeneralUtility.HasAttribute(session, geoID, partID, attrName, HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM))
 		{
 		    break;
@@ -725,8 +725,8 @@ namespace HoudiniEngineUnity
 
 		// Get the string value
 		HAPI_AttributeInfo treeAttrInfo = new HAPI_AttributeInfo();
-		string[] protoAttrString = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
-			attrName, ref treeAttrInfo);
+		string?[] protoAttrString = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
+																			  attrName, ref treeAttrInfo);
 		if (protoAttrString == null || protoAttrString.Length == 0 || string.IsNullOrEmpty(protoAttrString[0]))
 		{
 		    break;
@@ -735,7 +735,7 @@ namespace HoudiniEngineUnity
 		// Parse the attribute string value:
 		// Only expecting a single element here, comma-separated for the asset path and bend factor:
 		// => asset_path,bend_factor
-		string[] properties = protoAttrString[0].Split(',');
+		string?[] properties = protoAttrString[0].Split(',');
 		if (properties.Length > 0 && !string.IsNullOrEmpty(properties[0]))
 		{
 		    HEU_TreePrototypeInfo prototype = new HEU_TreePrototypeInfo();
@@ -993,8 +993,8 @@ namespace HoudiniEngineUnity
 	    }
 
 	    HAPI_AttributeInfo prefabAttrInfo = new HAPI_AttributeInfo();
-	    string[] prefabPaths = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
-		    HEU_Defines.HEIGHTFIELD_DETAIL_PROTOTYPE_PREFAB, ref prefabAttrInfo);
+	    string?[] prefabPaths = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
+																		  HEU_Defines.HEIGHTFIELD_DETAIL_PROTOTYPE_PREFAB, ref prefabAttrInfo);
 
 	    if (prefabAttrInfo.exists && prefabPaths.Length >= 1)
 	    {
@@ -1002,8 +1002,8 @@ namespace HoudiniEngineUnity
 	    }
 
 	    HAPI_AttributeInfo textureAttrInfo = new HAPI_AttributeInfo();
-	    string[] texturePaths = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
-		    HEU_Defines.HEIGHTFIELD_DETAIL_PROTOTYPE_TEXTURE, ref textureAttrInfo);
+	    string?[] texturePaths = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
+																		   HEU_Defines.HEIGHTFIELD_DETAIL_PROTOTYPE_TEXTURE, ref textureAttrInfo);
 
 	    if (textureAttrInfo.exists && texturePaths.Length >= 1)
 	    {
@@ -1259,7 +1259,7 @@ namespace HoudiniEngineUnity
 
 	public static bool VolumeLayerHasAttributes(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID)
 	{
-	    string[] layerAttrNames =
+	    string?[] layerAttrNames =
 	    {
 		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TEXTURE_DIFFUSE_ATTR,
 		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TEXTURE_MASK_ATTR,
@@ -1275,7 +1275,7 @@ namespace HoudiniEngineUnity
 	    // Check if any of the layer attribute names show up in the existing primitive attributes
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
 	    bool bResult = false;
-	    foreach (string layerAttr in layerAttrNames)
+	    foreach (string? layerAttr in layerAttrNames)
 	    {
 		bResult = session.GetAttributeInfo(geoID, partID, layerAttr, HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM, ref attrInfo);
 		if (bResult && attrInfo.exists)
@@ -1295,7 +1295,7 @@ namespace HoudiniEngineUnity
 	/// <param name="partID">Heightfield layer</param>
 	/// <param name="volumeName">Heightfield name</param>
 	/// <returns>The HFLayerType of the specified part, or HFLayerType.DEFAULT if not valid</returns>
-	public static HFLayerType GetHeightfieldLayerType(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string volumeName)
+	public static HFLayerType GetHeightfieldLayerType(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? volumeName)
 	{
 	    HFLayerType layerType = HFLayerType.DEFAULT;
 
@@ -1310,8 +1310,8 @@ namespace HoudiniEngineUnity
 	    else
 	    {
 		HAPI_AttributeInfo layerTypeAttr = new HAPI_AttributeInfo();
-		string[] layerTypeStr = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, HEU_Defines.HEIGHTFIELD_LAYER_ATTR_TYPE,
-			ref layerTypeAttr);
+		string?[] layerTypeStr = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, HEU_Defines.HEIGHTFIELD_LAYER_ATTR_TYPE,
+																		   ref layerTypeAttr);
 		if (layerTypeStr != null && layerTypeStr.Length >= 0 && layerTypeStr[0].Equals(HEU_Defines.HEIGHTFIELD_LAYER_TYPE_DETAIL))
 		{
 		    layerType = HFLayerType.DETAIL;
@@ -1328,13 +1328,13 @@ namespace HoudiniEngineUnity
 	    return heightRange;
 	}
 
-	public static string GetTerrainDataExportPathFromHeightfieldAttribute(HEU_SessionBase session, HAPI_NodeId geoID,
-		HAPI_PartId partID)
+	public static string? GetTerrainDataExportPathFromHeightfieldAttribute(HEU_SessionBase session, HAPI_NodeId geoID,
+																		   HAPI_PartId     partID)
 	{
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-	    string[] attrValue = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
-		    HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINDATA_EXPORT_PATH,
-		    ref attrInfo);
+	    string?[] attrValue = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID,
+																		HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINDATA_EXPORT_PATH,
+																		ref attrInfo);
 	    if (attrInfo.exists && attrValue.Length > 0 && string.IsNullOrEmpty(attrValue[0]))
 	    {
 		return attrValue[0];

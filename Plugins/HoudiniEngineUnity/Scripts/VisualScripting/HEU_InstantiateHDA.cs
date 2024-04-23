@@ -58,9 +58,9 @@ namespace HoudiniEngineUnity
 
 	public void TriggerButton(GraphReference reference)
 	{
-	    Flow flow = Flow.New(reference);
-	    string hdaPath = flow.GetValue<string>(inputPath);
-	    bool hdaAsync = flow.GetValue<bool>(inputAsync);
+	    Flow    flow        = Flow.New(reference);
+	    string? hdaPath     = flow.GetValue<string>(inputPath);
+	    bool    hdaAsync    = flow.GetValue<bool>(inputAsync);
 	    Vector3 hdaPosition = flow.GetValue<Vector3>(inputPosition);
 
 	    System.Action ContinueFlow = () =>

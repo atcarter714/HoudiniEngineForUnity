@@ -198,7 +198,7 @@ namespace HoudiniEngineUnity
 	public HEU_Parameters Parameters { get { return _parameters; } }
 
 	/// <inheritdoc />
-	public string CurveName { get { return _curveName; } }
+	public string? CurveName { get { return _curveName; } }
 
 	/// <inheritdoc />
 	public bool IsInputCurve { get { return _bIsInputCurve; } }
@@ -243,7 +243,7 @@ namespace HoudiniEngineUnity
 	internal void SetUploadParameterPreset(bool bValue) { _bUploadParameterPreset = bValue; }
 
 	[SerializeField]
-	private string _curveName;
+	private string? _curveName;
 
 
 	[SerializeField]
@@ -350,7 +350,7 @@ namespace HoudiniEngineUnity
 	public bool IsGeoCurve() { return _isGeoCurve; }
 
 	/// <inheritdoc />
-	public void SetCurveName(string name)
+	public void SetCurveName(string? name)
 	{
 	    _curveName = name;
 	    if (_targetGameObject != null)
@@ -526,7 +526,7 @@ namespace HoudiniEngineUnity
 
 	// LOGIC ------------------------------------------------------------------------------------------------------
 
-	internal static HEU_Curve CreateSetupCurve(HEU_SessionBase session, HEU_HoudiniAsset parentAsset, bool isEditable, string curveName, HAPI_NodeId geoID, HAPI_PartId partID, bool bGeoCurve)
+	internal static HEU_Curve CreateSetupCurve(HEU_SessionBase session, HEU_HoudiniAsset parentAsset, bool isEditable, string? curveName, HAPI_NodeId geoID, HAPI_PartId partID, bool bGeoCurve)
 	{
 	    HEU_Curve newCurve = ScriptableObject.CreateInstance<HEU_Curve>();
 	    newCurve._isEditable = isEditable;
@@ -539,7 +539,7 @@ namespace HoudiniEngineUnity
 	    newCurve._parentAsset = parentAsset;
 
 	    // Detect whether or not this is an input node - should delete to remove duplicates
-	    string parmName = HEU_Defines.HAPI_OBJPATH_1_PARAM;
+	    string? parmName = HEU_Defines.HAPI_OBJPATH_1_PARAM;
 
 	    int parmId = -1;
 	    if (session.GetParmIDFromName(geoID, parmName, out parmId) && parmId != -1)
@@ -594,7 +594,7 @@ namespace HoudiniEngineUnity
 	    {
 		// Kind of hacky, but ...
 		// ... if it is a HAPI input curve, then always get the first one if it exists
-		List<string> keys = parentAsset.SerializedMetaData.SavedCurveNodeData.Keys.ToList();
+		List< string? > keys = parentAsset.SerializedMetaData.SavedCurveNodeData.Keys.ToList();
 		if (keys.Count > 0)
 		{
 		    newCurve.UsePreviousCurveData(keys[0]);
@@ -606,7 +606,7 @@ namespace HoudiniEngineUnity
 	}
 
 	// Use previous curve data (often after rebuild)
-	private void UsePreviousCurveData(string curveName)
+	private void UsePreviousCurveData(string? curveName)
 	{
 	    if (_parentAsset == null || _parentAsset.SerializedMetaData == null || _parentAsset.SerializedMetaData.SavedCurveNodeData == null
 	    || !_parentAsset.SerializedMetaData.SavedCurveNodeData.ContainsKey(curveName))
@@ -1397,7 +1397,7 @@ namespace HoudiniEngineUnity
 		    if (nOwnerAttributeCount == 0)
 			continue;
 
-			string[] AttributeNamesSH = new string[nOwnerAttributeCount];
+			string?[] AttributeNamesSH = new string[nOwnerAttributeCount];
 			if (!session.GetAttributeNames(curveIdNode, 0, (HAPI_AttributeOwner)nOwner, ref AttributeNamesSH, nOwnerAttributeCount))
 			{
 			    HEU_Logger.LogWarning("Unable to get attribute names!" + warningMessage);
@@ -1406,7 +1406,7 @@ namespace HoudiniEngineUnity
 
 			for (int nAttribute = 0; nAttribute < AttributeNamesSH.Length; nAttribute++)
 			{
-			    string attr_name = AttributeNamesSH[nAttribute];
+			    string? attr_name = AttributeNamesSH[nAttribute];
 			    if (attr_name == "") continue;
 
 			    if (attr_name == "__topology")
@@ -1433,7 +1433,7 @@ namespace HoudiniEngineUnity
 
 				    break;
 				case HAPI_StorageType.HAPI_STORAGETYPE_STRING:
-				    string[] stringData = HEU_GeneralUtility.GetAttributeStringData(session, curveIdNode, 0, attr_name, ref attr_info);
+				    string?[] stringData = HEU_GeneralUtility.GetAttributeStringData(session, curveIdNode, 0, attr_name, ref attr_info);
 				    session.AddAttribute(curveIdNode, _partID, attr_name, ref attr_info);
 				    session.SetAttributeStringData(curveIdNode, _partID, attr_name, ref attr_info, stringData, 0, attr_info.count);
 				    break;
@@ -1576,7 +1576,7 @@ namespace HoudiniEngineUnity
 	    }
 
 
-	    string geoNodeName = HEU_SessionManager.GetString(geoNodeInfo.nameSH, session);
+	    string? geoNodeName = HEU_SessionManager.GetString(geoNodeInfo.nameSH, session);
 	    _parameters._uiLabel = geoNodeName.ToUpper() + " PARAMETERS";
 
 	    bool bResult = _parameters.Initialize(session, _geoID, ref geoNodeInfo, null, null, parentAsset);

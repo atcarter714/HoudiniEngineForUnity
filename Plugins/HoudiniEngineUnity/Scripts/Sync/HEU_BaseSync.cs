@@ -203,7 +203,7 @@ namespace HoudiniEngineUnity {
 				return ;
 			}
 
-			string outputPath = HEU_AssetDatabase.CreateUniqueBakePath( gameObject.name ) ;
+			string? outputPath = HEU_AssetDatabase.CreateUniqueBakePath( gameObject.name ) ;
 
 			GameObject parentObj = HEU_GeneralUtility.CreateNewGameObject( gameObject.name ) ;
 
@@ -324,7 +324,7 @@ namespace HoudiniEngineUnity {
 			Transform        parent  = gameObject.transform ;
 
 			// Directory to store generated terrain files.
-			string outputTerrainpath = GetOutputCacheDirectory( ) ;
+			string? outputTerrainpath = GetOutputCacheDirectory( ) ;
 			outputTerrainpath = HEU_Platform.BuildPath( outputTerrainpath, "Terrain" ) ;
 
 			int numVolumes = terrainBuffers.Count ;
@@ -354,7 +354,7 @@ namespace HoudiniEngineUnity {
 #endif
 					// The TerrainData and TerrainLayer files needs to be saved out if we create them.
 					// Try user specified path, otherwise use the cache folder
-					string exportTerrainDataPath = terrainBuffers[ t ]._terrainDataExportPath ;
+					string? exportTerrainDataPath = terrainBuffers[ t ]._terrainDataExportPath ;
 					if ( string.IsNullOrEmpty( exportTerrainDataPath ) ) {
 						// This creates the relative folder path from the Asset's cache folder: {assetCache}/{geo name}/Terrain/Tile{tileIndex}/...
 						exportTerrainDataPath = HEU_Platform.BuildPath( outputTerrainpath,
@@ -397,12 +397,12 @@ namespace HoudiniEngineUnity {
 						terrain.terrainData = new( ) ;
 
 						if ( bFullExportTerrainDataPath ) {
-							string folderPath = HEU_Platform.GetFolderPath( exportTerrainDataPath, true ) ;
+							string? folderPath = HEU_Platform.GetFolderPath( exportTerrainDataPath, true ) ;
 							HEU_AssetDatabase.CreatePathWithFolders( folderPath ) ;
 							HEU_AssetDatabase.CreateAsset( terrain.terrainData, exportTerrainDataPath ) ;
 						}
 						else {
-							string assetPathName = "TerrainData" + HEU_Defines.HEU_EXT_ASSET ;
+							string? assetPathName = "TerrainData" + HEU_Defines.HEU_EXT_ASSET ;
 							HEU_AssetDatabase.CreateObjectInAssetCacheFolder( terrain.terrainData,
 																			  exportTerrainDataPath, null,
 																			  assetPathName, typeof( TerrainData ),
@@ -596,7 +596,7 @@ namespace HoudiniEngineUnity {
 							}
 
 							// In order to retain the new TerrainLayer, it must be saved to the AssetDatabase.
-							string layerFileNameWithExt = terrainlayer.name ;
+							string? layerFileNameWithExt = terrainlayer.name ;
 							if ( !layerFileNameWithExt.EndsWith( HEU_Defines.HEU_EXT_TERRAINLAYER ) ) {
 								layerFileNameWithExt += HEU_Defines.HEU_EXT_TERRAINLAYER ;
 							}
@@ -838,7 +838,7 @@ namespace HoudiniEngineUnity {
 			GameObject? singleCollisionGO = null ;
 
 			// For multi collision geo overrides, keep track of loaded objects
-			Dictionary< string, GameObject > loadedCollisionObjectMap = new( ) ;
+			Dictionary< string?, GameObject > loadedCollisionObjectMap = new( ) ;
 
 			if ( instancerBuffer?._collisionAssetPaths is { Length: 1, } ) {
 				// Single collision override
@@ -885,7 +885,7 @@ namespace HoudiniEngineUnity {
 					continue ;
 				}
 
-				GameObject? collisionSrcGO = null ;
+				GameObject collisionSrcGO = null ;
 				if ( singleCollisionGO != null ) {
 					// Single collision geo
 					collisionSrcGO = singleCollisionGO ;
@@ -934,16 +934,16 @@ namespace HoudiniEngineUnity {
 		void GenerateInstancesFromAssetPaths( HEU_LoadBufferInstancer instancerBuffer,
 											  Transform instanceRootTransform ) {
 			// For single asset, this is set when its imported
-			GameObject? singleAssetGO = null ;
+			GameObject singleAssetGO = null ;
 
 			// For multi assets, keep track of loaded objects so we only need to load once for each object
-			Dictionary< string, GameObject > loadedAssetObjectMap = new( ) ;
+			Dictionary< string?, GameObject > loadedAssetObjectMap = new( ) ;
 
 			// For single collision geo override
 			GameObject? singleCollisionGO = null ;
 
 			// For multi collision geo overrides, keep track of loaded objects
-			Dictionary< string, GameObject > loadedCollisionObjectMap = new( ) ;
+			Dictionary< string?, GameObject > loadedCollisionObjectMap = new( ) ;
 
 			// Temporary empty gameobject in case the specified Unity asset is not found
 			GameObject? tempGO = null ;
@@ -988,8 +988,8 @@ namespace HoudiniEngineUnity {
 			for ( int i = 0; i < numInstances; ++i ) {
 				// Reset to the single asset for each instance allows which is null if using multi asset
 				// therefore forcing the instance asset to be found
-				GameObject? unitySrcGO = singleAssetGO ;
-				GameObject? collisionSrcGO = null ;
+				GameObject unitySrcGO = singleAssetGO ;
+				GameObject collisionSrcGO = null ;
 
 				if ( unitySrcGO == null ) {
 					// If not using single asset, then there must be an asset path for each instance
@@ -1056,10 +1056,10 @@ namespace HoudiniEngineUnity {
 				HEU_GeneralUtility.DestroyImmediate( tempGO!, bRegisterUndo: false ) ;
 		}
 
-		void CreateNewInstanceFromObject( GameObject assetSourceGO,
-										  int instanceIndex, Transform parentTransform,
-										  ref HAPI_Transform hapiTransform, string[ ] instancePrefixes,
-										  string instanceName,  GameObject collisionSourceGO ) {
+		void CreateNewInstanceFromObject( GameObject         assetSourceGO,
+										  int                instanceIndex, Transform  parentTransform,
+										  ref HAPI_Transform hapiTransform, string?[]  instancePrefixes,
+										  string?            instanceName,  GameObject collisionSourceGO ) {
 			GameObject? newInstanceGO ;
 			if ( HEU_EditorUtility.IsPrefabAsset( assetSourceGO ) ) {
 				newInstanceGO = HEU_EditorUtility.InstantiatePrefab( assetSourceGO ) as GameObject ;
@@ -1133,7 +1133,7 @@ namespace HoudiniEngineUnity {
 			}
 		}
 
-		string GetOutputCacheDirectory( ) {
+		string? GetOutputCacheDirectory( ) {
 			if ( string.IsNullOrEmpty( _outputCacheDirectory ) ) {
 				// Get a unique working folder if none set
 				_outputCacheDirectory = HEU_AssetDatabase.CreateAssetCacheFolder( name, GetHashCode( ) ) ;
@@ -1142,7 +1142,7 @@ namespace HoudiniEngineUnity {
 			return _outputCacheDirectory ;
 		}
 
-		public void SetOutputCacheDirectory( string directory ) => _outputCacheDirectory = directory ;
+		public void SetOutputCacheDirectory( string? directory ) => _outputCacheDirectory = directory ;
 
 		void AddGeneratedOutputFilePath( string? path ) {
 			if ( !string.IsNullOrEmpty( path ) 
@@ -1171,7 +1171,7 @@ namespace HoudiniEngineUnity {
 		public List< HEU_GeneratedOutput? > _generatedOutputs = new( ) ;
 
 		// Directory to write out generated files
-		public string _outputCacheDirectory = string.Empty ;
+		public string? _outputCacheDirectory = string.Empty ;
 
 		// List of generated file paths, so the files can be cleaned up on dirty
 		public List< string > _outputCacheFilePaths = new( ) ;

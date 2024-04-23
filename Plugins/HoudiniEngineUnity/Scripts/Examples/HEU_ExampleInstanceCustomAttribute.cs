@@ -103,7 +103,7 @@ public class HEU_ExampleInstanceCustomAttribute : MonoBehaviour
 	}
     }
 
-    static void LogArray<T>(string name, T[] arr, int tupleSize)
+    static void LogArray<T>(string? name, T[] arr, int tupleSize)
     {
 	int index = 0;
 	int count = arr.Length / tupleSize;

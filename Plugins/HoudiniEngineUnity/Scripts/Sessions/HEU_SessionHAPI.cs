@@ -180,12 +180,12 @@ namespace HoudiniEngineUnity
 		/// <param name="logError"></param>
 		/// <returns>True if successfully created session.</returns>
 		public override bool CreateThriftSocketSession(
-			bool bIsDefaultSession,
-			string hostName = HEU_Defines.HEU_SESSION_LOCALHOST, 
-			int  serverPort = HEU_Defines.HEU_SESSION_PORT,
-			bool autoClose  = HEU_Defines.HEU_SESSION_AUTOCLOSE, 
-			float  timeout  = HEU_Defines.HEU_SESSION_TIMEOUT, 
-			bool logError   = true ) {
+			bool    bIsDefaultSession,
+			string? hostName   = HEU_Defines.HEU_SESSION_LOCALHOST, 
+			int     serverPort = HEU_Defines.HEU_SESSION_PORT,
+			bool    autoClose  = HEU_Defines.HEU_SESSION_AUTOCLOSE, 
+			float   timeout    = HEU_Defines.HEU_SESSION_TIMEOUT, 
+			bool    logError   = true ) {
 			try {
 				return InternalConnectThriftSocketSession( true, hostName,
 														   serverPort, autoClose, timeout,
@@ -212,14 +212,14 @@ namespace HoudiniEngineUnity
 		/// <param name="logError"></param>
 		/// <param name="autoInitialize"></param>
 		/// <returns>True if successfully connected session.</returns>
-		bool InternalConnectThriftSocketSession( bool bCreateSession,
-												 string hostName, 
-												 int serverPort, 
-												 bool autoClose, 
-												 float timeout,
-												 bool bIsDefaultSession,
-												 bool logError,
-												 bool autoInitialize ) {
+		bool InternalConnectThriftSocketSession( bool    bCreateSession,
+												 string? hostName, 
+												 int     serverPort, 
+												 bool    autoClose, 
+												 float   timeout,
+												 bool    bIsDefaultSession,
+												 bool    logError,
+												 bool    autoInitialize ) {
 			CheckAndCloseExistingSession( ) ;
 			if ( !CreateSessionData( true, bIsDefaultSession ) )
 				return false ;
@@ -315,11 +315,11 @@ namespace HoudiniEngineUnity
 		/// <param name="timeout"></param>
 		/// <param name="logError"></param>
 		/// <returns>True if successfully created session.</returns>
-		public override bool CreateThriftPipeSession( bool  bIsDefaultSession, 
-													  string pipeName = HEU_Defines.HEU_SESSION_PIPENAME, 
-													  bool autoClose = HEU_Defines.HEU_SESSION_AUTOCLOSE, 
-													  float timeout = HEU_Defines.HEU_SESSION_TIMEOUT, 
-													  bool logError = true ) {
+		public override bool CreateThriftPipeSession( bool    bIsDefaultSession, 
+													  string? pipeName  = HEU_Defines.HEU_SESSION_PIPENAME, 
+													  bool    autoClose = HEU_Defines.HEU_SESSION_AUTOCLOSE, 
+													  float   timeout   = HEU_Defines.HEU_SESSION_TIMEOUT, 
+													  bool    logError  = true ) {
 			try {
 				return InternalCreateThriftPipeSession(
 													   true, pipeName, autoClose, timeout, bIsDefaultSession,
@@ -348,9 +348,9 @@ namespace HoudiniEngineUnity
 		/// <param name="logError"></param>
 		/// <param name="autoInitialize"></param>
 		/// <returns>True if successfully created session.</returns>
-		bool InternalCreateThriftPipeSession( bool bCreateSession,
-											  string pipeName, bool autoClose, float timeout,
-											  bool bIsDefaultSession, bool logError, bool autoInitialize ) {
+		bool InternalCreateThriftPipeSession( bool    bCreateSession,
+											  string? pipeName,          bool autoClose, float timeout,
+											  bool    bIsDefaultSession, bool logError,  bool  autoInitialize ) {
 			CheckAndCloseExistingSession( ) ;
 			if ( !CreateSessionData( true, bIsDefaultSession ) )
 				return false ;
@@ -437,12 +437,12 @@ namespace HoudiniEngineUnity
 		/// <param name="logError"></param>
 		/// <param name="autoInitialize"></param>
 		/// <returns></returns>
-		public override bool ConnectThriftSocketSession( bool bIsDefaultSession,
-														 string hostName   = HEU_Defines.HEU_SESSION_LOCALHOST, 
-														 int    serverPort = HEU_Defines.HEU_SESSION_PORT, 
-														 bool   autoClose  = HEU_Defines.HEU_SESSION_AUTOCLOSE, 
-														 float  timeout    = HEU_Defines.HEU_SESSION_TIMEOUT,
-														 bool   logError   = true, bool autoInitialize = true ) =>
+		public override bool ConnectThriftSocketSession( bool    bIsDefaultSession,
+														 string? hostName   = HEU_Defines.HEU_SESSION_LOCALHOST, 
+														 int     serverPort = HEU_Defines.HEU_SESSION_PORT, 
+														 bool    autoClose  = HEU_Defines.HEU_SESSION_AUTOCLOSE, 
+														 float   timeout    = HEU_Defines.HEU_SESSION_TIMEOUT,
+														 bool    logError   = true, bool autoInitialize = true ) =>
 			InternalConnectThriftSocketSession( false, hostName, serverPort, autoClose, timeout,
 												bIsDefaultSession, logError, autoInitialize ) ;
 
@@ -456,11 +456,11 @@ namespace HoudiniEngineUnity
 		/// <param name="logError"></param>
 		/// <param name="autoInitialize"></param>
 		/// <returns></returns>
-		public override bool ConnectThriftPipeSession( bool   bIsDefaultSession,
-													   string pipeName  = HEU_Defines.HEU_SESSION_PIPENAME,
-													   bool   autoClose = HEU_Defines.HEU_SESSION_AUTOCLOSE,
-													   float  timeout   = HEU_Defines.HEU_SESSION_TIMEOUT,
-													   bool   logError  = true, bool autoInitialize = true ) =>
+		public override bool ConnectThriftPipeSession( bool    bIsDefaultSession,
+													   string? pipeName  = HEU_Defines.HEU_SESSION_PIPENAME,
+													   bool    autoClose = HEU_Defines.HEU_SESSION_AUTOCLOSE,
+													   float   timeout   = HEU_Defines.HEU_SESSION_TIMEOUT,
+													   bool    logError  = true, bool autoInitialize = true ) =>
 			InternalCreateThriftPipeSession( false, pipeName, autoClose, timeout, bIsDefaultSession, logError, autoInitialize ) ;
 
 		/// <summary>
@@ -666,9 +666,9 @@ namespace HoudiniEngineUnity
 			HAPI_CookOptions cookOptions = new( ) ;
 			GetCookOptions( ref cookOptions ) ;
 
-			string HDASearchPath       = HEU_Platform.GetAllFoldersInPath( HEU_Defines.HEU_ENGINE_ASSETS + "/HDAs" ) ;
-			string DSOSearchPath       = HEU_Platform.GetAllFoldersInPath( HEU_Defines.HEU_ENGINE_ASSETS + "/DSOs" ) ;
-			string environmentFilePath = HEU_Platform.GetHoudiniEngineEnvironmentFilePathFull( ) ;
+			string  HDASearchPath       = HEU_Platform.GetAllFoldersInPath( HEU_Defines.HEU_ENGINE_ASSETS + "/HDAs" ) ;
+			string  DSOSearchPath       = HEU_Platform.GetAllFoldersInPath( HEU_Defines.HEU_ENGINE_ASSETS + "/DSOs" ) ;
+			string? environmentFilePath = HEU_Platform.GetHoudiniEngineEnvironmentFilePathFull( ) ;
 
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_Initialize( ref sessionData._HAPISession, ref cookOptions, true,
 																	-1, environmentFilePath.AsByteArray( ),
@@ -767,7 +767,7 @@ namespace HoudiniEngineUnity
 			HandleStatusResult( result, "Set Server Environment", true, true ) ;
 		}
 
-		public override bool GetServerEnvString( string name, out string value ) {
+		public override bool GetServerEnvString( string name, out string? value ) {
 			value = null ;
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_GetServerEnvString( ref _sessionData._HAPISession, name.AsByteArray( ),
@@ -927,7 +927,7 @@ namespace HoudiniEngineUnity
 		/// <param name="resultString">Container for return value.</param>
 		/// <param name="bufferLength">Length of return value</param>
 		/// <returns>True if it has successfully populated the string value.</returns>
-		public override bool GetString( HAPI_StringHandle stringHandle, ref string resultString, int bufferLength ) {
+		public override bool GetString( HAPI_StringHandle stringHandle, ref string? resultString, int bufferLength ) {
 			// StringBuilder returns empty string when value has invalid utf8 characters, so doing
 			// the conversion manuallly to atleast get part of the string that is valid.
 			byte[] buffer = new byte[ bufferLength ] ;
@@ -1013,7 +1013,7 @@ namespace HoudiniEngineUnity
 		/// <param name="bAllowOverwrite">Whether to overwrite an existing matching asset definition</param>
 		/// <param name="libraryID">ID of the asset in the library</param>
 		/// <returns>True if successfully loaded the asset</returns>
-		public override bool LoadAssetLibraryFromFile( string assetPath, bool bAllowOverwrite,
+		public override bool LoadAssetLibraryFromFile( string?               assetPath, bool bAllowOverwrite,
 													   out HAPI_StringHandle libraryID ) {
 			// Make the asset path a full path as otherwise debug sessions will not load the asset properly in Houdini.
 			if ( !HEU_Platform.IsPathRooted( assetPath ) ) {
@@ -1082,8 +1082,8 @@ namespace HoudiniEngineUnity
 		/// <param name="newNodeID">New node's ID</param>
 		/// <returns>True if successfully created a new node</returns>
 		public override bool CreateNode( HAPI_StringHandle parentNodeID, 
-										 string operatorName, string nodeLabel,
-										 bool bCookOnCreation, out HAPI_NodeId newNodeID ) {
+										 string?           operatorName,    string?         nodeLabel,
+										 bool              bCookOnCreation, out HAPI_NodeId newNodeID ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_CreateNode( ref _sessionData._HAPISession, parentNodeID,
 																	operatorName.AsByteArray( ),
 																	nodeLabel.AsByteArray( ), bCookOnCreation,
@@ -1283,7 +1283,7 @@ namespace HoudiniEngineUnity
 		/// <param name="relativeNodeID">The relative node. Set to -1 to get absolute.</param>
 		/// <param name="path">The returned path string</param>
 		/// <returns>True if successfully queried the node path</returns>
-		public override bool GetNodePath( HAPI_NodeId nodeID, HAPI_NodeId relativeNodeID, out string path ) {
+		public override bool GetNodePath( HAPI_NodeId nodeID, HAPI_NodeId relativeNodeID, out string? path ) {
 			path = null ;
 
 			HAPI_StringHandle pathStringHandle ;
@@ -1357,7 +1357,7 @@ namespace HoudiniEngineUnity
 		/// <param name="fileName">HIP file path to load</param>
 		/// <param name="bCookOnLoad">True if want to cook on loading instead of manually cook each node</param>
 		/// <returns>True if successfull</returns>
-		public override bool LoadHIPFile( string fileName, bool bCookOnLoad ) {
+		public override bool LoadHIPFile( string? fileName, bool bCookOnLoad ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_LoadHIPFile( ref _sessionData._HAPISession, fileName.AsByteArray( ),
 													bCookOnLoad ) ;
@@ -1555,7 +1555,7 @@ namespace HoudiniEngineUnity
 		/// <param name="owner">Attribute owner</param>
 		/// <param name="attributeInfo">Info to populate</param>
 		/// <returns>True if successfully queried the attribute info</returns>
-		public override bool GetAttributeInfo( HAPI_NodeId         nodeID, HAPI_PartId            partID, string name,
+		public override bool GetAttributeInfo( HAPI_NodeId         nodeID, HAPI_PartId            partID, string? name,
 											   HAPI_AttributeOwner owner,  ref HAPI_AttributeInfo attributeInfo ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_GetAttributeInfo( ref _sessionData._HAPISession, nodeID, partID,
 																		  name.AsByteArray( ), owner,
@@ -1573,8 +1573,8 @@ namespace HoudiniEngineUnity
 		/// <param name="attributeNames">Result array of name strings. Must be atleast count size.</param>
 		/// <param name="count">Expected number of attributes. Should be from HAPI_PartInfo.attributeCounts[owner].</param>
 		/// <returns>True if successfully retrieved the names</returns>
-		public override bool GetAttributeNames( HAPI_NodeId  nodeID, HAPI_PartId partID, HAPI_AttributeOwner owner,
-												ref string[] attributeNames, int count ) {
+		public override bool GetAttributeNames( HAPI_NodeId   nodeID, HAPI_PartId partID, HAPI_AttributeOwner owner,
+												ref string?[] attributeNames, int count ) {
 			HAPI_StringHandle[] attributeStringHandles = new HAPI_StringHandle[ count ] ;
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_GetAttributeNames( ref _sessionData._HAPISession, nodeID, partID, owner,
@@ -1602,7 +1602,7 @@ namespace HoudiniEngineUnity
 		/// <param name="start">First index of range. Must be at least 0 and at most HAPI_AttributeInfo::count - 1</param>
 		/// <param name="length">Must be at least 0 and at most HAPI_AttributeInfo::count - start</param>
 		/// <returns>True if successfully queried the atttribute string data</returns>
-		public override bool GetAttributeStringData( HAPI_NodeId               nodeID, HAPI_PartId partID, string name,
+		public override bool GetAttributeStringData( HAPI_NodeId               nodeID, HAPI_PartId partID, string? name,
 													 ref   HAPI_AttributeInfo  attributeInfo,
 													 [Out] HAPI_StringHandle[] dataArray, int start, int length ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_GetAttributeStringData( ref _sessionData._HAPISession, nodeID,
@@ -1624,7 +1624,7 @@ namespace HoudiniEngineUnity
 		/// <param name="start">First index of range. Must be at least 0 and at most HAPI_AttributeInfo::count - 1</param>
 		/// <param name="length">Must be at least 0 and at most HAPI_AttributeInfo::count - start.</param>
 		/// <returns>True if successfully queried the atttribute float data</returns>
-		public override bool GetAttributeFloatData( HAPI_NodeId            nodeID, HAPI_PartId partID, string name,
+		public override bool GetAttributeFloatData( HAPI_NodeId            nodeID, HAPI_PartId partID, string? name,
 													ref HAPI_AttributeInfo attributeInfo, [Out] float[] data, int start,
 													int                    length ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_GetAttributeFloatData( ref _sessionData._HAPISession, nodeID,
@@ -1635,7 +1635,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool GetAttributeFloatArrayData( HAPI_NodeId nodeID, HAPI_PartId partID, string name,
+		public override bool GetAttributeFloatArrayData( HAPI_NodeId nodeID, HAPI_PartId partID, string? name,
 														 ref HAPI_AttributeInfo attrInfo,
 														 ref float[] data, int dataLength, ref int[] sizesArray,
 														 int start, int sizesLength ) {
@@ -1668,7 +1668,7 @@ namespace HoudiniEngineUnity
 		/// <param name="start">First index of range. Must be at least 0 and at most HAPI_AttributeInfo::count - 1</param>
 		/// <param name="length">Must be at least 0 and at most HAPI_AttributeInfo::count - start.</param>
 		/// <returns>True if successfully queried the atttribute int data</returns>
-		public override bool GetAttributeIntData( HAPI_NodeId            nodeID,        HAPI_PartId partID, string name,
+		public override bool GetAttributeIntData( HAPI_NodeId            nodeID,        HAPI_PartId partID, string? name,
 												  ref HAPI_AttributeInfo attributeInfo, [Out] int[] data,   int start,
 												  int                    length ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_GetAttributeIntData( ref _sessionData._HAPISession, nodeID,
@@ -1982,7 +1982,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool SetAttributeIntData( HAPI_NodeId            nodeID, HAPI_PartId partID, string name,
+		public override bool SetAttributeIntData( HAPI_NodeId            nodeID, HAPI_PartId partID, string? name,
 												  ref HAPI_AttributeInfo attrInfo,
 												  int[]                  data, int start, int length ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_SetAttributeIntData( ref _sessionData._HAPISession, nodeID,
@@ -2022,7 +2022,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool SetAttributeFloatData( HAPI_NodeId            nodeID, HAPI_PartId partID, string name,
+		public override bool SetAttributeFloatData( HAPI_NodeId            nodeID, HAPI_PartId partID, string? name,
 													ref HAPI_AttributeInfo attrInfo,
 													float[]                data, int start, int length ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_SetAttributeFloatData( ref _sessionData._HAPISession, nodeID,
@@ -2045,9 +2045,9 @@ namespace HoudiniEngineUnity
 		}
 
 
-		public override bool SetAttributeStringData( HAPI_NodeId            nodeID, HAPI_PartId partID, string name,
+		public override bool SetAttributeStringData( HAPI_NodeId            nodeID, HAPI_PartId partID, string? name,
 													 ref HAPI_AttributeInfo attrInfo,
-													 string[]               data, int start, int length ) {
+													 string?[]              data, int start, int length ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_SetAttributeStringData( ref _sessionData._HAPISession, nodeID,
 																				   partID, name.AsByteArray( ),
 																				   ref attrInfo, data, start, length ) ;
@@ -2055,7 +2055,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool AddAttribute( HAPI_NodeId            nodeID, HAPI_PartId partID, string name,
+		public override bool AddAttribute( HAPI_NodeId            nodeID, HAPI_PartId partID, string? name,
 										   ref HAPI_AttributeInfo attrInfo ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_AddAttribute( ref _sessionData._HAPISession, nodeID, partID, name.AsByteArray( ),
@@ -2303,7 +2303,7 @@ namespace HoudiniEngineUnity
 		/// <param name="destinationFilePath">Path to the written image file</param>
 		/// <returns>Returns valid path to written image file, or null if failed</returns>
 		public override bool ExtractImageToFile( HAPI_NodeId nodeID, string fileFormat, string imagePlanes,
-												 string      destinationFolderPath, out string destinationFilePath ) {
+												 string?     destinationFolderPath, out string? destinationFilePath ) {
 			int destinationFilePathSH = 0 ;
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_ExtractImageToFile( ref _sessionData._HAPISession, nodeID,
 																			fileFormat.AsByteArray( ),
@@ -2376,7 +2376,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool GetParamIntValue( HAPI_NodeId nodeID, string parmName, int index, out int value ) {
+		public override bool GetParamIntValue( HAPI_NodeId nodeID, string? parmName, int index, out int value ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_GetParmIntValue( ref _sessionData._HAPISession, nodeID, parmName.AsByteArray( ),
 														index, out value ) ;
@@ -2420,7 +2420,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool GetParamNodeValue( HAPI_NodeId nodeID, string paramName, out int nodeValue ) {
+		public override bool GetParamNodeValue( HAPI_NodeId nodeID, string? paramName, out int nodeValue ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_GetParmNodeValue( ref _sessionData._HAPISession, nodeID,
 														 paramName.AsByteArray( ), out nodeValue ) ;
@@ -2445,7 +2445,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool SetParamIntValue( HAPI_NodeId nodeID, string paramName, int index, int value ) {
+		public override bool SetParamIntValue( HAPI_NodeId nodeID, string? paramName, int index, int value ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_SetParmIntValue( ref _sessionData._HAPISession, nodeID, paramName.AsByteArray( ),
 														index, value ) ;
@@ -2477,7 +2477,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool SetParamStringValue( HAPI_NodeId nodeID, string parmName, string parmValue, int index ) {
+		public override bool SetParamStringValue( HAPI_NodeId nodeID, string? parmName, string parmValue, int index ) {
 			HAPI_NodeId parmID = HEU_HAPIConstants.HAPI_INVALID_PARM_ID ;
 			if ( GetParmIDFromName( nodeID, parmName, out parmID ) ) {
 				return SetParamStringValue( nodeID, parmValue, parmID, index ) ;
@@ -2486,7 +2486,7 @@ namespace HoudiniEngineUnity
 			return false ;
 		}
 
-		public override bool SetParamNodeValue( HAPI_NodeId nodeID, string paramName, HAPI_NodeId nodeValue ) {
+		public override bool SetParamNodeValue( HAPI_NodeId nodeID, string? paramName, HAPI_NodeId nodeValue ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_SetParmNodeValue( ref _sessionData._HAPISession, nodeID,
 														 paramName.AsByteArray( ), nodeValue ) ;
@@ -2534,7 +2534,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool GetParmIDFromName( HAPI_NodeId nodeID, string parmName, out HAPI_ParmId parmID ) {
+		public override bool GetParmIDFromName( HAPI_NodeId nodeID, string? parmName, out HAPI_ParmId parmID ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_GetParmIdFromName( ref _sessionData._HAPISession, nodeID,
 														  parmName.AsByteArray( ), out parmID ) ;
@@ -2542,7 +2542,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool GetParmStringValue( HAPI_NodeId nodeID, string parmName, int index, bool evaluate,
+		public override bool GetParmStringValue( HAPI_NodeId nodeID, string? parmName, int index, bool evaluate,
 												 out HAPI_StringHandle value ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_GetParmStringValue( ref _sessionData._HAPISession, nodeID,
 																			parmName.AsByteArray( ), index, evaluate,
@@ -2553,7 +2553,7 @@ namespace HoudiniEngineUnity
 
 		// INPUT NODES ------------------------------------------------------------------------------------------------
 
-		public override bool CreateInputNode( out HAPI_NodeId nodeID, string name ) {
+		public override bool CreateInputNode( out HAPI_NodeId nodeID, string? name ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_CreateInputNode( ref _sessionData._HAPISession, out nodeID,
 														name.AsByteArray( ) ) ;
@@ -2561,7 +2561,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool CreateInputCurveNode( out HAPI_NodeId nodeID, string name ) {
+		public override bool CreateInputCurveNode( out HAPI_NodeId nodeID, string? name ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_CreateInputCurveNode( ref _sessionData._HAPISession, out nodeID,
 															 name.AsByteArray( ) ) ;
@@ -2584,7 +2584,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public override bool CreateHeightfieldInputVolumeNode( HAPI_NodeId parentNodeID, out HAPI_NodeId newNodeID,
-															   string name, int xSize, int ySize, float voxelSize ) {
+															   string? name, int xSize, int ySize, float voxelSize ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_CreateHeightfieldInputVolumeNode( ref _sessionData._HAPISession, parentNodeID,
 																		 out newNodeID, name.AsByteArray( ), xSize,
@@ -2682,8 +2682,8 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool SetHeightFieldData( HAPI_NodeId nodeID,      HAPI_PartId partID, string name,
-												 float[]     valuesArray, int         start,  int    length ) {
+		public override bool SetHeightFieldData( HAPI_NodeId nodeID,      HAPI_PartId partID, string? name,
+												 float[]     valuesArray, int         start,  int     length ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_SetHeightFieldData( ref _sessionData._HAPISession, nodeID,
 																			partID, name.AsByteArray( ), valuesArray,
 																			start, length ) ;
@@ -2725,7 +2725,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool SaveGeoToFile( HAPI_NodeId nodeID, string fileName ) {
+		public override bool SaveGeoToFile( HAPI_NodeId nodeID, string? fileName ) {
 			HAPI_Result result =
 				HEU_HAPIFunctions.HAPI_SaveGeoToFile( ref _sessionData._HAPISession, nodeID, fileName.AsByteArray( ) ) ;
 			HandleStatusResult( result, "Saving Geo File", false, true ) ;
@@ -2748,7 +2748,7 @@ namespace HoudiniEngineUnity
 			return result is HAPI_Result.HAPI_RESULT_SUCCESS ;
 		}
 
-		public override bool LoadNodeFromFile( string file_name,    HAPI_NodeId     parentNodeID, string nodeLabel,
+		public override bool LoadNodeFromFile( string file_name,    HAPI_NodeId     parentNodeID, string? nodeLabel,
 											   bool   cook_on_load, out HAPI_NodeId newNodeID ) {
 			HAPI_Result result = HEU_HAPIFunctions.HAPI_LoadNodeFromFile( ref _sessionData._HAPISession,
 																		  file_name.AsByteArray( ), parentNodeID,

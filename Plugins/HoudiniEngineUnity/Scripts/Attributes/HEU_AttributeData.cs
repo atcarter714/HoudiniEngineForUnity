@@ -44,7 +44,7 @@ namespace HoudiniEngineUnity
     {
 	public HAPI_AttributeInfo _attributeInfo;
 
-	public string _name;
+	public string? _name;
 
 	public enum AttributeType
 	{
@@ -58,9 +58,9 @@ namespace HoudiniEngineUnity
 
 	public AttributeType _attributeType;
 
-	public int[] _intValues;
-	public float[] _floatValues;
-	public string[] _stringValues;
+	public int[]     _intValues;
+	public float[]   _floatValues;
+	public string?[] _stringValues;
 
 	public bool IsColorAttribute() { return _name.Equals(HEU_HAPIConstants.HAPI_ATTRIB_COLOR) || _attributeInfo.typeInfo == HAPI_AttributeTypeInfo.HAPI_ATTRIBUTE_TYPE_COLOR; }
 

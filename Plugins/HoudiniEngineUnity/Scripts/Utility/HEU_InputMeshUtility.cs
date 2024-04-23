@@ -39,7 +39,7 @@ namespace HoudiniEngineUnity
     /// </summary>
     public static class HEU_InputMeshUtility
     {
-	public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attrName,
+	public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
 		int tupleSize, Vector3[] data, ref HAPI_PartInfo partInfo, bool bConvertToHoudiniCoordinateSystem)
 	{
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
@@ -70,7 +70,7 @@ namespace HoudiniEngineUnity
 	    return HEU_GeneralUtility.SetAttributeArray(geoID, partID, attrName, ref attrInfo, attrValues, session.SetAttributeFloatData, partInfo.pointCount);
 	}
 
-	public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attrName,
+	public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
 		int tupleSize, float[] data, ref HAPI_PartInfo partInfo)
 	{
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
@@ -97,7 +97,7 @@ namespace HoudiniEngineUnity
 	    return HEU_GeneralUtility.SetAttributeArray(geoID, partID, attrName, ref attrInfo, attrValues, session.SetAttributeFloatData, partInfo.pointCount);
 	}
 
-	public static bool SetMeshVertexAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attrName,
+	public static bool SetMeshVertexAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
 		int tupleSize, Vector3[] data, int[] indices, ref HAPI_PartInfo partInfo, bool bConvertToHoudiniCoordinateSystem)
 	{
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
@@ -128,7 +128,7 @@ namespace HoudiniEngineUnity
 	    return HEU_GeneralUtility.SetAttributeArray(geoID, partID, attrName, ref attrInfo, attrValues, session.SetAttributeFloatData, partInfo.vertexCount);
 	}
 
-	public static bool SetMeshVertexFloatAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attrName,
+	public static bool SetMeshVertexFloatAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
 		int tupleSize, float[] data, int[] indices, ref HAPI_PartInfo partInfo)
 	{
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
@@ -287,7 +287,7 @@ namespace HoudiniEngineUnity
 	    return session.CommitGeo(geoID);
 	}
 
-        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attrName, int tupleSize, Vector3Int[] data, ref HAPI_PartInfo partInfo)
+        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName, int tupleSize, Vector3Int[] data, ref HAPI_PartInfo partInfo)
         {
             HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
             attrInfo.exists = true;
@@ -316,7 +316,7 @@ namespace HoudiniEngineUnity
         }
 
         //Set string point attributes
-        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attrName, string[] data, ref HAPI_PartInfo partInfo)
+        public static bool SetMeshPointAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName, string[] data, ref HAPI_PartInfo partInfo)
         {
             HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
             attrInfo.exists = true;
@@ -335,7 +335,7 @@ namespace HoudiniEngineUnity
         }
 
         //Set float detail attribute
-        public static bool SetMeshDetailAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attrName, int tupleSize, Vector3 data, ref HAPI_PartInfo partInfo)
+        public static bool SetMeshDetailAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string? attrName, int tupleSize, Vector3 data, ref HAPI_PartInfo partInfo)
         {
             HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
             attrInfo.exists = true;

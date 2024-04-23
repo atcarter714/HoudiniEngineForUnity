@@ -102,7 +102,7 @@ namespace HoudiniEngineUnity
 		/// <param name="session">Houdini Engine session</param>
 		/// <param name="cookNodeID">The file node's ID that was created in Houdini</param>
 		public void SetupLoadFile( HEU_SessionBase session, HEU_BaseSync ownerSync, HAPI_NodeId cookNodeID,
-								   string          filePath ) {
+								   string?         filePath ) {
 			SetupLoad( session, ownerSync, LoadType.FILE, cookNodeID, filePath, filePath ) ;
 		}
 
@@ -368,7 +368,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public virtual bool DoAssetLoad( ) {
-			string assetPath = _filePath ;
+			string? assetPath = _filePath ;
 			if ( !HEU_Platform.DoesFileExist( assetPath ) ) {
 				assetPath = HEU_AssetDatabase.GetValidAssetPath( assetPath ) ;
 			}
@@ -397,13 +397,13 @@ namespace HoudiniEngineUnity
 					return false ;
 				}
 
-				string[] assetNames = new string[ assetCount ] ;
+				string?[] assetNames = new string[ assetCount ] ;
 				for ( int i = 0; i < assetCount; ++i ) {
 					assetNames[ i ] = HEU_SessionManager.GetString( assetNameLengths[ i ], _session ) ;
 				}
 
 				// Create top level node. Note that CreateNode will cook the node if HAPI was initialized with threaded cook setting on.
-				string topNodeName = assetNames[ 0 ] ;
+				string? topNodeName = assetNames[ 0 ] ;
 				bResult = _session.CreateNode( -1, topNodeName, "", false, out newNodeID ) ;
 				if ( !bResult ) {
 					return false ;
@@ -485,7 +485,7 @@ namespace HoudiniEngineUnity
 						meshParts.Add( partInfo ) ;
 					}
 					else {
-						string partName = HEU_SessionManager.GetString( partInfo.nameSH, _session ) ;
+						string? partName = HEU_SessionManager.GetString( partInfo.nameSH, _session ) ;
 						AppendLog( HEU_LoadData.LoadStatus.ERROR,
 								   $"Part {partName} with type {partInfo.type} is not supported for GeoSync." ) ;
 					}
@@ -625,7 +625,7 @@ namespace HoudiniEngineUnity
 					return false ;
 				}
 
-				string volumeName = HEU_SessionManager.GetString( volumeInfo.nameSH, session ) ;
+				string? volumeName = HEU_SessionManager.GetString( volumeInfo.nameSH, session ) ;
 
 				HFLayerType layerType =
 					HEU_TerrainUtility.GetHeightfieldLayerType( session, nodeID, volumeParts[ i ].id, volumeName ) ;
@@ -885,12 +885,12 @@ namespace HoudiniEngineUnity
 		}
 
 		void LoadStringFromAttribute( HEU_SessionBase session,  
-									  HAPI_NodeId geoID,
-									  HAPI_NodeId partID,
-									  string attrName, 
-									  ref string strValue ) {
+									  HAPI_NodeId     geoID,
+									  HAPI_NodeId     partID,
+									  string?         attrName, 
+									  ref string?     strValue ) {
 			HAPI_AttributeInfo attrInfo = new( ) ;
-			string[ ] strAttr = HEU_GeneralUtility.GetAttributeStringData( session, 
+			string?[] strAttr = HEU_GeneralUtility.GetAttributeStringData( session, 
 																		   geoID, 
 																		   partID, 
 																		   attrName, 
@@ -900,8 +900,8 @@ namespace HoudiniEngineUnity
 		}
 
 		void LoadFloatFromAttribute( HEU_SessionBase session,
-									 HAPI_NodeId geoID, HAPI_NodeId partID,
-									 string attrName, ref float floatValue ) {
+									 HAPI_NodeId     geoID,    HAPI_NodeId partID,
+									 string?         attrName, ref float   floatValue ) {
 			HAPI_AttributeInfo attrInfo   = new( ) ;
 			float[]            attrValues = new float[ 0 ] ;
 			HEU_GeneralUtility.GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref attrValues,
@@ -912,8 +912,8 @@ namespace HoudiniEngineUnity
 		}
 
 		void LoadLayerColorFromAttribute( HEU_SessionBase session,
-										  HAPI_NodeId geoID, HAPI_NodeId partID,
-										  string attrName, ref Color colorValue ) {
+										  HAPI_NodeId     geoID,    HAPI_NodeId partID,
+										  string?         attrName, ref Color   colorValue ) {
 			HAPI_AttributeInfo attrInfo   = new( ) ;
 			float[]            attrValues = new float[ 0 ] ;
 			HEU_GeneralUtility.GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref attrValues,
@@ -935,8 +935,8 @@ namespace HoudiniEngineUnity
 		}
 
 		void LoadLayerVector2FromAttribute( HEU_SessionBase session,
-											HAPI_NodeId geoID, HAPI_NodeId partID,
-											string attrName, ref Vector2 vectorValue ) {
+											HAPI_NodeId     geoID,    HAPI_NodeId partID,
+											string?         attrName, ref Vector2 vectorValue ) {
 			HAPI_AttributeInfo attrInfo   = new( ) ;
 			float[]            attrValues = new float[ 0 ] ;
 			HEU_GeneralUtility.GetAttribute( session, geoID, partID, attrName, ref attrInfo, ref attrValues,
@@ -959,15 +959,15 @@ namespace HoudiniEngineUnity
 				return true ;
 			}
 
-			bool   bSuccess             = true ;
-			string assetCacheFolderPath = _assetCachePath ;
+			bool    bSuccess             = true ;
+			string? assetCacheFolderPath = _assetCachePath ;
 
 			meshBuffers = new( ) ;
 
 			foreach ( HAPI_PartInfo partInfo in meshParts ) {
 				HAPI_NodeId geoID          = nodeID ;
 				int         partID         = partInfo.id ;
-				string      partName       = HEU_SessionManager.GetString( partInfo.nameSH, session ) ;
+				string?     partName       = HEU_SessionManager.GetString( partInfo.nameSH, session ) ;
 				bool        bPartInstanced = partInfo.isInstanced ;
 
 				if ( partInfo.type is HAPI_PartType.HAPI_PARTTYPE_MESH ) {
@@ -1041,7 +1041,7 @@ namespace HoudiniEngineUnity
 			foreach ( HAPI_PartInfo partInfo in instancerParts ) {
 				HAPI_NodeId geoID    = nodeID ;
 				HAPI_PartId partID   = partInfo.id ;
-				string      partName = HEU_SessionManager.GetString( partInfo.nameSH, session ) ;
+				string?     partName = HEU_SessionManager.GetString( partInfo.nameSH, session ) ;
 
 				HEU_LoadBufferInstancer newBuffer = null ;
 				if ( partInfo.instancedPartCount > 0 ) {
@@ -1067,8 +1067,8 @@ namespace HoudiniEngineUnity
 		}
 
 		HEU_LoadBufferInstancer GeneratePartsInstancerBuffer( HEU_SessionBase session, HAPI_NodeId geoID,
-															  HAPI_PartId partID, string partName,
-															  HAPI_PartInfo partInfo ) {
+															  HAPI_PartId     partID,  string?     partName,
+															  HAPI_PartInfo   partInfo ) {
 			// Get the instance node IDs to get the geometry to be instanced.
 			// Get the instanced count to all the instances. These will end up being mesh references to the mesh from instance node IDs.
 
@@ -1092,7 +1092,7 @@ namespace HoudiniEngineUnity
 			}
 
 			// Get instance names if set
-			string[]           instancePrefixes       = null ;
+			string?[]           instancePrefixes       = null ;
 			HAPI_AttributeInfo instancePrefixAttrInfo = new( ) ;
 			HEU_GeneralUtility.GetAttributeInfo( session, geoID, partID, HEU_Defines.DEFAULT_INSTANCE_PREFIX_ATTR,
 												 ref instancePrefixAttrInfo ) ;
@@ -1114,16 +1114,16 @@ namespace HoudiniEngineUnity
 
 		HEU_LoadBufferInstancer GeneratePointAttributeInstancerBuffer( HEU_SessionBase session,
 																	   HAPI_NodeId geoID, HAPI_PartId partID,
-																	   string partName, HAPI_PartInfo partInfo ) {
+																	   string? partName, HAPI_PartInfo partInfo ) {
 			int numInstances = partInfo.pointCount ;
 			if ( numInstances <= 0 ) {
 				return null ;
 			}
 
 			// Find type of instancer
-			string instanceAttrName       = HEU_PluginSettings.InstanceAttr ;
-			string unityInstanceAttrName  = HEU_PluginSettings.UnityInstanceAttr ;
-			string instancePrefixAttrName = HEU_Defines.DEFAULT_INSTANCE_PREFIX_ATTR ;
+			string? instanceAttrName       = HEU_PluginSettings.InstanceAttr ;
+			string? unityInstanceAttrName  = HEU_PluginSettings.UnityInstanceAttr ;
+			string? instancePrefixAttrName = HEU_Defines.DEFAULT_INSTANCE_PREFIX_ATTR ;
 
 			HAPI_AttributeInfo instanceAttrInfo       = new( ) ;
 			HAPI_AttributeInfo unityInstanceAttrInfo  = new( ) ;
@@ -1144,7 +1144,7 @@ namespace HoudiniEngineUnity
 					return null ;
 				}
 
-				string[] instancePrefixes = null ;
+				string?[] instancePrefixes = null ;
 				HEU_GeneralUtility.GetAttributeInfo( session, geoID, partID, instancePrefixAttrName,
 													 ref instancePrefixAttrInfo ) ;
 				if ( instancePrefixAttrInfo.exists ) {
@@ -1153,7 +1153,7 @@ namespace HoudiniEngineUnity
 																   ref instancePrefixAttrInfo ) ;
 				}
 
-				string[] assetPaths = null ;
+				string?[] assetPaths = null ;
 
 				// Attribute owner type determines whether to use single (detail) or multiple (point) asset(s) as source
 				if ( unityInstanceAttrInfo.owner == HAPI_AttributeOwner.HAPI_ATTROWNER_POINT ||
@@ -1227,10 +1227,10 @@ namespace HoudiniEngineUnity
 		#region DATA
 
 		// Setup
-		HEU_BaseSync? _ownerSync ;
-		HEU_SessionBase? _session ;
+		HEU_BaseSync?       _ownerSync ;
+		HEU_SessionBase?    _session ;
 		HEU_GenerateOptions _generateOptions ;
-		protected string _assetCachePath = string.Empty ;
+		protected string?   _assetCachePath = string.Empty ;
 
 		// Load
 		public enum LoadType { FILE, NODE, ASSET, } ;

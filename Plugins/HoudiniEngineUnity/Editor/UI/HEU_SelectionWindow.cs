@@ -24,16 +24,18 @@
 * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using System ;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
+using Object = UnityEngine.Object ;
 
 namespace HoudiniEngineUnity
 {
     class HEU_SelectionWindow : EditorWindow
     {
-	public static void ShowWindow(SelectionResultHandler selectionHandler, System.Type selectionType, HEU_InputNode inputNode = null)
+	public static void ShowWindow(SelectionResultHandler selectionHandler, Type? selectionType, HEU_InputNode inputNode = null)
 	{
 	    bool bUtility = false;
 	    bool bFocus = true;
@@ -115,7 +117,7 @@ namespace HoudiniEngineUnity
 
 		bool updateRoots = EditorGUILayout.Toggle(_filterRootLabel, _filterRoots);
 
-		string updatedName = EditorGUILayout.TextField(_filterNameLabel, _filterName);
+		string? updatedName = EditorGUILayout.TextField(_filterNameLabel, _filterName);
 
 		if (updatedLocation != _filterLocation || updatedActive != _filterActive || !updatedName.Equals(_filterName) || updateRoots != _filterRoots)
 		{
@@ -205,7 +207,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	private GameObject GetGameObjectFromType(Object obj, System.Type type)
+	private GameObject GetGameObjectFromType(Object obj, Type? type)
 	{
 	    if (type == typeof(GameObject))
 	    {
@@ -400,7 +402,7 @@ namespace HoudiniEngineUnity
 
 	private HEU_InputNode _inputNode;
 
-	private System.Type _selectionType = typeof(GameObject);
+	private Type? _selectionType = typeof(GameObject);
 
 	private enum FilterLocationType
 	{
@@ -420,7 +422,7 @@ namespace HoudiniEngineUnity
 
 	private FilterActiveType _filterActive = FilterActiveType.Active;
 
-	private string _filterName = "";
-	private bool _filterRoots = false;
+	private string? _filterName  = "";
+	private bool    _filterRoots = false;
     }
 }

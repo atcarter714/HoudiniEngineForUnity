@@ -106,13 +106,13 @@ namespace HoudiniEngineUnity
 	private HEU_Curve.Interaction _interactionMode;
 
 	// Map of selected points for each curve
-	private Dictionary<string, List<int>> _selectedCurvePoints = new Dictionary<string, List<int>>();
+	private Dictionary< string?, List< int > > _selectedCurvePoints = new Dictionary< string?, List< int > >();
 
-	private List<HEU_Curve> _curves = new List<HEU_Curve>();
-	private Dictionary<string, SerializedObject> _serializedCurvesCache = new Dictionary<string, SerializedObject>();
+	private List<HEU_Curve>                         _curves                = new List<HEU_Curve>();
+	private Dictionary< string?, SerializedObject > _serializedCurvesCache = new Dictionary< string?, SerializedObject >();
 
 	// Stack of points added in current Add mode
-	private string _latestPointAddedCurve;
+	private string?    _latestPointAddedCurve;
 	private Stack<int> _latestPointsAdded = new Stack<int>();
 
 	// Drag selection
@@ -121,8 +121,8 @@ namespace HoudiniEngineUnity
 	private bool _cleanMouseDown;
 
 	// Add point
-	private string _closestCurveName;
-	private int _closestPointIndex;
+	private string? _closestCurveName;
+	private int     _closestPointIndex;
 	private Vector3 _newPointPosition;
 
 	private GUIStyle _toolsBGStyle;
@@ -201,7 +201,7 @@ namespace HoudiniEngineUnity
 			int numPoints = 0;
 
 			HEU_HoudiniAsset parentAsset = null;
-			foreach (KeyValuePair<string, List<int>> curvePoints in _selectedCurvePoints)
+			foreach (KeyValuePair< string?, List< int > > curvePoints in _selectedCurvePoints)
 			{
 			    List<int> selectedPoints = curvePoints.Value;
 			    if (selectedPoints.Count > 0)
@@ -302,7 +302,7 @@ namespace HoudiniEngineUnity
 	/// </summary>
 	/// <param name="curveName">Name of curve to look for</param>
 	/// <returns>Serialized curve object</returns>
-	private SerializedObject GetOrCreateSerializedCurve(string curveName)
+	private SerializedObject GetOrCreateSerializedCurve(string? curveName)
 	{
 	    SerializedObject serializedCurve = null;
 	    if (!_serializedCurvesCache.TryGetValue(curveName, out serializedCurve))
@@ -899,7 +899,7 @@ namespace HoudiniEngineUnity
 
 		if (!disableCurveScaleRot)
 		{
-		    foreach (KeyValuePair<string, List<int>> curvePoints in _selectedCurvePoints)
+		    foreach (KeyValuePair< string?, List< int > > curvePoints in _selectedCurvePoints)
 		    {
 			List<int> selectedPoints = curvePoints.Value;
 			if (selectedPoints.Count > 0)
@@ -928,7 +928,7 @@ namespace HoudiniEngineUnity
 
 			if (!deltaRotation.ApproximatelyEquals(Quaternion.identity))
 			{
-			    foreach (KeyValuePair<string, List<int>> curvePoints in _selectedCurvePoints)
+			    foreach (KeyValuePair< string?, List< int > > curvePoints in _selectedCurvePoints)
 			    {
 				List<int> selectedPoints = curvePoints.Value;
 				if (selectedPoints.Count > 0)
@@ -965,7 +965,7 @@ namespace HoudiniEngineUnity
 
 			if (deltaScale.magnitude > 0)
 			{
-			    foreach (KeyValuePair<string, List<int>> curvePoints in _selectedCurvePoints)
+			    foreach (KeyValuePair< string?, List< int > > curvePoints in _selectedCurvePoints)
 			    {
 				List<int> selectedPoints = curvePoints.Value;
 				if (selectedPoints.Count > 0)
@@ -1005,7 +1005,7 @@ namespace HoudiniEngineUnity
 			    // User dragged point(s)
 			    // We update point value here, but defer parameter coords update until after we finished editing
 
-			    foreach (KeyValuePair<string, List<int>> curvePoints in _selectedCurvePoints)
+			    foreach (KeyValuePair< string?, List< int > > curvePoints in _selectedCurvePoints)
 			    {
 				List<int> selectedPoints = curvePoints.Value;
 				if (selectedPoints.Count > 0)
@@ -1316,7 +1316,7 @@ namespace HoudiniEngineUnity
 	    Handles.color = defaultColor;
 	}
 
-	private HEU_Curve GetCurve(string curveName)
+	private HEU_Curve GetCurve(string? curveName)
 	{
 	    foreach (HEU_Curve curve in _curves)
 	    {
@@ -1363,7 +1363,7 @@ namespace HoudiniEngineUnity
 	    _selectedCurvePoints.Clear();
 	}
 
-	private void DeselectPoint(string curveName, int pointIndex)
+	private void DeselectPoint(string? curveName, int pointIndex)
 	{
 	    List<int> points = null;
 	    if (_selectedCurvePoints.TryGetValue(curveName, out points))
@@ -1701,7 +1701,7 @@ namespace HoudiniEngineUnity
 
 	private void DeleteSelectedPoints(List<SerializedObject> updatedCurves)
 	{
-	    foreach (KeyValuePair<string, List<int>> curvePoints in _selectedCurvePoints)
+	    foreach (KeyValuePair< string?, List< int > > curvePoints in _selectedCurvePoints)
 	    {
 		List<int> selectedPoints = curvePoints.Value;
 		if (selectedPoints.Count > 0)
@@ -1738,7 +1738,7 @@ namespace HoudiniEngineUnity
 	    DeselectAllPoints();
 	}
 
-	private void AddPoint(string curveName, int pointIndex, Vector3 newPointPosition, List<SerializedObject> updatedCurves, bool bSelectNewPoint)
+	private void AddPoint(string? curveName, int pointIndex, Vector3 newPointPosition, List<SerializedObject> updatedCurves, bool bSelectNewPoint)
 	{
 	    SerializedObject serializedCurve = GetOrCreateSerializedCurve(curveName);
 	    SerializedProperty curveNodesProperty = serializedCurve.FindProperty("_curveNodeData");
@@ -1805,7 +1805,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	private void GetClosestPointToCurve(Vector3 mousePosition, HEU_Curve curve, ref int closestPointIndex, ref string closestPointName, ref float closestDistance)
+	private void GetClosestPointToCurve(Vector3 mousePosition, HEU_Curve curve, ref int closestPointIndex, ref string? closestPointName, ref float closestDistance)
 	{
 	    // Control -> add point between closest line segment
  

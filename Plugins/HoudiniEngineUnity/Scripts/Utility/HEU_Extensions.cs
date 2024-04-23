@@ -98,7 +98,7 @@ namespace HoudiniEngineUnity
 	    return Mathf.Abs(self - other) <  epsilon;
 	}
 
-	public static byte[] AsByteArray(this string self)
+	public static byte[] AsByteArray(this string? self)
 	{
 	    byte[] bytes = Encoding.UTF8.GetBytes(self + '\0');
 	    return bytes;

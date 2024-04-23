@@ -1503,14 +1503,14 @@ namespace HoudiniEngineUnity
         [DllImport(HEU_HoudiniVersion.HAPI_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern HAPI_Result
         HAPI_SetAttributeStringData(
-                ref HAPI_Session session,
-                HAPI_NodeId node_id,
-                HAPI_PartId part_id,
-                byte[] name,
+                ref HAPI_Session       session,
+                HAPI_NodeId            node_id,
+                HAPI_PartId            part_id,
+                byte[]                 name,
                 ref HAPI_AttributeInfo attr_info,
-                string[] data_array,
-                int start,
-                int length);
+                string?[]              data_array,
+                int                    start,
+                int                    length);
         [DllImport(HEU_HoudiniVersion.HAPI_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern HAPI_Result
         HAPI_SetAttributeIndexedStringData(

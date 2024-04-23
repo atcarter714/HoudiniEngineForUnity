@@ -64,9 +64,9 @@ namespace HoudiniEngineUnity
 	public HAPI_PartId PartID { get { return _partID; } }
 
 	[SerializeField]
-	private string _geoName;
+	private string? _geoName;
 
-	public string GeoName { get { return _geoName; } }
+	public string? GeoName { get { return _geoName; } }
 
 	[SerializeField]
 	private List<HEU_AttributeData> _attributeDatas = new List<HEU_AttributeData>();
@@ -164,8 +164,8 @@ namespace HoudiniEngineUnity
 	    }
 
 	    // Note that this currently only supports point attributes
-	    int attributePointCount = partInfo.attributeCounts[(int)HAPI_AttributeOwner.HAPI_ATTROWNER_POINT];
-	    string[] pointAttributeNames = new string[attributePointCount];
+	    int       attributePointCount = partInfo.attributeCounts[(int)HAPI_AttributeOwner.HAPI_ATTROWNER_POINT];
+	    string?[] pointAttributeNames = new string[attributePointCount];
 	    if (!session.GetAttributeNames(geoID, partInfo.id, HAPI_AttributeOwner.HAPI_ATTROWNER_POINT, ref pointAttributeNames, attributePointCount))
 	    {
 		HEU_Logger.LogErrorFormat("Failed to sync attributes. Unable to retrieve attribute names.");
@@ -175,7 +175,7 @@ namespace HoudiniEngineUnity
 	    // Create new list of attributes. We'll move existing attributes that are still in use as we find them.
 	    List<HEU_AttributeData> newAttributeDatas = new List<HEU_AttributeData>();
 
-	    foreach (string pointAttributeName in pointAttributeNames)
+	    foreach (string? pointAttributeName in pointAttributeNames)
 	    {
 		if (string.IsNullOrEmpty(pointAttributeName))
 		{
@@ -456,7 +456,7 @@ namespace HoudiniEngineUnity
 	    else if (attributeData._attributeType == HEU_AttributeData.AttributeType.STRING)
 	    {
 		// Temp storage to use for reassigning old values to new array
-		string[] oldValues = null;
+		string?[] oldValues = null;
 
 		if (attributeData._stringValues == null)
 		{
@@ -503,7 +503,7 @@ namespace HoudiniEngineUnity
 	{
 	    if (attributeCount > 0)
 	    {
-		string[] attributeNames = new string[attributeCount];
+		string?[] attributeNames = new string[attributeCount];
 		if (session.GetAttributeNames(geoID, partID, ownerType, ref attributeNames, attributeCount))
 		{
 		    for (int i = 0; i < attributeNames.Length; ++i)
@@ -580,7 +580,7 @@ namespace HoudiniEngineUnity
 	    }
 	    else if (newAttrInfo.storage == HAPI_StorageType.HAPI_STORAGETYPE_STRING)
 	    {
-		string[] pointData = new string[attrCount * newAttrInfo.tupleSize];
+		string?[] pointData = new string[attrCount * newAttrInfo.tupleSize];
 		for (int j = 0; j < attrCount; ++j)
 		{
 		    for (int tuple = 0; tuple < newAttrInfo.tupleSize; ++tuple)
@@ -706,7 +706,7 @@ namespace HoudiniEngineUnity
 	    attributeData._attributeState = HEU_AttributeData.AttributeState.LOCAL_DIRTY;
 	}
 
-	public HEU_AttributeData CreateAttribute(string attributeName, ref HAPI_AttributeInfo attributeInfo)
+	public HEU_AttributeData CreateAttribute(string? attributeName, ref HAPI_AttributeInfo attributeInfo)
 	{
 	    HEU_AttributeData.AttributeType attributeType = HEU_AttributeData.AttributeType.UNDEFINED;
 	    if (attributeInfo.storage == HAPI_StorageType.HAPI_STORAGETYPE_INT)
@@ -731,7 +731,7 @@ namespace HoudiniEngineUnity
 	    return attributeData;
 	}
 
-	public HEU_AttributeData GetAttributeData(string name)
+	public HEU_AttributeData GetAttributeData(string? name)
 	{
 	    foreach (HEU_AttributeData attr in _attributeDatas)
 	    {
@@ -752,9 +752,9 @@ namespace HoudiniEngineUnity
 	    return null;
 	}
 
-	public List<string> GetAttributeNames()
+	public List< string? > GetAttributeNames()
 	{
-	    List<string> attributeNames = new List<string>();
+	    List< string? > attributeNames = new List< string? >();
 	    foreach (HEU_AttributeData data in _attributeDatas)
 	    {
 		attributeNames.Add(data._name);
@@ -894,7 +894,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	public static void SetAttributeEditValueString(HEU_AttributeData attributeData, int startIndex, string[] values)
+	public static void SetAttributeEditValueString(HEU_AttributeData attributeData, int startIndex, string?[] values)
 	{
 	    int numValues = values.Length;
 	    for (int i = 0; i < numValues; ++i)

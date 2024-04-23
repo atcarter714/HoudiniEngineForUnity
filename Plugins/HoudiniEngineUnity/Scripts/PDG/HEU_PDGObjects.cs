@@ -64,15 +64,15 @@ namespace HoudiniEngineUnity
     {
 	public HAPI_NodeId _nodeID;
 
-	public string _nodeName;
+	public string? _nodeName;
 
 	public List<HEU_TOPNodeData> _topNodes = new List<HEU_TOPNodeData>();
 
-	public string[] _topNodeNames = new string[0];
+	public string?[] _topNodeNames = new string[0];
 
 	public int _selectedTOPIndex;
 
-	public string _parentName;
+	public string? _parentName;
 
 	public TOPNodeTags _tags = new TOPNodeTags();
     }
@@ -85,7 +85,7 @@ namespace HoudiniEngineUnity
     {
 	public HAPI_NodeId _nodeID;
 
-	public string _nodeName;
+	public string? _nodeName;
 
 	public string _parentName;
 

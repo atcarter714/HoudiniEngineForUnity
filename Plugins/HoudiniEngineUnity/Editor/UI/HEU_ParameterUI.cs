@@ -147,8 +147,8 @@ namespace HoudiniEngineUnity
 		}
 	    }
 
-	    private ArrayWrapper<string> _stringArrayValue;
-	    public ArrayWrapper<string> StringArrayValue
+	    private ArrayWrapper< string? > _stringArrayValue;
+	    public ArrayWrapper< string? > StringArrayValue
 	    {
 		get
 		{
@@ -407,8 +407,8 @@ namespace HoudiniEngineUnity
 
 	    public void SetValue(string[] value)
 	    {
-		this._stringArrayValue = new ArrayWrapper<string>(value, _parameters);
-		this._fieldType = UIDataFieldType.STRING_ARRAY;
+		this._stringArrayValue = new ArrayWrapper< string? >(value, _parameters);
+		this._fieldType        = UIDataFieldType.STRING_ARRAY;
 	    }
 
 	    public void SetValue(HEU_InputNode inputNode)
@@ -781,7 +781,7 @@ namespace HoudiniEngineUnity
 		    paramUICache._assetObjects = new List<UnityEngine.Object>(numItems);
 		    for (int i = 0; i < numItems; ++i)
 		    {
-			string stringValue = paramUICache._primaryValue.StringArrayValue[i];
+			string? stringValue = paramUICache._primaryValue.StringArrayValue[i];
 			if (!string.IsNullOrEmpty(stringValue))
 			{
 			    paramUICache._assetObjects.Add(HEU_AssetDatabase.LoadAssetAtPath(stringValue, typeof(UnityEngine.Object)));
@@ -854,7 +854,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	private void DrawArrayPropertyStringPath(string labelString, string helpString, ArrayWrapper<string> stringValues, List<UnityEngine.Object> assetObjects)
+	private void DrawArrayPropertyStringPath(string labelString, string helpString, ArrayWrapper< string? > stringValues, List<UnityEngine.Object> assetObjects)
 	{
 	    // Arrays are drawn with a label, and rows of object paths.
 
@@ -899,7 +899,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	private void DrawArrayPropertyString(string labelString, string helpString, ArrayWrapper<string> stringsValue)
+	private void DrawArrayPropertyString(string labelString, string helpString, ArrayWrapper< string? > stringsValue)
 	{
 	    // Arrays are drawn with a label, and rows of values.
 
@@ -1196,7 +1196,7 @@ namespace HoudiniEngineUnity
 	    }
 	    else if (parmType == HAPI_ParmType.HAPI_PARMTYPE_STRING)
 	    {
-		ArrayWrapper<string> stringsValue = paramUICache._primaryValue.StringArrayValue;
+		ArrayWrapper< string? > stringsValue = paramUICache._primaryValue.StringArrayValue;
 
 		if (parameterData._parmInfo.choiceCount > 0)
 		{
@@ -1256,7 +1256,7 @@ namespace HoudiniEngineUnity
 
 		    using (new EditorGUILayout.HorizontalScope())
 		    {
-			ArrayWrapper<string> stringsValue = paramUICache._primaryValue.StringArrayValue;
+			ArrayWrapper< string? > stringsValue = paramUICache._primaryValue.StringArrayValue;
 			stringsValue[0] =  EditorGUILayout.DelayedTextField(stringsValue[0]);
 
 			GUIStyle buttonStyle = HEU_EditorUI.GetNewButtonStyle_MarginPadding(0, 0);
@@ -1280,7 +1280,7 @@ namespace HoudiniEngineUnity
 				}
 			    }
 
-			    string userFilePath = null;
+			    string? userFilePath = null;
 			    if (parameterData._parmInfo.permissions == HAPI_Permissions.HAPI_PERMISSIONS_WRITE_ONLY)
 			    {
 				if (parmType == HAPI_ParmType.HAPI_PARMTYPE_PATH_FILE_DIR)

@@ -60,7 +60,7 @@ namespace HoudiniEngineUnity
 
 	private bool _initializedUI;
 
-	private string[] _shelfNames;
+	private string?[] _shelfNames;
 
 	private int _selectedToolIndex;
 
@@ -150,7 +150,7 @@ namespace HoudiniEngineUnity
 
 			    if (GUILayout.Button(_addButton, _buttonStyle, GUILayout.MaxWidth(_buttonWidth), GUILayout.MaxHeight(_buttonHeight)))
 			    {
-				string newShelfPath = UnityEditor.EditorUtility.OpenFolderPanel("Add Shelf Folder", "", "");
+				string? newShelfPath = UnityEditor.EditorUtility.OpenFolderPanel("Add Shelf Folder", "", "");
 				if (!string.IsNullOrEmpty(newShelfPath) && HEU_Platform.DoesDirectoryExist(newShelfPath))
 				{
 				    AddNewShelfWindow(newShelfPath);
@@ -280,7 +280,7 @@ namespace HoudiniEngineUnity
 
 			if (HEU_HAPIUtility.DoesMappedPathExist(shelf._tools[i]._iconPath))
 			{
-			    string realPath = HEU_PluginStorage.Instance.ConvertEnvKeyedPathToReal(shelf._tools[i]._iconPath);
+			    string? realPath = HEU_PluginStorage.Instance.ConvertEnvKeyedPathToReal(shelf._tools[i]._iconPath);
 			    _guiContents[i].image = HEU_GeneralUtility.LoadTextureFromFile(realPath);
 			}
 
@@ -295,7 +295,7 @@ namespace HoudiniEngineUnity
 	    HEU_ShelfTools.ExecuteTool(selectedIndex);
 	}
 
-	private void AddNewShelfWindow(string newShelfPath)
+	private void AddNewShelfWindow(string? newShelfPath)
 	{
 	    HEU_ShowAddShelfWindow window = ScriptableObject.CreateInstance<HEU_ShowAddShelfWindow>() as HEU_ShowAddShelfWindow;
 	    window.titleContent = new GUIContent("Add Shelf");
@@ -307,8 +307,8 @@ namespace HoudiniEngineUnity
 
     public class HEU_ShowAddShelfWindow : EditorWindow
     {
-	public string _shelfName;
-	public string _shelfPath;
+	public string? _shelfName;
+	public string? _shelfPath;
 
 	public void OnGUI()
 	{

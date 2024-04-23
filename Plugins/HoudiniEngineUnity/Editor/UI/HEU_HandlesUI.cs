@@ -88,7 +88,7 @@ namespace HoudiniEngineUnity
 		    Quaternion handleRotation = handle.HandleRotation;
 		    Vector3 handleScale = handle.HandleScale;
 
-		    string handleName = handle.HandleName;
+		    string? handleName = handle.HandleName;
 
 		    if (manipMode == HEU_HandleManipMode.MOVE)
 		    {

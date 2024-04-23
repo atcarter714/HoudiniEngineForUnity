@@ -31,11 +31,11 @@ namespace HoudiniEngineUnity
     /// </summary>
     public class HEU_UnityMaterialInfo
     {
-	public string _unityMaterialPath;
-	public string _substancePath;
-	public int _substanceIndex;
+	public string? _unityMaterialPath;
+	public string? _substancePath;
+	public int     _substanceIndex;
 
-	public HEU_UnityMaterialInfo(string unityMaterialPath, string substancePath, int substanceIndex)
+	public HEU_UnityMaterialInfo(string? unityMaterialPath, string? substancePath, int substanceIndex)
 	{
 	    _unityMaterialPath = unityMaterialPath;
 	    _substancePath = substancePath;

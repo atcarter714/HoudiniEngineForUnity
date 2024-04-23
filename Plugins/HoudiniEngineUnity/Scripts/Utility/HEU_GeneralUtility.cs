@@ -269,16 +269,15 @@ namespace HoudiniEngineUnity
 		/// <param name="array1">First array</param>
 		/// <param name="array2">Second array</param>
 		/// <returns>True if array elements match</returns>
-		public static bool DoArrayElementsMatch< T >( T[] array1, T[] array2 ) {
-			if ( ReferenceEquals( array1, array2 ) )
-				return true ;
-
+		public static bool DoArrayElementsMatch< T >( T[ ]? array1, T[ ]? array2 ) {
+			if ( ReferenceEquals( array1, array2 ) ) return true ;
 			if ( array1?.Length != array2?.Length ) return false ;
-
 			EqualityComparer< T > equalityComparer = EqualityComparer< T >.Default ;
-			for ( int i = 0; i < array1.Length; ++i )
-				if ( !equalityComparer.Equals( array1[ i ], array2[ i ] ) )
+			
+			for ( int i = 0; i < array1?.Length; ++i )
+				if ( !equalityComparer.Equals( array1[ i ], array2![ i ] ) )
 					return false ;
+			
 			return true ;
 		}
 
@@ -292,8 +291,8 @@ namespace HoudiniEngineUnity
 		/// <param name="startOffset2">Offset into second array to start checking</param>
 		/// <param name="length">Number of elements to check</param>
 		/// <returns>True if array elements match</returns>
-		public static bool DoArrayElementsMatch< T >( T[ ] array1, int startOffset1, 
-													  T[ ] array2, int startOffset2, int length ) {
+		public static bool DoArrayElementsMatch< T >( T[ ]? array1, int startOffset1, 
+													  T[ ]? array2, int startOffset2, int length ) {
 			if ( array1 is null || array2 is null ) return false ;
 
 			int lastIndex1 = startOffset1 + length ;
@@ -301,12 +300,9 @@ namespace HoudiniEngineUnity
 
 			EqualityComparer< T > equalityComparer = EqualityComparer< T >.Default ;
 			for ( int index1 = startOffset1, index2 = startOffset2;
-				  ( index1 < lastIndex1 ) 
-				  && ( index2 < lastIndex2 );
-				  ++index1, ++index2 ) {
-				if ( !equalityComparer.Equals( array1[ index1 ], array2[ index2 ] ) ) {
+				  ( index1 < lastIndex1 ) && ( index2 < lastIndex2 ); ++index1, ++index2 ) {
+				if ( !equalityComparer.Equals( array1[ index1 ], array2[ index2 ] ) )
 					return false ;
-				}
 			}
 
 			return true ;
@@ -315,15 +311,15 @@ namespace HoudiniEngineUnity
 
 		// ATTRIBUTES -------------------------------------------------------------------------------------------------
 		
-		public delegate bool GetAttributeArrayInputFunc< in T >( HAPI_NodeId geoID, HAPI_PartId partID, string name,
+		public delegate bool GetAttributeArrayInputFunc< in T >( HAPI_NodeId geoID, HAPI_PartId partID, string? name,
 																 ref HAPI_AttributeInfo info, [Out] T[ ] items,
 																 int start, int end ) ;
 		
-		public static bool GetAttributeArray< T >( HAPI_NodeId geoID, 
-												   HAPI_PartId partID, 
-												   string name,
-												   ref HAPI_AttributeInfo info, T[ ] items,
-												   GetAttributeArrayInputFunc< T > getFunc, int count ) {
+		public static bool GetAttributeArray< T >( HAPI_NodeId                     geoID, 
+												   HAPI_PartId                     partID, 
+												   string?                         name,
+												   ref HAPI_AttributeInfo          info,    T[ ] items,
+												   GetAttributeArrayInputFunc< T > getFunc, int  count ) {
 			int maxArraySize = HEU_Defines.HAPI_MAX_PAGE_SIZE
 								/ ( Marshal.SizeOf( typeof(T) ) * info.tupleSize ) ;
 
@@ -365,7 +361,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public static bool GetAttribute< T >( HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-											  string name, ref HAPI_AttributeInfo info, ref T[ ] data,
+											  string? name, ref HAPI_AttributeInfo info, ref T[ ] data,
 											  GetAttributeArrayInputFunc< T > getFunc ) {
 			int  originalTupleSize = info.tupleSize ;
 			bool bResult = false ;
@@ -387,7 +383,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public static bool GetAttributeStrict< T >( HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-													HAPI_AttributeOwner attrOwner, string name,
+													HAPI_AttributeOwner attrOwner, string? name,
 													ref HAPI_AttributeInfo info, ref T[] data,
 													GetAttributeArrayInputFunc< T > getFunc ) {
 			int  originalTupleSize = info.tupleSize ;
@@ -405,7 +401,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public static void GetAttributeStringDataHelper( HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-														 string name, ref HAPI_AttributeInfo info,
+														 string? name, ref HAPI_AttributeInfo info,
 														 ref HAPI_StringHandle[ ] data ) {
 			int  originalTupleSize = info.tupleSize ;
 			bool bResult = false ;
@@ -427,8 +423,8 @@ namespace HoudiniEngineUnity
 				HEU_Logger.LogErrorFormat( "Failed to get string IDs for attribute {0}", name ) ;
 		}
 
-		public static string[ ] GetAttributeStringData( HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-														string name, ref HAPI_AttributeInfo attrInfo ) {
+		public static string?[] GetAttributeStringData( HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
+														string?         name,    ref HAPI_AttributeInfo attrInfo ) {
 			int[ ] stringHandles = Array.Empty< int >( ) ;
 			return GetAttribute( session, geoID, partID, name,
 								 ref attrInfo, ref stringHandles, session.GetAttributeStringData ) 
@@ -439,8 +435,8 @@ namespace HoudiniEngineUnity
 		// Gets attribute data as a string
 		// If the attribute is not a string attribute, then it will convert it into a string attribute.
 		public static string[ ] GetAttributeDataAsString( HEU_SessionBase session, 
-														  HAPI_NodeId geoID, HAPI_PartId partID,
-														 string name, ref HAPI_AttributeInfo attrInfo ) {
+														  HAPI_NodeId     geoID, HAPI_PartId            partID,
+														 string?          name,  ref HAPI_AttributeInfo attrInfo ) {
 			if ( !GetAttributeInfo( session, geoID, partID, name, ref attrInfo ) ) {
 				return null ;
 			}
@@ -491,10 +487,10 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		public delegate bool SetAttributeArrayFunc< in T >( HAPI_NodeId geoID, HAPI_PartId partID, string attrName,
+		public delegate bool SetAttributeArrayFunc< in T >( HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
 															ref HAPI_AttributeInfo attrInfo, T[ ] items, int start, int end ) ;
 		
-		public static bool SetAttributeArray< T >( HAPI_NodeId geoID, HAPI_PartId partID, string attrName,
+		public static bool SetAttributeArray< T >( HAPI_NodeId geoID, HAPI_PartId partID, string? attrName,
 												   ref HAPI_AttributeInfo attrInfo, T[ ] items,
 												   SetAttributeArrayFunc< T > setFunc, int count ) {
 			bool bResult = false ;
@@ -554,14 +550,14 @@ namespace HoudiniEngineUnity
 			return bResult ;
 		}
 
-		public static bool SetAttribute< T >( HAPI_NodeId geoID, HAPI_PartId partID, string attrName,
-											  ref HAPI_AttributeInfo attrInfo, T[ ] items,
+		public static bool SetAttribute< T >( HAPI_NodeId                geoID,    HAPI_PartId partID, string? attrName,
+											  ref HAPI_AttributeInfo     attrInfo, T[ ]        items,
 											  SetAttributeArrayFunc< T > setFunc ) {
 			return SetAttributeArray( geoID, partID, attrName, ref attrInfo, items, setFunc, attrInfo.count ) ;
 		}
 
-		public static bool CheckAttributeExists( HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-												 string attribName, HAPI_AttributeOwner attribOwner ) {
+		public static bool CheckAttributeExists( HEU_SessionBase session,    HAPI_NodeId geoID, HAPI_PartId partID,
+												 string?         attribName, HAPI_AttributeOwner attribOwner ) {
 			HAPI_AttributeInfo attribInfo = new( ) ;
 			if ( session.GetAttributeInfo( geoID, partID, 
 										   attribName, attribOwner, 
@@ -573,8 +569,8 @@ namespace HoudiniEngineUnity
 		}
 
 		public static bool GetAttributeInfo( HEU_SessionBase session, 
-											 HAPI_NodeId geoID, HAPI_PartId partID,
-											 string attribName, ref HAPI_AttributeInfo attribInfo ) {
+											 HAPI_NodeId     geoID,      HAPI_PartId            partID,
+											 string?         attribName, ref HAPI_AttributeInfo attribInfo ) {
 			for ( HAPI_AttributeOwner type = 0; type < HAPI_AttributeOwner.HAPI_ATTROWNER_MAX; ++type ) {
 				bool bResult = session.GetAttributeInfo( geoID, partID, attribName, type, ref attribInfo ) ;
 				if ( !bResult ) {
@@ -599,9 +595,9 @@ namespace HoudiniEngineUnity
 		/// <param name="attribName">Name of the attribute</param>
 		/// <returns>True if attribute exists</returns>
 		public static bool HasValidInstanceAttribute( HEU_SessionBase session, 
-													  HAPI_NodeId geoID,
-													  HAPI_PartId partID, 
-													  string attribName ) {
+													  HAPI_NodeId     geoID,
+													  HAPI_PartId     partID, 
+													  string?         attribName ) {
 			HAPI_AttributeInfo instanceAttrInfo = new( ) ;
 			GetAttributeInfo( session, geoID, partID, attribName, ref instanceAttrInfo ) ;
 			return ( instanceAttrInfo.exists && instanceAttrInfo.count > 0 ) ;
@@ -623,7 +619,7 @@ namespace HoudiniEngineUnity
 				return ;
 			}
 
-			string[ ] storeAttrs =
+			string?[] storeAttrs =
 				GetAttributeStringData( session, geoID, partID, HEU_Defines.HENGINE_STORE_ATTR, ref storeAttrInfo ) ;
 			if ( storeAttrs == null ) {
 				DestroyComponent< HEU_OutputAttributesStore >( go ) ;
@@ -633,7 +629,7 @@ namespace HoudiniEngineUnity
 			HEU_OutputAttributesStore attrsStore = GetOrCreateComponent< HEU_OutputAttributesStore >( go ) ;
 			attrsStore.Clear( ) ;
 
-			string[ ] attrNames = storeAttrs[ 0 ].Split( ',' ) ;
+			string?[] attrNames = storeAttrs[ 0 ].Split( ',' ) ;
 			for ( int a = 0; a < attrNames.Length; ++a ) {
 				HAPI_AttributeInfo attrInfo = new( ) ;
 				if ( !GetAttributeInfo( session, geoID, partID, 
@@ -653,7 +649,7 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of attribute</param>
 		/// <param name="attrInfo">Attribute info</param>
 		/// <returns>Created HEU_OutputAttribute</returns>
-		public static HEU_OutputAttribute CreateOutputAttributeHelper( string attrName,
+		public static HEU_OutputAttribute CreateOutputAttributeHelper( string?                attrName,
 																	   ref HAPI_AttributeInfo attrInfo ) {
 			HEU_OutputAttribute outputAttr = new( ) {
 				_name      = attrName,
@@ -674,8 +670,8 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of the attribute</param>
 		/// <param name="attrInfo">Attribute info</param>
 		/// <returns>The generated HEU_OutputAttribute if successful else null</returns>
-		public static HEU_OutputAttribute CreateOutputAttribute( HEU_SessionBase session, HAPI_NodeId geoID,
-																 HAPI_PartId partID, string attrName,
+		public static HEU_OutputAttribute CreateOutputAttribute( HEU_SessionBase        session, HAPI_NodeId geoID,
+																 HAPI_PartId            partID,  string?     attrName,
 																 ref HAPI_AttributeInfo attrInfo ) {
 			HEU_OutputAttribute outputAttr = null ;
 			switch ( attrInfo.storage ) {
@@ -702,7 +698,7 @@ namespace HoudiniEngineUnity
 				}
 				
 				case HAPI_StorageType.HAPI_STORAGETYPE_STRING: {
-					string[ ] attrValues = GetAttributeStringData( session, geoID, 
+					string?[] attrValues = GetAttributeStringData( session, geoID, 
 																   partID, attrName, ref attrInfo 
 																 ) ;
 					if ( attrValues is null ) return null ;
@@ -809,7 +805,7 @@ namespace HoudiniEngineUnity
 		/// <param name="goList">List to search</param>
 		/// <param name="name">Name to match</param>
 		/// <returns>Found gameobject or null if not found</returns>
-		public static GameObject GetGameObjectByName( List< GameObject > goList, string name ) {
+		public static GameObject GetGameObjectByName( List< GameObject > goList, string? name ) {
 			foreach ( GameObject go in goList )
 				if ( go.name.Equals(name) ) return go ;
 
@@ -842,7 +838,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="name">Name of gameobject to search for</param>
 		/// <returns>Found gameobject or null</returns>
-		public static GameObject GetGameObjectByNameInScene( string name ) {
+		public static GameObject GetGameObjectByNameInScene( string? name ) {
 #if UNITY_EDITOR
 			int numScenes = SceneManager.sceneCount ;
 			for ( int i = 0; i < numScenes; ++i ) {
@@ -865,7 +861,7 @@ namespace HoudiniEngineUnity
 			return null ;
 		}
 
-		public static HEU_HoudiniAssetRoot GetHDAByGameObjectNameInScene( string name ) {
+		public static HEU_HoudiniAssetRoot GetHDAByGameObjectNameInScene( string? name ) {
 #if UNITY_EDITOR
 			int numScenes = SceneManager.sceneCount ;
 			for ( int i = 0; i < numScenes; ++i ) {
@@ -982,7 +978,7 @@ namespace HoudiniEngineUnity
 			DestroyBakedGameObjectsWithEndName( gameObjectsToDestroy, null ) ;
 		}
 
-		public static void DestroyBakedGameObjectsWithEndName( List< GameObject > gameObjectsToDestroy, string endName ) {
+		public static void DestroyBakedGameObjectsWithEndName( List< GameObject > gameObjectsToDestroy, string? endName ) {
 			int numLeft = gameObjectsToDestroy.Count ;
 			for ( int i = 0; i < numLeft; ++i ) {
 				GameObject deleteGO = gameObjectsToDestroy[ i ] ;
@@ -1200,12 +1196,12 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		public static string ColorToString( Color c ) {
+		public static string? ColorToString( Color c ) {
 			return string.Format( CultureInfo.InvariantCulture, "{0},{1},{2},{3}", c[ 0 ], c[ 1 ],
 								  c[ 2 ], c[ 3 ] ) ;
 		}
 
-		public static Color StringToColor( string colorString ) {
+		public static Color StringToColor( string? colorString ) {
 			Color    c       = new( ) ;
 			string[] strList = colorString.Split( ',' ) ;
 			int      count   = Mathf.Min( 4, strList.Length ) ;
@@ -1220,7 +1216,7 @@ namespace HoudiniEngineUnity
 			return c ;
 		}
 
-		public static bool DoesUnityTagExist( string tagName ) {
+		public static bool DoesUnityTagExist( string? tagName ) {
 			// TODO: Implement this
 			return true ; // string.IsNullOrEmpty(tagName);
 		}
@@ -1234,7 +1230,7 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		public static void SetTag( GameObject rootGO, string tag, bool bIncludeChildren ) {
+		public static void SetTag( GameObject rootGO, string? tag, bool bIncludeChildren ) {
 			rootGO.tag = tag ;
 			if ( bIncludeChildren ) {
 				foreach ( Transform trans in rootGO.transform.GetComponentsInChildren< Transform >( true ) ) {
@@ -1275,7 +1271,7 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="typeName">String name of type</param>
 		/// <returns>Valid type or null if not found in loaded assemblies.</returns>
-		public static Type? GetSystemTypeByName( string typeName ) {
+		public static Type? GetSystemTypeByName( string? typeName ) {
 #if UNITY_EDITOR
 			Assembly[ ] assemblies = AppDomain.CurrentDomain.GetAssemblies( ) ;
 			return assemblies.SelectMany( assembly => assembly.GetTypes() )
@@ -1300,7 +1296,7 @@ namespace HoudiniEngineUnity
 						) ;
 			
 			if ( !tagAttrInfo.exists || tagAttr.Length <= 0 ) return ;
-			string tag = HEU_SessionManager.GetString( tagAttr[ 0 ] ) ;
+			string? tag = HEU_SessionManager.GetString( tagAttr[ 0 ] ) ;
 			if ( tag.Length < 1 ) {
 				HEU_Logger.LogWarning( "Unity tag attribute is empty!" ) ;
 				return ;
@@ -1333,7 +1329,7 @@ namespace HoudiniEngineUnity
 			
 			if ( !layerAttrInfo.exists || layerAttr.Length <= 0 ) return ;
 			
-			string layerStr = HEU_SessionManager.GetString( layerAttr[ 0 ] ) ;
+			string? layerStr = HEU_SessionManager.GetString( layerAttr[ 0 ] ) ;
 			if ( layerStr.Length <= 0 ) {
 				HEU_Logger.LogWarning( "Unity layer attribute is empty!" ) ;
 				return ;
@@ -1361,7 +1357,7 @@ namespace HoudiniEngineUnity
 			GetAttribute( session, geoID, partID, HEU_PluginSettings.UnityStaticAttributeName, ref staticAttrInfo,
 						  ref staticAttr, session.GetAttributeIntData ) ;
 			if ( staticAttrInfo.exists && staticAttr.Length > 0 ) {
-				HEU_EditorUtility.SetStatic( gameObject, ( staticAttr[ 0 ] == 1 ), true ) ;
+				HEU_EditorUtility.SetStatic( gameObject, ( staticAttr[ 0 ] is 1 ), true ) ;
 			}
 		}
 
@@ -1388,7 +1384,7 @@ namespace HoudiniEngineUnity
 						) ;
 			
 			if ( !scriptAttributeInfo.exists ) {
-				HEU_Logger.LogWarning( "No Unity script attribute found!" ) ;
+				//HEU_Logger.LogWarning( "No Unity script attribute found!" ) ;
 				return null ;
 			}
 			if ( scriptAttr is { Length: > 0, } )
@@ -1406,8 +1402,8 @@ namespace HoudiniEngineUnity
 		/// <param name="attrName">Name of the attribute to query</param>
 		/// <param name="attrOwner">Owner type of the attribute</param>
 		/// <returns>Valid string if successful, otherwise returns null</returns>
-		public static string? GetAttributeStringValueSingle( HEU_SessionBase session, HAPI_NodeId geoID,
-															 HAPI_PartId partID, string attrName,
+		public static string? GetAttributeStringValueSingle( HEU_SessionBase     session, HAPI_NodeId geoID,
+															 HAPI_PartId         partID,  string?     attrName,
 															 HAPI_AttributeOwner attrOwner ) {
 			if ( string.IsNullOrEmpty( attrName ) ) return null ;
 
@@ -1440,7 +1436,7 @@ namespace HoudiniEngineUnity
 		/// <param name="attrOwner">Owner type of the attribute</param>
 		/// <returns>Valid string if successful, otherwise returns null</returns>
 		public static string? GetAttributeStringValueSingleStrict( HEU_SessionBase session, HAPI_NodeId geoID,
-																   HAPI_PartId partID, string attrName,
+																   HAPI_PartId partID, string? attrName,
 																   HAPI_AttributeOwner attrOwner ) {
 			if ( string.IsNullOrEmpty(attrName) ) return null ;
 			
@@ -1450,7 +1446,7 @@ namespace HoudiniEngineUnity
 								ref attrInfo, ref stringHandle,
 								session.GetAttributeStringData
 							  ) ;
-
+			
 			if ( !attrInfo.exists ) return null ;
 			if ( attrInfo.owner != attrOwner )
 				HEU_Logger.LogWarningFormat( "Expected {0} attribute owner for attribute {1} but got {2}!",
@@ -1476,7 +1472,7 @@ namespace HoudiniEngineUnity
 		/// <returns>True if successfully found and acquired value, otherwise false</returns>
 		public static bool GetAttributeFloatSingle( HEU_SessionBase session,
 													HAPI_NodeId geoID, HAPI_PartId partID,
-													string attrName, out float value ) {
+													string? attrName, out float value ) {
 			value = 0 ;
 			bool bResult = false ;
 			if ( string.IsNullOrEmpty( attrName ) ) return bResult ;
@@ -1489,11 +1485,11 @@ namespace HoudiniEngineUnity
 						  ref attrInfo, ref values,
 						  session.GetAttributeFloatData
 						) ;
-            
-			if ( attrInfo.exists && values.Length > 0 ) {
-				value   = values[ 0 ] ;
-				bResult = true ;
-			}
+
+			if ( !attrInfo.exists || values.Length <= 0 ) return bResult ;
+			
+			value   = values[ 0 ] ;
+			bResult = true ;
 			return bResult ;
 		}
 
@@ -1509,7 +1505,7 @@ namespace HoudiniEngineUnity
 		/// <returns>True if successfully found and acquired value, otherwise false</returns>
 		public static bool GetAttributeIntSingle( HEU_SessionBase session,
 												  HAPI_NodeId geoID, HAPI_PartId partID,
-												  string attrName, out int value ) {
+												  string? attrName, out int value ) {
 			value = 0 ;
 			bool bResult = false ;
 			if ( string.IsNullOrEmpty(attrName) ) return bResult ;
@@ -1522,11 +1518,11 @@ namespace HoudiniEngineUnity
 						  ref attrInfo, ref values,
 						  session.GetAttributeIntData
 						) ;
+
+			if ( !attrInfo.exists || values.Length <= 0 ) return bResult ;
 			
-			if ( attrInfo.exists && values.Length > 0 ) {
-				value   = values[ 0 ] ;
-				bResult = true ;
-			}
+			value   = values[ 0 ] ;
+			bResult = true ;
 			return bResult ;
 		}
 
@@ -1542,7 +1538,7 @@ namespace HoudiniEngineUnity
 		/// <returns>True if successfully found and acquired value, otherwise false</returns>
 		public static bool GetAttributeColorSingle( HEU_SessionBase session,
 													HAPI_NodeId geoID, HAPI_PartId partID,
-													string attrName, ref Color value ) {
+													string? attrName, ref Color value ) {
 			bool bResult = false ;
 			if ( string.IsNullOrEmpty( attrName ) ) return bResult ;
 			
@@ -1555,8 +1551,7 @@ namespace HoudiniEngineUnity
 						  session.GetAttributeFloatData
 						) ;
 
-			if ( !attrInfo.exists || values.Length < 3 )
-				return bResult ;
+			if ( !attrInfo.exists || values.Length < 3 ) return bResult ;
 			
 			value = new Color {
 				r = Mathf.Clamp01( values[ 0 ] ),
@@ -1581,7 +1576,7 @@ namespace HoudiniEngineUnity
 		/// <returns></returns>
 		public static bool HasAttribute( HEU_SessionBase session,
 										 HAPI_NodeId geoID, HAPI_PartId partID,
-										 string attrName, HAPI_AttributeOwner attrOwner ) {
+										 string? attrName, HAPI_AttributeOwner attrOwner ) {
 			if ( string.IsNullOrEmpty(attrName) ) return false ;
 
 			HAPI_AttributeInfo attrInfo = new( ) ;
@@ -1604,12 +1599,16 @@ namespace HoudiniEngineUnity
 			// Then if set, the function will be invoked on the script passing in the message.
 			const string expectedFormat = "scriptname:function:argument[;scriptname:function:argument]" ;
 
-			string[ ] scriptLists = scriptSet.Split( ';' ) ;
-			foreach ( string scriptToAttach in scriptLists ) {
-				int scriptColon = scriptToAttach.IndexOf( ":", StringComparison.Ordinal ) ;
-				string scriptTypeName = scriptColon > 0 
-											? scriptToAttach[ ..scriptColon ].Trim( ) 
+			string?[ ] scriptLists = scriptSet.Split( ';' ) ;
+			
+			foreach ( string? scriptToAttach in scriptLists ) {
+				if ( string.IsNullOrEmpty( scriptToAttach ) ) continue ;
+				
+				int scriptColon = scriptToAttach?.IndexOf( ":", StringComparison.Ordinal ) ?? -1 ;
+				string? scriptTypeName = scriptColon > 0
+											 ? scriptToAttach![ ..scriptColon ].Trim( ) 
 												: scriptToAttach ;
+				
 				Type? scriptType = GetSystemTypeByName( scriptTypeName ) ;
 				
 				if ( scriptType is null ) {
@@ -1644,21 +1643,22 @@ namespace HoudiniEngineUnity
 					return ;
 				}
 
-				if ( scriptColon + 1 >= scriptToAttach.Length ) {
-					// No function
-					return ;
-				}
+				if ( scriptColon + 1 >= scriptToAttach!.Length ) return ; // No function
 
-				int functionColon      = scriptToAttach.IndexOf( ":", scriptColon + 1, StringComparison.Ordinal ) ;
+				int functionColon = scriptToAttach.IndexOf( ":", scriptColon + 1,
+															StringComparison.Ordinal ) ;
+				
 				int functionNameLength = ( functionColon > 0 )
 											 ? functionColon - ( scriptColon + 1 )
 											 : scriptToAttach.Length - ( scriptColon + 1 ) ;
-
 				if ( functionNameLength <= 0 ) continue ;
-				string scriptFunction = scriptToAttach.Substring( scriptColon + 1, functionNameLength ).Trim( ) ;
+				
+				string scriptFunction = scriptToAttach.Substring( scriptColon + 1, functionNameLength )
+														.Trim( ) ;
+				
 				if ( functionColon + 1 < scriptToAttach.Length ) {
 					// Get argument
-					string scriptArgument = scriptToAttach.Substring( functionColon + 1 ).Trim( ) ;
+					string scriptArgument = scriptToAttach[ (functionColon + 1).. ].Trim( ) ;
 					//HEU_Logger.LogFormat("Invoking script function {0} with argument {1}", scriptFunction, scriptArgument);
 					component.SendMessage( scriptFunction, scriptArgument, SendMessageOptions.DontRequireReceiver ) ;
 				}
@@ -1676,7 +1676,7 @@ namespace HoudiniEngineUnity
 		}
 
 		internal static List< HEU_Handle > FindOrGenerateHandles( HEU_SessionBase session, ref HAPI_AssetInfo assetInfo,
-																  HAPI_NodeId assetID, string assetName,
+																  HAPI_NodeId assetID, string? assetName,
 																  HEU_Parameters parameters,
 																  List< HEU_Handle > currentHandles ) {
 			if ( assetInfo.handleCount < 1 ) 
@@ -1692,11 +1692,11 @@ namespace HoudiniEngineUnity
 
 			for ( int i = 0; i < handleInfos.Length; ++i ) {
 				if ( handleInfos[ i ].bindingsCount < 1 ) continue ;
-				string handleName = HEU_SessionManager.GetString( handleInfos[ i ].nameSH, session ) ;
+				string? handleName = HEU_SessionManager.GetString( handleInfos[ i ].nameSH, session ) ;
 
 				HEU_Handle.HEU_HandleType handleType = HEU_Handle.HEU_HandleType.UNSUPPORTED ;
-				string handleTypeString = HEU_SessionManager.GetString( handleInfos[ i ].typeNameSH, session ) ;
-				if ( handleTypeString.Equals( HEU_Defines.HAPI_HANDLE_TRANSFORM ) ) {
+				string? handleTypeString = HEU_SessionManager.GetString( handleInfos[ i ].typeNameSH, session ) ;
+				if ( handleTypeString?.Equals( HEU_Defines.HAPI_HANDLE_TRANSFORM ) is true ) {
 					handleType = HEU_Handle.HEU_HandleType.XFORM ;
 				}
 				else {
@@ -1705,20 +1705,21 @@ namespace HoudiniEngineUnity
 					continue ;
 				}
 
-				HEU_Handle newHandle = null ;
+				HEU_Handle? newHandle = null ;
 				foreach ( HEU_Handle curHandle in currentHandles ) {
-					if ( curHandle.HandleName.Equals( handleName ) ) {
-						newHandle = curHandle ;
-						break ;
-					}
+					if ( !curHandle || curHandle.HandleName?.Equals( handleName ) is not true )
+						continue ;
+					
+					newHandle = curHandle ;
+					break ;
 				}
 
-				if ( newHandle == null ) {
+				if ( !newHandle )
 					newHandle = ScriptableObject.CreateInstance< HEU_Handle >( ) ;
-				}
 
-				bool bSuccess = newHandle.SetupHandle( session, assetID, i, handleName, handleType,
-													   ref handleInfos[ i ], parameters ) ;
+				bool bSuccess = newHandle!.SetupHandle( session, assetID, 
+														i, handleName, handleType,
+														ref handleInfos[ i ], parameters ) ;
 				if ( bSuccess ) {
 					newHandles.Add( newHandle ) ;
 					//HEU_Logger.LogFormat("Found handle {0} of type {1}", handleName, handleTypeString);
@@ -1762,38 +1763,32 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		/// <param name="filePath">Path to image file</param>
 		/// <returns>Loaded texture or null if failed</returns>
-		public static Texture LoadTextureFromFile( string filePath ) {
-			Texture2D newTexture = null ;
-
-			if ( HEU_Platform.DoesFileExist( filePath ) ) {
-				try {
-					byte[] imageData = File.ReadAllBytes( filePath ) ;
-					newTexture = new Texture2D( 2, 2 ) ;
-					newTexture.LoadImage( imageData ) ;
-					newTexture.Apply( ) ;
-					return newTexture ;
-				}
-				catch ( Exception ex ) {
-					HEU_Logger.LogErrorFormat( "Loading image at {0} triggered exception: {1}", filePath, ex ) ;
-				}
+		public static Texture? LoadTextureFromFile( string? filePath ) {
+			Texture2D? newTexture = null ;
+			if ( !HEU_Platform.DoesFileExist( filePath ) ) return newTexture ;
+			
+			try {
+				byte[ ] imageData = File.ReadAllBytes( filePath! ) ;
+				newTexture = new Texture2D( 2, 2 ) ;
+				newTexture.LoadImage( imageData ) ;
+				newTexture.Apply( ) ;
+				return newTexture ;
 			}
-
+			catch ( Exception ex ) {
+				HEU_Logger.LogErrorFormat( "Loading image at {0} triggered exception: {1}", filePath, ex ) ;
+			}
+			
 			return newTexture ;
 		}
 
-		/// <summary>
-		/// Returns a new texture with given size, and filled in with given single color.
-		/// </summary>
-		public static Texture2D MakeTexture( int width, int height, Color color ) {
-			if ( width <= 0 || height <= 0 ) {
-				return null ;
-			}
-
-			Color[] pixels = new Color[ width * height ] ;
-			for ( int i = 0; i < pixels.Length; ++i ) {
+		/// <summary>Returns a new texture with given size, and filled in with given single color.</summary>
+		public static Texture2D? MakeTexture( int width, int height, Color color ) {
+			if ( width <= 0 || height <= 0 ) return null ;
+			
+			Color[ ] pixels = new Color[ width * height ] ;
+			for ( int i = 0; i < pixels.Length; ++i )
 				pixels[ i ] = color ;
-			}
-
+			
 			Texture2D texture = new( width, height ) ;
 			texture.SetPixels( pixels ) ;
 			texture.Apply( false, true ) ;
@@ -1807,13 +1802,11 @@ namespace HoudiniEngineUnity
 		/// <param name="searchStr"></param>
 		/// <param name="replaceStr"></param>
 		/// <returns></returns>
-		public static string ReplaceFirstOccurrence( string srcStr, string searchStr, string replaceStr ) {
-			int index = srcStr.IndexOf( searchStr ) ;
-			if ( index < 0 ) {
-				return srcStr ;
-			}
-
-			return srcStr.Substring( 0, index ) + replaceStr + srcStr.Substring( index + searchStr.Length ) ;
+		public static string? ReplaceFirstOccurrence( string srcStr, string searchStr, string replaceStr ) {
+			int index = srcStr?.IndexOf( searchStr ) ?? -1 ;
+			if ( index < 0 ) return srcStr ;
+			return srcStr?[ ..index ] + replaceStr 
+									  + srcStr?[ (index + searchStr.Length).. ] ;
 		}
 
 		/// <summary>
@@ -1826,9 +1819,7 @@ namespace HoudiniEngineUnity
 			childTransform.localScale    = Vector3.one ;
 		}
 
-		/// <summary>
-		/// Copy src HAPI_Transfrom to dest HAPI_Transform.
-		/// </summary>
+		/// <summary>Copy src HAPI_Transfrom to dest HAPI_Transform.</summary>
 		public static void CopyHAPITransform( ref HAPI_Transform src, ref HAPI_Transform dest ) {
 			src.position.CopyToWithResize( ref dest.position ) ;
 			src.rotationQuaternion.CopyToWithResize( ref dest.rotationQuaternion ) ;
@@ -1838,23 +1829,22 @@ namespace HoudiniEngineUnity
 			dest.rstOrder = src.rstOrder ;
 		}
 
-		/// <summary>
-		/// Get the assigned material via string attribute from the given part.
-		/// </summary>
-		public static string GetMaterialAttributeValueFromPart( HEU_SessionBase session, HAPI_NodeId geoID,
-																HAPI_PartId     partID ) {
-			string              materialName          = null ;
-			HAPI_AttributeInfo  unityMaterialAttrInfo = new( ) ;
-			HAPI_StringHandle[] unityMaterialAttrName = Array.Empty< HAPI_StringHandle >( ) ;
+		/// <summary>Get the assigned material via string attribute from the given part.</summary>
+		public static string? GetMaterialAttributeValueFromPart( HEU_SessionBase session,
+																 HAPI_NodeId geoID,
+																 HAPI_PartId partID ) {
+			string? materialName = null ;
+			HAPI_AttributeInfo unityMaterialAttrInfo = new( ) ;
+			HAPI_StringHandle[ ] unityMaterialAttrName = Array.Empty< HAPI_StringHandle >( ) ;
 			GetAttribute( session, geoID, partID, HEU_PluginSettings.UnityMaterialAttribName,
 						  ref unityMaterialAttrInfo, ref unityMaterialAttrName, session.GetAttributeStringData ) ;
 
-			if ( unityMaterialAttrInfo.exists && unityMaterialAttrName.Length > 0 ) {
-				materialName = HEU_SessionManager.GetString( unityMaterialAttrName[ 0 ], session ) ;
-				if ( string.IsNullOrEmpty( materialName ) ) {
-					// Warn user of empty string, but add it anyway to our map so we don't keep trying to parse it
-					//HEU_Logger.LogWarningFormat("Found empty material attribute value for terrain heightfield part.");
-				}
+			if ( !unityMaterialAttrInfo.exists || unityMaterialAttrName.Length <= 0 ) return materialName ;
+			
+			materialName = HEU_SessionManager.GetString( unityMaterialAttrName[ 0 ], session ) ;
+			if ( string.IsNullOrEmpty( materialName ) ) {
+				// Warn user of empty string, but add it anyway to our map so we don't keep trying to parse it
+				//HEU_Logger.LogWarningFormat("Found empty material attribute value for terrain heightfield part.");
 			}
 
 			return materialName ;
@@ -1916,69 +1906,56 @@ namespace HoudiniEngineUnity
 							 ) ;
 		}
 
-		public static float Fractionalf( float value ) {
-			return value - Mathf.Floor( value ) ;
-		}
+		public static float Fractionalf( float value ) => value - Mathf.Floor( value ) ;
 
-		public static string LongestCommonPrefix( List< string > list ) {
-			if ( list == null || list.Count == 0 ) {
-				return "" ;
-			}
+		public static string? LongestCommonPrefix( List< string > list ) {
+			if ( list is not { Count: > 0, } ) return string.Empty ;
 
-			if ( list.Count == 1 ) {
-				return list[ 0 ] ;
-			}
+			if ( list.Count is 1 ) return list[ 0 ] ;
 
 			list.Sort( ) ;
-
 			string firstStr = list[ 0 ] ;
-			string lastStr  = list[ list.Count - 1 ] ;
-
-			string resultStr = "" ;
+			string lastStr  = list[ ^1 ] ;
+			string? resultStr = string.Empty ;
 
 			for ( int i = 0; i < firstStr.Length; i++ ) {
-				if ( firstStr[ i ] == lastStr[ i ] ) {
+				if ( firstStr[ i ] == lastStr[ i ] )
 					resultStr += firstStr[ i ] ;
-				}
-				else {
-					break ;
-				}
+				else break ;
 			}
 
 			return resultStr ;
 		}
 
 
-		public static string GetRawOperatorName( string assetOpName ) {
-			string result = assetOpName ;
-			result = result.Replace( ':', '_' ) ;
-			int lastSlash = result.LastIndexOf( '/' ) ;
-			if ( lastSlash != -1 ) {
-				result = result.Substring( lastSlash + 1 ) ;
-			}
-
+		public static string? GetRawOperatorName( string? assetOpName ) {
+			if ( string.IsNullOrEmpty( assetOpName ) ) return null ;
+			string result = assetOpName!.Replace( ':', '_' ) ;
+			int lastSlash = result?.LastIndexOf( '/' ) ?? -1 ;
+			
+			if ( lastSlash != -1 )
+				result = result![ (lastSlash + 1).. ] ;
+			
 			return result ;
 		}
 
-		public static GameObject GetPrefabFromPath( string path ) {
-			GameObject result = null ;
-			if ( path.Contains( "Resources/" ) ) {
+		public static GameObject? GetPrefabFromPath( string? path ) {
+			if ( string.IsNullOrEmpty( path ) ) return null ;
+			GameObject? result = null ;
+			
+			if ( path!.Contains( "Resources/" ) ) {
 				// Remove up to Resources/
-				string resPath  = path ;
-				int    resIndex = resPath.IndexOf( "Resources/", StringComparison.Ordinal ) ;
-				if ( resIndex > 0 ) {
-					resPath = resPath[ resIndex.. ] ;
-				}
-
+				string? resPath = path ;
+				int resIndex = resPath.IndexOf( "Resources/", StringComparison.Ordinal ) ;
+				if ( resIndex > 0 ) resPath = resPath[ resIndex.. ] ;
+				
 				if ( resPath.StartsWith( "Resources/" ) ) {
-					resPath = resPath.Replace( "Resources/", "" ) ;
+					resPath = resPath.Replace( "Resources/", string.Empty ) ;
 
 					// Remove file extension
 					int extIndex = resPath.LastIndexOf( ".", StringComparison.Ordinal ) ;
-					if ( extIndex > 0 ) {
-						resPath = resPath[ ..extIndex ] ;
-					}
-
+					if ( extIndex > 0 ) resPath = resPath[ ..extIndex ] ;
+					
 					//HEU_Logger.Log("Resource path: " + resPath);
 					result = Resources.Load< GameObject >( resPath ) ;
 				}
@@ -1996,10 +1973,11 @@ namespace HoudiniEngineUnity
 		}
 		
 		// Composes n children by appending the parent's name with a number
-		public static void ComposeNChildren( GameObject parent, int n, ref List< GameObject > childGameObjects,
-											 bool       destroyIfExists = false ) {
+		public static void ComposeNChildren( GameObject parent, int n,
+											 ref List< GameObject > childGameObjects,
+											 bool destroyIfExists = false ) {
 			for ( int i = 0; i < n; i++ ) {
-				string name = parent.name + "_" + i ;
+				string? name = parent.name + "_" + i ;
 				if ( destroyIfExists )
 					DestroyChildWithName( parent.transform, name ) ;
 
@@ -2009,7 +1987,7 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		static void DestroyChildWithName( Transform parent, string name ) {
+		static void DestroyChildWithName( Transform parent, string? name ) {
 			for ( int i = parent.childCount - 1; i >= 0; i-- ) {
 				Transform child     = parent.GetChild( i ) ;
 				string    childName = child.name ;
@@ -2038,26 +2016,26 @@ namespace HoudiniEngineUnity
 
 
 		// Helper to create a new gameObject. Helps with debugging.
-		public static GameObject CreateNewGameObject( string name = "" ) {
+		public static GameObject CreateNewGameObject( string? name = "" ) {
 			if ( name == "" ) return new GameObject( ) ;
 			return new GameObject( name ) ;
 		}
 
 		// Helper to rename a new gameObject. Helps with debugging.
-		public static void RenameGameObject( GameObject obj, string name ) {
+		public static void RenameGameObject( GameObject obj, string? name ) {
+			if ( string.IsNullOrEmpty(name) ) {
+				HEU_Logger.LogWarning( "Cannot rename GameObject to empty name!" ) ;
+				return ;
+			}
 			if ( obj ) obj.name = name ;
 		}
-
+		
+	} ;
+	
+	
+	public class ReverseCompare: IComparer {
+		public int Compare( object? x, object? y ) =>
+			( new CaseInsensitiveComparer( ).Compare( y, x ) ) ;
 	} ;
 
-
-    public class ReverseCompare : IComparer
-    {
-	public int Compare(object x, object y)
-	{
-	    return (new CaseInsensitiveComparer().Compare(y, x));
-	}
-    }
-
- 
 }   // HoudiniEngineUnity

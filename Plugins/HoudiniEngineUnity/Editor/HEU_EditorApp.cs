@@ -93,7 +93,7 @@ namespace HoudiniEngineUnity {
 					}
 
 					List< GameObject > createdGOs = new( ) ;
-					foreach ( string file in hdaList ) {
+					foreach ( string? file in hdaList ) {
 						GameObject go =
 							HEU_HAPIUtility.InstantiateHDA( file, dropPos,
 															HEU_SessionManager.GetOrCreateDefaultSession( ),

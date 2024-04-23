@@ -308,9 +308,9 @@ namespace HoudiniEngineUnity
 	/// <param name="userPrefix"></param>
 	/// <param name="index"></param>
 	/// <returns></returns>
-	public static string GetInstanceOutputName(string partName, string[] userPrefix, int index)
+	public static string? GetInstanceOutputName(string? partName, string?[] userPrefix, int index)
 	{
-	    string prefix = null;
+	    string? prefix = null;
 	    if (userPrefix == null || userPrefix.Length == 0)
 	    {
 		prefix = partName;

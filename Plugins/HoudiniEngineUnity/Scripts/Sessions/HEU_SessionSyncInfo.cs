@@ -73,7 +73,7 @@ namespace HoudiniEngineUnity
 	}
 
 	// UI name for new node
-	public string _newNodeName = "geo1";
+	public string? _newNodeName = "geo1";
 
 	// UI index of node type
 	public int _nodeTypeIndex = 0;

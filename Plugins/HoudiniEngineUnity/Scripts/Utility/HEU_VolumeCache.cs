@@ -54,10 +54,10 @@ namespace HoudiniEngineUnity
     [System.Serializable]
     public class HEU_VolumeLayer : IEquivable<HEU_VolumeLayer>
     {
-	public string _layerName;
-	public float _strength = 1.0f;
-	public bool _uiExpanded;
-	public int _tile = 0;
+	public string? _layerName;
+	public float   _strength = 1.0f;
+	public bool    _uiExpanded;
+	public int     _tile = 0;
 
 	public int _xLength;
 	public int _yLength;
@@ -166,8 +166,8 @@ namespace HoudiniEngineUnity
     /// </summary>
     public class HEU_TreePrototypeInfo : IEquivable<HEU_TreePrototypeInfo>
     {
-	public string _prefabPath;
-	public float _bendfactor;
+	public string? _prefabPath;
+	public float   _bendfactor;
 
 	public bool IsEquivalentTo(HEU_TreePrototypeInfo other)
 	{
@@ -232,16 +232,16 @@ namespace HoudiniEngineUnity
     /// </summary>
     public class HEU_DetailPrototype : IEquivable<HEU_DetailPrototype>
     {
-	public string _prototypePrefab;
-	public string _prototypeTexture;
-	public float _bendFactor;
-	public Color _dryColor = Color.white;
-	public Color _healthyColor = Color.white;
-	public float _maxHeight;
-	public float _maxWidth;
-	public float _minHeight;
-	public float _minWidth;
-	public float _noiseSpread;
+	public string? _prototypePrefab;
+	public string? _prototypeTexture;
+	public float   _bendFactor;
+	public Color   _dryColor     = Color.white;
+	public Color   _healthyColor = Color.white;
+	public float   _maxHeight;
+	public float   _maxWidth;
+	public float   _minHeight;
+	public float   _minWidth;
+	public float   _noiseSpread;
 
 	public int _renderMode;
 
@@ -297,9 +297,9 @@ namespace HoudiniEngineUnity
 	public List<HEU_VolumeLayer> Layers { get { return _layers; } }
 	public int TileIndex { get { return _tileIndex; } }
 
-	public string ObjectName { get { return _objName; } }
+	public string? ObjectName { get { return _objName; } }
 
-	public string GeoName { get { return _geoName; } }
+	public string? GeoName { get { return _geoName; } }
 
 
 	public TerrainData TerrainData { get { return _terrainData; } }
@@ -331,10 +331,10 @@ namespace HoudiniEngineUnity
 	public bool IsDirty { get { return _isDirty; } set { _isDirty = value; } }
 
 	[SerializeField]
-	private string _geoName;
+	private string? _geoName;
 
 	[SerializeField]
-	private string _objName;
+	private string? _objName;
 
 
 
@@ -393,7 +393,7 @@ namespace HoudiniEngineUnity
 	    }
 	}
 
-	public HEU_VolumeLayer GetLayer(string layerName)
+	public HEU_VolumeLayer GetLayer(string? layerName)
 	{
 	    foreach (HEU_VolumeLayer layer in _layers)
 	    {
@@ -629,12 +629,12 @@ namespace HoudiniEngineUnity
 	    layer._hasLayerAttributes = HEU_TerrainUtility.VolumeLayerHasAttributes(session, geoID, partID);
 	}
 
-	private bool LoadLayerTextureFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string attrName, out Texture2D outTexture)
+	private bool LoadLayerTextureFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string? attrName, out Texture2D outTexture)
 	{
 	    outTexture = null;
 	    // The texture path is stored as string primitive attribute. Only 1 string path per layer.
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
-	    string[] texturePath = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, attrName, ref attrInfo);
+	    string?[] texturePath = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, attrName, ref attrInfo);
 	    if (texturePath != null && texturePath.Length > 0 && !string.IsNullOrEmpty(texturePath[0]))
 	    {
 		outTexture = LoadAssetTexture(texturePath[0]);
@@ -642,7 +642,7 @@ namespace HoudiniEngineUnity
 	    return outTexture != null;
 	}
 
-	private bool LoadLayerFloatFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string attrName, ref float floatValue)
+	private bool LoadLayerFloatFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string? attrName, ref float floatValue)
 	{
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
 	    float[] attrValues = new float[0];
@@ -655,7 +655,7 @@ namespace HoudiniEngineUnity
 	    return false;
 	}
 
-	private bool LoadLayerColorFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string attrName, ref Color colorValue)
+	private bool LoadLayerColorFromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string? attrName, ref Color colorValue)
 	{
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
 	    float[] attrValues = new float[0];
@@ -679,7 +679,7 @@ namespace HoudiniEngineUnity
 	    return false;
 	}
 
-	private bool LoadLayerVector2FromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string attrName, ref Vector2 vectorValue)
+	private bool LoadLayerVector2FromAttribute(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_NodeId partID, string? attrName, ref Vector2 vectorValue)
 	{
 	    HAPI_AttributeInfo attrInfo = new HAPI_AttributeInfo();
 	    float[] attrValues = new float[0];
@@ -707,7 +707,7 @@ namespace HoudiniEngineUnity
 		return;
 	    }
 
-	    string volumeName = HEU_SessionManager.GetString(volumeInfo.nameSH, session);
+	    string? volumeName = HEU_SessionManager.GetString(volumeInfo.nameSH, session);
 	    part.SetVolumeLayerName(volumeName);
 
 	    //HEU_Logger.LogFormat("Part name: {0}, GeoName: {1}, Volume Name: {2}, Display: {3}", part.PartName, geoNode.GeoName, volumeName, geoNode.Displayable);
@@ -811,7 +811,7 @@ namespace HoudiniEngineUnity
 
 	    // The TerrainData and TerrainLayer files needs to be saved out if we create them. This creates the relative folder
 	    // path from the Asset's cache folder: {assetCache}/{object name}/{geo name}/Terrain/Tile{tileIndex}/...
-	    string relativeFolderPath = HEU_Platform.BuildPath(_ownerNode.ObjectNode.ObjectName, _ownerNode.GeoName, HEU_Defines.HEU_FOLDER_TERRAIN, HEU_Defines.HEU_FOLDER_TILE + TileIndex);
+	    string? relativeFolderPath = HEU_Platform.BuildPath(_ownerNode.ObjectNode.ObjectName, _ownerNode.GeoName, HEU_Defines.HEU_FOLDER_TERRAIN, HEU_Defines.HEU_FOLDER_TILE + TileIndex);
 
 	    if (bRebuild)
 	    {
@@ -824,11 +824,11 @@ namespace HoudiniEngineUnity
 	    Vector3 terrainOffsetPosition = Vector3.zero;
 
 	    // Look up TerrainData export file path via attribute if user has set it
-	    string userTerrainDataExportPath = HEU_GeneralUtility.GetAttributeStringValueSingleStrict(session, _ownerNode.GeoID, heightLayer._part.PartID,
+	    string? userTerrainDataExportPath = HEU_GeneralUtility.GetAttributeStringValueSingleStrict(session, _ownerNode.GeoID, heightLayer._part.PartID,
 		    HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINDATA_EXPORT_FILE_ATTR, HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM);
 
 	    // Look up TerrainData file via attribute if user has set it
-	    string terrainDataFile = HEU_GeneralUtility.GetAttributeStringValueSingleStrict(session, _ownerNode.GeoID, heightLayer._part.PartID,
+	    string? terrainDataFile = HEU_GeneralUtility.GetAttributeStringValueSingleStrict(session, _ownerNode.GeoID, heightLayer._part.PartID,
 		    HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINDATA_FILE_ATTR, HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM);
 	    if (!string.IsNullOrEmpty(terrainDataFile))
 	    {
@@ -850,7 +850,7 @@ namespace HoudiniEngineUnity
 			// Save it into cache
 			// Note that this overwrites existing TerrainData in our cache because the workflow is 
 			// such that attributes will always override local setting.
-			string bakedTerrainPath = HEU_Platform.BuildPath(houdiniAsset.GetValidAssetCacheFolderPath(), relativeFolderPath);
+			string? bakedTerrainPath = HEU_Platform.BuildPath(houdiniAsset.GetValidAssetCacheFolderPath(), relativeFolderPath);
 			terrainData = HEU_AssetDatabase.CopyAndLoadAssetAtAnyPath(loadedTerrainData, bakedTerrainPath, typeof(TerrainData), true) as TerrainData;
 			if (terrainData == null)
 			{
@@ -863,7 +863,7 @@ namespace HoudiniEngineUnity
 	    Terrain terrain = null;
 
 	    // Generate the terrain and terrain data from the height layer. This applies height values.
-	    string bakedMaterialPath = HEU_Platform.BuildPath(houdiniAsset.GetValidAssetCacheFolderPath(), relativeFolderPath);
+	    string? bakedMaterialPath = HEU_Platform.BuildPath(houdiniAsset.GetValidAssetCacheFolderPath(), relativeFolderPath);
 	    bResult = HEU_TerrainUtility.GenerateTerrainFromVolume(session, ref heightVolumeInfo, heightLayer._part.ParentGeoNode.GeoID,
 		    heightLayer._part.PartID, heightLayer._part.OutputGameObject, ref terrainData, out terrainOffsetPosition,
 		    ref terrain, bakedMaterialPath);
@@ -977,7 +977,7 @@ namespace HoudiniEngineUnity
 		int terrainLayerIndex = -1;
 
 		// The TerrainLayer attribute overrides existing TerrainLayer. So if its set, load and use it.
-                string terrainLayerFile = HEU_GeneralUtility.GetAttributeStringValueSingleStrict(session, geoID, partID,
+                string? terrainLayerFile = HEU_GeneralUtility.GetAttributeStringValueSingleStrict(session, geoID, partID,
                                 HEU_Defines.DEFAULT_UNITY_HEIGHTFIELD_TERRAINLAYER_FILE_ATTR, HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM);
 		if (!string.IsNullOrEmpty(terrainLayerFile))
 		{
@@ -1053,7 +1053,7 @@ namespace HoudiniEngineUnity
 		// because we don't want to change the original TerrainLayer.
 		if (!bNewTerrainLayer && layer._hasLayerAttributes)
 		{
-		    string bakedTerrainPath = houdiniAsset.GetValidAssetCacheFolderPath();
+		    string? bakedTerrainPath = houdiniAsset.GetValidAssetCacheFolderPath();
 		    bakedTerrainPath = HEU_Platform.BuildPath(bakedTerrainPath, relativeFolderPath);
 		    TerrainLayer prevTerrainLayer = terrainLayer;
 		    terrainLayer = HEU_AssetDatabase.CopyAndLoadAssetAtAnyPath(terrainLayer, bakedTerrainPath, typeof(TerrainLayer), true) as TerrainLayer;
@@ -1081,8 +1081,8 @@ namespace HoudiniEngineUnity
 		if (bNewTerrainLayer)
 		{
 		    // In order to retain the new TerrainLayer, it must be saved to the AssetDatabase.
-		    Object savedObject = null;
-		    string layerFileNameWithExt = terrainLayer.name;
+		    Object  savedObject          = null;
+		    string? layerFileNameWithExt = terrainLayer.name;
 		    if (!layerFileNameWithExt.EndsWith(HEU_Defines.HEU_EXT_TERRAINLAYER))
 		    {
 			layerFileNameWithExt += HEU_Defines.HEU_EXT_TERRAINLAYER;
@@ -1437,7 +1437,7 @@ namespace HoudiniEngineUnity
 	    return texture;
 	}
 
-	internal static Texture2D LoadAssetTexture(string path)
+	internal static Texture2D LoadAssetTexture(string? path)
 	{
 	    Texture2D texture = HEU_MaterialFactory.LoadTexture(path);
 	    if (texture == null)

@@ -67,7 +67,7 @@ namespace HoudiniEngineUnity
 		public HAPI_GeoInfo  _geoInfo ;
 		public HAPI_PartInfo _partInfo ;
 
-		public string _partName ;
+		public string? _partName ;
 
 		public int[] _vertexList ;
 
@@ -81,11 +81,11 @@ namespace HoudiniEngineUnity
 		public Dictionary< int, HEU_UnityMaterialInfo > _unityMaterialInfos ;
 		public HAPI_AttributeInfo                       _unityMaterialAttrInfo ;
 		public HAPI_StringHandle[]                      _unityMaterialAttrName ;
-		public Dictionary< HAPI_StringHandle, string >  _unityMaterialAttrStringsMap = new( ) ;
+		public Dictionary< HAPI_StringHandle, string? > _unityMaterialAttrStringsMap = new( ) ;
 
-		public HAPI_AttributeInfo                      _substanceMaterialAttrNameInfo ;
-		public HAPI_StringHandle[]                     _substanceMaterialAttrName ;
-		public Dictionary< HAPI_StringHandle, string > _substanceMaterialAttrStringsMap = new( ) ;
+		public HAPI_AttributeInfo                       _substanceMaterialAttrNameInfo ;
+		public HAPI_StringHandle[]                      _substanceMaterialAttrName ;
+		public Dictionary< HAPI_StringHandle, string? > _substanceMaterialAttrStringsMap = new( ) ;
 
 		public HAPI_AttributeInfo _substanceMaterialAttrIndexInfo ;
 		public int[]              _substanceMaterialAttrIndex ;
@@ -143,7 +143,7 @@ namespace HoudiniEngineUnity
 			public float        _colliderRadius ;
 			public bool         _convexCollider ;
 
-			public string    _collisionGroupName ;
+			public string?   _collisionGroupName ;
 			public Vector3[] _collisionVertices ;
 			public int[]     _collisionIndices ;
 
@@ -157,7 +157,7 @@ namespace HoudiniEngineUnity
 		public List< HEU_MaterialData >            _materialCache ;
 		public Dictionary< int, HEU_MaterialData > _materialIDToDataMap ;
 
-		public string _assetCacheFolderPath ;
+		public string? _assetCacheFolderPath ;
 
 		[SerializeField]
 		public HEU_MeshIndexFormat _meshIndexFormat = new( ) ;
@@ -173,7 +173,7 @@ namespace HoudiniEngineUnity
 																 HAPI_NodeId              geoID,   HAPI_PartId partID,
 																 bool                     bUseLODGroups,
 																 List< HEU_MaterialData > materialCache,
-																 string                   assetCacheFolderPath ) {
+																 string?                  assetCacheFolderPath ) {
 #if HEU_PROFILER_ON
 	    float generateGeoCacheStartTime = Time.realtimeSinceStartup;
 #endif
@@ -261,10 +261,10 @@ namespace HoudiniEngineUnity
 
 			// Store a local copy of the actual string values since the indices get overwritten by the next call to session.GetAttributeStringData.
 			// Using a dictionary to only query the unique strings, as doing all of them is very slow and unnecessary.
-			_unityMaterialAttrStringsMap = new Dictionary< HAPI_StringHandle, string >( ) ;
+			_unityMaterialAttrStringsMap = new Dictionary< HAPI_StringHandle, string? >( ) ;
 			foreach ( HAPI_StringHandle strHandle in _unityMaterialAttrName ) {
 				if ( !_unityMaterialAttrStringsMap.ContainsKey( strHandle ) ) {
-					string materialName = HEU_SessionManager.GetString( strHandle, session ) ;
+					string? materialName = HEU_SessionManager.GetString( strHandle, session ) ;
 					if ( !string.IsNullOrEmpty( materialName ) ) {
 
 						_unityMaterialAttrStringsMap.Add( strHandle, materialName ) ;
@@ -281,10 +281,10 @@ namespace HoudiniEngineUnity
 											 ref _substanceMaterialAttrNameInfo, ref _substanceMaterialAttrName,
 											 session.GetAttributeStringData ) ;
 
-			_substanceMaterialAttrStringsMap = new Dictionary< HAPI_StringHandle, string >( ) ;
+			_substanceMaterialAttrStringsMap = new Dictionary< HAPI_StringHandle, string? >( ) ;
 			foreach ( HAPI_StringHandle strHandle in _substanceMaterialAttrName ) {
 				if ( !_substanceMaterialAttrStringsMap.ContainsKey( strHandle ) ) {
-					string substanceName = HEU_SessionManager.GetString( strHandle, session ) ;
+					string? substanceName = HEU_SessionManager.GetString( strHandle, session ) ;
 					if ( string.IsNullOrEmpty( substanceName ) ) {
 						// Warn user of empty string, but add it anyway to our map so we don't keep trying to parse it
 						HEU_Logger
@@ -321,7 +321,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public static int GetMaterialKeyFromAttributeIndex( HEU_GenerateGeoCache geoCache, int attributeIndex,
-															out string unityMaterialName, out string substanceName,
+															out string? unityMaterialName, out string? substanceName,
 															out int substanceIndex ) {
 			unityMaterialName = null ;
 			substanceName     = null ;
@@ -349,9 +349,9 @@ namespace HoudiniEngineUnity
 
 		public static void CreateMaterialInfoEntryFromAttributeIndex( HEU_GenerateGeoCache geoCache,
 																	  int                  materialAttributeIndex ) {
-			string unityMaterialName = null ;
-			string substanceName     = null ;
-			int    substanceIndex    = -1 ;
+			string? unityMaterialName = null ;
+			string? substanceName     = null ;
+			int     substanceIndex    = -1 ;
 			int materialKey = GetMaterialKeyFromAttributeIndex( geoCache, materialAttributeIndex, out unityMaterialName,
 																out substanceName, out substanceIndex ) ;
 			if ( !geoCache._unityMaterialInfos.ContainsKey( materialKey ) ) {
@@ -390,7 +390,7 @@ namespace HoudiniEngineUnity
 			for ( int i = 0; i < HEU_Defines.HAPI_MAX_UVS; ++i ) {
 				_uvsAttrInfo[ i ] = new HAPI_AttributeInfo( ) ;
 				_uvsAttr[ i ]     = new float[ 0 ] ;
-				string uvName =
+				string? uvName =
 					i == 0 ? HEU_HAPIConstants.HAPI_ATTRIB_UV : HEU_HAPIConstants.HAPI_ATTRIB_UV + ( i + 1 ) ;
 
 				if ( !HEU_GeneralUtility.GetAttributeInfo( session, GeoID, PartID, uvName, ref _uvsAttrInfo[ i ] ) ||
@@ -1544,9 +1544,9 @@ namespace HoudiniEngineUnity
 			float generateMeshTime = Time.realtimeSinceStartup;
 #endif
 
-			string collisionGroupName             = HEU_PluginSettings.CollisionGroupName ;
-			string renderCollisionGroupName       = HEU_PluginSettings.RenderedCollisionGroupName ;
-			string renderConvexCollisionGroupName = HEU_PluginSettings.RenderedConvexCollisionGroupName ;
+			string? collisionGroupName             = HEU_PluginSettings.CollisionGroupName ;
+			string? renderCollisionGroupName       = HEU_PluginSettings.RenderedCollisionGroupName ;
+			string? renderConvexCollisionGroupName = HEU_PluginSettings.RenderedConvexCollisionGroupName ;
 
 			string lodName = HEU_Defines.HEU_DEFAULT_LOD_NAME ;
 
@@ -1563,7 +1563,7 @@ namespace HoudiniEngineUnity
 			LODGroupMeshes = new List< HEU_GeoGroup >( ) ;
 			HEU_GeoGroup defaultMainLODGroup = null ;
 
-			string defaultMaterialName =
+			string? defaultMaterialName =
 				HEU_MaterialFactory.GenerateDefaultMaterialName( geoCache.GeoID, geoCache.PartID ) ;
 			defaultMaterialKey = HEU_MaterialFactory.MaterialNameToKey( defaultMaterialName ) ;
 
@@ -1573,8 +1573,8 @@ namespace HoudiniEngineUnity
 			// Now go through each group data and acquire the vertex data.
 			// We'll create the collider mesh rightaway and assign to the gameobject.
 			int numCollisionMeshes = 0 ;
-			foreach ( KeyValuePair< string, int[] > groupSplitFacesPair in geoCache._groupSplitVertexIndices ) {
-				string groupName       = groupSplitFacesPair.Key ;
+			foreach ( KeyValuePair< string?, int[] > groupSplitFacesPair in geoCache._groupSplitVertexIndices ) {
+				string? groupName       = groupSplitFacesPair.Key ;
 				int[]  groupVertexList = groupSplitFacesPair.Value ;
 
 				List< int > groupFaces        = geoCache._groupSplitFaceIndices[ groupName ] ;
@@ -1648,7 +1648,7 @@ namespace HoudiniEngineUnity
 
 						bool bSimpleColliderType = false ;
 
-						string groupType = groupName ;
+						string? groupType = groupName ;
 						if ( groupType.StartsWith( HEU_Defines.DEFAULT_SIMPLE_COLLISION_GEO ) ) {
 							groupType =
 								groupType.Substring( groupType.IndexOf( HEU_Defines.DEFAULT_SIMPLE_COLLISION_GEO ) ) ;
@@ -2016,9 +2016,9 @@ namespace HoudiniEngineUnity
 			float generateMeshTime = Time.realtimeSinceStartup;
 #endif
 
-			string collisionGroupName             = HEU_PluginSettings.CollisionGroupName ;
-			string renderCollisionGroupName       = HEU_PluginSettings.RenderedCollisionGroupName ;
-			string renderConvexCollisionGroupName = HEU_PluginSettings.RenderedConvexCollisionGroupName ;
+			string? collisionGroupName             = HEU_PluginSettings.CollisionGroupName ;
+			string? renderCollisionGroupName       = HEU_PluginSettings.RenderedCollisionGroupName ;
+			string? renderConvexCollisionGroupName = HEU_PluginSettings.RenderedConvexCollisionGroupName ;
 
 			string lodName = HEU_Defines.HEU_DEFAULT_LOD_NAME ;
 
@@ -2035,7 +2035,7 @@ namespace HoudiniEngineUnity
 			LODGroupMeshes = new List< HEU_GeoGroup >( ) ;
 			HEU_GeoGroup defaultMainLODGroup = null ;
 
-			string defaultMaterialName =
+			string? defaultMaterialName =
 				HEU_MaterialFactory.GenerateDefaultMaterialName( geoCache.GeoID, geoCache.PartID ) ;
 			defaultMaterialKey = HEU_MaterialFactory.MaterialNameToKey( defaultMaterialName ) ;
 
@@ -2045,8 +2045,8 @@ namespace HoudiniEngineUnity
 			// Now go through each group data and acquire the vertex data.
 			// We'll create the collider mesh rightaway and assign to the gameobject.
 			int numCollisionMeshes = 0 ;
-			foreach ( KeyValuePair< string, int[] > groupSplitFacesPair in geoCache._groupSplitVertexIndices ) {
-				string groupName       = groupSplitFacesPair.Key ;
+			foreach ( KeyValuePair< string?, int[] > groupSplitFacesPair in geoCache._groupSplitVertexIndices ) {
+				string? groupName       = groupSplitFacesPair.Key ;
 				int[]  groupVertexList = groupSplitFacesPair.Value ;
 
 				List< int > groupFaces        = geoCache._groupSplitFaceIndices[ groupName ] ;
@@ -2406,9 +2406,9 @@ namespace HoudiniEngineUnity
 							attrIndex = groupVertexList[ vertexFaceIndex ] ;
 						}
 
-						string unityMaterialName = "" ;
-						string substanceName     = "" ;
-						int    substanceIndex    = -1 ;
+						string? unityMaterialName = "" ;
+						string? substanceName     = "" ;
+						int     substanceIndex    = -1 ;
 						submeshID = GetMaterialKeyFromAttributeIndex( geoCache, attrIndex,
 							out unityMaterialName, out substanceName, out substanceIndex ) ;
 					}

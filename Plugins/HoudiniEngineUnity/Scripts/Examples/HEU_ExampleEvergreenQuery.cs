@@ -64,8 +64,8 @@ public class HEU_ExampleEvergreenQuery
     // Start is called before the first frame update
     public static void StartQuery()
     {
-	string evergreenAssetPath = "Assets/Plugins/HoudiniEngineUnity/HDAs/EverGreen.otl";
-	string evergreenFullPath = HEU_AssetDatabase.GetAssetFullPath(evergreenAssetPath);
+	string? evergreenAssetPath = "Assets/Plugins/HoudiniEngineUnity/HDAs/EverGreen.otl";
+	string? evergreenFullPath  = HEU_AssetDatabase.GetAssetFullPath(evergreenAssetPath);
 	if (string.IsNullOrEmpty(evergreenFullPath))
 	{
 	    HEU_Logger.LogErrorFormat("Unable to load Evergreen asset at path: {0}", evergreenAssetPath);
@@ -332,7 +332,7 @@ public class HEU_ExampleEvergreenQuery
 	    return;
 	}
 
-	string[] attrNames = new string[count];
+	string?[] attrNames = new string[count];
 	if (session.GetAttributeNames(geoID, partID, owner, ref attrNames, count))
 	{
 	    for (int i = 0; i < attrNames.Length; ++i)
@@ -357,8 +357,8 @@ public class HEU_ExampleEvergreenQuery
     /// <param name="partID">The part ID</param>
     /// <param name="attrInfo">A valid HAPI_AttributeInfo represendting the attribute</param>
     /// <param name="attrName">Name of the attribute</param>
-    public static void QueryAttributeByStorageType(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID,
-	    ref HAPI_AttributeInfo attrInfo, string attrName)
+    public static void QueryAttributeByStorageType(HEU_SessionBase session,  HAPI_NodeId geoID, HAPI_PartId partID,
+	    ref HAPI_AttributeInfo                                     attrInfo, string? attrName)
     {
 	// Attribute values are usually accessed as arrays by their data type.
 
@@ -376,7 +376,7 @@ public class HEU_ExampleEvergreenQuery
 	}
 	else if (attrInfo.storage == HAPI_StorageType.HAPI_STORAGETYPE_STRING)
 	{
-	    string[] data = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, attrName, ref attrInfo);
+	    string?[] data = HEU_GeneralUtility.GetAttributeStringData(session, geoID, partID, attrName, ref attrInfo);
 	}
 
 #pragma warning restore 0219
@@ -389,7 +389,7 @@ public class HEU_ExampleEvergreenQuery
     /// <param name="geoName">The SOP geometry name</param>
     /// <param name="partID">The part ID</param>
     /// <param name="attrName">The attribute name</param>
-    public static void QueryAttribute(HEU_HoudiniAsset houdiniAsset, string objName, string geoName, HAPI_PartId partID, string attrName)
+    public static void QueryAttribute(HEU_HoudiniAsset houdiniAsset, string? objName, string? geoName, HAPI_PartId partID, string? attrName)
     {
 	// Get access to the Houdini Engine session used by this asset.
 	// This gives access to call Houdini Engine APIs directly.

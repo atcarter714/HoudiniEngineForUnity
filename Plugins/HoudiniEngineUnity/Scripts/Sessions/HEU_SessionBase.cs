@@ -233,35 +233,35 @@ namespace HoudiniEngineUnity
 		/// <returns>True if session creation succeeded.</returns>
 		public virtual bool CreateInProcessSession( bool bIsDefaultSession ) => false ;
 
-		public virtual bool CreateThriftSocketSession( bool   bIsDefaultSession,
-													   string hostName   = HEU_Defines.HEU_SESSION_LOCALHOST,
-													   int    serverPort = HEU_Defines.HEU_SESSION_PORT,
-													   bool   autoClose  = HEU_Defines.HEU_SESSION_AUTOCLOSE,
-													   float  timeout    = HEU_Defines.HEU_SESSION_TIMEOUT,
-													   bool   bLogError  = true ) => false ;
+		public virtual bool CreateThriftSocketSession( bool    bIsDefaultSession,
+													   string? hostName   = HEU_Defines.HEU_SESSION_LOCALHOST,
+													   int     serverPort = HEU_Defines.HEU_SESSION_PORT,
+													   bool    autoClose  = HEU_Defines.HEU_SESSION_AUTOCLOSE,
+													   float   timeout    = HEU_Defines.HEU_SESSION_TIMEOUT,
+													   bool    bLogError  = true ) => false ;
 
-		public virtual bool CreateThriftPipeSession( bool   bIsDefaultSession,
-													 string pipeName  = HEU_Defines.HEU_SESSION_PIPENAME,
-													 bool   autoClose = HEU_Defines.HEU_SESSION_AUTOCLOSE,
-													 float  timeout   = HEU_Defines.HEU_SESSION_TIMEOUT,
-													 bool   bLogError = true ) => false ;
+		public virtual bool CreateThriftPipeSession( bool    bIsDefaultSession,
+													 string? pipeName  = HEU_Defines.HEU_SESSION_PIPENAME,
+													 bool    autoClose = HEU_Defines.HEU_SESSION_AUTOCLOSE,
+													 float   timeout   = HEU_Defines.HEU_SESSION_TIMEOUT,
+													 bool    bLogError = true ) => false ;
 
 		public virtual bool CreateCustomSession( bool bIsDefaultSession ) => false ;
 
-		public virtual bool ConnectThriftSocketSession( bool   bIsDefaultSession,
-														string hostName       = HEU_Defines.HEU_SESSION_LOCALHOST,
-														int    serverPort     = HEU_Defines.HEU_SESSION_PORT,
-														bool   autoClose      = HEU_Defines.HEU_SESSION_AUTOCLOSE,
-														float  timeout        = HEU_Defines.HEU_SESSION_TIMEOUT,
-														bool   logError       = true,
-														bool   autoInitialize = true ) => false ;
+		public virtual bool ConnectThriftSocketSession( bool    bIsDefaultSession,
+														string? hostName       = HEU_Defines.HEU_SESSION_LOCALHOST,
+														int     serverPort     = HEU_Defines.HEU_SESSION_PORT,
+														bool    autoClose      = HEU_Defines.HEU_SESSION_AUTOCLOSE,
+														float   timeout        = HEU_Defines.HEU_SESSION_TIMEOUT,
+														bool    logError       = true,
+														bool    autoInitialize = true ) => false ;
 
-		public virtual bool ConnectThriftPipeSession( bool   bIsDefaultSession,
-													  string pipeName       = HEU_Defines.HEU_SESSION_PIPENAME,
-													  bool   autoClose      = HEU_Defines.HEU_SESSION_AUTOCLOSE,
-													  float  timeout        = HEU_Defines.HEU_SESSION_TIMEOUT,
-													  bool   logError       = true,
-													  bool   autoInitialize = true ) => false ;
+		public virtual bool ConnectThriftPipeSession( bool    bIsDefaultSession,
+													  string? pipeName       = HEU_Defines.HEU_SESSION_PIPENAME,
+													  bool    autoClose      = HEU_Defines.HEU_SESSION_AUTOCLOSE,
+													  float   timeout        = HEU_Defines.HEU_SESSION_TIMEOUT,
+													  bool    logError       = true,
+													  bool    autoInitialize = true ) => false ;
 
 		/// <summary>
 		/// Close the existing session.
@@ -338,7 +338,7 @@ namespace HoudiniEngineUnity
 		/// <param name="value">String value.</param>
 		public virtual void SetServerEnvString( string name, string value ) { }
 
-		public virtual bool GetServerEnvString( string name, out string value ) {
+		public virtual bool GetServerEnvString( string name, out string? value ) {
 			value = null ;
 			return false ;
 		}
@@ -409,7 +409,7 @@ namespace HoudiniEngineUnity
 		/// <param name="resultString">Container for return value.</param>
 		/// <param name="bufferLength">Length of return value</param>
 		/// <returns>True if it has successfully populated the string value.</returns>
-		public virtual bool GetString( HAPI_StringHandle stringHandle, ref string resultString, int bufferLength ) => false ;
+		public virtual bool GetString( HAPI_StringHandle stringHandle, ref string? resultString, int bufferLength ) => false ;
 
 		/// <summary>
 		/// Returns the length of the string value for the given handle.
@@ -452,7 +452,7 @@ namespace HoudiniEngineUnity
 		/// <param name="bAllowOverwrite">Whether to overwrite an existing matching asset definition</param>
 		/// <param name="libraryID">ID of the asset in the library</param>
 		/// <returns>True if successfully loaded the asset.</returns>
-		public virtual bool LoadAssetLibraryFromFile( string assetPath, bool bAllowOverwrite,
+		public virtual bool LoadAssetLibraryFromFile( string?               assetPath, bool bAllowOverwrite,
 													  out HAPI_StringHandle libraryID ) {
 			libraryID = 0 ;
 			return false ;
@@ -473,8 +473,8 @@ namespace HoudiniEngineUnity
 		/// <param name="bCookOnCreation">Whether should cook on creation or not</param>
 		/// <param name="newNodeID">New node's ID</param>
 		/// <returns>True if successfully created a new node</returns>
-		public virtual bool CreateNode( HAPI_StringHandle parentNodeID, string operatorName, string nodeLabel,
-										bool bCookOnCreation, out HAPI_NodeId newNodeID ) {
+		public virtual bool CreateNode( HAPI_StringHandle parentNodeID,    string? operatorName, string? nodeLabel,
+										bool              bCookOnCreation, out HAPI_NodeId newNodeID ) {
 			newNodeID = -1 ;
 			return false ;
 		}
@@ -601,7 +601,7 @@ namespace HoudiniEngineUnity
 		/// <param name="relativeNodeID">The relative node. Set to -1 to get absolute.</param>
 		/// <param name="path">The returned path string</param>
 		/// <returns>True if successfully queried the node path</returns>
-		public virtual bool GetNodePath( HAPI_NodeId nodeID, HAPI_NodeId relativeNodeID, out string path ) {
+		public virtual bool GetNodePath( HAPI_NodeId nodeID, HAPI_NodeId relativeNodeID, out string? path ) {
 			path = null ;
 			return false ;
 		}
@@ -650,7 +650,7 @@ namespace HoudiniEngineUnity
 		/// <param name="fileName">HIP file path to load</param>
 		/// <param name="bCookOnLoad">True if want to cook on loading instead of manually cook each node</param>
 		/// <returns>True if successfull</returns>
-		public virtual bool LoadHIPFile( string fileName, bool bCookOnLoad ) => false ;
+		public virtual bool LoadHIPFile( string? fileName, bool bCookOnLoad ) => false ;
 
 		/// <summary>
 		/// Save current Houdini session into a HIP file.
@@ -773,7 +773,7 @@ namespace HoudiniEngineUnity
 		/// <param name="owner">Attribute owner</param>
 		/// <param name="attributeInfo">Info to populate</param>
 		/// <returns>True if successfully queried the attribute info</returns>
-		public virtual bool GetAttributeInfo( HAPI_NodeId nodeID, HAPI_PartId partID, string name,
+		public virtual bool GetAttributeInfo( HAPI_NodeId nodeID, HAPI_PartId partID, string? name,
 											  HAPI_AttributeOwner owner, ref HAPI_AttributeInfo attributeInfo ) => false ;
 
 		/// <summary>
@@ -785,10 +785,10 @@ namespace HoudiniEngineUnity
 		/// <param name="attributeNames">Result array of name strings. Must be atleast count size.</param>
 		/// <param name="count">Expected number of attributes. Should be from HAPI_PartInfo.attributeCounts[owner].</param>
 		/// <returns>True if successfully retrieved the names</returns>
-		public virtual bool GetAttributeNames( HAPI_NodeId nodeID, 
-											   HAPI_PartId partID,
+		public virtual bool GetAttributeNames( HAPI_NodeId         nodeID, 
+											   HAPI_PartId         partID,
 											   HAPI_AttributeOwner owner,
-											   ref string[ ] attributeNames, int count ) => false ;
+											   ref string?[]       attributeNames, int count ) => false ;
 
 		/// <summary>
 		/// Get the attribute string data.
@@ -802,7 +802,7 @@ namespace HoudiniEngineUnity
 		/// <param name="length">Must be at least 0 and at most HAPI_AttributeInfo::count - start</param>
 		/// <returns>True if successfully queried the atttribute string data</returns>
 		public virtual bool GetAttributeStringData( HAPI_NodeId nodeID, 
-													HAPI_PartId partID, string name,
+													HAPI_PartId partID, string? name,
 													ref HAPI_AttributeInfo  attributeInfo,
 													[Out] HAPI_StringHandle[] dataArray, int start, int length ) => false ;
 
@@ -817,11 +817,11 @@ namespace HoudiniEngineUnity
 		/// <param name="start">First index of range. Must be at least 0 and at most HAPI_AttributeInfo::count - 1</param>
 		/// <param name="length">Must be at least 0 and at most HAPI_AttributeInfo::count - start.</param>
 		/// <returns>True if successfully queried the atttribute float data</returns>
-		public virtual bool GetAttributeFloatData( HAPI_NodeId            nodeID, HAPI_PartId partID, string name,
+		public virtual bool GetAttributeFloatData( HAPI_NodeId            nodeID, HAPI_PartId partID, string? name,
 												   ref HAPI_AttributeInfo attributeInfo, [Out] float[] data, int start,
 												   int                    length ) => false ;
 
-		public virtual bool GetAttributeFloatArrayData( HAPI_NodeId nodeID, HAPI_PartId partID, string name,
+		public virtual bool GetAttributeFloatArrayData( HAPI_NodeId nodeID, HAPI_PartId partID, string? name,
 														ref HAPI_AttributeInfo attrInfo,
 														ref float[] data, int dataLength, ref int[] sizesArray,
 														int start, int sizesLength ) => false ;
@@ -841,7 +841,7 @@ namespace HoudiniEngineUnity
 		/// <param name="start">First index of range. Must be at least 0 and at most HAPI_AttributeInfo::count - 1</param>
 		/// <param name="length">Must be at least 0 and at most HAPI_AttributeInfo::count - start.</param>
 		/// <returns>True if successfully queried the atttribute int data</returns>
-		public virtual bool GetAttributeIntData( HAPI_NodeId            nodeID,        HAPI_PartId partID, string name,
+		public virtual bool GetAttributeIntData( HAPI_NodeId            nodeID,        HAPI_PartId partID, string? name,
 												 ref HAPI_AttributeInfo attributeInfo, [Out] int[] data,   int    start,
 												 int                    length ) => false ;
 
@@ -983,7 +983,7 @@ namespace HoudiniEngineUnity
 		public virtual bool SetVertexList( HAPI_NodeId nodeID, HAPI_PartId partID, int[] vertexList, int start,
 										   int         length ) => false ;
 
-		public virtual bool SetAttributeIntData( HAPI_NodeId            nodeID, HAPI_PartId partID, string name,
+		public virtual bool SetAttributeIntData( HAPI_NodeId            nodeID, HAPI_PartId partID, string? name,
 												 ref HAPI_AttributeInfo attrInfo,
 												 int[]                  data, int start, int length ) => false ;
 
@@ -999,7 +999,7 @@ namespace HoudiniEngineUnity
 												   ref HAPI_AttributeInfo attrInfo,
 												   HAPI_Int64[]           data, int start, int length ) => false ;
 
-		public virtual bool SetAttributeFloatData( HAPI_NodeId            nodeID, HAPI_PartId partID, string name,
+		public virtual bool SetAttributeFloatData( HAPI_NodeId            nodeID, HAPI_PartId partID, string? name,
 												   ref HAPI_AttributeInfo attrInfo,
 												   float[]                data, int start, int length ) => false ;
 
@@ -1008,12 +1008,12 @@ namespace HoudiniEngineUnity
 														float[] data, int dataLength, int[] sizesArray, int start,
 														int sizesLength ) => false ;
 
-		public virtual bool SetAttributeStringData( HAPI_NodeId nodeID, HAPI_PartId partID,
-													string name, ref HAPI_AttributeInfo attrInfo,
-															string[ ] data, int start, int length ) => false ;
+		public virtual bool SetAttributeStringData( HAPI_NodeId       nodeID, HAPI_PartId partID,
+													string?           name,   ref HAPI_AttributeInfo attrInfo,
+															string?[] data,   int start, int length ) => false ;
 		
-		public virtual bool AddAttribute( HAPI_NodeId nodeID, HAPI_PartId partID,
-										  string name, ref HAPI_AttributeInfo attrInfo ) => false ;
+		public virtual bool AddAttribute( HAPI_NodeId nodeID, HAPI_PartId            partID,
+										  string?     name,   ref HAPI_AttributeInfo attrInfo ) => false ;
 
 		public virtual bool AddGroup( HAPI_NodeId nodeID, 
 									  HAPI_PartId partID, 
@@ -1120,7 +1120,7 @@ namespace HoudiniEngineUnity
 		/// <param name="destinationFilePath">Path to the written image file</param>
 		/// <returns>Returns valid path to written image file, or null if failed</returns>
 		public virtual bool ExtractImageToFile( HAPI_NodeId nodeID, string fileFormat, string imagePlanes,
-												string destinationFolderPath, out string destinationFilePath ) {
+												string?     destinationFolderPath, out string? destinationFilePath ) {
 			destinationFilePath = null ;
 			return false ;
 		}
@@ -1156,7 +1156,7 @@ namespace HoudiniEngineUnity
 
 		public virtual bool GetParamIntValues( HAPI_NodeId nodeID, [Out] int[] values, int start, int length ) => false ;
 
-		public virtual bool GetParamIntValue( HAPI_NodeId nodeID, string parmName, int index, out int value ) {
+		public virtual bool GetParamIntValue( HAPI_NodeId nodeID, string? parmName, int index, out int value ) {
 			value = 0 ;
 			return false ;
 		}
@@ -1178,7 +1178,7 @@ namespace HoudiniEngineUnity
 			return false ;
 		}
 
-		public virtual bool GetParamNodeValue( HAPI_NodeId nodeID, string paramName, out int nodeValue ) {
+		public virtual bool GetParamNodeValue( HAPI_NodeId nodeID, string? paramName, out int nodeValue ) {
 			nodeValue = HEU_Defines.HEU_INVALID_NODE_ID ;
 			return false ;
 		}
@@ -1188,15 +1188,15 @@ namespace HoudiniEngineUnity
 												  int start, int length ) => false ;
 
 		public virtual bool SetParamIntValues( HAPI_NodeId nodeID, ref int[] values, int start, int length ) => false ;
-		public virtual bool SetParamIntValue( HAPI_NodeId nodeID, string paramName, int index, int value ) => false ;
+		public virtual bool SetParamIntValue( HAPI_NodeId  nodeID, string? paramName, int index, int value ) => false ;
 
 		public virtual bool SetParamFloatValues( HAPI_NodeId nodeID, ref float[] values, int start, int length ) => false ;
 		public virtual bool SetParamFloatValue( HAPI_NodeId nodeID, string paramName, int index, float value ) => false ;
 
 		public virtual bool SetParamStringValue( HAPI_NodeId nodeID, string strValue, HAPI_ParmId parmID, int index ) => false ;
-		public virtual bool SetParamStringValue( HAPI_NodeId nodeID, string parmName, string parmValue, int index ) => false ;
+		public virtual bool SetParamStringValue( HAPI_NodeId nodeID, string? parmName, string parmValue, int index ) => false ;
 
-		public virtual bool SetParamNodeValue( HAPI_NodeId nodeID, string paramName, HAPI_NodeId nodeValueID ) => false ;
+		public virtual bool SetParamNodeValue( HAPI_NodeId nodeID, string? paramName, HAPI_NodeId nodeValueID ) => false ;
 		public virtual bool InsertMultiparmInstance( HAPI_NodeId nodeID, HAPI_ParmId parmID, int instancePosition ) => false ;
 
 		public virtual bool RemoveMultiParmInstance( HAPI_NodeId nodeID, HAPI_ParmId parmID, int instancePosition ) => false ;
@@ -1205,13 +1205,13 @@ namespace HoudiniEngineUnity
 		public virtual bool RevertParmToDefault( HAPI_NodeId nodeID, string parm_name, int index ) => false ;
 		public virtual bool RevertParmToDefaults( HAPI_NodeId nodeID, string parm_name ) => false ;
 
-		public virtual bool GetParmIDFromName( HAPI_NodeId nodeID, string parmName, out HAPI_ParmId parmID ) {
+		public virtual bool GetParmIDFromName( HAPI_NodeId nodeID, string? parmName, out HAPI_ParmId parmID ) {
 			parmID = HEU_HAPIConstants.HAPI_INVALID_PARM_ID ;
 			return false ;
 		}
 
-		public virtual bool GetParmStringValue( HAPI_NodeId nodeID, string parmName, 
-												int index, bool evaluate,
+		public virtual bool GetParmStringValue( HAPI_NodeId           nodeID, string? parmName, 
+												int                   index,  bool    evaluate,
 												out HAPI_StringHandle value ) {
 			value = 0 ;
 			return false ;
@@ -1219,12 +1219,12 @@ namespace HoudiniEngineUnity
 
 		// INPUT NODES ------------------------------------------------------------------------------------------------
 
-		public virtual bool CreateInputNode( out HAPI_NodeId nodeID, string name ) {
+		public virtual bool CreateInputNode( out HAPI_NodeId nodeID, string? name ) {
 			nodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 			return false ;
 		}
 
-		public virtual bool CreateInputCurveNode( out HAPI_NodeId nodeID, string name ) {
+		public virtual bool CreateInputCurveNode( out HAPI_NodeId nodeID, string? name ) {
 			nodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 			return false ;
 		}
@@ -1241,7 +1241,7 @@ namespace HoudiniEngineUnity
 		}
 
 		public virtual bool CreateHeightfieldInputVolumeNode( HAPI_NodeId parentNodeID, out HAPI_NodeId newNodeID,
-															  string name, int xSize, int ySize, float voxelSize ) {
+															  string? name, int xSize, int ySize, float voxelSize ) {
 			newNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 			return false ;
 		}
@@ -1293,8 +1293,8 @@ namespace HoudiniEngineUnity
 			return false ;
 		}
 
-		public virtual bool SetHeightFieldData( HAPI_NodeId nodeID, HAPI_PartId partID, string name,
-												float[ ] valuesArray, int start, int length ) => false ;
+		public virtual bool SetHeightFieldData( HAPI_NodeId nodeID,      HAPI_PartId partID, string? name,
+												float[ ]    valuesArray, int         start,  int     length ) => false ;
 
 		// CACHING ----------------------------------------------------------------------------------------------------
 
@@ -1312,11 +1312,11 @@ namespace HoudiniEngineUnity
 		}
 
 		public virtual bool SetCacheProperty( string cacheName, HAPI_CacheProperty cacheProperty, int propertyValue ) => false ;
-		public virtual bool SaveGeoToFile( HAPI_NodeId nodeID, string fileName ) => false ;
+		public virtual bool SaveGeoToFile( HAPI_NodeId nodeID, string? fileName ) => false ;
 		public virtual bool LoadGeoFromFile( HAPI_NodeId nodeID, string file_name ) => false ;
 		public virtual bool SaveNodeToFile( HAPI_NodeId nodeID, string fileName ) => false ;
 
-		public virtual bool LoadNodeFromFile( string file_name, HAPI_NodeId parentNodeID, string nodeLabel,
+		public virtual bool LoadNodeFromFile( string file_name,    HAPI_NodeId     parentNodeID, string? nodeLabel,
 											  bool   cook_on_load, out HAPI_NodeId newNodeID ) {
 			newNodeID = -1 ;
 			return false ;

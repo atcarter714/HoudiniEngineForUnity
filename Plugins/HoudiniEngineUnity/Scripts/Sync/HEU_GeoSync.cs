@@ -67,7 +67,7 @@ namespace HoudiniEngineUnity
 
 	#region DATA
 
-	public string _filePath = "";
+	public string? _filePath = "";
 
 	#endregion
     }

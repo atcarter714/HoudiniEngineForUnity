@@ -35,7 +35,7 @@ namespace HoudiniEngineUnity
     /// </summary>
     public class HEU_GeoGroup : IComparable<HEU_GeoGroup>
     {
-	public string _groupName;
+	public string? _groupName;
 
 	// The submeshes that are part of this group, with their mesh ID (material)
 	public Dictionary<int, HEU_MeshData> _subMeshesMap = new Dictionary<int, HEU_MeshData>();

@@ -196,7 +196,7 @@ namespace HoudiniEngineUnity
 		EditorGUI.indentLevel++;
 		if (_sessionMode == SessionMode.Pipe)
 		{
-		    string newPipeName = EditorGUILayout.DelayedTextField("Pipe Name", _pipeName);
+		    string? newPipeName = EditorGUILayout.DelayedTextField("Pipe Name", _pipeName);
 		    if (_pipeName != newPipeName)
 		    {
 			HEU_PluginSettings.Session_PipeName = newPipeName;
@@ -373,9 +373,9 @@ namespace HoudiniEngineUnity
 	/// Helper to connect to a running instance of Houdini with SessionSync enabled.
 	/// </summary>
 	bool InternalConnect(
-	    SessionMode sessionType, string pipeName, 
-	    string ip, int port, bool autoClose, float timeout, 
-	    bool logError)
+	    SessionMode sessionType, string? pipeName, 
+	    string?     ip,          int     port, bool autoClose, float timeout, 
+	    bool        logError)
 	{
 	    if (sessionType == SessionMode.Pipe)
 	    {
@@ -792,7 +792,7 @@ namespace HoudiniEngineUnity
 	/// <summary>
 	/// Create a new Curve SOP with given name.
 	/// </summary>
-	void CreateCurve(string name)
+	void CreateCurve(string? name)
 	{
 	    GameObject newCurveGO = HEU_HAPIUtility.CreateNewCurveAsset(name: name);
 	    if (newCurveGO != null)
@@ -805,7 +805,7 @@ namespace HoudiniEngineUnity
 	/// <summary>
 	/// Create a new Input SOP with given name.
 	/// </summary>
-	void CreateInput(string name)
+	void CreateInput(string? name)
 	{
 	    GameObject newCurveGO = HEU_HAPIUtility.CreateNewInputAsset(name: name);
 	    if (newCurveGO != null)
@@ -831,7 +831,7 @@ namespace HoudiniEngineUnity
 	/// <summary>
 	/// Show the Load NodeSync dialog for loading a NodeSync saved file.
 	/// </summary>
-	void LoadNodeSyncDialog(string name)
+	void LoadNodeSyncDialog(string? name)
 	{
 	    string fileName = "untitled.hess";
 	    string filePattern = "hess";
@@ -847,7 +847,7 @@ namespace HoudiniEngineUnity
 	/// </summary>
 	/// <param name="filePath">Path to the NodeSync file</param>
 	/// <param name="name">Name of the NodeSync node</param>
-	void CreateNodeSyncFromFile(string filePath, string name)
+	void CreateNodeSyncFromFile(string filePath, string? name)
 	{
 	    HEU_SessionBase session = HEU_SessionManager.GetDefaultSession();
 	    if (session == null || !session.IsSessionValid())
@@ -856,8 +856,8 @@ namespace HoudiniEngineUnity
 	    }
 
 	    HAPI_NodeId parentNodeID = -1;
-	    string nodeName = name;
-	    HAPI_NodeId newNodeID = -1;
+	    string?     nodeName     = name;
+	    HAPI_NodeId newNodeID    = -1;
 
 	    // This loads the node network from file, and returns the node that was created
 	    // with newNodeID. It is either a SOP object, or a subnet object.
@@ -929,7 +929,7 @@ namespace HoudiniEngineUnity
 	public int _port = 0;
 
 	// Pipe name
-	public string _pipeName = "";
+	public string? _pipeName = "";
 
 	// Seconds between connection attempts while Houdini launches
 	const float CONNECTION_ATTEMPT_RATE = 5f;
@@ -942,7 +942,7 @@ namespace HoudiniEngineUnity
 	private StringBuilder _log = new StringBuilder();
 
 	// Operator names for creating new nodes
-	private string[] _nodeTypes =
+	private string?[] _nodeTypes =
 	{
 	    "SOP/output",
 	    "Object/subnet",
