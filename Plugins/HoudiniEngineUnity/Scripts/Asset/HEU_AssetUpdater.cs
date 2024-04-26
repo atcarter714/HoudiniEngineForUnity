@@ -63,19 +63,16 @@ namespace HoudiniEngineUnity {
 		static HEU_AssetUpdater( ) {
 #if UNITY_EDITOR && HOUDINIENGINEUNITY_ENABLED
 			EditorApplication.update += Update ;
-
 			AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload ;
-
 #if UNITY_2017_1_OR_NEWER
 			PrefabUtility.prefabInstanceUpdated += OnPrefabInstanceUpdate ;
 #endif
-
 #endif
 		}
 
 		static void OnBeforeAssemblyReload( ) {
-			HEU_Logger.Log( $"{nameof( HEU_AssetUpdater )}.{nameof( OnBeforeAssemblyReload )} :: " +
-							$"Rebuilding assemblies ..." ) ;
+			HEU_Logger.Log( "HEU :: Rebuilding C# assemblies ..." ) ;
+			
 			// Save the session before code domain reload so
 			// that the session file has the latest session state.
 			HEU_SessionManager.SaveAllSessionData( ) ;
@@ -151,11 +148,11 @@ namespace HoudiniEngineUnity {
 #if UNITY_EDITOR && HOUDINIENGINEUNITY_ENABLED && UNITY_2017_1_OR_NEWER
 
 			var heu_root = instance.GetComponent< HEU_HoudiniAssetRoot >( ) ;
-			if ( heu_root is not { _houdiniAsset: not null }
+			if ( heu_root is not { _houdiniAsset: not null, }
 				 || ( !HEU_EditorUtility.IsPrefabInstance( instance )
 					  && !HEU_EditorUtility.IsPrefabAsset( instance ) )
-				 || heu_root._houdiniAsset.WarnedPrefabNotSupported ) return ;
-
+						|| heu_root._houdiniAsset.WarnedPrefabNotSupported ) return ;
+			
 			string? prefabPath = HEU_EditorUtility.GetPrefabAssetPath( instance ) ;
 			const string title = HEU_Defines.HEU_PRODUCT_NAME + " Prefabs Not Supported" ;
 			string message =
