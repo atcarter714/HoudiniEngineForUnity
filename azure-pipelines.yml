@@ -1,0 +1,18 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- Houdini20.0
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- script: echo Houdini 20.X branch updated ...
+  displayName: 'Show Alert Message'
+
+- pwsh: |
+    Write-Host "Starting Arkaen Dev-Ops processor for Houdini Engine Unity ..."
+  displayName: 'Display Startup Message'
