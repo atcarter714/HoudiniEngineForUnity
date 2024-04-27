@@ -75,7 +75,7 @@ public class HEU_ExampleEvergreenQuery
         // Always need a Houdini Engine session in order to use the APIs.
         // This call will create a new session if one does not exist, or continue using
         // an existing session.
-        HEU_SessionBase session = HEU_SessionManager.GetOrCreateDefaultSession();
+        HEU_SessionBase? session = HEU_SessionManager.GetOrCreateDefaultSession();
 
         // Load the Evergreen HDA into the Houdini Engine session, as well as the Unity scene.
         // This gives back the root gameobject of the generated HDA hiearchy in Unity.

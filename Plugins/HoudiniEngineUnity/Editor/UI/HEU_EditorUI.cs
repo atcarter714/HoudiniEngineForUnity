@@ -192,7 +192,7 @@ namespace HoudiniEngineUnity
             return bNewValue;
         }
 
-        private static GUIStyle _windowStyle;
+        static GUIStyle _windowStyle;
 
         public static GUIStyle GetWindowStyle()
         {
@@ -237,7 +237,7 @@ namespace HoudiniEngineUnity
             return _windowStyle;
         }
 
-        private static GUIStyle _sectionStyle;
+        static GUIStyle _sectionStyle;
 
         public static GUIStyle GetSectionStyle()
         {

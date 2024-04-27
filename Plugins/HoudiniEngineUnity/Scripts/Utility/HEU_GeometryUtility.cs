@@ -28,9 +28,7 @@
 #define HOUDINIENGINEUNITY_ENABLED
 #endif
 
-using System.Text;
 using UnityEngine;
-using System.Collections.Generic;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -41,10 +39,7 @@ namespace HoudiniEngineUnity
 {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Typedefs (copy these from HEU_Common.cs)
-    using HAPI_NodeId = System.Int32;
-    using HAPI_PartId = System.Int32;
-
-    /// <summary>
+	/// <summary>
     /// Geometry-specific utility functions.
     /// </summary>
     public static class HEU_GeometryUtility

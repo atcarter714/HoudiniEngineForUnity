@@ -35,16 +35,12 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("HoudiniEngineUnityPlayModeTests")]
 #endif
 
-namespace HoudiniEngineUnity
-{
-	// Where the material originated from
-    public enum HEU_MaterialSourceWrapper {
-        DEFAULT,
-        HOUDINI,
-        UNITY,
-        SUBSTANCE,
-    } ;
-
+namespace HoudiniEngineUnity {
+	
+	/// <summary>Describes the source of the material</summary>
+    public enum HEU_MaterialSourceWrapper { DEFAULT, HOUDINI, UNITY, SUBSTANCE, } ;
+	
+	
 	/// <summary>
 	/// Holds all parameter data for an asset.
 	/// </summary>
@@ -71,14 +67,6 @@ namespace HoudiniEngineUnity
 		/// </summary>
 		int MaterialKey { get ; set ; }
 
-        /// <summary>
-        /// For this object's _material, we update the shader attributes and 
-        /// fetch the textures from Houdini.
-        /// </summary>
-        /// <param name="materialInfo">This material's info from Houdini</param>
-        /// <param name="assetCacheFolderPath">Path to asset's cache folder</param>
-        bool UpdateMaterialFromHoudini(HAPI_MaterialInfo materialInfo, string assetCacheFolderPath);
-
 		/// <summary>
 		/// For this object's _material, we update the shader attributes and 
 		/// fetch the textures from Houdini.
@@ -86,7 +74,6 @@ namespace HoudiniEngineUnity
 		/// <param name="materialInfo">This material's info from Houdini</param>
 		/// <param name="assetCacheFolderPath">Path to asset's cache folder</param>
 		bool UpdateMaterialFromHoudini( HAPI_MaterialInfo materialInfo, string? assetCacheFolderPath ) ;
-
 
 		/// <summary>
 		/// Returns true if this material was pre-existing in Unity and not generated from Houdini at cook time.

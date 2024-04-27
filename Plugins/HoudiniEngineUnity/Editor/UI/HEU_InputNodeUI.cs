@@ -36,23 +36,23 @@ namespace HoudiniEngineUnity
     /// </summary>
     public static class HEU_InputNodeUI
     {
-        private static GUIContent _meshExportCollidersContent =
+        static GUIContent _meshExportCollidersContent =
             new GUIContent("Export colliders", "If checked, will export colliders on the object.");
 
-        private static GUIContent _tilemapCreateGroupsContent = new GUIContent("Create Groups for Tiles",
-            "If checked, will create a point group for each kind of tile using its tile name. If unchecked, will create a point string attribute instead.");
+        static GUIContent _tilemapCreateGroupsContent = new GUIContent("Create Groups for Tiles",
+                                                                       "If checked, will create a point group for each kind of tile using its tile name. If unchecked, will create a point string attribute instead.");
 
-        private static GUIContent _tilemapExportUnusedTilesContent =
+        static GUIContent _tilemapExportUnusedTilesContent =
             new GUIContent("Keep Unused Tiles", "If checked, will create a point for an empty tile");
 
-        private static GUIContent _tilemapColorContent =
+        static GUIContent _tilemapColorContent =
             new GUIContent("Apply Tile color", "If checked, will output a Cd color attribute to point.");
 
-        private static GUIContent _tilemapOrientationContent = new GUIContent("Apply Tilemap Orientation",
-            "If checked, will offset position by the tilemap position offset, and produce orient/pscale attributes to the points.");
+        static GUIContent _tilemapOrientationContent = new GUIContent("Apply Tilemap Orientation",
+                                                                      "If checked, will offset position by the tilemap position offset, and produce orient/pscale attributes to the points.");
 
-        private static GUIContent _samplingResolutionContent = new GUIContent("Unity Spline Resolution",
-            "Resolution used when marshalling Unity Splines to Houdini Engine (step in m between control points). Set this to 0 to only export the control points.");
+        static GUIContent _samplingResolutionContent = new GUIContent("Unity Spline Resolution",
+                                                                      "Resolution used when marshalling Unity Splines to Houdini Engine (step in m between control points). Set this to 0 to only export the control points.");
 
         /// <summary>
         /// Populate the UI cache for the given input node
@@ -547,7 +547,7 @@ The UNITY_MESH type can accept any GameObject (Including Terrain, HEU_BoundingVo
             inputNode.ClearUICache();
         }
 
-        private static void DrawSelectionWindow(HEU_InputNode.InputObjectType inputObjectType, HEU_InputNode inputNode)
+        static void DrawSelectionWindow(HEU_InputNode.InputObjectType inputObjectType, HEU_InputNode inputNode)
         {
             using (var hs1 = new EditorGUILayout.HorizontalScope())
             {
@@ -682,7 +682,7 @@ The UNITY_MESH type can accept any GameObject (Including Terrain, HEU_BoundingVo
             }
         }
 
-        private static void SetInspectorLock(bool set)
+        static void SetInspectorLock(bool set)
         {
             ActiveEditorTracker.sharedTracker.isLocked = set;
             ActiveEditorTracker.sharedTracker.ForceRebuild();

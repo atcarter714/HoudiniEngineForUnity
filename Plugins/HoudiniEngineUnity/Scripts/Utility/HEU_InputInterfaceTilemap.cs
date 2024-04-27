@@ -26,9 +26,7 @@
 
 // Special thanks to rendereverything for helping to write this input interface.
 
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -51,7 +49,7 @@ namespace HoudiniEngineUnity
 
     public class HEU_InputInterfaceTilemap : HEU_InputInterface
     {
-        private HEU_InputInterfaceTilemapSettings settings;
+        HEU_InputInterfaceTilemapSettings settings;
 
 
 #if UNITY_EDITOR
@@ -61,14 +59,14 @@ namespace HoudiniEngineUnity
         /// </summary>
         [InitializeOnLoadMethod]
         [UnityEditor.Callbacks.DidReloadScripts]
-        private static void OnScriptsReloaded()
+        static void OnScriptsReloaded()
         {
             HEU_InputInterfaceTilemap inputInterface = new HEU_InputInterfaceTilemap();
             HEU_InputUtility.RegisterInputInterface(inputInterface);
         }
 #endif
 
-        private HEU_InputInterfaceTilemap() : base(priority: DEFAULT_PRIORITY)
+        HEU_InputInterfaceTilemap() : base(priority: DEFAULT_PRIORITY)
         {
         }
 
@@ -94,13 +92,9 @@ namespace HoudiniEngineUnity
 
             HEU_InputDataTilemap inputTilemap = GenerateTilemapDataFromGameObject(inputObject);
 
-            string inputName = null;
-            HAPI_NodeId newNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
-            session.CreateInputNode(out newNodeID, inputName);
-
-	    string? inputName = null;
-	    HAPI_NodeId newNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
-	    session.CreateInputNode( out newNodeID, inputName );
+	        string? inputName = null;
+	        HAPI_NodeId newNodeID = HEU_Defines.HEU_INVALID_NODE_ID;
+	        session.CreateInputNode( out newNodeID, inputName );
 
             inputNodeID = newNodeID;
             if (!session.CookNode(inputNodeID, false))
@@ -123,7 +117,7 @@ namespace HoudiniEngineUnity
             return false;
         }
 
-        private bool UploadData(HEU_SessionBase session, HAPI_NodeId inputNodeID, HEU_InputData inputData)
+        bool UploadData(HEU_SessionBase session, HAPI_NodeId inputNodeID, HEU_InputData inputData)
         {
             if (settings == null)
             {

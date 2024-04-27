@@ -7,14 +7,14 @@ namespace HoudiniEngineUnity
 {
     public class HEU_CookLogsWindow : EditorWindow
     {
-        private HEU_OutputLogUIComponent _outputLogUIComponent = null;
+        HEU_OutputLogUIComponent _outputLogUIComponent = null;
 
-        private GUIContent _titleContent = new GUIContent("Cook Log", "Cook logs displayed here");
+        GUIContent _titleContent = new GUIContent("Cook Log", "Cook logs displayed here");
 
-        private const float _bottomPadding = 75;
+        const float _bottomPadding = 75;
 
         [MenuItem("HoudiniEngine/Cook Progress Logs")]
-        private static void Init()
+        static void Init()
         {
             bool bUtility = false;
             bool bFocus = false;
@@ -29,7 +29,7 @@ namespace HoudiniEngineUnity
             window.minSize = new Vector2(300, 150);
         }
 
-        private void SetupUI()
+        void SetupUI()
         {
             if (_outputLogUIComponent == null)
             {
@@ -39,7 +39,7 @@ namespace HoudiniEngineUnity
             _outputLogUIComponent.SetupUI();
         }
 
-        private void OnGUI()
+        void OnGUI()
         {
             HEU_SessionBase sessionBase = HEU_SessionManager.GetDefaultSession();
 
@@ -64,12 +64,12 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void OnClearLog()
+        void OnClearLog()
         {
             HEU_CookLogs.Instance.ClearCookLog();
         }
 
-        private void OnInspectorUpdate()
+        void OnInspectorUpdate()
         {
             if (HEU_PluginSettings.WriteCookLogs)
             {

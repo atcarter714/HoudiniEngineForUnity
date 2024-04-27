@@ -158,9 +158,6 @@ namespace HoudiniEngineUnity
 		// This holds node IDs of input nodes that are created for uploading mesh data
 		[SerializeField] List< HAPI_NodeId > _inputObjectsConnectedAssetIDs = new( ) ;
 
-        // This holds node IDs of input nodes that are created for uploading mesh data
-        [SerializeField] private List<HAPI_NodeId> _inputObjectsConnectedAssetIDs = new List<HAPI_NodeId>();
-
 #pragma warning disable 0414
 		// [DEPRECATED: replaced with _inputAssetInfos]
 		// Asset input: external reference used for UI
@@ -202,10 +199,10 @@ namespace HoudiniEngineUnity
 		//! Enabling Keep World Transform by default to keep consistent with other plugins
 		
 
-		[SerializeField] bool _packGeometryBeforeMerging ;
-		[SerializeField] HEU_HoudiniAsset _parentAsset ;
+		[SerializeField] bool              _packGeometryBeforeMerging ;
+		[SerializeField] HEU_HoudiniAsset? _parentAsset ;
 		
-        public enum InputActions { ACTION, DELETE, INSERT, }
+        //public enum InputActions { ACTION, DELETE, INSERT, }
 
 
 		// Input Specific settings
@@ -492,9 +489,10 @@ namespace HoudiniEngineUnity
 			if ( session is not null )
 				LoadPreset( session, inputPreset ) ;
 		}
-
+		
 		/// <inheritdoc />
-		public void PopulateInputPreset( HEU_InputPreset inputPreset ) {
+		public void PopulateInputPreset( HEU_InputPreset inputPreset,
+										 bool sceneRelativeGameObjects = false ) {
 			inputPreset._inputObjectType = _inputObjectType ;
 
 			// Deprecated and replaced with _inputAssetPresets. Leaving it in for backwards compatibility.

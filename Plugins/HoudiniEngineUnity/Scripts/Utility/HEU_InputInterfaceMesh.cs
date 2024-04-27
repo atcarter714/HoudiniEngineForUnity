@@ -24,30 +24,27 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 #if UNITY_EDITOR
-using UnityEditor;
+using UnityEditor ;
 #endif
+using System ;
+using System.Collections.Generic ;
+using UnityEditor.Callbacks ;
+using UnityEngine ;
+
+// Typedefs (copy these from HEU_Common.cs)
+using HAPI_NodeId = System.Int32 ;
 
 
-namespace HoudiniEngineUnity
-{
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Typedefs (copy these from HEU_Common.cs)
-	using HAPI_NodeId = System.Int32 ;
+namespace HoudiniEngineUnity {
 
-	[System.Serializable]
-	public class HEU_InputInterfaceMeshSettings
-	{
+	[Serializable] public class HEU_InputInterfaceMeshSettings {
+		[SerializeField] bool _exportColliders ;
+		
 		public bool ExportColliders {
-			get { return _exportColliders ; }
-			set { _exportColliders = value ; }
+			get => _exportColliders ;
+			set => _exportColliders = value ;
 		}
-
-		[SerializeField] bool _exportColliders = false ;
 	} ;
 
 
@@ -57,26 +54,25 @@ namespace HoudiniEngineUnity
 	/// It derives from the HEU_InputInterface and registers with HEU_InputUtility so that it
 	/// can be used automatically when uploading mesh data.
 	/// </summary>
-	public class HEU_InputInterfaceMesh: HEU_InputInterface
-	{
+	public class HEU_InputInterfaceMesh: HEU_InputInterface {
 #if UNITY_EDITOR
 		/// <summary>
 		/// Registers this input inteface for Unity meshes on
 		/// the callback after scripts are reloaded in Unity.
 		/// </summary>
 		[InitializeOnLoadMethod]
-		[UnityEditor.Callbacks.DidReloadScripts]
+		[DidReloadScripts]
 		static void OnScriptsReloaded( ) {
 			HEU_InputInterfaceMesh inputInterface = new( ) ;
 			HEU_InputUtility.RegisterInputInterface( inputInterface ) ;
 		}
 #endif
 
-		HEU_InputInterfaceMeshSettings _settings ;
+		HEU_InputInterfaceMeshSettings? _settings ;
 
 		HEU_InputInterfaceMesh( ): base( priority: DEFAULT_PRIORITY ) { }
 
-		public void Initialize( HEU_InputInterfaceMeshSettings settings ) => this._settings = settings ;
+		public void Initialize( HEU_InputInterfaceMeshSettings settings ) => _settings = settings ;
 
 		/// <summary>
 		/// Creates a mesh input node and uploads the mesh data from inputObject.
@@ -121,8 +117,7 @@ namespace HoudiniEngineUnity
 				return false ;
 			}
 
-			bool createMergeNode = false ;
-			HAPI_NodeId mergeNodeId = HEU_Defines.HEU_INVALID_NODE_ID ;
+			bool        createMergeNode = false ;
 
 			if ( bExportColliders ) {
 				createMergeNode = true ;
@@ -134,7 +129,7 @@ namespace HoudiniEngineUnity
 
 			HAPI_NodeId parentId = HEU_HAPIUtility.GetParentNodeID( session, newNodeID ) ;
 
-			if ( !session.CreateNode( parentId, "merge", null, false, out mergeNodeId ) ) {
+			if ( !session.CreateNode( parentId, "merge", null, false, out HAPI_NodeId mergeNodeId ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create merge SOP node for connecting input assets." ) ;
 				return false ;
 			}
@@ -180,53 +175,54 @@ namespace HoudiniEngineUnity
 		/// <param name="inputData">Container of the mesh geometry</param>
 		/// <returns>True if successfully uploaded data</returns>
 		public bool UploadData( HEU_SessionBase session, HAPI_NodeId inputNodeID, HEU_InputData inputData ) {
-			HEU_InputDataMeshes inputDataMeshes = inputData as HEU_InputDataMeshes ;
-			if ( inputDataMeshes == null ) {
+			if ( inputData is not HEU_InputDataMeshes inputDataMeshes ) {
 				HEU_Logger.LogError( "Expected HEU_InputDataMeshes type for inputData, but received unsupported type." ) ;
 				return false ;
 			}
 
-			List< Vector3 > vertices = new( ) ;
-			List< Vector3 > normals  = new( ) ;
-			List< Color >   colors   = new( ) ;
+			List< Vector3 >? vertices = new( ) ;
+			List< Vector3 >? normals = new( ) ;
+			List< Color >? colors = new( ) ;
 
 #if UNITY_2018_2_OR_NEWER
 			const int NumUVSets = 8 ;
 #else
-	    const int NumUVSets = 4;
+			const int NumUVSets = 4 ;
 #endif
-			List< Vector3 >[] uvs = new List< Vector3 >[ NumUVSets ] ;
-			for ( int u = 0; u < NumUVSets; ++u ) {
-				uvs[ u ] = new List< Vector3 >( ) ;
-			}
+			var uvs = new List< Vector3 >[ NumUVSets ] ;
+			for ( int u = 0; u < NumUVSets; ++u )
+				uvs[ u ] = new( ) ;
 
 			// Use tempUVs to help with reindexing
-			List< Vector3 >[] tempUVs = new List< Vector3 >[ NumUVSets ] ;
-			for ( int u = 0; u < NumUVSets; ++u ) {
-				tempUVs[ u ] = new List< Vector3 >( ) ;
-			}
+			var tempUVs = new List< Vector3 >[ NumUVSets ] ;
+			for ( int u = 0; u < NumUVSets; ++u )
+				tempUVs[ u ] = new( ) ;
 
 			List< int > pointIndexList = new( ) ;
 			List< int > vertIndexList  = new( ) ;
 
 			int numMaterials = 0 ;
-
 			int numMeshes = inputDataMeshes._inputMeshes.Count ;
 
 			// Get the parent's world transform, so when there are multiple child meshes,
 			// can merge and apply their local transform after subtracting their parent's world transform
 			Matrix4x4 rootInvertTransformMatrix = Matrix4x4.identity ;
-			if ( numMeshes > 1 ) {
-				rootInvertTransformMatrix = inputDataMeshes._inputObject.transform.worldToLocalMatrix ;
-			}
+			
+			if ( numMeshes > 1 ) 
+				rootInvertTransformMatrix =
+					inputDataMeshes._inputObject.transform.worldToLocalMatrix ;
 
+			if ( !inputDataMeshes._inputMeshes[ 0 ]._mesh ) {
+				HEU_Logger.LogError( "No mesh found in input data!" ) ;
+				return false ;
+			}
+			
 			// Always using the first submesh topology. This doesn't support mixed topology (triangles and quads).
-			MeshTopology meshTopology = inputDataMeshes._inputMeshes[ 0 ]._mesh.GetTopology( 0 ) ;
-
+			MeshTopology meshTopology = inputDataMeshes._inputMeshes[ 0 ]._mesh!.GetTopology( 0 ) ;
+			
 			int numVertsPerFace = 3 ;
-			if ( meshTopology == MeshTopology.Quads ) {
+			if ( meshTopology is MeshTopology.Quads )
 				numVertsPerFace = 4 ;
-			}
 
 			// For all meshes:
 			// Accumulate vertices, normals, uvs, colors, and indices.
@@ -234,84 +230,99 @@ namespace HoudiniEngineUnity
 			// Find shared vertices, and use unique set of vertices to use as point positions.
 			// Need to reindex indices for both unique vertices, as well as vertex attributes.
 			for ( int i = 0; i < numMeshes; ++i ) {
-				Vector3[] meshVertices = inputDataMeshes._inputMeshes[ i ]._mesh.vertices ;
+				var next = inputDataMeshes._inputMeshes[ i ] ;
+				if ( next is null || !next._transform || !next._mesh ) {
+					HEU_Logger.LogError( "No mesh found in input data!" ) ;
+					continue ;
+				}
+				Vector3[ ] meshVertices = next!._mesh!.vertices ;
 				Matrix4x4 localToWorld = rootInvertTransformMatrix *
-										 inputDataMeshes._inputMeshes[ i ]._transform.localToWorldMatrix ;
+										 next._transform!.localToWorldMatrix ;
 
 				List< Vector3 > uniqueVertices = new( ) ;
 
 				// Keep track of old vertex positions (old vertex slot points to new unique vertex slot)
-				int[]                      reindexVertices = new int[ meshVertices.Length ] ;
-				Dictionary< Vector3, int > reindexMap      = new( ) ;
+				int[ ] reindexVertices = new int[ meshVertices.Length ] ;
+				Dictionary< Vector3, int > reindexMap = new( ) ;
 
 				// For each vertex, check against subsequent vertices for shared positions.
 				for ( int a = 0; a < meshVertices.Length; ++a ) {
 					Vector3 va = meshVertices[ a ] ;
 
 					if ( !reindexMap.ContainsKey( va ) ) {
-						if ( numMeshes > 1 && !inputDataMeshes._hasLOD ) {
-							// For multiple meshes that are not LODs, apply local transform on vertices to get the merged mesh.
+						//! For multiple meshes that are not LODs, apply local
+						//! transform on vertices to get the merged mesh ...
+						if ( numMeshes > 1 && !inputDataMeshes._hasLOD )
 							uniqueVertices.Add( localToWorld.MultiplyPoint( va ) ) ;
-						}
-						else {
+						else
 							uniqueVertices.Add( va ) ;
-						}
 
 						// Reindex to point to unique vertex slot
 						reindexVertices[ a ] = uniqueVertices.Count - 1 ;
-						reindexMap[ va ]     = uniqueVertices.Count - 1 ;
+						reindexMap[ va ] = uniqueVertices.Count - 1 ;
 					}
-					else {
-						reindexVertices[ a ] = reindexMap[ va ] ;
-					}
+					else reindexVertices[ a ] = reindexMap[ va ] ;
 				}
 
 				int vertexOffset = vertices.Count ;
 				vertices.AddRange( uniqueVertices ) ;
-
-				Vector3[] meshNormals = inputDataMeshes._inputMeshes[ i ]._mesh.normals ;
-				Color[]   meshColors  = inputDataMeshes._inputMeshes[ i ]._mesh.colors ;
+				Vector3[ ] meshNormals = next._mesh.normals ;
+				Color[ ] meshColors  = next._mesh.colors ;
 
 				// This is really silly. mesh.GetUVs gives uvs regardless if they exist or not (makes duplicates of
 				// first uv if they don't exist), but mesh.uv* gives correct UVs, but in Vector2 format.
 				// Since we need to convert to Vector3 later, this checks mesh.uv*, then uses mesh.GetUVs to get in Vector3.
 				// Note skipping uv1 as its internally used (i.e. the 2nd uv set is uv2)
 				int uindex = 0 ;
-				GetUVsFromMesh( inputDataMeshes._inputMeshes[ i ]._mesh, inputDataMeshes._inputMeshes[ i ]._mesh.uv,
+				GetUVsFromMesh( next._mesh,
+								next._mesh.uv,
 								tempUVs[ 0 ], uindex++ ) ;
-				GetUVsFromMesh( inputDataMeshes._inputMeshes[ i ]._mesh, inputDataMeshes._inputMeshes[ i ]._mesh.uv2,
+				GetUVsFromMesh( next._mesh,
+								next._mesh.uv2,
 								tempUVs[ 1 ], uindex++ ) ;
-				GetUVsFromMesh( inputDataMeshes._inputMeshes[ i ]._mesh, inputDataMeshes._inputMeshes[ i ]._mesh.uv3,
+				GetUVsFromMesh( next._mesh,
+								next._mesh.uv3,
 								tempUVs[ 2 ], uindex++ ) ;
-				GetUVsFromMesh( inputDataMeshes._inputMeshes[ i ]._mesh, inputDataMeshes._inputMeshes[ i ]._mesh.uv4,
+				GetUVsFromMesh( next._mesh,
+								next._mesh.uv4,
 								tempUVs[ 3 ], uindex++ ) ;
 #if UNITY_2018_2_OR_NEWER
-				GetUVsFromMesh( inputDataMeshes._inputMeshes[ i ]._mesh, inputDataMeshes._inputMeshes[ i ]._mesh.uv5,
+				GetUVsFromMesh( next._mesh,
+								next._mesh.uv5,
 								tempUVs[ 4 ], uindex++ ) ;
-				GetUVsFromMesh( inputDataMeshes._inputMeshes[ i ]._mesh, inputDataMeshes._inputMeshes[ i ]._mesh.uv6,
+				GetUVsFromMesh( next._mesh,
+								next._mesh.uv6,
 								tempUVs[ 5 ], uindex++ ) ;
-				GetUVsFromMesh( inputDataMeshes._inputMeshes[ i ]._mesh, inputDataMeshes._inputMeshes[ i ]._mesh.uv7,
+				GetUVsFromMesh( next._mesh,
+								next._mesh.uv7,
 								tempUVs[ 6 ], uindex++ ) ;
-				GetUVsFromMesh( inputDataMeshes._inputMeshes[ i ]._mesh, inputDataMeshes._inputMeshes[ i ]._mesh.uv8,
+				GetUVsFromMesh( next._mesh,
+								next._mesh.uv8,
 								tempUVs[ 7 ], uindex++ ) ;
 #endif
 
-				inputDataMeshes._inputMeshes[ i ]._indexStart =
+				next._indexStart =
 					new uint[ inputDataMeshes._inputMeshes[ i ]._numSubMeshes ] ;
-				inputDataMeshes._inputMeshes[ i ]._indexCount =
+				next._indexCount =
 					new uint[ inputDataMeshes._inputMeshes[ i ]._numSubMeshes ] ;
 
 				// For each submesh:
 				// Generate face to point index -> pointIndexList
 				// Generate face to vertex attribute index -> vertIndexList
-				for ( int j = 0; j < inputDataMeshes._inputMeshes[ i ]._numSubMeshes; ++j ) {
-					int indexStart     = pointIndexList.Count ;
+				for ( int j = 0; j < next._numSubMeshes; ++j ) {
+					var inputMesh = next ;
+					if ( !inputMesh._mesh ) {
+						HEU_Logger.LogError( "No mesh found in input data!" ) ;
+						continue ;
+					}
+					
+					int indexStart = pointIndexList.Count ;
 					int vertIndexStart = vertIndexList.Count ;
 
 					// Indices have to be re-indexed with our own offset 
 					// (using GetIndices to generalize triangles and quad indices)
-					int[] meshIndices = inputDataMeshes._inputMeshes[ i ]._mesh.GetIndices( j ) ;
-					int   numIndices  = meshIndices.Length ;
+					int[ ] meshIndices = inputMesh._mesh!.GetIndices( j ) ;
+					int numIndices = meshIndices.Length ;
 					for ( int k = 0; k < numIndices; ++k ) {
 						int originalIndex = meshIndices[ k ] ;
 						meshIndices[ k ] = reindexVertices[ originalIndex ] ;
@@ -319,29 +330,23 @@ namespace HoudiniEngineUnity
 						pointIndexList.Add( vertexOffset + meshIndices[ k ] ) ;
 						vertIndexList.Add( vertIndexStart + k ) ;
 
-						if ( meshNormals != null && ( originalIndex < meshNormals.Length ) ) {
+						if ( meshNormals is not null && ( originalIndex < meshNormals.Length ) )
 							normals.Add( meshNormals[ originalIndex ] ) ;
-						}
 
-						for ( int u = 0; u < NumUVSets; ++u ) {
-							if ( tempUVs[ u ].Count > 0 ) {
+						for ( int u = 0; u < NumUVSets; ++u )
+							if ( tempUVs[ u ].Count > 0 )
 								uvs[ u ].Add( tempUVs[ u ][ originalIndex ] ) ;
-							}
-						}
 
-						if ( meshColors != null && ( originalIndex < meshColors.Length ) ) {
+						if ( meshColors != null && ( originalIndex < meshColors.Length ) )
 							colors.Add( meshColors[ originalIndex ] ) ;
-						}
 					}
 
-					inputDataMeshes._inputMeshes[ i ]._indexStart[ j ] = (uint)indexStart ;
-					inputDataMeshes._inputMeshes[ i ]._indexCount[ j ] =
-						(uint)( pointIndexList.Count ) - inputDataMeshes._inputMeshes[ i ]._indexStart[ j ] ;
+					inputMesh._indexStart![ j ] = (uint)indexStart ;
+					inputMesh._indexCount![ j ] = (uint)( pointIndexList.Count )
+												 - inputMesh._indexStart[ j ] ;
 				}
 
-				numMaterials += inputDataMeshes._inputMeshes[ i ]._materials != null
-									? inputDataMeshes._inputMeshes[ i ]._materials.Length
-									: 0 ;
+				numMaterials += next._materials?.Length ?? 0 ;
 			}
 
 			// It is possible for some meshes to not have normals/uvs/colors while others do.
@@ -352,9 +357,8 @@ namespace HoudiniEngineUnity
 				normals = null ;
 			}
 
-			if ( colors.Count != totalAllVertexCount ) {
+			if ( colors.Count != totalAllVertexCount )
 				colors = null ;
-			}
 
 			HAPI_PartInfo partInfo = new( ) {
 				faceCount               = vertIndexList.Count / numVertsPerFace,
@@ -368,7 +372,7 @@ namespace HoudiniEngineUnity
 
 			//HEU_Logger.LogFormat("Faces: {0}; Vertices: {1}; Verts/Face: {2}", partInfo.faceCount, partInfo.vertexCount, numVertsPerFace);
 
-			if ( normals is { Count: > 0 } ) 
+			if ( normals is { Count: > 0 } )
 				++partInfo.vertexAttributeCount ;
 
 			for ( int u = 0; u < NumUVSets; ++u ) {
@@ -432,12 +436,12 @@ namespace HoudiniEngineUnity
 				return false ;
 			}
 
-			int[ ] vertIndices = vertIndexList.ToArray( ) ;
+			int[] vertIndices = vertIndexList.ToArray( ) ;
 
 			//if(normals != null && !SetMeshPointAttribute(session, displayNodeID, 0, HEU_Defines.HAPI_ATTRIB_NORMAL, 3, normals.ToArray(), ref partInfo, true))
 			if ( normals != null && !HEU_InputMeshUtility.SetMeshVertexAttribute( session, displayNodeID, 0,
-					 HEU_HAPIConstants.HAPI_ATTRIB_NORMAL, 3, normals.ToArray( ), vertIndices, ref partInfo,
-					 true ) ) {
+						  HEU_HAPIConstants.HAPI_ATTRIB_NORMAL, 3, normals.ToArray( ), vertIndices, ref partInfo,
+						  true ) ) {
 				HEU_Logger.LogError( "Failed to set input geometry normals." ) ;
 				return false ;
 			}
@@ -507,7 +511,7 @@ namespace HoudiniEngineUnity
 						else if ( materialName.StartsWith( HEU_Defines.DEFAULT_UNITY_BUILTIN_RESOURCES ) ) {
 							materialName =
 								HEU_AssetDatabase.GetUniqueAssetPathForUnityAsset( inputDataMeshes._inputMeshes[ g ]
-									._materials[ i ] ) ;
+											 ._materials[ i ] ) ;
 						}
 
 						bFoundAtleastOneValidMaterial |= !string.IsNullOrEmpty( materialName ) ;
@@ -584,7 +588,7 @@ namespace HoudiniEngineUnity
 
 			// Set LOD group membership
 			if ( inputDataMeshes._hasLOD ) {
-				int[ ] membership = new int[ partInfo.faceCount ] ;
+				int[] membership = new int[ partInfo.faceCount ] ;
 
 				for ( int g = 0; g < inputDataMeshes._inputMeshes.Count; ++g ) {
 					if ( g > 0 ) {
@@ -627,27 +631,25 @@ namespace HoudiniEngineUnity
 			return session.CommitGeo( displayNodeID ) ;
 		}
 
-		internal bool UploadColliderData( HEU_SessionBase     session,   HAPI_NodeId mergeNodeID,
+		internal bool UploadColliderData( HEU_SessionBase session, HAPI_NodeId mergeNodeID,
 										  HEU_InputDataMeshes inputData, HAPI_NodeId parentNodeId ) {
 			// The input to put on
 			int inputIndex = 1 ;
 
 			foreach ( HEU_InputDataMesh inputMesh in inputData._inputMeshes ) {
-				if ( inputMesh == null || inputMesh._colliders == null ) {
-					continue ;
-				}
+				if ( inputMesh?._colliders is null ) continue ;
 
 				foreach ( HEU_InputDataCollider colliderData in inputMesh._colliders ) {
-					if ( colliderData == null || colliderData._collider == null ||
-						 colliderData._colliderType == HEU_InputColliderType.NONE ) {
+					if ( colliderData is null || !colliderData._collider ||
+						 colliderData._colliderType is HEU_InputColliderType.NONE ) {
 						continue ;
 					}
 
-					HAPI_NodeId newInputNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
+					HAPI_NodeId newInputNodeID ;
 
 					switch ( colliderData._colliderType ) {
 						case HEU_InputColliderType.BOX:
-							BoxCollider boxCollider = colliderData._collider as BoxCollider ;
+							BoxCollider? boxCollider = colliderData._collider as BoxCollider ;
 							if ( !boxCollider ||
 								 !UploadBoxColliderData( session, boxCollider, inputIndex, parentNodeId,
 														 out newInputNodeID ) ) {
@@ -657,9 +659,9 @@ namespace HoudiniEngineUnity
 
 							break ;
 						case HEU_InputColliderType.SPHERE:
-							SphereCollider sphereCollider = colliderData._collider as SphereCollider ;
+							SphereCollider? sphereCollider = colliderData._collider as SphereCollider ;
 							if ( !sphereCollider ||
-								 !UploadSphereColliderData( session, sphereCollider, inputIndex, parentNodeId,
+								 !UploadSphereColliderData( session, sphereCollider!, inputIndex, parentNodeId,
 															out newInputNodeID ) ) {
 								HEU_Logger.LogWarning( "Invalid collider input!" ) ;
 								continue ;
@@ -667,9 +669,9 @@ namespace HoudiniEngineUnity
 
 							break ;
 						case HEU_InputColliderType.CAPSULE:
-							CapsuleCollider capsuleCollider = colliderData._collider as CapsuleCollider ;
+							CapsuleCollider? capsuleCollider = colliderData._collider as CapsuleCollider ;
 							if ( !capsuleCollider ||
-								 !UploadCapsuleColliderData( session, capsuleCollider, inputIndex, parentNodeId,
+								 !UploadCapsuleColliderData( session, capsuleCollider!, inputIndex, parentNodeId,
 															 out newInputNodeID ) ) {
 								HEU_Logger.LogWarning( "Invalid collider input!" ) ;
 								return false ;
@@ -677,7 +679,7 @@ namespace HoudiniEngineUnity
 
 							break ;
 						case HEU_InputColliderType.MESH:
-							MeshCollider meshCollider = colliderData._collider as MeshCollider ;
+							MeshCollider? meshCollider = colliderData._collider as MeshCollider ;
 							if ( !meshCollider ||
 								 !UploadMeshColliderData( session, meshCollider, inputIndex, parentNodeId,
 														  out newInputNodeID ) ) {
@@ -691,7 +693,7 @@ namespace HoudiniEngineUnity
 							return false ;
 					}
 
-					if ( newInputNodeID == HEU_Defines.HEU_INVALID_NODE_ID ) continue ;
+					if ( newInputNodeID is HEU_Defines.HEU_INVALID_NODE_ID ) continue ;
 
 					if ( !session.ConnectNodeInput( mergeNodeID, inputIndex, newInputNodeID ) ) {
 						HEU_Logger.LogErrorFormat( "Unable to connect to input node!" ) ;
@@ -705,21 +707,19 @@ namespace HoudiniEngineUnity
 			return true ;
 		}
 
-		internal bool UploadBoxColliderData( HEU_SessionBase session,      BoxCollider     collider, int inputIndex,
-											 HAPI_NodeId     parentNodeID, out HAPI_NodeId inputNodeID ) {
+		internal bool UploadBoxColliderData( HEU_SessionBase session, BoxCollider? collider, int inputIndex,
+											 HAPI_NodeId parentNodeID, out HAPI_NodeId inputNodeID ) {
 
 			inputNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 
 			if ( !collider ) return false ;
 
-			HAPI_NodeId boxNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-
-			string name = string.Format( "Box{0}", inputIndex ) ;
-
-			Vector3 center = HEU_HAPIUtility.ConvertPositionUnityToHoudini( collider.center ) ;
+			Vector3 center = HEU_HAPIUtility.ConvertPositionUnityToHoudini( collider!.center ) ;
 			Vector3 size   = HEU_HAPIUtility.ConvertScaleUnityToHoudini( collider.size ) ;
 
-			if ( !session.CreateNode( parentNodeID, "box", null, false, out boxNodeID ) ) {
+			if ( !session.CreateNode( parentNodeID, "box", 
+									  null, false, 
+									  out HAPI_NodeId boxNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create merge box node for connecting input assets." ) ;
 				return false ;
 			}
@@ -743,21 +743,21 @@ namespace HoudiniEngineUnity
 			if ( !session.CookNode( boxNodeID, false ) )
 				return false ;
 
-			HAPI_NodeId groupNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			string?     groupName   = string.Format( "group{0}", inputIndex ) ;
+			string? groupName = $"group{inputIndex}" ;
 
-			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out groupNodeID ) ) {
+			if ( !session.CreateNode( parentNodeID, "groupcreate", 
+									  groupName, false, 
+									  out HAPI_NodeId groupNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create group SOP node for connecting input assets." ) ;
 				return false ;
 			}
 
-			HAPI_NodeId groupParmID = HEU_Defines.HEU_INVALID_NODE_ID ;
-
-			if ( !session.GetParmIDFromName( groupNodeID, "groupname", out groupParmID ) ||
-				 groupParmID == HEU_Defines.HEU_INVALID_NODE_ID ) return false ;
+			if ( !session.GetParmIDFromName( groupNodeID, "groupname", 
+											 out HAPI_NodeId groupParmID )
+				 || groupParmID is HEU_Defines.HEU_INVALID_NODE_ID ) return false ;
 
 			string baseGroupName = GetColliderGroupBaseName( collider, bIsConvex: false, bIsSimple: true ) ;
-			string groupNameStr  = string.Format( "{0}_box{1}", baseGroupName, inputIndex ) ;
+			string groupNameStr = $"{baseGroupName}_box{inputIndex}" ;
 
 			if ( !session.SetParamStringValue( groupNodeID, groupNameStr, groupParmID, 0 ) )
 				return false ;
@@ -770,8 +770,8 @@ namespace HoudiniEngineUnity
 			return true ;
 		}
 
-		internal bool UploadSphereColliderData( HEU_SessionBase session,      SphereCollider  collider, int inputIndex,
-												HAPI_NodeId     parentNodeID, out HAPI_NodeId inputNodeID ) {
+		internal bool UploadSphereColliderData( HEU_SessionBase session, SphereCollider collider, int inputIndex,
+												HAPI_NodeId parentNodeID, out HAPI_NodeId inputNodeID ) {
 			inputNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 
 			if ( !collider ) return false ;
@@ -779,10 +779,7 @@ namespace HoudiniEngineUnity
 			Vector3 center = HEU_HAPIUtility.ConvertPositionUnityToHoudini( collider.center ) ;
 			float   radius = collider.radius ;
 
-			HAPI_NodeId sphereNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			string      name         = string.Format( "Sphere{0}", inputIndex ) ;
-
-			if ( !session.CreateNode( parentNodeID, "sphere", null, false, out sphereNodeID ) ) {
+			if ( !session.CreateNode( parentNodeID, "sphere", null, false, out HAPI_NodeId sphereNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create merge box node for connecting input assets." ) ;
 				return false ;
 			}
@@ -810,21 +807,18 @@ namespace HoudiniEngineUnity
 			if ( !session.CookNode( sphereNodeID, false ) )
 				return false ;
 
-			HAPI_NodeId groupNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			string?     groupName   = string.Format( "group{0}", inputIndex ) ;
+			string? groupName = $"group{inputIndex}" ;
 
-			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out groupNodeID ) ) {
+			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out HAPI_NodeId groupNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create group SOP node for connecting input assets." ) ;
 				return false ;
 			}
 
-			HAPI_NodeId groupParmID = HEU_Defines.HEU_INVALID_NODE_ID ;
-
-			if ( !session.GetParmIDFromName( groupNodeID, "groupname", out groupParmID ) ||
-				 groupParmID == HEU_Defines.HEU_INVALID_NODE_ID ) return false ;
+			if ( !session.GetParmIDFromName( groupNodeID, "groupname", out HAPI_NodeId groupParmID ) ||
+				 groupParmID is HEU_Defines.HEU_INVALID_NODE_ID ) return false ;
 
 			string baseGroupName = GetColliderGroupBaseName( collider, bIsConvex: false, bIsSimple: true ) ;
-			string groupNameStr  = string.Format( "{0}_sphere{1}", baseGroupName, inputIndex ) ;
+			string groupNameStr  = $"{baseGroupName}_sphere{inputIndex}" ;
 			if ( !session.SetParamStringValue( groupNodeID, groupNameStr, groupParmID, 0 ) )
 				return false ;
 
@@ -836,8 +830,8 @@ namespace HoudiniEngineUnity
 			return true ;
 		}
 
-		internal bool UploadCapsuleColliderData( HEU_SessionBase session,      CapsuleCollider collider, int inputIndex,
-												 HAPI_NodeId     parentNodeID, out HAPI_NodeId inputNodeID ) {
+		internal bool UploadCapsuleColliderData( HEU_SessionBase session, CapsuleCollider collider, int inputIndex,
+												 HAPI_NodeId parentNodeID, out HAPI_NodeId inputNodeID ) {
 			inputNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 
 			if ( !collider ) return false ;
@@ -889,11 +883,11 @@ namespace HoudiniEngineUnity
 			}
 			else if ( direction == 0 ) {
 				// X axis - Rotate around Z
-				directionRotationEuler = new Vector3( 0, 0, 90 ) ;
+				directionRotationEuler = new( 0, 0, 90 ) ;
 			}
 			else if ( direction == 2 ) {
 				// Z axis - Rotate around X
-				directionRotationEuler = new Vector3( 90, 0, 0 ) ;
+				directionRotationEuler = new( 90, 0, 0 ) ;
 			}
 
 			Quaternion directionRotation = Quaternion.Euler( directionRotationEuler ) ;
@@ -903,7 +897,7 @@ namespace HoudiniEngineUnity
 
 			float[] vertices = new float[ numVerts * 3 ] ;
 			for ( int sideIdx = 0; sideIdx < numSides + 1; sideIdx++ ) {
-				Vector3    arcEuler = new( 0, 360.0f * ( (float)sideIdx / (float)numSides ), 0 ) ;
+				Vector3    arcEuler = new( 0, 360.0f * ( sideIdx / (float)numSides ), 0 ) ;
 				Quaternion arcRot   = Quaternion.Euler( arcEuler ) ;
 
 				for ( int vertIdx = 0; vertIdx < numRings + 1; vertIdx++ ) {
@@ -940,31 +934,27 @@ namespace HoudiniEngineUnity
 				}
 			}
 
-			HAPI_NodeId sphereNodeID = -1 ;
-			string?     sphereName   = string.Format( "Sphyl{0}", inputIndex ) ;
+			string?     sphereName   = $"Sphyl{inputIndex}" ;
 
-			if ( !CreateInputNodeForCollider( session, out sphereNodeID, parentNodeID, inputIndex, sphereName, vertices,
+			if ( !CreateInputNodeForCollider( session, out HAPI_NodeId sphereNodeID, parentNodeID, inputIndex, sphereName, vertices,
 											  indices ) )
 				return false ;
 
 			if ( !session.CookNode( sphereNodeID, false ) ) return false ;
 
-			HAPI_NodeId groupNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			string?     groupName   = string.Format( "group{0}", inputIndex ) ;
+			string?     groupName   = $"group{inputIndex}" ;
 
-			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out groupNodeID ) ) {
+			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out HAPI_NodeId groupNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create group SOP node for connecting input assets." ) ;
 				return false ;
 			}
 
-			HAPI_NodeId groupParmID = HEU_Defines.HEU_INVALID_NODE_ID ;
-
-			if ( !session.GetParmIDFromName( groupNodeID, "groupname", out groupParmID ) ||
-				 groupParmID == HEU_Defines.HEU_INVALID_NODE_ID )
+			if ( !session.GetParmIDFromName( groupNodeID, "groupname", out HAPI_NodeId groupParmID ) ||
+				 groupParmID is HEU_Defines.HEU_INVALID_NODE_ID )
 				return false ;
 
 			string baseGroupName = GetColliderGroupBaseName( collider, bIsConvex: false, bIsSimple: true ) ;
-			string groupNameStr  = string.Format( "{0}_capsule{1}", baseGroupName, inputIndex ) ;
+			string groupNameStr  = $"{baseGroupName}_capsule{inputIndex}" ;
 
 			if ( !session.SetParamStringValue( groupNodeID, groupNameStr, groupParmID, 0 ) )
 				return false ;
@@ -977,59 +967,62 @@ namespace HoudiniEngineUnity
 			return true ;
 		}
 
-		internal bool UploadMeshColliderData( HEU_SessionBase session,      MeshCollider    collider, int inputIndex,
-											  HAPI_NodeId     parentNodeID, out HAPI_NodeId inputNodeID ) {
+		internal bool UploadMeshColliderData( HEU_SessionBase session, MeshCollider? collider, int inputIndex,
+											  HAPI_NodeId parentNodeID, out HAPI_NodeId inputNodeID ) {
+			if ( !collider ) {
+				HEU_Logger.LogError( "Invalid collider input!" ) ;
+				inputNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
+				return false ;
+			}
+			
 			inputNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-
 			if ( !collider ) return false ;
 
+			Mesh? mesh = collider!.sharedMesh ;
+			Vector3[ ] vertices = mesh.vertices ;
 
-			Mesh      mesh     = collider.sharedMesh ;
-			Vector3[] vertices = mesh.vertices ;
-
-			int         numSubmeshes = mesh.subMeshCount ;
-			List< int > indices      = new( ) ;
-			for ( int i = 0; i < numSubmeshes; i++ ) {
-				int[] indicesForSubmesh = mesh.GetIndices( i ) ;
+			int numSubmeshes = mesh.subMeshCount ;
+			List< int > indices = new( ) ;
+			for ( int i = 0; i < numSubmeshes; ++i ) {
+				int[ ] indicesForSubmesh = mesh.GetIndices( i ) ;
 				indices.AddRange( indicesForSubmesh ) ;
 			}
 
-			int[] indicesArr = indices.ToArray( ) ;
-
-			float[] verticesArr = new float[ vertices.Length * 3 ] ;
+			int[ ] indicesArr = indices.ToArray( ) ;
+			float[ ] verticesArr = new float[ vertices.Length * 3 ] ;
+			
 			for ( int i = 0; i < vertices.Length; i++ ) {
-				HEU_HAPIUtility.ConvertPositionUnityToHoudini( vertices[ i ], out verticesArr[ i * 3 + 0 ],
+				HEU_HAPIUtility.ConvertPositionUnityToHoudini( vertices[ i ],
+															   out verticesArr[ i * 3 + 0 ],
 															   out verticesArr[ i * 3 + 1 ],
 															   out verticesArr[ i * 3 + 2 ] ) ;
 			}
 
-			HAPI_NodeId meshNodeID = -1 ;
-			string?     meshName   = string.Format( "MeshCollider{0}", inputIndex ) ;
+			string? meshName = $"MeshCollider{inputIndex}" ;
 
-			if ( !CreateInputNodeForCollider( session, out meshNodeID, parentNodeID, inputIndex, meshName, verticesArr,
-											  indicesArr ) )
-				return false ;
+			if ( !CreateInputNodeForCollider( session,
+											  out HAPI_NodeId meshNodeID, parentNodeID,
+											  inputIndex, meshName, verticesArr, indicesArr ) ) return false ;
 
 			if ( !session.CookNode( meshNodeID, false ) ) return false ;
+			
+			string? groupName = $"group{inputIndex}" ;
 
-			HAPI_NodeId groupNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
-			string?     groupName   = string.Format( "group{0}", inputIndex ) ;
-
-			if ( !session.CreateNode( parentNodeID, "groupcreate", groupName, false, out groupNodeID ) ) {
+			if ( !session.CreateNode( parentNodeID, "groupcreate",
+									  groupName, false,
+									  out HAPI_NodeId groupNodeID ) ) {
 				HEU_Logger.LogErrorFormat( "Unable to create group SOP node for connecting input assets." ) ;
 				return false ;
 			}
 
-			HAPI_NodeId groupParmID = HEU_Defines.HEU_INVALID_NODE_ID ;
+			if ( !session.GetParmIDFromName( groupNodeID, "groupname",
+											 out HAPI_NodeId groupParmID )
+											|| groupParmID is HEU_Defines.HEU_INVALID_NODE_ID ) return false ;
 
-			if ( !session.GetParmIDFromName( groupNodeID, "groupname", out groupParmID ) ||
-				 groupParmID == HEU_Defines.HEU_INVALID_NODE_ID )
-				return false ;
-
-			bool   isConvex      = collider.convex ;
-			string baseGroupName = GetColliderGroupBaseName( collider, bIsConvex: isConvex, bIsSimple: false ) ;
-
-			string groupNameStr = string.Format( "{0}_mesh{1}", baseGroupName, inputIndex ) ;
+			bool isConvex = collider.convex ;
+			string baseGroupName = GetColliderGroupBaseName( collider, isConvex ) ;
+			string groupNameStr = $"{baseGroupName}_mesh{inputIndex}" ;
+			
 			if ( !session.SetParamStringValue( groupNodeID, groupNameStr, groupParmID, 0 ) )
 				return false ;
 
@@ -1037,12 +1030,11 @@ namespace HoudiniEngineUnity
 				return false ;
 
 			inputNodeID = groupNodeID ;
-
 			return true ;
 		}
 
-		internal string GetColliderGroupBaseName( Collider collider, bool bIsConvex = false, bool bIsSimple = false,
-												  bool     bIsRendered = false ) {
+		internal string GetColliderGroupBaseName( Collider collider, bool bIsConvex = false,
+												  bool bIsSimple = false, bool bIsRendered = false ) {
 			bool   isTrigger     = collider.isTrigger ;
 			string baseGroupName = "collision_geo" ;
 			if ( bIsConvex ) {
@@ -1064,14 +1056,14 @@ namespace HoudiniEngineUnity
 			return baseGroupName ;
 		}
 
-		internal bool CreateInputNodeForCollider( HEU_SessionBase session, out HAPI_NodeId outNodeID,
-												  HAPI_NodeId     parentNodeId, int colliderIndex, string? colliderName,
-												  float[]         colliderVertices, int[] colliderIndices ) {
+		internal bool CreateInputNodeForCollider( HEU_SessionBase session,
+												  out HAPI_NodeId outNodeID,
+												  HAPI_NodeId parentNodeId,
+												  int colliderIndex, string? colliderName,
+												  float[] colliderVertices, int[] colliderIndices ) {
 			outNodeID = HEU_Defines.HEU_INVALID_NODE_ID ;
 
-			HAPI_NodeId colliderNodeId = HEU_Defines.HEU_INVALID_NODE_ID ;
-
-			if ( !session.CreateNode( parentNodeId, "null", colliderName, false, out colliderNodeId ) )
+			if ( !session.CreateNode( parentNodeId, "null", colliderName, false, out HAPI_NodeId colliderNodeId ) )
 				return false ;
 
 			HAPI_PartInfo partInfo = new( ) ;
@@ -1089,8 +1081,7 @@ namespace HoudiniEngineUnity
 
 			if ( !session.SetPartInfo( colliderNodeId, 0, ref partInfo ) ) return false ;
 
-			HAPI_AttributeInfo attributeInfoPoint = new( )
-			{
+			HAPI_AttributeInfo attributeInfoPoint = new( ) {
 				count         = colliderVertices.Length / 3,
 				tupleSize     = 3,
 				exists        = true,
@@ -1099,22 +1090,21 @@ namespace HoudiniEngineUnity
 				originalOwner = HAPI_AttributeOwner.HAPI_ATTROWNER_INVALID,
 			} ;
 
-			if ( !session.AddAttribute( colliderNodeId, 0, HEU_HAPIConstants.HAPI_ATTRIB_POSITION,
-										ref attributeInfoPoint ) )
+			if ( !session.AddAttribute( colliderNodeId, 0,
+										HEU_HAPIConstants.HAPI_ATTRIB_POSITION, ref attributeInfoPoint ) )
 				return false ;
 
-			if ( !session.SetAttributeFloatData( colliderNodeId, 0, HEU_HAPIConstants.HAPI_ATTRIB_POSITION,
+			if ( !session.SetAttributeFloatData( colliderNodeId, 0,
+												 HEU_HAPIConstants.HAPI_ATTRIB_POSITION,
 												 ref attributeInfoPoint, colliderVertices, 0,
-												 attributeInfoPoint.count ) )
-				return false ;
+												 attributeInfoPoint.count ) ) return false ;
 
-			if ( !session.SetVertexList( colliderNodeId, 0, colliderIndices, 0, colliderIndices.Length ) )
-				return false ;
+			if ( !session.SetVertexList( colliderNodeId, 0,
+										 colliderIndices, 0, colliderIndices.Length ) ) return false ;
 
 			int[] faceCounts = new int[ partInfo.faceCount ] ;
-			for ( int i = 0; i < faceCounts.Length; i++ ) {
+			for ( int i = 0; i < faceCounts.Length; ++i )
 				faceCounts[ i ] = 3 ;
-			}
 
 			if ( !session.SetFaceCount( colliderNodeId, 0, faceCounts, 0, faceCounts.Length ) )
 				return false ;
@@ -1146,36 +1136,26 @@ namespace HoudiniEngineUnity
 			MESH
 		}
 
-		public class HEU_InputDataCollider
-		{
-			public Collider              _collider ;
+		public class HEU_InputDataCollider {
+			public Collider? _collider ;
 			public HEU_InputColliderType _colliderType ;
-		}
+		} ;
 
 		/// <summary>
 		/// Contains input geometry for a single mesh.
 		/// </summary>
-		public class HEU_InputDataMesh
-		{
-			public Mesh       _mesh ;
-			public Material[] _materials ;
-
-			public string? _meshPath ;
-			public string  _meshName ;
-
-			public int _numVertices ;
-			public int _numSubMeshes ;
+		public class HEU_InputDataMesh {
+			public Mesh? _mesh ;
+			public Material[ ]? _materials ;
+			public string? _meshPath, _meshName ;
+			public int _numVertices, _numSubMeshes ;
 
 			// This keeps track of indices start and length for each submesh
-			public uint[] _indexStart ;
-			public uint[] _indexCount ;
-
+			public uint[ ]? _indexStart, _indexCount ;
 			public float _LODScreenTransition ;
-
-			public Transform _transform ;
-
-			public List< HEU_InputDataCollider > _colliders ;
-		}
+			public Transform? _transform ;
+			public List< HEU_InputDataCollider >? _colliders ;
+		} ;
 
 		/// <summary>
 		/// Return an input data structure containing mesh data that needs to be
@@ -1183,165 +1163,146 @@ namespace HoudiniEngineUnity
 		/// Supports child gameobjects with meshes from the given inputObject.
 		/// </summary>
 		/// <param name="inputObject">GameObject containing mesh components</param>
+		/// <param name="bExportColliders">Whether to export colliders as well</param>
 		/// <returns>A valid input data strcuture containing mesh data</returns>
 		public HEU_InputDataMeshes GenerateMeshDatasFromGameObject( GameObject inputObject,
-																	bool       bExportColliders = false ) {
-			HEU_InputDataMeshes inputMeshes = new( )
-			{
+																	bool bExportColliders = false ) {
+			HEU_InputDataMeshes inputMeshes = new( ) {
 				_inputObject = inputObject,
 			} ;
 
 			LODGroup lodGroup = inputObject.GetComponent< LODGroup >( ) ;
-			if ( lodGroup != null ) {
+			if ( lodGroup ) {
 				inputMeshes._hasLOD = true ;
 
-				LOD[] lods = lodGroup.GetLODs( ) ;
+				LOD[ ] lods = lodGroup.GetLODs( ) ;
 				for ( int i = 0; i < lods.Length; ++i ) {
-					if ( lods[ i ].renderers != null && lods[ i ].renderers.Length > 0 ) {
-						GameObject        childGO  = lods[ i ].renderers[ 0 ].gameObject ;
-						HEU_InputDataMesh meshData = CreateSingleMeshData( childGO, bExportColliders ) ;
-						if ( meshData != null ) {
-							meshData._LODScreenTransition = lods[ i ].screenRelativeTransitionHeight ;
-							inputMeshes._inputMeshes.Add( meshData ) ;
-						}
-					}
+					if ( lods[ i ].renderers == null
+						 || lods[ i ].renderers.Length <= 0 ) continue ;
+					
+					GameObject childGO = lods[ i ].renderers[ 0 ].gameObject ;
+					HEU_InputDataMesh? meshData = CreateSingleMeshData( childGO, bExportColliders ) ;
+					if ( meshData is null ) continue ;
+						
+					meshData._LODScreenTransition = lods[ i ].screenRelativeTransitionHeight ;
+					inputMeshes._inputMeshes.Add( meshData ) ;
 				}
 			}
 			else {
 				inputMeshes._hasLOD = false ;
 
 				// Create a HEU_InputDataMesh for each gameobject with a MeshFilter (including children)
-				MeshFilter[] meshFilters = inputObject.GetComponentsInChildren< MeshFilter >( ) ;
+				MeshFilter[ ]? meshFilters = inputObject.GetComponentsInChildren< MeshFilter >( ) ;
 				foreach ( MeshFilter filter in meshFilters ) {
-					HEU_InputDataMesh meshData = CreateSingleMeshData( filter.gameObject, bExportColliders ) ;
-					if ( meshData != null ) {
+					HEU_InputDataMesh? meshData =
+						CreateSingleMeshData( filter.gameObject, bExportColliders ) ;
+					
+					if ( meshData is not null )
 						inputMeshes._inputMeshes.Add( meshData ) ;
-					}
 				}
 
 
-				SkinnedMeshRenderer[] skinnedMeshRenderers =
+				SkinnedMeshRenderer[ ] skinnedMeshRenderers =
 					inputObject.GetComponentsInChildren< SkinnedMeshRenderer >( ) ;
 
 				foreach ( SkinnedMeshRenderer skinnedMeshRend in skinnedMeshRenderers ) {
-					HEU_InputDataMesh meshData = CreateSingleMeshData( skinnedMeshRend.gameObject, bExportColliders ) ;
-					if ( meshData != null ) {
+					HEU_InputDataMesh? meshData =
+						CreateSingleMeshData( skinnedMeshRend.gameObject, bExportColliders ) ;
+					
+					if ( meshData != null )
 						inputMeshes._inputMeshes.Add( meshData ) ;
-					}
 				}
 			}
 
 			return inputMeshes ;
 		}
 
-		/// <summary>
-		/// Returns HEU_UploadMeshData with mesh data found on meshGameObject.
-		/// </summary>
+		/// <summary>Returns HEU_UploadMeshData with mesh data found on meshGameObject.</summary>
 		/// <param name="meshGameObject">The GameObject to query mesh data from</param>
+		/// <param name="bExportColliders">Whether to export colliders as well</param>
 		/// <returns>A valid HEU_UploadMeshData if mesh data found or null</returns>
-		public static HEU_InputDataMesh CreateSingleMeshData( GameObject meshGameObject, bool bExportColliders ) {
+		public static HEU_InputDataMesh? CreateSingleMeshData( GameObject? meshGameObject,
+																	bool bExportColliders ) {
 			HEU_InputDataMesh meshData = new( ) ;
+			if ( !meshGameObject ) return null ;
 
-			if ( meshGameObject == null ) {
+			Mesh? sharedMesh = GetMeshFromObject( meshGameObject ) ;
+			if ( !sharedMesh ) return null ;
+
+			meshData._mesh = sharedMesh ;
+			if ( !meshData._mesh ) {
+				HEU_Logger.LogWarning( "No mesh found on GameObject: " 
+									   + (meshGameObject ? meshGameObject!.name : "NULL") ) ;
 				return null ;
 			}
-
-			Mesh sharedMesh = GetMeshFromObject( meshGameObject ) ;
-
-			if ( sharedMesh == null ) {
-				return null ;
-			}
-
-			meshData._mesh         = sharedMesh ;
-			meshData._numVertices  = meshData._mesh.vertexCount ;
+			meshData._numVertices = meshData._mesh!.vertexCount ;
 			meshData._numSubMeshes = meshData._mesh.subMeshCount ;
-
-			meshData._meshName = meshGameObject.name ;
+			meshData._meshName = meshGameObject!.name ;
 
 			// Use project path is not saved in scene, otherwise just use name
 			if ( HEU_GeneralUtility.IsGameObjectInProject( meshGameObject ) ) {
 				meshData._meshPath = HEU_AssetDatabase.GetAssetOrScenePath( meshGameObject ) ;
-				if ( string.IsNullOrEmpty( meshData._meshPath ) ) {
+				if ( string.IsNullOrEmpty( meshData._meshPath ) )
 					meshData._meshPath = meshGameObject.name ;
-				}
 			}
-			else {
-				meshData._meshPath = meshGameObject.name ;
-			}
+			else meshData._meshPath = meshGameObject.name ;
 			//HEU_Logger.Log("Mesh Path: " + meshData._meshPath);
 
 			MeshRenderer meshRenderer = meshGameObject.GetComponent< MeshRenderer >( ) ;
-			if ( meshRenderer != null ) {
-				meshData._materials = meshRenderer.sharedMaterials ;
-			}
-
+			if ( meshRenderer ) meshData._materials = meshRenderer.sharedMaterials ;
+			
 			meshData._transform = meshGameObject.transform ;
 
-			if ( bExportColliders && meshGameObject != null ) {
-				meshData._colliders = new List< HEU_InputDataCollider >( ) ;
+			if ( !bExportColliders || !meshGameObject ) return meshData ;
+			meshData._colliders = new( ) ;
 
-				Collider[] colliders = meshGameObject.GetComponents< Collider >( ) ;
-				if ( colliders != null ) {
-					for ( int i = 0; i < colliders.Length; i++ ) {
-						Collider collider = colliders[ i ] ;
+			Collider[ ] colliders = meshGameObject.GetComponents< Collider >( ) ;
+			if ( colliders is null ) return meshData ;
+				
+			int numColliders = colliders.Length ;
+			for ( int i = 0; i < numColliders; ++i ) {
+				Collider collider = colliders[ i ] ;
+				if ( !collider ) continue ;
 
-						if ( collider == null ) continue ;
+				HEU_InputDataCollider newCollider = new( ) {
+					_collider = collider,
+				} ;
 
-						HEU_InputDataCollider newCollider = new( )
-						{
-							_collider = collider,
-						} ;
-
-						if ( collider.GetType( ) == typeof( BoxCollider ) ) {
-							newCollider._colliderType = HEU_InputColliderType.BOX ;
-						}
-						else if ( collider.GetType( ) == typeof( SphereCollider ) ) {
-							newCollider._colliderType = HEU_InputColliderType.SPHERE ;
-						}
-						else if ( collider.GetType( ) == typeof( CapsuleCollider ) ) {
-							newCollider._colliderType = HEU_InputColliderType.CAPSULE ;
-						}
-						else if ( collider.GetType( ) == typeof( MeshCollider ) ) {
-							newCollider._colliderType = HEU_InputColliderType.MESH ;
-						}
-						else {
-							HEU_Logger.LogWarningFormat( "Collider type not supported: {0}", meshGameObject.name ) ;
-							newCollider._collider     = null ;
-							newCollider._colliderType = HEU_InputColliderType.NONE ;
-						}
-
-						if ( newCollider._colliderType != HEU_InputColliderType.NONE ) {
-							meshData._colliders.Add( newCollider ) ;
-						}
-					}
+				if ( collider.GetType( ) == typeof( BoxCollider ) )
+					newCollider._colliderType = HEU_InputColliderType.BOX ;
+				else if ( collider.GetType( ) == typeof( SphereCollider ) )
+					newCollider._colliderType = HEU_InputColliderType.SPHERE ;
+				else if ( collider.GetType( ) == typeof( CapsuleCollider ) )
+					newCollider._colliderType = HEU_InputColliderType.CAPSULE ;
+				else if ( collider.GetType( ) == typeof( MeshCollider ) )
+					newCollider._colliderType = HEU_InputColliderType.MESH ;
+				else {
+					HEU_Logger.LogWarningFormat( "Collider type not supported: {0}", meshGameObject.name ) ;
+					newCollider._collider     = null ;
+					newCollider._colliderType = HEU_InputColliderType.NONE ;
 				}
-			}
 
+					
+				if ( newCollider._colliderType is not HEU_InputColliderType.NONE )
+					meshData._colliders.Add( newCollider ) ;
+			}
 
 			return meshData ;
 		}
+		
+		static Mesh? GetMeshFromObject( GameObject? meshGameObject ) {
+			if ( !meshGameObject ) return null ;
 
-		static Mesh GetMeshFromObject( GameObject meshGameObject ) {
-			if ( meshGameObject == null ) {
-				return null ;
-			}
+			MeshFilter? filter = meshGameObject!.GetComponent< MeshFilter >( ) ;
+			if ( filter ) return filter.sharedMesh ;
 
-			MeshFilter filter = meshGameObject.GetComponent< MeshFilter >( ) ;
-			if ( filter != null ) {
-				return filter.sharedMesh ;
-			}
-
-                        HEU_InputDataCollider newCollider = new HEU_InputDataCollider();
-                        newCollider._collider = collider;
 
 			SkinnedMeshRenderer skinnedMesh = meshGameObject.GetComponent< SkinnedMeshRenderer >( ) ;
-			if ( skinnedMesh != null ) {
-				return skinnedMesh.sharedMesh ;
-			}
-
+			if ( skinnedMesh ) return skinnedMesh.sharedMesh ;
+			
 			return null ;
 		}
-
-	}
+		
+	} ;
 
 } // HoudiniEngineUnity

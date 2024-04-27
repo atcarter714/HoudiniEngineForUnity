@@ -41,7 +41,7 @@ namespace HoudiniEngineUnity
     [CustomEditor(typeof(HEU_PDGAssetLink))]
     public class HEU_PDGAssetLinkUI : Editor
     {
-        private void OnEnable()
+        void OnEnable()
         {
             // The HEU_PDGAssetLink contains the state and cached data of the linked asset
             _assetLink = target as HEU_PDGAssetLink;
@@ -70,7 +70,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Display message when no asset is linked.
         /// </summary>
-        private void DrawNoAssetLink()
+        void DrawNoAssetLink()
         {
             HEU_EditorUI.DrawSeparator();
 
@@ -85,7 +85,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Main function to display linked asset's info, and functions.
         /// </summary>
-        private void DrawAssetLink()
+        void DrawAssetLink()
         {
             HEU_PDGAssetLink.LinkState validState = _assetLink.AssetLinkStateInternal;
 
@@ -232,7 +232,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Displays a dropdown list of TOP network names, and shows the selected TOP network info
         /// </summary>
-        private void DrawSelectedTOPNetwork()
+        void DrawSelectedTOPNetwork()
         {
             HEU_EditorUI.DrawHeadingLabel("Internal TOP Networks");
 
@@ -292,7 +292,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Displays a dropdown list of TOP nodes, and shows the selected TOP node info
         /// </summary>
-        private void DrawSelectedTOPNode()
+        void DrawSelectedTOPNode()
         {
             HEU_TOPNetworkData topNetworkData = _assetLink.GetSelectedTOPNetwork();
             if (topNetworkData == null)
@@ -382,7 +382,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Displays global PDG status
         /// </summary>
-        private void DrawPDGStatus()
+        void DrawPDGStatus()
         {
             string pdgState = "PDG is NOT READY";
             Color stateColor = Color.red;
@@ -412,7 +412,7 @@ namespace HoudiniEngineUnity
         /// Displays the given work item tally
         /// </summary>
         /// <param name="tally"></param>
-        private void DrawWorkItemTally(HEU_WorkItemTally tally)
+        void DrawWorkItemTally(HEU_WorkItemTally tally)
         {
             float totalWidth = EditorGUIUtility.currentViewWidth;
             float cellWidth = totalWidth / 5f;
@@ -463,17 +463,17 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawGridBoxTitle(string text, float width, float height)
+        void DrawGridBoxTitle(string text, float width, float height)
         {
             GUILayout.Box(text, _boxStyleTitle, GUILayout.Width(width), GUILayout.Height(height));
         }
 
-        private void DrawGridBoxValue(string text, float width, float height)
+        void DrawGridBoxValue(string text, float width, float height)
         {
             GUILayout.Box(text, _boxStyleValue, GUILayout.Width(width), GUILayout.Height(height));
         }
 
-        private void SetupUI()
+        void SetupUI()
         {
             _cookedColor = new Color(0.1f, 0.9f, 0.0f, 1f);
 
@@ -619,49 +619,49 @@ namespace HoudiniEngineUnity
 
         public HEU_PDGAssetLink _assetLink;
 
-        private GUIStyle _backgroundStyle;
+        GUIStyle _backgroundStyle;
 
-        private GUIContent _assetGOLabel;
-        private GUIContent _assetStatusLabel;
+        GUIContent _assetGOLabel;
+        GUIContent _assetStatusLabel;
 
-        private GUIContent _resetContent;
-        private GUIContent _refreshContent;
-        private GUIContent _autocookContent;
-        private GUIContent _topNodeFilterContent;
-        private GUIContent _topOutputFilterContent;
+        GUIContent _resetContent;
+        GUIContent _refreshContent;
+        GUIContent _autocookContent;
+        GUIContent _topNodeFilterContent;
+        GUIContent _topOutputFilterContent;
 
-        private GUIContent _useHEngineDataContent;
+        GUIContent _useHEngineDataContent;
 
-        private GUIContent _topNetworkChooseLabel;
-        private GUIContent _topNetworkNoneLabel;
+        GUIContent _topNetworkChooseLabel;
+        GUIContent _topNetworkNoneLabel;
 
-        private GUIContent _topNodeChooseLabel;
-        private GUIContent _topNodeNoneLabel;
-        private GUIContent _topNodeStatusLabel;
+        GUIContent _topNodeChooseLabel;
+        GUIContent _topNodeNoneLabel;
+        GUIContent _topNodeStatusLabel;
 
-        private GUIContent _buttonDirtyContent;
-        private GUIContent _buttonCookContent;
+        GUIContent _buttonDirtyContent;
+        GUIContent _buttonCookContent;
 
-        private GUIContent _autoloadContent;
-        private GUIContent _showHideResultsContent;
+        GUIContent _autoloadContent;
+        GUIContent _showHideResultsContent;
 
-        private GUIContent _buttonDirtyAllContent;
-        private GUIContent _buttonCookAllContent;
-        private GUIContent _buttonCancelCookContent;
-        private GUIContent _buttonPauseCookContent;
+        GUIContent _buttonDirtyAllContent;
+        GUIContent _buttonCookAllContent;
+        GUIContent _buttonCancelCookContent;
+        GUIContent _buttonPauseCookContent;
 
-        private GUIStyle _boxStyleTitle;
-        private GUIStyle _boxStyleValue;
-        private GUIStyle _boxStyleStatus;
+        GUIStyle _boxStyleTitle;
+        GUIStyle _boxStyleValue;
+        GUIStyle _boxStyleStatus;
 
-        private GUIContent _eventMessageContent;
-        private GUIStyle _eventMessageStyle;
-        private Vector2 _eventMessageScrollPos = new Vector2();
+        GUIContent _eventMessageContent;
+        GUIStyle   _eventMessageStyle;
+        Vector2    _eventMessageScrollPos = new Vector2();
 
-        private Texture2D _boxTitleTexture;
+        Texture2D _boxTitleTexture;
 
-        private Color _cookedColor;
+        Color _cookedColor;
 
-        private float _largButtonHeight = 26;
+        float _largButtonHeight = 26;
     }
 } // HoudiniEngineUnity

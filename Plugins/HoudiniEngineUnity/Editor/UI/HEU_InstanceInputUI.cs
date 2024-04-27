@@ -40,23 +40,23 @@ namespace HoudiniEngineUnity
     public class HEU_InstanceInputUI
     {
         // Serialized object of HEU_InstanceInputUIState
-        private SerializedObject _serializedObject;
+        SerializedObject _serializedObject;
 
         // Serialized properties of HEU_InstanceInputUIState
-        private SerializedProperty _showInstanceInputsProperty;
-        private SerializedProperty _numInputsToShowProperty;
-        private SerializedProperty _inputsPageIndexProperty;
+        SerializedProperty _showInstanceInputsProperty;
+        SerializedProperty _numInputsToShowProperty;
+        SerializedProperty _inputsPageIndexProperty;
 
         // List of all input instance serialized properties
-        private List<HEU_InstanceInputObjectCache> _instanceObjects = new List<HEU_InstanceInputObjectCache>();
+        List<HEU_InstanceInputObjectCache> _instanceObjects = new List<HEU_InstanceInputObjectCache>();
 
         // Whether this has cached all necessary data for display
-        private bool _populated;
+        bool _populated;
 
         /// <summary>
         /// Contains cached serialized data of a HEU_ObjectInstanceInfo
         /// </summary>
-        private class HEU_InstanceInputObjectCache
+        class HEU_InstanceInputObjectCache
         {
             public string _inputName;
 
@@ -71,7 +71,7 @@ namespace HoudiniEngineUnity
         /// </summary>
         /// <param name="asset">HEU_HoudiniAsset object</param>
         /// <param name="assetObject">Serialized HEU_HoudiniAsset</param>
-        private void PopulateInstanceInputCache(HEU_HoudiniAsset asset, SerializedObject assetObject)
+        void PopulateInstanceInputCache(HEU_HoudiniAsset asset, SerializedObject assetObject)
         {
             if (asset.InstanceInputUIState == null)
             {

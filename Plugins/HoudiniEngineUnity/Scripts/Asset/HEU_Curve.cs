@@ -46,7 +46,6 @@ namespace HoudiniEngineUnity
     using HAPI_NodeId = System.Int32;
     using HAPI_PartId = System.Int32;
     using HAPI_ParmId = System.Int32;
-    using HAPI_StringHandle = System.Int32;
 
     /// <summary>
     /// A class representing a curve CV
@@ -189,8 +188,8 @@ namespace HoudiniEngineUnity
         /// <inheritdoc />
         public List<CurveNodeData> CurveNodeData => _curveNodeData;
 
-	/// <inheritdoc />
-	public string? CurveName { get { return _curveName; } }
+        /// <inheritdoc />
+        public HEU_Parameters Parameters => _parameters;
 
         /// <inheritdoc />
         public string CurveName => _curveName;
@@ -251,8 +250,8 @@ namespace HoudiniEngineUnity
             EDIT
         }
 
-	[SerializeField]
-	private string? _curveName;
+        // Preferred interaction mode when this a curve selected. Allows for quick access for curve editing.
+        public static Interaction PreferredNextInteractionMode = Interaction.VIEW;
 
         internal enum CurveDrawCollision
         {
@@ -384,14 +383,8 @@ namespace HoudiniEngineUnity
                 return _curveNodeData[pointIndex].position;
             }
 
-	    /// <inheritdoc />
-	    public void SetCurveName( string? curveName ) {
-            if( string.IsNullOrEmpty(curveName) )
-                throw new ArgumentNullException( nameof(curveName) ) ;
-        
-	        if ( _targetGameObject )
-		        HEU_GeneralUtility.RenameGameObject( _targetGameObject, curveName ) ;
-	    }
+            return Vector3.zero;
+        }
 
         /// <inheritdoc />
         public List<CurveNodeData> GetAllPointTransforms()

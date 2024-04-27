@@ -42,46 +42,48 @@ namespace HoudiniEngineUnity
     {
         // CONSTANTS --------------------------------------------------------------------------------------------------
 
-        private Color _unselectedCurveColor = new Color(0, 0.7f, 0);
-        private Color _selectedCurveColor = new Color(0, 1f, 0);
+        Color _unselectedCurveColor = new Color(0, 0.7f, 0);
+        Color _selectedCurveColor   = new Color(0, 1f, 0);
 
-        private Color _viewPointColor = new Color(0.5f, 0.5f, 0.5f, 1f);
-        private Color _unselectedPointColor = new Color(0, 1f, 0f, 1f);
-        private Color _selectedPointColor = new Color(0.8f, 0f, 0.8f);
+        Color _viewPointColor       = new Color(0.5f, 0.5f, 0.5f, 1f);
+        Color _unselectedPointColor = new Color(0, 1f, 0f, 1f);
+        Color _selectedPointColor   = new Color(0.8f, 0f, 0.8f);
 
-        private Color _addModeDefaultPointColor = new Color(0.1f, 0.6f, 0.1f);
+        Color _addModeDefaultPointColor = new Color(0.1f, 0.6f, 0.1f);
 
-        private Color _dottedLineColor = Color.yellow;
+        Color _dottedLineColor = Color.yellow;
 
-        private Color _selectionBoxFillColor = new Color(0.5f, 0.8f, 1f, 0.05f);
-        private Color _selectionBoxOutlineColor = new Color(0.9f, 0.9f, 0.9f, 0.8f);
+        Color _selectionBoxFillColor    = new Color(0.5f, 0.8f, 1f, 0.05f);
+        Color _selectionBoxOutlineColor = new Color(0.9f, 0.9f, 0.9f, 0.8f);
 
-        private const float _activeBorderWidth = 5f;
-        private const float _inactiveBorderWidth = 2f;
+        const float _activeBorderWidth   = 5f;
+        const float _inactiveBorderWidth = 2f;
 
-        private const float _sceneUIBorderPadding = 2f;
+        const float _sceneUIBorderPadding = 2f;
 
-        private const string _curveEditorLabel = "HOUDINI ENGINE CURVE EDITOR";
-        private const string _infoHeaderLabel = "CURVE EDITOR INFO";
-        private const string _curveNewPointModeLabel = "New Point Mode";
-        private const string _infoLabel = "Press F1 to show or hide Info Panel.";
-        private const string _curveViewHelp =
+        const string _curveEditorLabel       = "HOUDINI ENGINE CURVE EDITOR";
+        const string _infoHeaderLabel        = "CURVE EDITOR INFO";
+        const string _curveNewPointModeLabel = "New Point Mode";
+        const string _infoLabel              = "Press F1 to show or hide Info Panel.";
+
+        const string _curveViewHelp =
             "You can add and edit curve points similar to the Houdini Curve tool."
             + "\nSelect ADD or EDIT mode or switch to them using Space.";
-        private const string _curveViewHelp2 =
+
+        const string _curveViewHelp2 =
             "You can add and edit curve points similar to the Houdini Curve tool."
             + "\nSelect ADD or EDIT mode or switch to them using F2.";
 
-        private const float _rayCastMaxDistance = 5000f;
+        const float _rayCastMaxDistance = 5000f;
 
-        private GUIContent[] InteractionModeLabels = new GUIContent[]
+        GUIContent[] InteractionModeLabels = new GUIContent[]
         {
             new GUIContent(HEU_Curve.Interaction.VIEW.ToString()),
             new GUIContent(HEU_Curve.Interaction.ADD.ToString()),
             new GUIContent(HEU_Curve.Interaction.EDIT.ToString())
         };
 
-        private GUIContent[] NewPointModeLabels = new GUIContent[]
+        GUIContent[] NewPointModeLabels = new GUIContent[]
         {
             new GUIContent(CurveNewPointMode.START.ToString()),
             new GUIContent(CurveNewPointMode.INSIDE.ToString()),
@@ -90,59 +92,59 @@ namespace HoudiniEngineUnity
 
         // CACHE ------------------------------------------------------------------------------------------------------
 
-        private Camera _currentCamera;
-        private Texture2D _lineTexture;
-        private Texture2D _boxTexture;
-        private Rect _curveEditorUIRect;
-        private HEU_Curve.Interaction _interactionMode;
+        Camera                _currentCamera;
+        Texture2D             _lineTexture;
+        Texture2D             _boxTexture;
+        Rect                  _curveEditorUIRect;
+        HEU_Curve.Interaction _interactionMode;
 
         // Map of selected points for each curve
-        private Dictionary<string, List<int>> _selectedCurvePoints = new Dictionary<string, List<int>>();
+        Dictionary<string, List<int>> _selectedCurvePoints = new Dictionary<string, List<int>>();
 
-        private List<HEU_Curve> _curves = new List<HEU_Curve>();
+        List<HEU_Curve> _curves = new List<HEU_Curve>();
 
-        private Dictionary<string, SerializedObject>
+        Dictionary<string, SerializedObject>
             _serializedCurvesCache = new Dictionary<string, SerializedObject>();
 
         // Stack of points added in current Add mode
-        private string _latestPointAddedCurve;
-        private Stack<int> _latestPointsAdded = new Stack<int>();
+        string     _latestPointAddedCurve;
+        Stack<int> _latestPointsAdded = new Stack<int>();
 
         // Drag selection
-        private bool _dragMouseDown;
-        private Vector3 _dragMouseStart;
-        private bool _cleanMouseDown;
+        bool    _dragMouseDown;
+        Vector3 _dragMouseStart;
+        bool    _cleanMouseDown;
 
         // Add point
-        private string _closestCurveName;
-        private int _closestPointIndex;
-        private Vector3 _newPointPosition;
+        string  _closestCurveName;
+        int     _closestPointIndex;
+        Vector3 _newPointPosition;
 
-        private GUIStyle _toolsBGStyle;
+        GUIStyle _toolsBGStyle;
 
         // New point add mode
-        private enum CurveNewPointMode
+        enum CurveNewPointMode
         {
             START,
             INSIDE,
             END
         }
 
-        private CurveNewPointMode _newPointMode = CurveNewPointMode.END;
+        CurveNewPointMode _newPointMode = CurveNewPointMode.END;
 
         // If info panel is enabled
-        private bool _showInfo;
+        bool _showInfo;
 
-        private bool _showInfoRepaint;
+        bool _showInfoRepaint;
 
-        private GUIStyle _helpGridBoxStyle;
+        GUIStyle _helpGridBoxStyle;
 
-        private Rect _infoRect;
+        Rect _infoRect;
 
 
         // UI LOGIC ---------------------------------------------------------------------------------------------------
 
-        private void OnEnable()
+        void OnEnable()
         {
             _lineTexture = new Texture2D(1, 2);
             _lineTexture.wrapMode = TextureWrapMode.Repeat;
@@ -180,7 +182,7 @@ namespace HoudiniEngineUnity
 #endif
         }
 
-        private void OnSceneGUIDelegate(SceneView sceneView)
+        void OnSceneGUIDelegate(SceneView sceneView)
         {
             if (Event.current.type == EventType.ExecuteCommand)
             {
@@ -245,7 +247,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Callback when selection has changed.
         /// </summary>
-        private void SelectionChangedCallback()
+        void SelectionChangedCallback()
         {
             Selection.selectionChanged -= SelectionChangedCallback;
 
@@ -255,7 +257,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Clear out cache, and reset any Editor states.
         /// </summary>
-        private void DisableUI()
+        void DisableUI()
         {
             // Make sure all curves being edited will be ready to be cooked, since we're done editing.
             foreach (Object targetObject in targets)
@@ -297,7 +299,7 @@ namespace HoudiniEngineUnity
         /// </summary>
         /// <param name="curveName">Name of curve to look for</param>
         /// <returns>Serialized curve object</returns>
-        private SerializedObject GetOrCreateSerializedCurve(string curveName)
+        SerializedObject GetOrCreateSerializedCurve(string curveName)
         {
             SerializedObject serializedCurve = null;
             if (!_serializedCurvesCache.TryGetValue(curveName, out serializedCurve))
@@ -392,8 +394,8 @@ namespace HoudiniEngineUnity
             DrawSceneInfo();
         }
 
-        private void UpdateViewMode(HEU_HoudiniAsset asset, int controlID, EventType eventType, Vector3 mousePosition,
-            List<SerializedObject> updatedCurves, bool bMouseInDrawArea)
+        void UpdateViewMode(HEU_HoudiniAsset       asset,         int  controlID, EventType eventType, Vector3 mousePosition,
+                            List<SerializedObject> updatedCurves, bool bMouseInDrawArea)
         {
             Event currentEvent = Event.current;
 
@@ -444,8 +446,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void UpdateAddMode(HEU_HoudiniAsset asset, int controlID, EventType eventType, Vector3 mousePosition,
-            List<SerializedObject> updatedCurves, bool bMouseInDrawArea)
+        void UpdateAddMode(HEU_HoudiniAsset       asset,         int  controlID, EventType eventType, Vector3 mousePosition,
+                           List<SerializedObject> updatedCurves, bool bMouseInDrawArea)
         {
             Event currentEvent = Event.current;
 
@@ -543,8 +545,8 @@ namespace HoudiniEngineUnity
         }
 
 
-        private void RepaintAddNode(HEU_HoudiniAsset asset, int controlID, EventType eventType, Vector3 mousePosition,
-            CurveNewPointMode curvePointMode, bool bMouseInDrawArea)
+        void RepaintAddNode(HEU_HoudiniAsset  asset,          int  controlID, EventType eventType, Vector3 mousePosition,
+                            CurveNewPointMode curvePointMode, bool bMouseInDrawArea)
         {
             Event currentEvent = Event.current;
 
@@ -781,8 +783,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void HybridEditAddMode(HEU_HoudiniAsset asset, int controlID, EventType eventType,
-            Vector3 mousePosition, List<SerializedObject> updatedCurves, bool bMouseInDrawArea)
+        void HybridEditAddMode(HEU_HoudiniAsset asset,         int                    controlID,     EventType eventType,
+                               Vector3          mousePosition, List<SerializedObject> updatedCurves, bool      bMouseInDrawArea)
         {
             Event currentEvent = Event.current;
 
@@ -862,8 +864,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void UpdateEditMode(HEU_HoudiniAsset asset, int controlID, EventType eventType, Vector3 mousePosition,
-            List<SerializedObject> updatedCurves, bool bMouseInDrawArea)
+        void UpdateEditMode(HEU_HoudiniAsset       asset,         int  controlID, EventType eventType, Vector3 mousePosition,
+                            List<SerializedObject> updatedCurves, bool bMouseInDrawArea)
         {
             // In edit, we draw points as interactable buttons, allowing for selection/deselection.
             // We also draw drag handle for selected buttons.
@@ -1215,8 +1217,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void EditModeDrawCurvePoints(Event currentEvent, EventType eventType, ref int numSelectedPoints,
-            ref Bounds bounds, ref bool bInteractionOcurred)
+        void EditModeDrawCurvePoints(Event      currentEvent, EventType eventType, ref int numSelectedPoints,
+                                     ref Bounds bounds,       ref bool  bInteractionOcurred)
         {
             Color defaultHandleColor = Handles.color;
 
@@ -1305,7 +1307,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawCurveUsingVertices(HEU_Curve curve, Color lineColor)
+        void DrawCurveUsingVertices(HEU_Curve curve, Color lineColor)
         {
             Vector3[] vertices = curve.GetVertices();
 
@@ -1318,7 +1320,7 @@ namespace HoudiniEngineUnity
             Handles.color = defaultColor;
         }
 
-        private void DrawCurveUsingPoints(HEU_Curve curve, Color lineColor)
+        void DrawCurveUsingPoints(HEU_Curve curve, Color lineColor)
         {
             List<Vector3> points = curve.GetAllPoints();
 
@@ -1331,7 +1333,7 @@ namespace HoudiniEngineUnity
             Handles.color = defaultColor;
         }
 
-        private void DrawPointCaps(HEU_Curve curve, Color capColor)
+        void DrawPointCaps(HEU_Curve curve, Color capColor)
         {
             List<Vector3> points = curve.GetAllPoints();
 
@@ -1347,7 +1349,7 @@ namespace HoudiniEngineUnity
             Handles.color = defaultColor;
         }
 
-        private HEU_Curve GetCurve(string curveName)
+        HEU_Curve GetCurve(string curveName)
         {
             foreach (HEU_Curve curve in _curves)
             {
@@ -1360,14 +1362,14 @@ namespace HoudiniEngineUnity
             return null;
         }
 
-        private void SelectSinglePoint(HEU_Curve curve, int pointIndex)
+        void SelectSinglePoint(HEU_Curve curve, int pointIndex)
         {
             _selectedCurvePoints.Clear();
             _selectedCurvePoints[curve.CurveName] = new List<int>();
             _selectedCurvePoints[curve.CurveName].Add(pointIndex);
         }
 
-        private void SelectAddPoint(HEU_Curve curve, int pointIndex)
+        void SelectAddPoint(HEU_Curve curve, int pointIndex)
         {
             if (!_selectedCurvePoints.ContainsKey(curve.CurveName))
             {
@@ -1380,7 +1382,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private bool IsPointSelected(HEU_Curve curve, int pointIndex)
+        bool IsPointSelected(HEU_Curve curve, int pointIndex)
         {
             if (!_selectedCurvePoints.ContainsKey(curve.CurveName))
             {
@@ -1390,12 +1392,12 @@ namespace HoudiniEngineUnity
             return _selectedCurvePoints[curve.CurveName].Contains(pointIndex);
         }
 
-        private void DeselectAllPoints()
+        void DeselectAllPoints()
         {
             _selectedCurvePoints.Clear();
         }
 
-        private void DeselectPoint(string curveName, int pointIndex)
+        void DeselectPoint(string curveName, int pointIndex)
         {
             List<int> points = null;
             if (_selectedCurvePoints.TryGetValue(curveName, out points))
@@ -1409,7 +1411,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawSelectionBox(Vector3 mousePosition, bool bAutoSelectPoints, bool bDeselectPoints)
+        void DrawSelectionBox(Vector3 mousePosition, bool bAutoSelectPoints, bool bDeselectPoints)
         {
             // First draw the selection box from drag start to current mouse position.
 
@@ -1484,7 +1486,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawSceneInfo()
+        void DrawSceneInfo()
         {
             float pixelsPerPoint = HEU_EditorUI.GetPixelsPerPoint();
             float screenWidth = Screen.width / pixelsPerPoint;
@@ -1601,7 +1603,7 @@ namespace HoudiniEngineUnity
             Handles.EndGUI();
         }
 
-        private void SetupUIElements()
+        void SetupUIElements()
         {
             if (_helpGridBoxStyle == null)
             {
@@ -1617,7 +1619,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawHelpLineGridBox(string keyText, string descText)
+        void DrawHelpLineGridBox(string keyText, string descText)
         {
             using (new GUILayout.HorizontalScope())
             {
@@ -1630,7 +1632,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void SwitchToMode(HEU_Curve.Interaction newInteraction)
+        void SwitchToMode(HEU_Curve.Interaction newInteraction)
         {
             DeselectAllPoints();
 
@@ -1664,7 +1666,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Show the position handle for asset.
         /// </summary>
-        private void ShowTools()
+        void ShowTools()
         {
             Tools.hidden = false;
         }
@@ -1674,7 +1676,7 @@ namespace HoudiniEngineUnity
         /// </summary>
         /// <param name="newState">New state to set</param>
         /// <param name="serializedCurve">Curve to change state for</param>
-        private void SetCurveState(HEU_Curve.CurveEditState newState, SerializedObject serializedCurve)
+        void SetCurveState(HEU_Curve.CurveEditState newState, SerializedObject serializedCurve)
         {
             SerializedProperty editStateProperty = serializedCurve.FindProperty("_editState");
             editStateProperty.intValue = (int)newState;
@@ -1695,7 +1697,7 @@ namespace HoudiniEngineUnity
         /// During editing, the points should have been updated, which now need to be transferred to coords parameters.
         /// </summary>
         /// <param name="serializedCurve"></param>
-        private void SyncCurvePointsToParameters(SerializedObject serializedCurve)
+        void SyncCurvePointsToParameters(SerializedObject serializedCurve)
         {
             // Get the parameters, find the coords parameter data, then set the points array as string
 
@@ -1739,7 +1741,7 @@ namespace HoudiniEngineUnity
             parameterObject.ApplyModifiedProperties();
         }
 
-        private void DeleteSelectedPoints(List<SerializedObject> updatedCurves)
+        void DeleteSelectedPoints(List<SerializedObject> updatedCurves)
         {
             foreach (KeyValuePair<string, List<int>> curvePoints in _selectedCurvePoints)
             {
@@ -1778,8 +1780,8 @@ namespace HoudiniEngineUnity
             DeselectAllPoints();
         }
 
-        private void AddPoint(string curveName, int pointIndex, Vector3 newPointPosition,
-            List<SerializedObject> updatedCurves, bool bSelectNewPoint)
+        void AddPoint(string                 curveName,     int  pointIndex, Vector3 newPointPosition,
+                      List<SerializedObject> updatedCurves, bool bSelectNewPoint)
         {
             SerializedObject serializedCurve = GetOrCreateSerializedCurve(curveName);
             SerializedProperty curveNodesProperty = serializedCurve.FindProperty("_curveNodeData");
@@ -1827,8 +1829,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void AddChangedSerializedObject(SerializedObject serializedObject,
-            List<SerializedObject> serializedList)
+        void AddChangedSerializedObject(SerializedObject       serializedObject,
+                                        List<SerializedObject> serializedList)
         {
             if (!serializedList.Contains(serializedObject))
             {
@@ -1847,8 +1849,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void GetClosestPointToCurve(Vector3 mousePosition, HEU_Curve curve, ref int closestPointIndex,
-            ref string closestPointName, ref float closestDistance)
+        void GetClosestPointToCurve(Vector3    mousePosition,    HEU_Curve curve, ref int closestPointIndex,
+                                    ref string closestPointName, ref float closestDistance)
         {
             // Control -> add point between closest line segment
 
@@ -1873,7 +1875,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private bool IsMouseIntersectingClosestCurve(Vector3 mousePosition)
+        bool IsMouseIntersectingClosestCurve(Vector3 mousePosition)
         {
             if (_closestCurveName == null || _closestPointIndex < 0)
             {

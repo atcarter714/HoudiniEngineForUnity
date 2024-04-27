@@ -25,31 +25,32 @@
  */
 
 using System ;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
-using UnityEngine.Tilemaps;
+using System.Collections.Generic ;
+using System.Globalization ;
+using UnityEditor ;
+using UnityEngine ;
+using UnityEngine.Tilemaps ;
 using Object = UnityEngine.Object ;
 
 namespace HoudiniEngineUnity
 {
     internal class HEU_SelectionWindow : EditorWindow
     {
-        public static void ShowWindow(SelectionResultHandler selectionHandler, System.Type selectionType,
+        public static void ShowWindow(SelectionResultHandler selectionHandler, Type selectionType,
             HEU_InputNode inputNode = null)
         {
             bool bUtility = false;
             bool bFocus = true;
             string title = "Input Selection";
 
-            HEU_SelectionWindow window = EditorWindow.GetWindow<HEU_SelectionWindow>(bUtility, title, bFocus);
+            HEU_SelectionWindow window = GetWindow<HEU_SelectionWindow>(bUtility, title, bFocus);
             window.autoRepaintOnSceneChange = true;
             window._inputNode = inputNode;
             window._selectionHandler = selectionHandler;
             window._selectionType = selectionType;
         }
 
-        private void OnEnable()
+        void OnEnable()
         {
             _requiresSetupUI = true;
             _requiresPopulation = true;
@@ -60,7 +61,7 @@ namespace HoudiniEngineUnity
             _filterName = HEU_PluginSettings.InputSelectionFilterName;
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             HEU_PluginSettings.InputSelectionFilterLocation = (int)_filterLocation;
             HEU_PluginSettings.InputSelectionFilterState = (int)_filterActive;
@@ -201,51 +202,51 @@ namespace HoudiniEngineUnity
                         }
                     }
 
-                    this.Close();
+                    Close();
                 }
 
                 if (GUILayout.Button(_cancelLabel, GUILayout.MaxHeight(_buttonHeight)))
                 {
-                    this.Close();
+                    Close();
                 }
             }
         }
 
-        GameObject GetGameObjectFromType( Object obj, System.Type type ) {
-        private GameObject GetGameObjectFromType(Object obj, System.Type type)
-        {
+        GameObject GetGameObjectFromType( Object obj, Type type ) {
             if (type == typeof(GameObject))
             {
                 return obj as GameObject;
             }
-            else if (type == typeof(HEU_HoudiniAssetRoot))
+
+            if (type == typeof(HEU_HoudiniAssetRoot))
             {
                 HEU_HoudiniAssetRoot heuRoot = obj as HEU_HoudiniAssetRoot;
                 return heuRoot.gameObject;
             }
-            else if (type == typeof(Terrain))
+
+            if (type == typeof(Terrain))
             {
                 Terrain terrain = obj as Terrain;
                 return terrain.gameObject;
             }
-            else if (type == typeof(HEU_BoundingVolume))
+
+            if (type == typeof(HEU_BoundingVolume))
             {
                 HEU_BoundingVolume volume = obj as HEU_BoundingVolume;
                 return volume.gameObject;
             }
-            else if (type == typeof(Tilemap))
+
+            if (type == typeof(Tilemap))
             {
                 Tilemap tilemap = obj as Tilemap;
                 return tilemap.gameObject;
             }
-            else
-            {
-                HEU_Logger.LogErrorFormat("Unsupported type {0} for Selection Window.", type);
-                return null;
-            }
+
+            HEU_Logger.LogErrorFormat("Unsupported type {0} for Selection Window.", type);
+            return null;
         }
 
-        private void PopulateFromScene()
+        void PopulateFromScene()
         {
             // Populate selection state for specified objects (scene, project, filtered, etc).
             // Copy over selection state from previous population if we have them.
@@ -261,7 +262,7 @@ namespace HoudiniEngineUnity
                 Dictionary<GameObject, bool> newState = new Dictionary<GameObject, bool>();
                 _sortedObjects.Clear();
 
-                System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.CurrentCulture;
+                CultureInfo culture = CultureInfo.CurrentCulture;
 
                 bool bInScene = false;
                 bool bActive = false;
@@ -273,7 +274,7 @@ namespace HoudiniEngineUnity
                     if (go != null)
                     {
                         if (bUseName && culture.CompareInfo.IndexOf(go.name, _filterName,
-                                System.Globalization.CompareOptions.IgnoreCase) < 0)
+                                CompareOptions.IgnoreCase) < 0)
                         {
                             continue;
                         }
@@ -329,7 +330,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void SetupUI()
+        void SetupUI()
         {
             _refreshLabel = new GUIContent("Refresh", "Refresh objects from project or scene, based on filters.");
             _clearLabel = new GUIContent("Clear", "Clear all selections.");
@@ -369,54 +370,54 @@ namespace HoudiniEngineUnity
 
         //	DATA ------------------------------------------------------------------------------------------------------
 
-        private bool _requiresPopulation = true;
+        bool _requiresPopulation = true;
 
-        private Dictionary<GameObject, bool> _sceneObjectState = new Dictionary<GameObject, bool>();
-        private List<GameObject> _sortedObjects = new List<GameObject>();
+        Dictionary<GameObject, bool> _sceneObjectState = new Dictionary<GameObject, bool>();
+        List<GameObject>             _sortedObjects    = new List<GameObject>();
 
-        private bool _requiresSetupUI = true;
+        bool _requiresSetupUI = true;
 
-        private GUIContent _refreshLabel;
-        private GUIContent _clearLabel;
-        private GUIContent _acceptLabel;
-        private GUIContent _cancelLabel;
+        GUIContent _refreshLabel;
+        GUIContent _clearLabel;
+        GUIContent _acceptLabel;
+        GUIContent _cancelLabel;
 
-        private GUIContent _selectFound;
+        GUIContent _selectFound;
 
-        private GUIStyle _textButtonStyle;
+        GUIStyle _textButtonStyle;
 
-        private GUIContent _selectionObjectsLabel;
-        private GUIContent _filterLabel;
+        GUIContent _selectionObjectsLabel;
+        GUIContent _filterLabel;
 
-        private GUIContent _filterLocationLabel;
-        private GUIContent _filterActiveLabel;
-        private GUIContent _filterRootLabel;
-        private GUIContent _filterNameLabel;
+        GUIContent _filterLocationLabel;
+        GUIContent _filterActiveLabel;
+        GUIContent _filterRootLabel;
+        GUIContent _filterNameLabel;
 
-        private GUIStyle _backgroundStyle;
+        GUIStyle _backgroundStyle;
 
-        private float _buttonHeight = 22;
+        float _buttonHeight = 22;
 
-        private Vector2 _scrollViewPos = Vector2.zero;
+        Vector2 _scrollViewPos = Vector2.zero;
 
         public delegate void SelectionResultHandler(GameObject[] selectedObjects, HEU_InputNode inputNode);
 
-        private SelectionResultHandler _selectionHandler;
+        SelectionResultHandler _selectionHandler;
 
-        private HEU_InputNode _inputNode;
+        HEU_InputNode _inputNode;
         
 	    Type? _selectionType = typeof(GameObject);
 
-        private enum FilterLocationType
+        enum FilterLocationType
         {
             All,
             Scene,
             Project
         }
 
-        private FilterLocationType _filterLocation = FilterLocationType.Scene;
+        FilterLocationType _filterLocation = FilterLocationType.Scene;
 
-        private enum FilterActiveType
+        enum FilterActiveType
         {
             All,
             Active,
@@ -425,6 +426,6 @@ namespace HoudiniEngineUnity
 
         FilterActiveType _filterActive = FilterActiveType.Active;
 	    string? _filterName  = "";
-	    bool _filterRoots = false;
+	    bool _filterRoots ;
     }
 }

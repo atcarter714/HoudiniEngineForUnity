@@ -36,12 +36,12 @@ namespace HoudiniEngineUnity
     {
         #region FUNCTIONS
 
-        private void OnEnable()
+        void OnEnable()
         {
             AcquireTarget();
         }
 
-        private void AcquireTarget()
+        void AcquireTarget()
         {
             _nodeSync = target as HEU_NodeSync;
         }
@@ -117,17 +117,17 @@ namespace HoudiniEngineUnity
 
         #region DATA
 
-        private HEU_NodeSync _nodeSync;
+        HEU_NodeSync _nodeSync;
 
-        private GUIContent _syncContent = new GUIContent("Resync", "Recook and regenerate geometry.");
+        GUIContent _syncContent = new GUIContent("Resync", "Recook and regenerate geometry.");
 
-        private GUIContent _stopContent = new GUIContent("Stop", "Stop the loading.");
+        GUIContent _stopContent = new GUIContent("Stop", "Stop the loading.");
 
-        private GUIContent _statusIdleContent = new GUIContent("Idle");
+        GUIContent _statusIdleContent = new GUIContent("Idle");
 
-        private GUIContent _statusSyncContent = new GUIContent("Syncing");
+        GUIContent _statusSyncContent = new GUIContent("Syncing");
 
-        private GUIContent _unloadContent =
+        GUIContent _unloadContent =
             new GUIContent("Unload", "Delete the file node and clean up all generated content.");
 
         #endregion

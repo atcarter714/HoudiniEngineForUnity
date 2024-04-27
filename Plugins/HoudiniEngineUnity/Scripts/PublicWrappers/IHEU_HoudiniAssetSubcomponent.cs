@@ -24,9 +24,6 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using UnityEngine;
-using System.Collections.Generic;
-
 // Expose internal classes/functions
 #if UNITY_EDITOR
 using System.Runtime.CompilerServices;
@@ -40,17 +37,7 @@ namespace HoudiniEngineUnity
 {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Typedefs (copy these from HEU_Common.cs)
-    using HAPI_NodeId = System.Int32;
-    using HAPI_AssetLibraryId = System.Int32;
-    using HAPI_StringHandle = System.Int32;
-    using HAPI_ErrorCodeBits = System.Int32;
-    using HAPI_NodeTypeBits = System.Int32;
-    using HAPI_NodeFlagsBits = System.Int32;
-    using HAPI_ParmId = System.Int32;
-    using HAPI_PartId = System.Int32;
-
-
-    /// <summary>
+	/// <summary>
     /// A subcomponent of an HDA (HEU_HoudiniAsset)
     /// Used primarily as a helper interface
     /// </summary>

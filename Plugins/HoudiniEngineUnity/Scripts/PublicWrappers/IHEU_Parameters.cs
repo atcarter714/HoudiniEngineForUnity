@@ -34,13 +34,8 @@ using System.Runtime.CompilerServices;
 #region Type Aliases
 // Typedefs (copy these from HEU_Common.cs)
 using HAPI_NodeId = System.Int32 ;
-using HAPI_AssetLibraryId = System.Int32 ;
-using HAPI_StringHandle = System.Int32 ;
-using HAPI_ErrorCodeBits = System.Int32 ;
-using HAPI_NodeTypeBits = System.Int32 ;
-using HAPI_NodeFlagsBits = System.Int32 ;
 using HAPI_ParmId = System.Int32 ;
-using HAPI_PartId = System.Int32 ;
+
 #endregion
 
 

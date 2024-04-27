@@ -94,17 +94,17 @@ namespace HoudiniEngineUnity
         }
 
         // Create all axes
-        private static DragAxisInfo _axisInfoX =
+        static DragAxisInfo _axisInfoX =
             new DragAxisInfo("HEU_DragHandleX", DragAxis.X_AXIS, Vector3.right, Handles.xAxisColor);
 
-        private static DragAxisInfo _axisInfoY =
+        static DragAxisInfo _axisInfoY =
             new DragAxisInfo("HEU_DragHandleY", DragAxis.Y_AXIS, Vector3.up, Handles.yAxisColor);
 
-        private static DragAxisInfo _axisInfoZ =
+        static DragAxisInfo _axisInfoZ =
             new DragAxisInfo("HEU_DragHandleZ", DragAxis.Z_AXIS, Vector3.forward, Handles.zAxisColor);
 
-        private static DragAxisInfo _axisInfoAll = new DragAxisInfo("HEU_DragHandleAll", DragAxis.ALL_AXIS, Vector3.one,
-            new Color(0.8f, 0.0f, 0.8f, 0.7f));
+        static DragAxisInfo _axisInfoAll = new DragAxisInfo("HEU_DragHandleAll", DragAxis.ALL_AXIS, Vector3.one,
+                                                            new Color(0.8f, 0.0f, 0.8f, 0.7f));
 
 
         // LOGIC ------------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ namespace HoudiniEngineUnity
             return position;
         }
 
-        private static Vector3 DoDragHandleAxis(DragAxisInfo axisInfo, Vector3 position, ref DragHandleResult result)
+        static Vector3 DoDragHandleAxis(DragAxisInfo axisInfo, Vector3 position, ref DragHandleResult result)
         {
             // Must request a control ID for each interactible control in the GUI that can respond to events
             int id = GUIUtility.GetControlID(axisInfo._handleHash, FocusType.Passive);

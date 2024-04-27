@@ -41,22 +41,12 @@ namespace HoudiniEngineUnity
 {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Typedefs (copy these from HEU_Common.cs)
-    using HAPI_NodeId = System.Int32;
-    using HAPI_AssetLibraryId = System.Int32;
-    using HAPI_StringHandle = System.Int32;
-    using HAPI_ErrorCodeBits = System.Int32;
-    using HAPI_NodeTypeBits = System.Int32;
-    using HAPI_NodeFlagsBits = System.Int32;
-    using HAPI_ParmId = System.Int32;
-    using HAPI_PartId = System.Int32;
-
-
-    /// <summary>
+	/// <summary>
     /// Holds all parameter data for an asset.
     /// </summary>
     public interface IHEU_VolumeCache
     {
-        List<HEU_VolumeLayer> Layers { get; }
+        List< HEU_VolumeLayer >? Layers { get; }
 
         int TileIndex { get; }
 
@@ -64,15 +54,15 @@ namespace HoudiniEngineUnity
 
 	string? GeoName { get; }
 
-        TerrainData TerrainData { get; }
+        TerrainData? TerrainData { get; }
 
-        HEU_VolumeScatterTrees ScatterTrees { get; }
+        HEU_VolumeScatterTrees? ScatterTrees { get; }
 
-        HEU_DetailProperties DetailProperties { get; }
+        HEU_DetailProperties? DetailProperties { get; }
 
         void ResetParameters();
 
-	HEU_VolumeLayer GetLayer(string? layerName);
+	HEU_VolumeLayer? GetLayer(string? layerName);
 
 
         void PopulatePreset(HEU_VolumeCachePreset cachePreset);

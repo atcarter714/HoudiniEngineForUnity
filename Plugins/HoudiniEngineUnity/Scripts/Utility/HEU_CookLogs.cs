@@ -24,134 +24,104 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+using System.IO ;
+using System.Text ;
+using UnityEngine ;
 
-namespace HoudiniEngineUnity
-{
-    public class HEU_CookLogs
-    {
-        private static HEU_CookLogs _instance;
+namespace HoudiniEngineUnity {
 
-        public static HEU_CookLogs Instance
-        {
-            get
-            {
-                if (_instance != null)
-                {
-                    return _instance;
+    public class HEU_CookLogs {
+        public const long MaxLogSize = 50 * 1000 * 1000 ; // 50 MB
+        const int MAX_COOK_LOG_COUNT = 9001 ;
+        readonly bool _uniqueStrOnly = true ;
+        static HEU_CookLogs? _instance ;
+
+        public static HEU_CookLogs Instance {
+            get {
+                if ( _instance != null ) {
+                    return _instance ;
                 }
-                else
-                {
-                    _instance = new HEU_CookLogs();
-                    return _instance;
-                }
+
+                _instance = new( ) ;
+                return _instance ;
             }
         }
 
-	private string? _lastLogStr = "";
+        string? _lastLogStr = string.Empty ;
 
-        private string _lastLogStr = "";
+        int _currentCookLogCount ;
+        StringBuilder _cookLogs = new( ) ;
 
-        private bool _uniqueStrOnly = true;
 
-        public string GetCookLogString()
-        {
-            return _cookLogs.ToString();
+        public string GetCookLogString( ) => _cookLogs.ToString( ) ;
+
+        public void AppendCookLog( string? logStr ) {
+            if ( string.IsNullOrEmpty( logStr ) ) return ;
+            if ( !HEU_PluginSettings.WriteCookLogs ) return ;
+            if ( _uniqueStrOnly && logStr == _lastLogStr ) return ;
+            
+            if ( _currentCookLogCount is MAX_COOK_LOG_COUNT ) {
+                string cur = _cookLogs.ToString( ) ;
+                int    newLine = cur.IndexOf( '\n' ) ;
+                cur = cur[ newLine.. ] ;
+                _cookLogs.Remove( 0, newLine + 1 ) ;
+                _cookLogs.AppendLine( logStr ) ;
+            }
+            else {
+                _cookLogs.AppendLine( logStr ) ;
+                ++_currentCookLogCount ;
+            }
+
+            WriteToLogFile( logStr, false ) ;
+            if ( _uniqueStrOnly ) _lastLogStr = logStr ;
+        }
+        
+        public void ClearCookLog( ) {
+            _cookLogs = new( ) ;
+            _currentCookLogCount = 0 ;
         }
 
-	public void AppendCookLog(string? logStr) {
-	   
-            if (!HEU_PluginSettings.WriteCookLogs)
-            {
-                return;
-            }
-
-            if (_uniqueStrOnly && logStr == _lastLogStr)
-            {
-                return;
-            }
-
-            if (_currentCookLogCount == MAX_COOK_LOG_COUNT)
-            {
-                string cur = _cookLogs.ToString();
-                int newLine = cur.IndexOf('\n');
-                cur = cur.Substring(newLine);
-                _cookLogs.Remove(0, newLine + 1);
-                _cookLogs.AppendLine(logStr);
-            }
-            else
-            {
-                _cookLogs.AppendLine(logStr);
-                _currentCookLogCount++;
-            }
-
-            WriteToLogFile(logStr, false);
-
-            if (_uniqueStrOnly)
-            {
-                _lastLogStr = logStr;
-            }
+        public string GetCookLogFilePath( ) =>
+            Path.Combine( Application.dataPath,
+                          ".." + Path.DirectorySeparatorChar
+                               + HEU_Defines.COOK_LOGS_FILE ) ;
+        
+        public void DeleteCookingFile( ) {
+            string   filePath = Instance.GetCookLogFilePath( ) ;
+            FileInfo fi       = new( filePath ) ;
+            fi.Delete( ) ;
+            fi.Refresh( ) ;
         }
 
-        public void ClearCookLog()
-        {
-            _cookLogs = new StringBuilder();
-            _currentCookLogCount = 0;
-        }
-
-        public string GetCookLogFilePath()
-        {
-            return System.IO.Path.Combine(Application.dataPath, ".." + System.IO.Path.DirectorySeparatorChar + HEU_Defines.COOK_LOGS_FILE);
-        }
-
-        public void DeleteCookingFile()
-        {
-            string filePath = HEU_CookLogs.Instance.GetCookLogFilePath();
-            FileInfo fi = new FileInfo(filePath);
-            fi.Delete();
-            fi.Refresh();
-        }
-
-        public void WriteToLogFile(string logStr, bool checkLastLogStr = true)
-        {
-            if (_uniqueStrOnly && checkLastLogStr && logStr == _lastLogStr)
-            {
-                return;
+        public void WriteToLogFile( string logStr, bool checkLastLogStr = true ) {
+            if ( _uniqueStrOnly && checkLastLogStr && logStr == _lastLogStr ) {
+                return ;
             }
 
-            if (GetFileSizeOfLogFile() > MaxLogSize)
-            {
-                Debug.LogWarning("Deleting cook log file because it is taking too much space!");
-                DeleteCookingFile();
+            if ( GetFileSizeOfLogFile( ) > MaxLogSize ) {
+                Debug.LogWarning( "Deleting cook log file because it is taking too much space!" ) ;
+                DeleteCookingFile( ) ;
             }
 
-            string filePath = GetCookLogFilePath();
-            using (System.IO.StreamWriter writer = new System.IO.StreamWriter(filePath, true))
-            {
-                writer.WriteLine(logStr);
+            string filePath = GetCookLogFilePath( ) ;
+            using ( StreamWriter writer = new( filePath, true ) ) {
+                writer.WriteLine( logStr ) ;
             }
 
-            if (_uniqueStrOnly && checkLastLogStr)
-            {
-                _lastLogStr = logStr;
+            if ( _uniqueStrOnly && checkLastLogStr ) {
+                _lastLogStr = logStr ;
             }
         }
 
-        public long GetFileSizeOfLogFile()
-        {
-            string filePath = GetCookLogFilePath();
-            if (!File.Exists(filePath))
-            {
-                return 0;
+        public long GetFileSizeOfLogFile( ) {
+            string filePath = GetCookLogFilePath( ) ;
+            if ( !File.Exists( filePath ) ) {
+                return 0 ;
             }
 
-            FileInfo fi = new FileInfo(filePath);
-            return fi.Length;
+            FileInfo fi = new( filePath ) ;
+            return fi.Length ;
         }
-    }
-}
+    } ;
+    
+} // HoudiniEngineUnity

@@ -28,7 +28,6 @@
 #define HOUDINIENGINEUNITY_ENABLED
 #endif
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -43,9 +42,7 @@ namespace HoudiniEngineUnity
     // Typedefs (copy these from HEU_Common.cs)
     using HAPI_StringHandle = System.Int32;
     using HAPI_NodeId = System.Int32;
-    using HAPI_PDG_WorkItemId = System.Int32;
     using HAPI_PDG_GraphContextId = System.Int32;
-    using HAPI_SessionId = System.Int64;
 
     /// <summary>
     /// Global object that manages all PDG-specific things on Unity side.
@@ -95,7 +92,7 @@ namespace HoudiniEngineUnity
 #endif
         }
 
-        private void Update()
+        void Update()
         {
 #if HOUDINIENGINEUNITY_ENABLED
             CleanUp();
@@ -104,7 +101,7 @@ namespace HoudiniEngineUnity
 #endif
         }
 
-        private void CleanUp()
+        void CleanUp()
         {
             for (int i = 0; i < _pdgAssets.Count; ++i)
             {
@@ -121,7 +118,7 @@ namespace HoudiniEngineUnity
         /// Handle PDG events, work item status updates.
         /// Forward relevant events to HEU_PDGAssetLink objects.
         /// </summary>
-        private void UpdatePDGContext()
+        void UpdatePDGContext()
         {
 #if HOUDINIENGINEUNITY_ENABLED
             HEU_SessionBase session = GetHAPIPDGSession(false);
@@ -217,8 +214,8 @@ namespace HoudiniEngineUnity
         /// <param name="session">Houdini Engine session</param>
         /// <param name="contextID">PDG graph context ID</param>
         /// <param name="eventInfo">PDG event info</param>
-        private void ProcessPDGEvent(HEU_SessionBase session, HAPI_PDG_GraphContextId contextID,
-            ref HAPI_PDG_EventInfo eventInfo)
+        void ProcessPDGEvent(HEU_SessionBase                   session, HAPI_PDG_GraphContextId contextID,
+                             ref HAPI_PDG_EventInfo eventInfo)
         {
 #if HOUDINIENGINEUNITY_ENABLED
             HEU_PDGAssetLink assetLink = null;
@@ -413,15 +410,15 @@ namespace HoudiniEngineUnity
 #endif
         }
 
-        private delegate void OnWorkItemLoadResultsDelegate(HEU_SyncedEventData OnSynced);
+        delegate void OnWorkItemLoadResultsDelegate(HEU_SyncedEventData OnSynced);
 
-        private void OnWorkItemLoadResults(HEU_TOPNodeData topNode, HEU_SyncedEventData OnSynced)
+        void OnWorkItemLoadResults(HEU_TOPNodeData topNode, HEU_SyncedEventData OnSynced)
         {
             _numItemsCompleted++;
             CheckCallback(topNode);
         }
 
-        private void CheckCallback(HEU_TOPNodeData topNode)
+        void CheckCallback(HEU_TOPNodeData topNode)
         {
             if (_cookedDataEvent != null && _pendingCallback && _numItemsCompleted >= _totalNumItems)
             {
@@ -438,8 +435,8 @@ namespace HoudiniEngineUnity
         /// <param name="assetLink">Found HEU_PDGAssetLink or null</param>
         /// <param name="topNode">Found top node with ID or null</param>
         /// <returns>Returns true if found</returns>
-        private bool GetTOPAssetLinkAndNode(HAPI_NodeId nodeID, out HEU_PDGAssetLink assetLink,
-            out HEU_TOPNodeData topNode)
+        bool GetTOPAssetLinkAndNode(HAPI_NodeId                    nodeID, out HEU_PDGAssetLink assetLink,
+                                    out HEU_TOPNodeData topNode)
         {
             assetLink = null;
             topNode = null;
@@ -457,8 +454,8 @@ namespace HoudiniEngineUnity
             return false;
         }
 
-        private void SetTOPNodePDGState(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode,
-            HEU_TOPNodeData.PDGState pdgState)
+        void SetTOPNodePDGState(HEU_PDGAssetLink         assetLink, HEU_TOPNodeData topNode,
+                                HEU_TOPNodeData.PDGState pdgState)
         {
             topNode._pdgState = pdgState;
             assetLink.RepaintUI();
@@ -472,7 +469,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void NotifyTOPNodePDGStateClear(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode)
+        void NotifyTOPNodePDGStateClear(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode)
         {
             //HEU_Logger.LogFormat("NotifyTOPNodePDGStateClear:: {0}", topNode._nodeName);
             topNode._pdgState = HEU_TOPNodeData.PDGState.NONE;
@@ -480,43 +477,43 @@ namespace HoudiniEngineUnity
             assetLink.RepaintUI();
         }
 
-        private void NotifyTOPNodeTotalWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode, int inc)
+        void NotifyTOPNodeTotalWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode, int inc)
         {
             topNode._workItemTally._totalWorkItems = Mathf.Max(topNode._workItemTally._totalWorkItems + inc, 0);
             assetLink.RepaintUI();
         }
 
-        private void NotifyTOPNodeCookedWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode)
+        void NotifyTOPNodeCookedWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode)
         {
             topNode._workItemTally._cookedWorkItems++;
             assetLink.RepaintUI();
         }
 
-        private void NotifyTOPNodeErrorWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode)
+        void NotifyTOPNodeErrorWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode)
         {
             topNode._workItemTally._erroredWorkItems++;
             assetLink.RepaintUI();
         }
 
-        private void NotifyTOPNodeWaitingWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode, int inc)
+        void NotifyTOPNodeWaitingWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode, int inc)
         {
             topNode._workItemTally._waitingWorkItems = Mathf.Max(topNode._workItemTally._waitingWorkItems + inc, 0);
             assetLink.RepaintUI();
         }
 
-        private void NotifyTOPNodeScheduledWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode, int inc)
+        void NotifyTOPNodeScheduledWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode, int inc)
         {
             topNode._workItemTally._scheduledWorkItems = Mathf.Max(topNode._workItemTally._scheduledWorkItems + inc, 0);
             assetLink.RepaintUI();
         }
 
-        private void NotifyTOPNodeCookingWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode, int inc)
+        void NotifyTOPNodeCookingWorkItem(HEU_PDGAssetLink assetLink, HEU_TOPNodeData topNode, int inc)
         {
             topNode._workItemTally._cookingWorkItems = Mathf.Max(topNode._workItemTally._cookingWorkItems + inc, 0);
             assetLink.RepaintUI();
         }
 
-        private static void ResetPDGEventInfo(ref HAPI_PDG_EventInfo eventInfo)
+        static void ResetPDGEventInfo(ref HAPI_PDG_EventInfo eventInfo)
         {
             eventInfo.nodeId = HEU_Defines.HEU_INVALID_NODE_ID;
             eventInfo.workItemId = -1;
@@ -526,7 +523,7 @@ namespace HoudiniEngineUnity
             eventInfo.eventType = (int)HAPI_PDG_EventType.HAPI_PDG_EVENT_NULL;
         }
 
-        private void SetErrorState(string msg, bool bLogIt)
+        void SetErrorState(string msg, bool bLogIt)
         {
             // Log first error
             if (!_errored && bLogIt)
@@ -538,7 +535,7 @@ namespace HoudiniEngineUnity
             _errorMsg = msg;
         }
 
-        private void ClearErrorState()
+        void ClearErrorState()
         {
             _errored = false;
             _errorMsg = "";
@@ -869,7 +866,7 @@ namespace HoudiniEngineUnity
             return false;
         }
 
-        private void ResetCallbackVariables()
+        void ResetCallbackVariables()
         {
             _pendingCallback = false;
             _numItemsCompleted = 0;
@@ -880,10 +877,10 @@ namespace HoudiniEngineUnity
         //	DATA ------------------------------------------------------------------------------------------------------
 
         // Global PDG session object
-        private static HEU_PDGSession _pdgSession;
+        static HEU_PDGSession _pdgSession;
 
         // List of all registered HEU_PDGAssetLink in the scene
-        private List<HEU_PDGAssetLink> _pdgAssets = new List<HEU_PDGAssetLink>();
+        List<HEU_PDGAssetLink> _pdgAssets = new List<HEU_PDGAssetLink>();
 
         // Maximum number of PDG events to process at a time
         public int _pdgMaxProcessEvents = 100;
@@ -899,7 +896,7 @@ namespace HoudiniEngineUnity
 
         public HAPI_PDG_State _pdgState = HAPI_PDG_State.HAPI_PDG_STATE_READY;
 
-        private System.Action<HEU_PDGCookedEventData> _cookedDataEvent;
+        System.Action<HEU_PDGCookedEventData> _cookedDataEvent;
 
         public System.Action<HEU_PDGCookedEventData> CookedDataEvent
         {
@@ -907,22 +904,22 @@ namespace HoudiniEngineUnity
             set => _cookedDataEvent = value;
         }
 
-        private bool _pendingCallback = false;
-        private int _numItemsCompleted = 0;
-        private int _totalNumItems = 0;
-        private bool _callbackSuccess = true;
+        bool _pendingCallback   = false;
+        int  _numItemsCompleted = 0;
+        int  _totalNumItems     = 0;
+        bool _callbackSuccess   = true;
 
         // PDG event messages generated during cook
-        [SerializeField] private StringBuilder _pdgEventMessages = new StringBuilder();
+        [SerializeField] StringBuilder _pdgEventMessages = new StringBuilder();
 
-        private enum EventMessageColor
+        enum EventMessageColor
         {
             DEFAULT,
             WARNING,
             ERROR
         }
 
-        private string[] _eventMessageColorCode =
+        string[] _eventMessageColorCode =
         {
             "#c0c0c0ff",
             "#ffa500ff",

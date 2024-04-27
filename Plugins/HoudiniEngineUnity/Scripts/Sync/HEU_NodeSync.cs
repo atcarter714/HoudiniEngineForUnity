@@ -36,11 +36,9 @@ namespace HoudiniEngineUnity
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Typedefs (copy these from HEU_Common.cs)
 	using HAPI_NodeId = System.Int32 ;
-
-		#region SETUP
+	
 	//[ExecuteInEditMode] // Needed to get OnDestroy callback when deleted in Editor
 	public class HEU_NodeSync: HEU_BaseSync {
-		#region FUNCTIONS
 
 		#region SETUP
 

@@ -36,24 +36,24 @@ namespace HoudiniEngineUnity
     /// </summary>
     public class HEU_SettingsWindow : EditorWindow
     {
-        private static bool _showGeneral = true;
-        private static bool _showEnvironment = true;
-        private static bool _showCooking = true;
-        private static bool _showGeometry = true;
-        private static bool _showMaterials = true;
-        private static bool _showSession = false;
-        private static bool _showTools = false;
-        private static bool _showAdvanced = false;
+        static bool _showGeneral     = true;
+        static bool _showEnvironment = true;
+        static bool _showCooking     = true;
+        static bool _showGeometry    = true;
+        static bool _showMaterials   = true;
+        static bool _showSession     = false;
+        static bool _showTools       = false;
+        static bool _showAdvanced    = false;
 
-        private static Vector2 _scrollPosition;
+        static Vector2 _scrollPosition;
 
-        private delegate bool DrawDetailsDelegate();
+        delegate bool DrawDetailsDelegate();
 
-        private static Texture2D _refreshIcon;
-        private static GUIContent _refreshContent;
+        static Texture2D  _refreshIcon;
+        static GUIContent _refreshContent;
 
         // Cache the loaded terrain material that the user has selected as default
-        private static Material _terrainMaterial;
+        static Material _terrainMaterial;
 
 
         public static void ShowWindow()
@@ -67,13 +67,13 @@ namespace HoudiniEngineUnity
             window.autoRepaintOnSceneChange = true;
         }
 
-        private void OnEnable()
+        void OnEnable()
         {
             _refreshIcon = Resources.Load("heu_reloadhdaIcon") as Texture2D;
             _refreshContent = new GUIContent("", _refreshIcon, "Reload the file.");
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             // Turn off auto repaint as otherwise get null access after this closes
             this.autoRepaintOnSceneChange = false;
@@ -152,8 +152,8 @@ namespace HoudiniEngineUnity
             GUI.enabled = guiEnabled;
         }
 
-        private static bool DrawSection(HEU_SettingsWindow settingsWindow, string sectionLabel,
-            DrawDetailsDelegate drawDetailsDelegate, ref bool foldoutState)
+        static bool DrawSection(HEU_SettingsWindow settingsWindow, string sectionLabel,
+                                DrawDetailsDelegate drawDetailsDelegate, ref bool foldoutState)
         {
             bool bChanged = false;
 
@@ -183,7 +183,7 @@ namespace HoudiniEngineUnity
             return bChanged;
         }
 
-        private bool DrawDetailsGeneral()
+        bool DrawDetailsGeneral()
         {
             bool bChanged = false;
             {
@@ -314,7 +314,7 @@ namespace HoudiniEngineUnity
             return bChanged;
         }
 
-        private bool DrawDetailsEnvironment()
+        bool DrawDetailsEnvironment()
         {
             bool bChanged = false;
 
@@ -377,7 +377,7 @@ namespace HoudiniEngineUnity
             return bChanged;
         }
 
-        private bool DrawDetailsCooking()
+        bool DrawDetailsCooking()
         {
             bool bChanged = false;
 
@@ -564,7 +564,7 @@ namespace HoudiniEngineUnity
             return bChanged;
         }
 
-        private bool DrawDetailsGeometry()
+        bool DrawDetailsGeometry()
         {
             bool bChanged = false;
 
@@ -698,7 +698,7 @@ namespace HoudiniEngineUnity
             return bChanged;
         }
 
-        private bool DrawDetailsMaterials()
+        bool DrawDetailsMaterials()
         {
             bool bChanged = false;
 
@@ -743,7 +743,7 @@ namespace HoudiniEngineUnity
             return bChanged;
         }
 
-        private bool DrawSessionSettings()
+        bool DrawSessionSettings()
         {
             bool bChanged = false;
 
@@ -805,7 +805,7 @@ namespace HoudiniEngineUnity
             return bChanged;
         }
 
-        private bool DrawToolSettings()
+        bool DrawToolSettings()
         {
             bool bChanged = false;
 
@@ -855,7 +855,7 @@ namespace HoudiniEngineUnity
             return bChanged;
         }
 
-        private bool DrawAdvancedSettings()
+        bool DrawAdvancedSettings()
         {
             bool bChanged = false;
 

@@ -52,7 +52,7 @@ namespace HoudiniEngineUnity
         public static JSONContainerType QuaternionContainerType = JSONContainerType.Array;
         public static JSONContainerType RectContainerType = JSONContainerType.Array;
 
-        private static JSONNode GetContainer(JSONContainerType aType)
+        static JSONNode GetContainer(JSONContainerType aType)
         {
             if (aType == JSONContainerType.Array)
                 return new JSONArray();

@@ -91,21 +91,14 @@ namespace HoudiniEngineUnity
             return self.Cast<IEquivable<T>>().ToList();
         }
 
-	public static byte[] AsByteArray(this string? self)
-	{
-	    byte[] bytes = Encoding.UTF8.GetBytes(self + '\0');
-	    return bytes;
-	}
-
         public static bool ApproximatelyEquals(this float self, float other, float epsilon = 1E-06F)
         {
             return Mathf.Abs(self - other) < epsilon;
         }
 
-        public static byte[] AsByteArray(this string self)
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(self + '\0');
-            return bytes;
+        public static byte[] AsByteArray( this string self ) {
+            byte[ ] bytes = Encoding.UTF8.GetBytes( self + '\0' ) ;
+            return bytes ;
         }
 
         public static string AsString(this byte[] buffer)

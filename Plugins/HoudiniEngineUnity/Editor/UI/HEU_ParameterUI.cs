@@ -43,14 +43,14 @@ namespace HoudiniEngineUnity
     public class HEU_ParameterUI : Editor
     {
         // Cache reference to the currently selected HDA's parameter object
-        private HEU_Parameters _parameters;
+        HEU_Parameters _parameters;
 
         // Cached list of parameter objects property
-        private List<int> _rootParameters = null;
-        private List<HEU_ParameterData> _parameterList = null;
+        List<int>               _rootParameters = null;
+        List<HEU_ParameterData> _parameterList  = null;
 
         // Layout constants
-        private const float _multiparmPlusMinusWidth = 40f;
+        const float _multiparmPlusMinusWidth = 40f;
 
         public enum UIDataFieldType
         {
@@ -72,11 +72,11 @@ namespace HoudiniEngineUnity
         // (Because if we don't, then undo gets bugged)
         public class ArrayWrapper<T>
         {
-            private T[] _array;
+            T[] _array;
 
-            private Action<T> _preGetCallback;
-            private Action<T> _preSetCallback;
-            private UnityEngine.Object _undoObject;
+            Action<T>          _preGetCallback;
+            Action<T>          _preSetCallback;
+            UnityEngine.Object _undoObject;
 
             public ArrayWrapper(T[] array, UnityEngine.Object undoObject)
             {
@@ -116,7 +116,7 @@ namespace HoudiniEngineUnity
 
             public HEU_Parameters _parameters;
 
-            private ArrayWrapper<int> _intArrayValue;
+            ArrayWrapper<int> _intArrayValue;
 
             public ArrayWrapper<int> IntArrayValue
             {
@@ -132,15 +132,7 @@ namespace HoudiniEngineUnity
                 }
             }
 
-	    private ArrayWrapper< string? > _stringArrayValue;
-	    public ArrayWrapper< string? > StringArrayValue
-	    {
-		get
-		{
-		    if (_fieldType != UIDataFieldType.STRING_ARRAY)
-		    {
-			HEU_Logger.LogError("Error: Field type incorrect!");
-		    }
+            ArrayWrapper<float> _floatArrayValue;
 
             public ArrayWrapper<float> FloatArrayValue
             {
@@ -155,7 +147,7 @@ namespace HoudiniEngineUnity
                 }
             }
 
-            private ArrayWrapper<string> _stringArrayValue;
+            ArrayWrapper<string> _stringArrayValue;
 
             public ArrayWrapper<string> StringArrayValue
             {
@@ -170,7 +162,7 @@ namespace HoudiniEngineUnity
                 }
             }
 
-            private List<int> _listIntValue; // Usually used for child indices
+            List<int> _listIntValue; // Usually used for child indices
 
             public List<int> ListIntValue
             {
@@ -186,7 +178,7 @@ namespace HoudiniEngineUnity
             }
 
 
-            private HEU_InputNode _inputNodeValue;
+            HEU_InputNode _inputNodeValue;
 
             public HEU_InputNode InputNodeValue
             {
@@ -204,8 +196,8 @@ namespace HoudiniEngineUnity
 
             // STRUCTURE OBJECTS:
             // Note: Because these are structs, need to make sure to use callback if it is used
-            private int _intValue;
-            private Action<int> _intValueCallback;
+            int         _intValue;
+            Action<int> _intValueCallback;
 
             public int IntValue
             {
@@ -236,8 +228,8 @@ namespace HoudiniEngineUnity
             }
 
 
-            private bool _boolValue;
-            private Action<bool> _boolValueCallback;
+            bool         _boolValue;
+            Action<bool> _boolValueCallback;
 
             public bool BoolValue
             {
@@ -267,8 +259,8 @@ namespace HoudiniEngineUnity
                 }
             }
 
-            private Color _colorValue;
-            private Action<Color> _colorValueCallback;
+            Color         _colorValue;
+            Action<Color> _colorValueCallback;
 
             public Color ColorValue
             {
@@ -299,8 +291,8 @@ namespace HoudiniEngineUnity
             }
 
             // These are classes that are used like structs due to assignment
-            private Gradient _gradientValue;
-            private Action<Gradient> _gradientValueCallback;
+            Gradient         _gradientValue;
+            Action<Gradient> _gradientValueCallback;
 
             public Gradient GradientValue
             {
@@ -333,8 +325,8 @@ namespace HoudiniEngineUnity
             }
 
 
-            private AnimationCurve _animCurveValue;
-            private Action<AnimationCurve> _animCurveValueCallback;
+            AnimationCurve         _animCurveValue;
+            Action<AnimationCurve> _animCurveValueCallback;
 
             public AnimationCurve AnimCurveValue
             {
@@ -433,7 +425,7 @@ namespace HoudiniEngineUnity
         };
 
         // Store cached SerializedProperties of a HEU_ParameterData class, and store as list
-        private class HEU_ParameterUICache
+        class HEU_ParameterUICache
         {
             public HEU_ParameterData _parameterData;
 
@@ -463,21 +455,21 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private List<HEU_ParameterUICache> _parameterCache;
+        List<HEU_ParameterUICache> _parameterCache;
 
-        private List<HEU_ParameterModifier> _parameterModifiers;
+        List<HEU_ParameterModifier> _parameterModifiers;
 
-        private static GUIStyle _sliderStyle;
-        private static GUIStyle _sliderThumbStyle;
+        static GUIStyle _sliderStyle;
+        static GUIStyle _sliderThumbStyle;
 
 
-        private void OnEnable()
+        void OnEnable()
         {
             _parameters = target as HEU_Parameters;
             //Debug.Assert(_parameters != null, "Target is not HEU_Parameters");
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             _rootParameters = null;
             _parameterList = null;
@@ -547,7 +539,7 @@ namespace HoudiniEngineUnity
             EditorGUIUtility.fieldWidth = previousFieldWidth;
         }
 
-        private static void InitializeGUIStyles()
+        static void InitializeGUIStyles()
         {
             if (_sliderStyle == null)
             {
@@ -560,7 +552,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void CacheProperties()
+        void CacheProperties()
         {
             //HEU_Logger.Log("Cacheing Properties");
             serializedObject.Update();
@@ -592,7 +584,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private HEU_ParameterUICache ProcessParamUICache(int parameterIndex)
+        HEU_ParameterUICache ProcessParamUICache(int parameterIndex)
         {
             // Get the actual parameter data associated with this parameter
             HEU_ParameterData parameterData = _parameters.GetParameter(parameterIndex);
@@ -614,7 +606,7 @@ namespace HoudiniEngineUnity
             return newParamUICache;
         }
 
-        private HEU_ParameterUICache ProcessMultiParamUICache(HEU_ParameterData parameterData)
+        HEU_ParameterUICache ProcessMultiParamUICache(HEU_ParameterData parameterData)
         {
             HEU_ParameterUICache paramUICache = null;
 
@@ -730,7 +722,7 @@ namespace HoudiniEngineUnity
             return paramUICache;
         }
 
-        private HEU_ParameterUICache ProcessContainerParamUICache(HEU_ParameterData parameterData)
+        HEU_ParameterUICache ProcessContainerParamUICache(HEU_ParameterData parameterData)
         {
             HEU_ParameterUICache paramUICache = new HEU_ParameterUICache(_parameters);
             paramUICache._parameterData = parameterData;
@@ -780,7 +772,7 @@ namespace HoudiniEngineUnity
             return paramUICache;
         }
 
-        private HEU_ParameterUICache ProcessLeafParameterCache(HEU_ParameterData parameterData)
+        HEU_ParameterUICache ProcessLeafParameterCache(HEU_ParameterData parameterData)
         {
             HEU_ParameterUICache paramUICache = new HEU_ParameterUICache(_parameters);
             paramUICache._parameterData = parameterData;
@@ -872,7 +864,7 @@ namespace HoudiniEngineUnity
             return paramUICache;
         }
 
-        private void DrawParamUICache(HEU_ParameterUICache paramCache, bool bDrawFoldout = true)
+        void DrawParamUICache(HEU_ParameterUICache paramCache, bool bDrawFoldout = true)
         {
             using (var disabledGroup = new EditorGUI.DisabledGroupScope(paramCache._parameterData._parmInfo.disabled))
             {
@@ -891,8 +883,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawArrayPropertyStringPath(string labelString, string helpString,
-            ArrayWrapper<string> stringValues, List<UnityEngine.Object> assetObjects)
+        void DrawArrayPropertyStringPath(string               labelString,  string                   helpString,
+                                         ArrayWrapper<string> stringValues, List<UnityEngine.Object> assetObjects)
         {
             // Arrays are drawn with a label, and rows of object paths.
 
@@ -938,7 +930,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawArrayPropertyString(string labelString, string helpString, ArrayWrapper<string> stringsValue)
+        void DrawArrayPropertyString(string labelString, string helpString, ArrayWrapper<string> stringsValue)
         {
             // Arrays are drawn with a label, and rows of values.
 
@@ -969,7 +961,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawArrayPropertyInt(string labelString, string helpString, ArrayWrapper<int> intsValue)
+        void DrawArrayPropertyInt(string labelString, string helpString, ArrayWrapper<int> intsValue)
         {
             // Arrays are drawn with a label, and rows of values.
 
@@ -1000,7 +992,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawArrayPropertyFloat(string labelString, string helpString, ArrayWrapper<float> floatsValue)
+        void DrawArrayPropertyFloat(string labelString, string helpString, ArrayWrapper<float> floatsValue)
         {
             // Arrays are drawn with a label, and rows of values.
 
@@ -1031,7 +1023,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawContainerParamUICache(HEU_ParameterUICache paramUICache, bool bDrawFoldout = true)
+        void DrawContainerParamUICache(HEU_ParameterUICache paramUICache, bool bDrawFoldout = true)
         {
             HEU_ParameterData parameterData = paramUICache._parameterData;
 
@@ -1091,7 +1083,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawLeafParamUICache(HEU_ParameterUICache paramUICache)
+        void DrawLeafParamUICache(HEU_ParameterUICache paramUICache)
         {
             // This is a leaf parameter. So draw based on type.
 
@@ -1416,7 +1408,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawMultiParamUICache(HEU_ParameterUICache paramUICache)
+        void DrawMultiParamUICache(HEU_ParameterUICache paramUICache)
         {
             // Multiparams are drawn in its own section. Not doing foldout for it.
 
@@ -1527,7 +1519,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawColorRampParamUICache(HEU_ParameterUICache paramUICache)
+        void DrawColorRampParamUICache(HEU_ParameterUICache paramUICache)
         {
             // For a color ramp:
             //	multiparm # instances is the points on ramp (don't show that, but use as # of points)
@@ -1688,7 +1680,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void DrawFloatRampParamUICache(HEU_ParameterUICache paramUICache)
+        void DrawFloatRampParamUICache(HEU_ParameterUICache paramUICache)
         {
             // For a float ramp:
             //	multiparm # instances is the points on ramp (don't show that, but thats # of points)
@@ -1819,8 +1811,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void UpdateParameterFromAnimationCurve(AnimationCurve animCurve, HEU_ParameterData parameterData,
-            HEU_ParameterUICache paramUICache)
+        void UpdateParameterFromAnimationCurve(AnimationCurve       animCurve, HEU_ParameterData parameterData,
+                                               HEU_ParameterUICache paramUICache)
         {
             // The animation curve has changed, but there isn't a direct way to see what exactly has changed.
             // So compare points to figure out whether points were added, removed, or values changed.
@@ -1957,8 +1949,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void UpdateParameterFromGradient(Gradient gradient, HEU_ParameterData parameterData,
-            HEU_ParameterUICache paramUICache, bool bUpdateGradientMode)
+        void UpdateParameterFromGradient(Gradient             gradient,     HEU_ParameterData parameterData,
+                                         HEU_ParameterUICache paramUICache, bool              bUpdateGradientMode)
         {
             // The gradient has changed, but there isn't a direct way to see which keys have changed.
             // So compare keys to figure out whether keys were added, removed, or values changed.
@@ -2102,8 +2094,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private HEU_ParameterModifier AddMultiParmModifierProperty(HEU_ParameterModifier.ModifierAction action,
-            int unityParamIndex, int instanceIndex, int numInstancesToAdd)
+        HEU_ParameterModifier AddMultiParmModifierProperty(HEU_ParameterModifier.ModifierAction action,
+                                                           int                                  unityParamIndex, int instanceIndex, int numInstancesToAdd)
         {
             int newIndex = _parameterModifiers.Count;
 
@@ -2118,7 +2110,7 @@ namespace HoudiniEngineUnity
             return parameterModifier;
         }
 
-        private string GetFormattedTooltip(HEU_ParameterData data)
+        string GetFormattedTooltip(HEU_ParameterData data)
         {
             string tooltip = data._name;
             if (data._help != null && data._help != "")
@@ -2129,24 +2121,24 @@ namespace HoudiniEngineUnity
             return tooltip;
         }
 
-        private void AddMultiParmModifierPropertyFloat(int unityParamIndex, int instanceIndex, int numInstancesToAdd,
-            float floatValue)
+        void AddMultiParmModifierPropertyFloat(int   unityParamIndex, int instanceIndex, int numInstancesToAdd,
+                                               float floatValue)
         {
             HEU_ParameterModifier newModifier = AddMultiParmModifierProperty(
                 HEU_ParameterModifier.ModifierAction.SET_FLOAT, unityParamIndex, instanceIndex, numInstancesToAdd);
             newModifier.FloatValue = floatValue;
         }
 
-        private void AddMultiParmModifierPropertyInt(int unityParamIndex, int instanceIndex, int numInstancesToAdd,
-            int intValue)
+        void AddMultiParmModifierPropertyInt(int unityParamIndex, int instanceIndex, int numInstancesToAdd,
+                                             int intValue)
         {
             HEU_ParameterModifier newModifier = AddMultiParmModifierProperty(
                 HEU_ParameterModifier.ModifierAction.SET_INT, unityParamIndex, instanceIndex, numInstancesToAdd);
             newModifier.IntValue = intValue;
         }
 
-        private void GetFloatRampPointData(HEU_ParameterUICache paramUICache, int pointIndex, ref float position,
-            ref float value, ref int interp)
+        void GetFloatRampPointData(HEU_ParameterUICache paramUICache, int     pointIndex, ref float position,
+                                   ref float            value,        ref int interp)
         {
             int numParamsPerPoint = paramUICache._parameterData._parmInfo.instanceLength;
 
@@ -2162,8 +2154,8 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void GetColorRampPointData(HEU_ParameterUICache paramUICache, int pointIndex, ref float position,
-            ref Color color, ref int interp)
+        void GetColorRampPointData(HEU_ParameterUICache paramUICache, int     pointIndex, ref float position,
+                                   ref Color            color,        ref int interp)
         {
             int numParamsPerPoint = paramUICache._parameterData._parmInfo.instanceLength;
 

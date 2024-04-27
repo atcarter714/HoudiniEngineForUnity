@@ -31,7 +31,6 @@
 
 // Expose internal classes/functions
 #if UNITY_EDITOR
-using System ;
 using System.Collections.Generic ;
 using System.Linq ;
 using System.Runtime.CompilerServices;
@@ -437,67 +436,8 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-		/// <summary>
-		/// Process the part at the given index, creating its data (geometry),
-		/// and adding it to the list of parts.
-		/// </summary>
-		/// <param name="session"></param>
-		/// <param name="partID"></param>
-		/// <returns>A valid HEU_PartData if it has been successfully processed.</returns>
-		void ProcessPart( HEU_SessionBase             session, int partID, ref HAPI_PartInfo partInfo,
-						  ref HEU_PartData partData ) {
-			HEU_HoudiniAsset parentAsset = ParentAsset ;
-			if ( parentAsset == null ) {
-				return ;
-			}
-
-			bool bResult = true ;
-			//HEU_Logger.LogFormat("Part: name={0}, id={1}, type={2}, instanced={3}, instance count={4}, instance part count={5}", HEU_SessionManager.GetString(partInfo.nameSH, session), partID, partInfo.type, partInfo.isInstanced, partInfo.instanceCount, partInfo.instancedPartCount);
-
-                            if (sourceObjectInstanceInfos != null && part != null && (bObjectInstancer || part.IsAttribInstancer()))
-                            {
-                                // Set object instances from old part into new. This keeps the user set object inputs around.
-                                part.SetObjectInstanceInfos(sourceObjectInstanceInfos);
-                            }
-                        }
-                        else
-                        {
-                            ProcessPart(session, i, ref partInfo, ref part);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                HEU_PartData.DestroyParts(oldParts);
-            }
-        }
-
-        /// <summary>
-        /// Process custom attribute with Unity script name, and attach any scripts found.
-        /// </summary>
-        /// <param name="session">Session to use</param>
-        internal void ProcessUnityScriptAttribute(HEU_SessionBase session)
-        {
-            if (_parts == null || _parts.Count == 0)
-            {
-                return;
-            }
-
-            foreach (HEU_PartData part in _parts)
-            {
-                GameObject outputGO = part.OutputGameObject;
-                if (outputGO != null)
-                {
-                    string scriptValue = HEU_GeneralUtility.GetUnityScriptAttributeValue(session, GeoID, part.PartID);
-                    if (!string.IsNullOrEmpty(scriptValue))
-                    {
-                        HEU_GeneralUtility.AttachScriptWithInvokeFunction(scriptValue, outputGO);
-                    }
-                }
-            }
-        }
-
+		
+		
         /// <summary>
         /// Process the part at the given index, creating its data (geometry),
         /// and adding it to the list of parts.
@@ -1116,9 +1056,3 @@ namespace HoudiniEngineUnity
 	}
 
 }   // HoudiniEngineUnity
-
-
-            return bResult;
-        }
-    }
-} // HoudiniEngineUnity

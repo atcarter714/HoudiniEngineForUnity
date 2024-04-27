@@ -115,7 +115,7 @@ namespace HoudiniEngineUnity {
 
 		[SerializeField] [HideInInspector] bool _showParameters = true ;
 
-        [SerializeField] private HEU_HoudiniAsset _parentAsset;
+#pragma warning restore 0414
 
 		//[SerializeField]
 		// Flag that the UI needs to be recached. Should be done whenever any of the parameters change.
@@ -123,11 +123,6 @@ namespace HoudiniEngineUnity {
 
 		[SerializeField] HEU_HoudiniAsset? _parentAsset ;
 
-        /// <inheritdoc />
-        public bool AreParametersValid()
-        {
-            return _validParameters;
-        }
 
 		// PUBLIC FUNCTIONS ===============================================================================================
 
@@ -2447,12 +2442,6 @@ namespace HoudiniEngineUnity {
 			HEU_TestHelpers.AssertTrueLogEquivalent( _regenerateParameters, other._regenerateParameters, ref bResult,
 													 header, "_regenerateParameters" ) ;
 
-                    RequiresRegeneration = true;
-                }
-                else if (paramModifier._action == HEU_ParameterModifier.ModifierAction.SET_FLOAT)
-                {
-                    string paramName = parameter._name;
-                    session.SetParamFloatValue(_nodeID, paramName, paramModifier.InstanceIndex, paramModifier.FloatValue);
 
 			// Preset data doesn't seem to be the same for different components
 			// HEU_TestHelpers.AssertTrueLogEquivalent(this._presetData.IsEquivalentArray(other._presetData), ref bResult, header, "_presetData");
@@ -2473,184 +2462,4 @@ namespace HoudiniEngineUnity {
 		}
 	}
 
-} // HoudiniEngineUnity
-
-        internal void UploadParameterInputs(HEU_SessionBase session, HEU_HoudiniAsset parentAsset, bool bForceUpdate)
-        {
-            foreach (HEU_ParameterData parmData in _parameterList)
-            {
-                if (parmData._parmInfo.type == HAPI_ParmType.HAPI_PARMTYPE_NODE && (bForceUpdate || parmData._paramInputNode.RequiresUpload))
-                {
-                    // Update the node ID as it might have changed (e.g. new session)
-                    parmData._paramInputNode.SetInputNodeID(parentAsset.AssetID);
-
-                    if (bForceUpdate)
-                    {
-                        parmData._paramInputNode.ResetConnectionForForceUpdate(session);
-                    }
-
-                    parmData._paramInputNode.UploadInput(session);
-                }
-            }
-        }
-
-        internal void UpdateTransformParameters(HEU_SessionBase session, ref HAPI_TransformEuler HAPITransform)
-        {
-            SyncParameterFromHoudini(session, "t");
-            SyncParameterFromHoudini(session, "r");
-            SyncParameterFromHoudini(session, "s");
-        }
-
-        internal void SyncParameterFromHoudini(HEU_SessionBase session, string parameterName)
-        {
-            HEU_ParameterData parameterData = GetParameter(parameterName);
-            if (parameterData != null)
-            {
-                if (session.GetParamFloatValues(_nodeID, parameterData._floatValues, parameterData._parmInfo.floatValuesIndex,
-                        parameterData.ParmSize))
-                {
-                    Array.Copy(parameterData._floatValues, 0, _paramFloats, parameterData._parmInfo.floatValuesIndex, parameterData.ParmSize);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Get the current parameter values from Houdini and store in
-        /// the internal parameter value set. This is used for doing
-        /// comparision of which values had changed after an Undo.
-        /// </summary>
-        internal void SyncInternalParametersForUndoCompare(HEU_SessionBase session)
-        {
-            HAPI_NodeInfo nodeInfo = new HAPI_NodeInfo();
-            if (!session.GetNodeInfo(_nodeID, ref nodeInfo))
-            {
-                return;
-            }
-
-            HAPI_ParmInfo[] parmInfos = new HAPI_ParmInfo[nodeInfo.parmCount];
-            if (!HEU_GeneralUtility.GetArray1Arg(_nodeID, session.GetParams, parmInfos, 0, nodeInfo.parmCount))
-            {
-                return;
-            }
-
-            _paramInts = new int[nodeInfo.parmIntValueCount];
-            if (!HEU_GeneralUtility.GetArray1Arg(_nodeID, session.GetParamIntValues, _paramInts, 0, nodeInfo.parmIntValueCount))
-            {
-                return;
-            }
-
-            _paramFloats = new float[nodeInfo.parmFloatValueCount];
-            if (!HEU_GeneralUtility.GetArray1Arg(_nodeID, session.GetParamFloatValues, _paramFloats, 0, nodeInfo.parmFloatValueCount))
-            {
-                return;
-            }
-
-            HAPI_StringHandle[] parmStringHandles = new HAPI_StringHandle[nodeInfo.parmStringValueCount];
-            if (!HEU_GeneralUtility.GetArray1Arg(_nodeID, session.GetParamStringValues, parmStringHandles, 0, nodeInfo.parmStringValueCount))
-            {
-                return;
-            }
-
-            // Convert to actual strings
-            _paramStrings = new string[nodeInfo.parmStringValueCount];
-            for (int s = 0; s < nodeInfo.parmStringValueCount; ++s)
-            {
-                _paramStrings[s] = HEU_SessionManager.GetString(parmStringHandles[s], session);
-            }
-
-            _paramChoices = new HAPI_ParmChoiceInfo[nodeInfo.parmChoiceCount];
-            if (!HEU_GeneralUtility.GetArray1Arg(_nodeID, session.GetParamChoiceValues, _paramChoices, 0, nodeInfo.parmChoiceCount))
-            {
-                return;
-            }
-        }
-
-        internal void CleanUp()
-        {
-            //HEU_Logger.Log("Cleaning up parameters!");
-
-            // For input parameters, notify removal
-            foreach (HEU_ParameterData paramData in _parameterList)
-            {
-                if (paramData != null && paramData._paramInputNode != null)
-                {
-                    paramData._paramInputNode.NotifyParentRemovedInput();
-                }
-            }
-
-            _validParameters = false;
-            _regenerateParameters = false;
-
-            _rootParameters = new List<int>();
-            _parameterList = new List<HEU_ParameterData>();
-            _parameterModifiers = new List<HEU_ParameterModifier>();
-
-            _paramInts = null;
-            _paramFloats = null;
-            _paramStrings = null;
-            _paramChoices = null;
-
-            _presetData = null;
-        }
-
-        internal void ResetAllToDefault(HEU_SessionBase session)
-        {
-            foreach (HEU_ParameterData parameterData in _parameterList)
-            {
-                if (parameterData._parmInfo.type == HAPI_ParmType.HAPI_PARMTYPE_NODE)
-                {
-                    parameterData._paramInputNode.ResetInputNode(session);
-                }
-            }
-
-            _presetData = _defaultPresetData;
-
-            RequiresRegeneration = true;
-        }
-
-        public bool IsEquivalentTo(HEU_Parameters other)
-        {
-            bool bResult = true;
-
-            string header = "HEU_Parameters";
-
-            if (other == null)
-            {
-                HEU_Logger.LogError(header + " Not equivalent");
-                return false;
-            }
-
-            HEU_TestHelpers.AssertTrueLogEquivalent(this._uiLabel, other._uiLabel, ref bResult, header, "_uiLabel");
-
-            // Do not test raw parameter values as there can be intermediate / unsupported / unequal values for the same object
-            // The main parameter check will be done in parameterList
-            //HEU_TestHelpers.AssertTrueLogEquivalent(this._paramInts, other._paramInts, ref bResult, header, "_paramInts");
-            //HEU_TestHelpers.AssertTrueLogEquivalent(this._paramFloats, other._paramFloats, ref bResult, header, "_paramFloats");
-            //HEU_TestHelpers.AssertTrueLogEquivalent(this._paramStrings, other._paramStrings, ref bResult, header, "_paramString");
-
-            // Skip parmChoices
-
-            HEU_TestHelpers.AssertTrueLogEquivalent(this._parameterList, other._parameterList, ref bResult, header, "_parameterList");
-
-            HEU_TestHelpers.AssertTrueLogEquivalent(this._parameterModifiers, other._parameterModifiers, ref bResult, header, "_parameterModifiers");
-
-
-            HEU_TestHelpers.AssertTrueLogEquivalent(this._regenerateParameters, other._regenerateParameters, ref bResult, header,
-                "_regenerateParameters");
-
-
-            // Preset data doesn't seem to be the same for different components
-            // HEU_TestHelpers.AssertTrueLogEquivalent(this._presetData.IsEquivalentArray(other._presetData), ref bResult, header, "_presetData");
-            // HEU_TestHelpers.AssertTrueLogEquivalent(this._defaultPresetData, other._defaultPresetData, ref bResult, header, "_defaultPresetData");
-
-            HEU_TestHelpers.AssertTrueLogEquivalent(this._validParameters, other._validParameters, ref bResult, header, "_validParameters");
-
-            HEU_TestHelpers.AssertTrueLogEquivalent(this._showParameters, other._showParameters, ref bResult, header, "_showParameters");
-
-
-            // Skip _materialKey
-
-            return bResult;
-        }
-    }
 } // HoudiniEngineUnity

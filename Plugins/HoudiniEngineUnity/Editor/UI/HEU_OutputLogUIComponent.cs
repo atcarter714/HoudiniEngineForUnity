@@ -10,16 +10,16 @@ namespace HoudiniEngineUnity
     // Wrapper class for reusable Message log component
     public class HEU_OutputLogUIComponent
     {
-        private GUIContent _titleContent;
-        private GUIStyle _eventMessageStyle;
+        GUIContent _titleContent;
+        GUIStyle   _eventMessageStyle;
 
-        private GUIStyle _backgroundStyle;
+        GUIStyle _backgroundStyle;
 
-        private Vector2 _eventMessageScrollPos = new Vector2();
-        private Action _onClearCallback;
-        private float _height;
+        Vector2 _eventMessageScrollPos = new Vector2();
+        Action  _onClearCallback;
+        float   _height;
 
-        private string _message;
+        string _message;
 
         public HEU_OutputLogUIComponent(GUIContent titleContent, Action onClearCallback, float height = 120)
         {
@@ -50,7 +50,7 @@ namespace HoudiniEngineUnity
             _height = height;
         }
 
-        private void SetScrollToBottom()
+        void SetScrollToBottom()
         {
             float lineHeight = _eventMessageStyle.lineHeight;
             int maxDisplayedLines = Mathf.CeilToInt(_height / lineHeight);

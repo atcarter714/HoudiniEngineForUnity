@@ -30,13 +30,7 @@ using System.Collections.Generic;
 #region Type Aliases
 // Typedefs (copy these from HEU_Common.cs)
 using HAPI_NodeId = System.Int32;
-using HAPI_AssetLibraryId = System.Int32;
-using HAPI_StringHandle = System.Int32;
-using HAPI_ErrorCodeBits = System.Int32;
-using HAPI_NodeTypeBits = System.Int32;
-using HAPI_NodeFlagsBits = System.Int32;
-using HAPI_ParmId = System.Int32;
-using HAPI_PartId = System.Int32;
+
 #endregion
 
 
@@ -197,14 +191,6 @@ namespace HoudiniEngineUnity
         /// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
         void ProjectToColliders(Vector3 rayDirection, float rayDistance, bool bRecookAsset = false);
 
-		/// <summary>
-		/// Project curve points onto collider or layer.
-		/// </summary>
-		/// <param name="rayDirection">Direction to cast ray</param>
-		/// <param name="rayDistance">Maximum ray cast distance</param>
-		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
-		void ProjectToColliders( Vector3 rayDirection, float rayDistance, bool bRecookAsset = false ) ;
-
         /// <summary>
         /// Sets the curve geometry visibility
         /// </summary>
@@ -213,26 +199,12 @@ namespace HoudiniEngineUnity
         void SetCurveGeometryVisibility(bool bVisible, bool bRecookAsset = false);
 
 		/// <summary>
-		/// Sets the curve geometry visibility
-		/// </summary>
-		/// <param name="bVisible">Whether or not the curve is visible</param>
-		/// <param name="bRecookAsset">Whether or not to recook the asset afterwards</param>
-		void SetCurveGeometryVisibility( bool bVisible, bool bRecookAsset = false ) ;
-
-        /// <summary>
-        /// Gets a transformed point in world space
-        /// </summary>
-        /// <param name="pointIndex">The index of the point</param>
-        /// <returns>The transformed point</returns>
-        Vector3 GetTransformedPoint(int pointIndex);
-
-		/// <summary>
 		/// Gets a transformed point in world space
 		/// </summary>
 		/// <param name="pointIndex">The index of the point</param>
 		/// <returns>The transformed point</returns>
 		Vector3 GetTransformedPoint( int pointIndex ) ;
-
+		
 		/// <summary>
 		/// Gets a list of the transformed points in world space
 		/// </summary>

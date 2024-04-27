@@ -331,23 +331,7 @@ namespace HoudiniEngineUnity {
 															logError, false )
 																?? false ;
 		}
-
-		public static bool InitializeDefaultSession( ) => 
-								_defaultSession is not null 
-									&& _defaultSession.InitializeSession( _defaultSession.GetSessionData() ) ;
-
-		/// <summary>Close the default session.</summary>
-		/// <returns>True if successfully closed session.</returns>
-		public static bool CloseDefaultSession( ) {
-			// Try to reconnect to session if _sessionObj is null.
-			if ( _defaultSession is null || !LoadStoredDefaultSession( ) ) 
-				return true ;
-			
-			bool bResult = _defaultSession?.CloseSession( ) ?? false ;
-			_defaultSession = null ;
-			return bResult ;
-		}
-
+		
 		public static bool InitializeDefaultSession( ) => 
 								_defaultSession is not null 
 									&& _defaultSession.InitializeSession( _defaultSession.GetSessionData() ) ;
@@ -393,19 +377,7 @@ namespace HoudiniEngineUnity {
 			_defaultSession?.CloseSession( ) ;
 			_defaultSession = null ;
 		}
-
-		/// <summary>
-		/// Tries to load a stored default session. This would be after a code refresh
-		/// or if the Houdini session is still running but Unity hasn't connected to it.
-		/// </summary>
-		/// <returns>True if successfully reconnected to a stored session.</returns>		
-		public static bool LoadStoredDefaultSession( ) {
-			// By forcing our plugin and session data to be loaded here, it will
-			// result in all stored sessions to be recreated, including _defaultSession
-			// being initialized if found in storage.
-			HEU_PluginStorage.InstantiateAndLoad( ) ;
-			return _defaultSession?.IsSessionValid( ) ?? false ;
-		}
+		
 		/// <summary>Return the existing session data.</summary>
 		/// <returns></returns>
 		public static HEU_SessionData? GetSessionData( ) {

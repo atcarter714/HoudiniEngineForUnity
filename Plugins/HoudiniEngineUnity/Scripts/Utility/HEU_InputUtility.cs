@@ -25,7 +25,6 @@
  */
 
 using System.Collections.Generic;
-using System.Linq ;
 using UnityEngine;
 
 namespace HoudiniEngineUnity
@@ -46,7 +45,7 @@ namespace HoudiniEngineUnity
 	public static class HEU_InputUtility
 	{
 		// List of registered interfaces oredered by priority (low to high)
-		private static List< HEU_InputInterface > _inputInterfaces = new( ) ;
+		static List< HEU_InputInterface > _inputInterfaces = new( ) ;
 
 		/// <summary>
 		/// Return the highest priority in the registered interface list.

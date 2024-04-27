@@ -24,8 +24,6 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace HoudiniEngineUnity

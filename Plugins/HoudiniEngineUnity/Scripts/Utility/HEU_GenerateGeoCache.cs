@@ -51,7 +51,8 @@ namespace HoudiniEngineUnity
 	/// Stores geometry and material info for a part that is then used to generate Unity geometry.
 	/// </summary>
 	[Serializable]
-	public class HEU_GenerateGeoCache {
+	public class HEU_GenerateGeoCache
+	{
 		//	DATA ------------------------------------------------------------------------------------------------------
 
 		public HAPI_NodeId GeoID {
@@ -159,9 +160,8 @@ namespace HoudiniEngineUnity
 
 		public string? _assetCacheFolderPath ;
 
-		[SerializeField]
-		public HEU_MeshIndexFormat _meshIndexFormat = new( ) ;
-		
+		[SerializeField] public HEU_MeshIndexFormat _meshIndexFormat = new( ) ;
+
 		//	LOGIC -----------------------------------------------------------------------------------------------------
 
 		/// <summary>
@@ -403,17 +403,17 @@ namespace HoudiniEngineUnity
 				if ( _uvsAttrInfo[ i ].storage == HAPI_StorageType.HAPI_STORAGETYPE_INT ) {
 					int[] intUVs = new int[ _uvsAttrInfo[ i ].count * _uvsAttrInfo[ i ].tupleSize ] ;
 					if ( HEU_GeneralUtility.GetAttributeArray( GeoID, PartID, uvName, ref _uvsAttrInfo[ i ],
-																	  intUVs, session.GetAttributeIntData,
-																	  _uvsAttrInfo[ i ].count ) ) {
+															   intUVs, session.GetAttributeIntData,
+															   _uvsAttrInfo[ i ].count ) ) {
 						_uvsAttr[ i ] = Array.ConvertAll( intUVs, Convert.ToSingle ) ;
 					}
 				}
 				else if ( _uvsAttrInfo[ i ].storage == HAPI_StorageType.HAPI_STORAGETYPE_UINT8 ) {
 					HAPI_UInt8[] uint8UVs = new HAPI_UInt8[ _uvsAttrInfo[ i ].count * _uvsAttrInfo[ i ].tupleSize ] ;
 					if ( HEU_GeneralUtility.GetAttributeArray( GeoID, PartID, uvName,
-																			 ref _uvsAttrInfo[ i ], uint8UVs,
-																			 session.GetAttributeInt8Data,
-																			 _uvsAttrInfo[ i ].count ) ) {
+															   ref _uvsAttrInfo[ i ], uint8UVs,
+															   session.GetAttributeInt8Data,
+															   _uvsAttrInfo[ i ].count ) ) {
 						_uvsAttr[ i ] =
 							Array.ConvertAll( uint8UVs, Convert.ToSingle ) ;
 					}
@@ -421,9 +421,9 @@ namespace HoudiniEngineUnity
 				else if ( _uvsAttrInfo[ i ].storage == HAPI_StorageType.HAPI_STORAGETYPE_INT8 ) {
 					HAPI_Int8[] int8UVs = new HAPI_Int8[ _uvsAttrInfo[ i ].count * _uvsAttrInfo[ i ].tupleSize ] ;
 					if ( HEU_GeneralUtility.GetAttributeArray( GeoID, PartID, uvName,
-																			ref _uvsAttrInfo[ i ], int8UVs,
-																			session.GetAttributeInt8Data,
-																			_uvsAttrInfo[ i ].count ) ) {
+															   ref _uvsAttrInfo[ i ], int8UVs,
+															   session.GetAttributeInt8Data,
+															   _uvsAttrInfo[ i ].count ) ) {
 						_uvsAttr[ i ] =
 							Array.ConvertAll( int8UVs, Convert.ToSingle ) ;
 					}
@@ -431,9 +431,9 @@ namespace HoudiniEngineUnity
 				else if ( _uvsAttrInfo[ i ].storage == HAPI_StorageType.HAPI_STORAGETYPE_INT16 ) {
 					HAPI_Int16[] int16UVs = new HAPI_Int16[ _uvsAttrInfo[ i ].count * _uvsAttrInfo[ i ].tupleSize ] ;
 					if ( HEU_GeneralUtility.GetAttributeArray( GeoID, PartID, uvName,
-																			 ref _uvsAttrInfo[ i ], int16UVs,
-																			 session.GetAttributeInt16Data,
-																			 _uvsAttrInfo[ i ].count ) ) {
+															   ref _uvsAttrInfo[ i ], int16UVs,
+															   session.GetAttributeInt16Data,
+															   _uvsAttrInfo[ i ].count ) ) {
 						_uvsAttr[ i ] =
 							Array.ConvertAll( int16UVs, Convert.ToSingle ) ;
 					}
@@ -441,9 +441,9 @@ namespace HoudiniEngineUnity
 				else if ( _uvsAttrInfo[ i ].storage == HAPI_StorageType.HAPI_STORAGETYPE_INT64 ) {
 					HAPI_Int64[] intUVs = new HAPI_Int64[ _uvsAttrInfo[ i ].count * _uvsAttrInfo[ i ].tupleSize ] ;
 					if ( HEU_GeneralUtility.GetAttributeArray( GeoID, PartID, uvName,
-																			 ref _uvsAttrInfo[ i ], intUVs,
-																			 session.GetAttributeInt64Data,
-																			 _uvsAttrInfo[ i ].count ) ) {
+															   ref _uvsAttrInfo[ i ], intUVs,
+															   session.GetAttributeInt64Data,
+															   _uvsAttrInfo[ i ].count ) ) {
 						_uvsAttr[ i ] =
 							Array.ConvertAll( intUVs, Convert.ToSingle ) ;
 					}
@@ -520,17 +520,17 @@ namespace HoudiniEngineUnity
 											 _partName, _colorAttrInfo.owner ) ;
 			}
 
-			_groups = HEU_SessionManager.GetGroupNames( session, 
-														GeoID, 
+			_groups = HEU_SessionManager.GetGroupNames( session,
+														GeoID,
 														_partInfo.id,
-														HAPI_GroupType.HAPI_GROUPTYPE_PRIM, 
-														_partInfo.isInstanced 
-														) ;
+														HAPI_GroupType.HAPI_GROUPTYPE_PRIM,
+														_partInfo.isInstanced
+													  ) ;
 
 			_allCollisionVertexList  = new int[ _vertexList.Length ] ;
 			_allCollisionFaceIndices = new int[ _partInfo.faceCount ] ;
-			_hasGroupGeometry = false ;
-			_hasLODGroups     = false ;
+			_hasGroupGeometry        = false ;
+			_hasLODGroups            = false ;
 
 			if ( _groups is { Length: > 0 } ) {
 				// We go through each group, building up a list of vertices and indices that belong to it
@@ -540,7 +540,7 @@ namespace HoudiniEngineUnity
 
 					// Query HAPI to get the group membership. 
 					// This is returned as an array of 1s for vertices that belong to this group.
-					int[ ] membership = null ;
+					int[] membership = null ;
 					HEU_SessionManager.GetGroupMembership( session, GeoID, PartID,
 														   HAPI_GroupType.HAPI_GROUPTYPE_PRIM,
 														   groupName, ref membership, _partInfo.isInstanced ) ;
@@ -826,24 +826,24 @@ namespace HoudiniEngineUnity
 				outputData._colliders.Add( meshCollider ) ;
 			}
 		}
-		
-		static void GetFinalMaterialsFromComparingNewWithPrevious( GameObject gameObject, 
-																   IReadOnlyList< Material > previousMaterials, 
+
+		static void GetFinalMaterialsFromComparingNewWithPrevious( GameObject                gameObject,
+																   IReadOnlyList< Material > previousMaterials,
 																   IReadOnlyList< Material > newMaterials,
-																   ref Material[ ] finalMaterials ) {
-			MeshRenderer meshRenderer = 
+																   ref Material[]            finalMaterials ) {
+			MeshRenderer meshRenderer =
 				HEU_GeneralUtility.GetOrCreateComponent< MeshRenderer >( gameObject ) ;
-			
-			Material[ ] currentMaterials   = meshRenderer.sharedMaterials ;
-			int numCurrentMaterials = currentMaterials.Length ;
-			int numNewMaterials = newMaterials?.Count ?? 0 ;
-			int numPreviousMaterials = previousMaterials?.Count ?? 0 ;
+
+			Material[] currentMaterials     = meshRenderer.sharedMaterials ;
+			int        numCurrentMaterials  = currentMaterials.Length ;
+			int        numNewMaterials      = newMaterials?.Count ?? 0 ;
+			int        numPreviousMaterials = previousMaterials?.Count ?? 0 ;
 
 			// Final material set is the superset of new materials and current materials
-			int newTotalMaterials = numNewMaterials > numCurrentMaterials 
-										? numNewMaterials 
-											: numCurrentMaterials ;
-			
+			int newTotalMaterials = numNewMaterials > numCurrentMaterials
+										? numNewMaterials
+										: numCurrentMaterials ;
+
 			List< Material > finalMaterialsList = new( ) ;
 			for ( int i = 0; i < newTotalMaterials; ++i ) {
 				if ( i >= numCurrentMaterials
@@ -852,30 +852,30 @@ namespace HoudiniEngineUnity
 					finalMaterialsList.Add( validMat ) ;
 					continue ;
 				}
-				
+
 				// Current material exists. Check if it has been overriden.
 				if ( i < numPreviousMaterials ) {
 					//! If Material has been overriden by user, keep it:
-					if ( currentMaterials?[i] is not null
-						 && currentMaterials[i] != previousMaterials?[i] )
-						finalMaterialsList.Add( currentMaterials[i] ) ;
-					
+					if ( currentMaterials?[ i ] is not null
+						 && currentMaterials[ i ] != previousMaterials?[ i ] )
+						finalMaterialsList.Add( currentMaterials[ i ] ) ;
+
 					//! If Material is same as previously generated, update it:
-					else if ( i < numNewMaterials ) 
-						finalMaterialsList.Add( newMaterials?[i] ) ;
+					else if ( i < numNewMaterials )
+						finalMaterialsList.Add( newMaterials?[ i ] ) ;
 				}
-				
-				else if ( !currentMaterials[i] && i < numNewMaterials )
-					finalMaterialsList.Add( newMaterials?[i] ) ;
-				
+
+				else if ( !currentMaterials[ i ] && i < numNewMaterials )
+					finalMaterialsList.Add( newMaterials?[ i ] ) ;
+
 				// User must have added this material, so keep it
-				else finalMaterialsList.Add( currentMaterials[i] ) ;
+				else finalMaterialsList.Add( currentMaterials[ i ] ) ;
 			}
-			
+
 			finalMaterialsList.RemoveAll( m => !m ) ;
 			finalMaterials = finalMaterialsList.ToArray( ) ;
 		}
-		
+
 		/// <summary>
 		/// Generates single mesh from given GeoGroup.
 		/// </summary>
@@ -926,7 +926,7 @@ namespace HoudiniEngineUnity
 			meshRenderer.sharedMaterials = finalMaterials ;
 			return true ;
 		}
-		
+
 		/// <summary>
 		/// Generates LOD meshes from given GeoGroupMeshes.
 		/// The outputGameObject will have a LODGroup component setup with each of the LOD mesh data.
@@ -979,7 +979,7 @@ namespace HoudiniEngineUnity
 						geoCache._LODTransitionValues[ i ] /= 100f ;
 
 				Array.Sort( geoCache._LODTransitionValues,
-								   ( a, b ) => b.CompareTo( a ) ) ;
+							( a, b ) => b.CompareTo( a ) ) ;
 			}
 
 			List< HEU_GeneratedOutputData > newGeneratedChildOutputs = new( ) ;
@@ -1526,39 +1526,39 @@ namespace HoudiniEngineUnity
 			}
 		}
 
-                        float value = 0;
-                        for (int attribIndex = 0; attribIndex < attribInfo.tupleSize; ++attribIndex)
-                        {
-                            switch (attribInfo.owner)
-                            {
-                                case HAPI_AttributeOwner.HAPI_ATTROWNER_POINT:
-                                {
-                                    positionIndex = groupVertexList[vertexFaceIndex];
-                                    value = inData[positionIndex * attribInfo.tupleSize + attribIndex];
-                                    break;
-                                }
-                                case HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM:
-                                {
-                                    primIndex = vertexFaceIndex / faceCount;
-                                    value = inData[primIndex * attribInfo.tupleSize + attribIndex];
-                                    break;
-                                }
-                                case HAPI_AttributeOwner.HAPI_ATTROWNER_DETAIL:
-                                {
-                                    value = inData[attribIndex];
-                                    break;
-                                }
-                                case HAPI_AttributeOwner.HAPI_ATTROWNER_VERTEX:
-                                {
-                                    value = inData[vertexFaceIndex * attribInfo.tupleSize + attribIndex];
-                                    break;
-                                }
-                                default:
-                                {
-                                    HEU_Logger.LogAssertion("Unsupported attribute owner " + attribInfo.owner);
-                                    continue;
-                                }
-                            }
+		/*float value = 0;
+		for (int attribIndex = 0; attribIndex < attribInfo.tupleSize; ++attribIndex)
+		{
+			switch (attribInfo.owner)
+			{
+				case HAPI_AttributeOwner.HAPI_ATTROWNER_POINT:
+				{
+					positionIndex = groupVertexList[vertexFaceIndex];
+					value = inData[positionIndex * attribInfo.tupleSize + attribIndex];
+					break;
+				}
+				case HAPI_AttributeOwner.HAPI_ATTROWNER_PRIM:
+				{
+					primIndex = vertexFaceIndex / faceCount;
+					value = inData[primIndex * attribInfo.tupleSize + attribIndex];
+					break;
+				}
+				case HAPI_AttributeOwner.HAPI_ATTROWNER_DETAIL:
+				{
+					value = inData[attribIndex];
+					break;
+				}
+				case HAPI_AttributeOwner.HAPI_ATTROWNER_VERTEX:
+				{
+					value = inData[vertexFaceIndex * attribInfo.tupleSize + attribIndex];
+					break;
+				}
+				default:
+				{
+					HEU_Logger.LogAssertion("Unsupported attribute owner " + attribInfo.owner);
+					continue;
+				}
+			}*/
 
 		/// <summary>
 		/// Generate mesh for the given gameObject with the populated geoCache data.
@@ -1608,7 +1608,7 @@ namespace HoudiniEngineUnity
 			int numCollisionMeshes = 0 ;
 			foreach ( KeyValuePair< string?, int[] > groupSplitFacesPair in geoCache._groupSplitVertexIndices ) {
 				string? groupName       = groupSplitFacesPair.Key ;
-				int[]  groupVertexList = groupSplitFacesPair.Value ;
+				int[]   groupVertexList = groupSplitFacesPair.Value ;
 
 				List< int > groupFaces        = geoCache._groupSplitFaceIndices[ groupName ] ;
 				List< int > groupVertexOffset = geoCache._groupVertexOffsets[ groupName ] ;
@@ -1758,32 +1758,32 @@ namespace HoudiniEngineUnity
 
 				float[] groupColorAttr = new float[ 0 ] ;
 				TransferRegularAttributesToVertices( groupVertexList,
-																		  geoCache._faceCounts, groupFaces,
-																		  groupVertexOffset,
-																		  ref geoCache._colorAttrInfo,
-																		  geoCache._colorAttr, ref groupColorAttr ) ;
+													 geoCache._faceCounts, groupFaces,
+													 groupVertexOffset,
+													 ref geoCache._colorAttrInfo,
+													 geoCache._colorAttr, ref groupColorAttr ) ;
 
 				float[] groupAlphaAttr = new float[ 0 ] ;
 				TransferRegularAttributesToVertices( groupVertexList,
-																		  geoCache._faceCounts, groupFaces,
-																		  groupVertexOffset,
-																		  ref geoCache._alphaAttrInfo,
-																		  geoCache._alphaAttr, ref groupAlphaAttr ) ;
+													 geoCache._faceCounts, groupFaces,
+													 groupVertexOffset,
+													 ref geoCache._alphaAttrInfo,
+													 geoCache._alphaAttr, ref groupAlphaAttr ) ;
 
 				float[] groupNormalAttr = new float[ 0 ] ;
 				TransferRegularAttributesToVertices( groupVertexList,
-																		  geoCache._faceCounts, groupFaces,
-																		  groupVertexOffset,
-																		  ref geoCache._normalAttrInfo,
-																		  geoCache._normalAttr, ref groupNormalAttr ) ;
+													 geoCache._faceCounts, groupFaces,
+													 groupVertexOffset,
+													 ref geoCache._normalAttrInfo,
+													 geoCache._normalAttr, ref groupNormalAttr ) ;
 
 				float[] groupTangentsAttr = new float[ 0 ] ;
 				TransferRegularAttributesToVertices( groupVertexList,
-																		  geoCache._faceCounts, groupFaces,
-																		  groupVertexOffset,
-																		  ref geoCache._tangentAttrInfo,
-																		  geoCache._tangentAttr,
-																		  ref groupTangentsAttr ) ;
+													 geoCache._faceCounts, groupFaces,
+													 groupVertexOffset,
+													 ref geoCache._tangentAttrInfo,
+													 geoCache._tangentAttr,
+													 ref groupTangentsAttr ) ;
 
 				// Get maximum of 8 UV sets that Unity supports
 				float[][] groupUVsAttr = new float[ HEU_Defines.HAPI_MAX_UVS ][] ;
@@ -1791,8 +1791,9 @@ namespace HoudiniEngineUnity
 					if ( geoCache._uvsAttrInfo[ u ].exists ) {
 						groupUVsAttr[ u ] = new float[ 0 ] ;
 						TransferRegularAttributesToVertices( groupVertexList,
-							geoCache._faceCounts, groupFaces, groupVertexOffset,
-							ref geoCache._uvsAttrInfo[ u ], geoCache._uvsAttr[ u ], ref groupUVsAttr[ u ] ) ;
+															 geoCache._faceCounts, groupFaces, groupVertexOffset,
+															 ref geoCache._uvsAttrInfo[ u ], geoCache._uvsAttr[ u ],
+															 ref groupUVsAttr[ u ] ) ;
 					}
 				}
 
@@ -2080,7 +2081,7 @@ namespace HoudiniEngineUnity
 			int numCollisionMeshes = 0 ;
 			foreach ( KeyValuePair< string?, int[] > groupSplitFacesPair in geoCache._groupSplitVertexIndices ) {
 				string? groupName       = groupSplitFacesPair.Key ;
-				int[]  groupVertexList = groupSplitFacesPair.Value ;
+				int[]   groupVertexList = groupSplitFacesPair.Value ;
 
 				List< int > groupFaces        = geoCache._groupSplitFaceIndices[ groupName ] ;
 				List< int > groupVertexOffset = geoCache._groupVertexOffsets[ groupName ] ;
@@ -2443,7 +2444,8 @@ namespace HoudiniEngineUnity
 						string? substanceName     = "" ;
 						int     substanceIndex    = -1 ;
 						submeshID = GetMaterialKeyFromAttributeIndex( geoCache, attrIndex,
-							out unityMaterialName, out substanceName, out substanceIndex ) ;
+																	  out unityMaterialName, out substanceName,
+																	  out substanceIndex ) ;
 					}
 					else {
 						// (geoCache._unityMaterialAttrInfo.owner == HAPI_AttributeOwner.HAPI_ATTROWNER_DETAIL) should have been handled as geoCache._singleFaceMaterial above
@@ -2510,18 +2512,4 @@ namespace HoudiniEngineUnity
 			return meshTopology ;
 		}
 	}
-
-            MeshTopology meshTopology = MeshTopology.Triangles;
-            if (groupFaceCount == 4)
-            {
-                meshTopology = MeshTopology.Quads;
-            }
-            else if (groupFaceCount != 3)
-            {
-                HEU_Logger.LogErrorFormat("Unsupported mesh topology for collider mesh.");
-            }
-
-            return meshTopology;
-        }
-    }
 } // HoudiniEngineUnity

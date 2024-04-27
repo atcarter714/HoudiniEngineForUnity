@@ -34,39 +34,39 @@ namespace HoudiniEngineUnity
     [CustomEditor(typeof(HEU_GeoSync))]
     public class HEU_GeoSyncUI : Editor
     {
-        private HEU_GeoSync _geoSync;
+        HEU_GeoSync _geoSync;
 
-        private GUIContent _fileLabelContent = new GUIContent("File Path", "File to load.");
+        GUIContent _fileLabelContent = new GUIContent("File Path", "File to load.");
 
-        private GUIContent _syncContent = new GUIContent("Sync", "Load the file.");
+        GUIContent _syncContent = new GUIContent("Sync", "Load the file.");
 
-        private GUIContent _stopContent = new GUIContent("Stop", "Stop the loading.");
+        GUIContent _stopContent = new GUIContent("Stop", "Stop the loading.");
 
-        private GUIContent _statusIdleContent = new GUIContent("Idle");
+        GUIContent _statusIdleContent = new GUIContent("Idle");
 
-        private GUIContent _statusSyncContent = new GUIContent("Syncing");
+        GUIContent _statusSyncContent = new GUIContent("Syncing");
 
-        private GUIContent _bakeContent =
+        GUIContent _bakeContent =
             new GUIContent("Bake", "Resync the contents of the geometry and place in the Bake folder.");
 
-        private GUIContent _unloadContent =
+        GUIContent _unloadContent =
             new GUIContent("Unload", "Delete the file node and clean up all generated content.");
 
-        private GUIContent _eventMessageContent = new GUIContent("Log", "Status messages logged here.");
+        GUIContent _eventMessageContent = new GUIContent("Log", "Status messages logged here.");
 
-        private HEU_OutputLogUIComponent _outputLogUIComponent = null;
+        HEU_OutputLogUIComponent _outputLogUIComponent = null;
 
-        private void OnEnable()
+        void OnEnable()
         {
             AcquireTarget();
         }
 
-        private void AcquireTarget()
+        void AcquireTarget()
         {
             _geoSync = target as HEU_GeoSync;
         }
 
-        private void SetupUI()
+        void SetupUI()
         {
             if (_outputLogUIComponent == null)
             {
@@ -166,7 +166,7 @@ namespace HoudiniEngineUnity
             }
         }
 
-        private void ClearEventLog()
+        void ClearEventLog()
         {
             if (_geoSync)
             {

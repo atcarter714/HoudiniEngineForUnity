@@ -211,14 +211,13 @@ namespace HoudiniEngineUnity {
 			MarkDirtyForSave( ) ;
 		}
 
-		public void Set( string key, List< string > values, char delimiter = ';' ) {
-			StringBuilder sb         = new( ) ;
-			int           numStrings = values.Count ;
-			for ( int i = 0; i < numStrings; ++i ) {
-				sb.AppendFormat( "{0}{1}", values[ i ], delimiter ) ;
-			}
+		public void Set( string key, List< string >? values, char delimiter = ';' ) {
+			StringBuilder sb = new( ) ;
+			int numStrings = values?.Count ?? 0 ;
+			for ( int i = 0; i < numStrings; ++i )
+				sb.AppendFormat( "{0}{1}", values![ i ], delimiter ) ;
 
-			Set( key, sb.ToString( ) ) ;
+			Set( key, sb.ToString() ) ;
 		}
 
 		public bool Get( string key, out bool value, bool defaultValue ) {

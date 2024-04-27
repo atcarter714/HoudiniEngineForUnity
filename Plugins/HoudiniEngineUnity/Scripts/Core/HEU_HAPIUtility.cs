@@ -286,7 +286,7 @@ namespace HoudiniEngineUnity
 		/// <param name="bAlwaysOverwriteOnLoad"></param>
 		/// <param name="rootGO"></param>
 		/// <returns>New HDA setup on a Unity <see cref="GameObject"/></returns>
-		public static GameObject? InstantiateHDA( string? filePath, Vector3 initialPosition, HEU_SessionBase session,
+		public static GameObject? InstantiateHDA( string? filePath, Vector3 initialPosition, HEU_SessionBase? session,
 												  bool bBuildAsync, bool bLoadFromMemory = false,
 												  bool bAlwaysOverwriteOnLoad = false,
 												  GameObject? rootGO = null ) {

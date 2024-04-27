@@ -24,7 +24,6 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq ;
 using System.Text;
@@ -45,8 +44,6 @@ namespace HoudiniEngineUnity
     // Typedefs (copy these from HEU_Common.cs)
     using HAPI_NodeId = System.Int32;
     using HAPI_PartId = System.Int32;
-    using HAPI_NodeTypeBits = System.Int32;
-    using HAPI_NodeFlagsBits = System.Int32;
 
 
 	/// <summary>

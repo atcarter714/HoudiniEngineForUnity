@@ -56,7 +56,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Unity callback when this window is enabled.
         /// </summary>
-        private void OnEnable()
+        void OnEnable()
         {
             ReInitialize();
 
@@ -68,7 +68,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Unity callback when this window is disabled / closed.
         /// </summary>
-        private void OnDisable()
+        void OnDisable()
         {
             // Remove callback for ticking this window.
             EditorApplication.update -= UpdateSync;
@@ -77,7 +77,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Initialize the UI.
         /// </summary>
-        private void ReInitialize()
+        void ReInitialize()
         {
             _sessionMode = HEU_PluginSettings.Session_Mode;
 
@@ -97,7 +97,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Unity callback to draw this UI.
         /// </summary>
-        private void OnGUI()
+        void OnGUI()
         {
             SetupUI();
 
@@ -319,7 +319,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Connect to a running instance of Houdini with SessionSync enabled.
         /// </summary>
-        private void ConnectSessionSync(HEU_SessionSyncData syncData)
+        void ConnectSessionSync(HEU_SessionSyncData syncData)
         {
             if (syncData != null && syncData.SyncStatus != HEU_SessionSyncData.Status.Stopped)
             {
@@ -377,7 +377,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Helper to connect to a running instance of Houdini with SessionSync enabled.
         /// </summary>
-        private bool InternalConnect(
+        bool InternalConnect(
             SessionMode sessionType, string pipeName,
             string ip, int port, bool autoClose, float timeout,
             bool logError)
@@ -404,7 +404,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Disconnect from SessionSync and close session.
         /// </summary>
-        private void Disconnect(HEU_SessionSyncData syncData)
+        void Disconnect(HEU_SessionSyncData syncData)
         {
             if (syncData != null)
             {
@@ -427,7 +427,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Launch Houdini with SessionSync enabled and return true if successful.
         /// </summary>
-        private bool OpenHoudini()
+        bool OpenHoudini()
         {
             string args = "";
 
@@ -457,7 +457,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Launch Houdini with SessionSync enabled and automatically connect to it.
         /// </summary>
-        private void StartAndConnectToHoudini(HEU_SessionSyncData syncData)
+        void StartAndConnectToHoudini(HEU_SessionSyncData syncData)
         {
             if (syncData != null && syncData.SyncStatus != HEU_SessionSyncData.Status.Stopped)
             {
@@ -500,7 +500,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Callback to update the local SessionSync state.
         /// </summary>
-        private void UpdateSync()
+        void UpdateSync()
         {
             HEU_SessionSyncData syncData = GetSessionSyncData();
 
@@ -523,7 +523,7 @@ namespace HoudiniEngineUnity
         /// launched this might take a few tries. Times out if unsuccessful after CONNECTION_TIME_OUT
         /// time.
         /// </summary>
-        private void UpdateConnecting(HEU_SessionSyncData syncData)
+        void UpdateConnecting(HEU_SessionSyncData syncData)
         {
             if (syncData == null || syncData.SyncStatus != HEU_SessionSyncData.Status.Connecting)
             {
@@ -583,7 +583,7 @@ namespace HoudiniEngineUnity
         /// Synchronizes viewport if enabled.
         /// Disconnects if Houdini Engine session is not valid.
         /// </summary>
-        private void UpdateConnected(HEU_SessionSyncData syncData)
+        void UpdateConnected(HEU_SessionSyncData syncData)
         {
             if (!HEU_PluginSettings.SessionSyncAutoCook)
             {
@@ -632,7 +632,7 @@ namespace HoudiniEngineUnity
         /// Download the latest HAPI_SessionSyncInfo from Houdini Engine
         /// to update the local state.
         /// </summary>
-        private void DownloadSessionSyncInfo(HEU_SessionBase session, HEU_SessionSyncData syncData)
+        void DownloadSessionSyncInfo(HEU_SessionBase session, HEU_SessionSyncData syncData)
         {
             if (session == null)
             {
@@ -658,7 +658,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Upload the local HAPI_SessionSyncInfo to Houdini Engine.
         /// </summary>
-        private void UploadSessionSyncInfo(HEU_SessionBase session, HEU_SessionSyncData syncData)
+        void UploadSessionSyncInfo(HEU_SessionBase session, HEU_SessionSyncData syncData)
         {
             if (session == null)
             {
@@ -675,7 +675,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Synchronize the viewport between HAPI and Unity.
         /// </summary>
-        private void UpdateViewport(HEU_SessionBase session, HEU_SessionSyncData syncData)
+        void UpdateViewport(HEU_SessionBase session, HEU_SessionSyncData syncData)
         {
             SceneView sceneView = SceneView.lastActiveSceneView;
             if (sceneView == null)
@@ -779,7 +779,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Returns the local HEU_SessionSyncData state.
         /// </summary>
-        private HEU_SessionSyncData GetSessionSyncData()
+        HEU_SessionSyncData GetSessionSyncData()
         {
             HEU_SessionSyncData syncData = _connectionSyncData;
             if (syncData == null)
@@ -799,7 +799,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Create a new Curve SOP with given name.
         /// </summary>
-        private void CreateCurve(string name)
+        void CreateCurve(string name)
         {
             GameObject newCurveGO = HEU_HAPIUtility.CreateNewCurveAsset(name: name);
             if (newCurveGO != null)
@@ -812,7 +812,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Create a new Input SOP with given name.
         /// </summary>
-        private void CreateInput(string name)
+        void CreateInput(string name)
         {
             GameObject newCurveGO = HEU_HAPIUtility.CreateNewInputAsset(name: name);
             if (newCurveGO != null)
@@ -824,7 +824,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Setup this window's UI.
         /// </summary>
-        private void SetupUI()
+        void SetupUI()
         {
             _eventMessageContent = new GUIContent("Log", "Status messages logged here.");
             if (_outputLogUI == null)
@@ -838,7 +838,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Show the Load NodeSync dialog for loading a NodeSync saved file.
         /// </summary>
-        private void LoadNodeSyncDialog(string name)
+        void LoadNodeSyncDialog(string name)
         {
             string fileName = "untitled.hess";
             string filePattern = "hess";
@@ -854,7 +854,7 @@ namespace HoudiniEngineUnity
         /// </summary>
         /// <param name="filePath">Path to the NodeSync file</param>
         /// <param name="name">Name of the NodeSync node</param>
-        private void CreateNodeSyncFromFile(string filePath, string name)
+        void CreateNodeSyncFromFile(string filePath, string name)
         {
             HEU_SessionBase session = HEU_SessionManager.GetDefaultSession();
             if (session == null || !session.IsSessionValid())
@@ -923,10 +923,10 @@ namespace HoudiniEngineUnity
 
         // DATA ---------------------------------------------------------------
 
-        private GUIContent _eventMessageContent;
+        GUIContent _eventMessageContent;
 
         // Sync data while connecting or if session is disconnected.
-        [SerializeField] private HEU_SessionSyncData _connectionSyncData;
+        [SerializeField] HEU_SessionSyncData _connectionSyncData;
 
         // Session protocol (pipe or socket)
         public SessionMode _sessionMode = SessionMode.Socket;
@@ -938,16 +938,16 @@ namespace HoudiniEngineUnity
         public string _pipeName = "";
 
         // Seconds between connection attempts while Houdini launches
-        private const float CONNECTION_ATTEMPT_RATE = 5f;
+        const float CONNECTION_ATTEMPT_RATE = 5f;
 
         // Maximum seconds to wait before timing out while connecting
-        private const float CONNECTION_TIME_OUT = 60f;
+        const float CONNECTION_TIME_OUT = 60f;
 
         // UI log
-        [SerializeField] private StringBuilder _log = new StringBuilder();
+        [SerializeField] StringBuilder _log = new StringBuilder();
 
         // Operator names for creating new nodes
-        private string[] _nodeTypes =
+        string[] _nodeTypes =
         {
             "SOP/output",
             "Object/subnet",
@@ -957,7 +957,7 @@ namespace HoudiniEngineUnity
         };
 
         // Labels for the operator names above
-        private string[] _nodeTypesLabels =
+        string[] _nodeTypesLabels =
         {
             "Experimental/Object/Geometry",
             "Experimental/Object/Subnet",
@@ -966,6 +966,6 @@ namespace HoudiniEngineUnity
             "Input"
         };
 
-        private HEU_OutputLogUIComponent _outputLogUI = null;
+        HEU_OutputLogUIComponent _outputLogUI = null;
     }
 }

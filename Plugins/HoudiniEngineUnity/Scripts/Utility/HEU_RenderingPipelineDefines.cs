@@ -25,10 +25,8 @@
  */
 
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.Rendering;
 
 
@@ -70,7 +68,7 @@ namespace HoudiniEngineUnity
         /// <summary>
         /// Update the unity pipeline defines for URP
         /// </summary>
-        private static void UpdateDefines()
+        static void UpdateDefines()
         {
             var pipeline = GetPipeline();
 
@@ -101,10 +99,10 @@ namespace HoudiniEngineUnity
         public static HEU_PipelineType GetPipeline()
         {
 #if UNITY_2019_1_OR_NEWER
-            if (GraphicsSettings.renderPipelineAsset != null)
+            if (GraphicsSettings.defaultRenderPipeline != null)
             {
                 // SRP
-                var srpType = GraphicsSettings.renderPipelineAsset.GetType().ToString();
+                var srpType = GraphicsSettings.defaultRenderPipeline.GetType().ToString();
                 if (srpType.Contains("HDRenderPipelineAsset"))
                 {
                     return HEU_PipelineType.HDRP;
@@ -131,7 +129,7 @@ namespace HoudiniEngineUnity
         /// </summary>
         /// <param name="define"></param>
         /// <param name="buildTargetGroup"></param>
-        private static void AddDefine(string define)
+        static void AddDefine(string define)
         {
             var definesList = GetDefines();
             if (!definesList.Contains(define))
