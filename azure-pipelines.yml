@@ -6,8 +6,7 @@
 trigger:
 - Houdini20.0
 
-pool:
-  vmImage: default
+pool: 'Arkaen-Games-Pool-0'
 
 steps:
 - script: echo Houdini 20.X branch updated ...
