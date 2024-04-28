@@ -7,7 +7,7 @@ trigger:
 - Houdini20.0
 
 pool:
-  vmImage: windows-latest
+  vmImage: default
 
 steps:
 - script: echo Houdini 20.X branch updated ...
